@@ -49,6 +49,8 @@ class sfPropelDatabase extends sfCreoleDatabase
     {
       $this->setDefaultConfig();
     }
+
+    set_include_path(get_include_path().PATH_SEPARATOR.dirname(__FILE__).'/../../vendor'.PATH_SEPARATOR.dirname(__FILE__).'/../../vendor/propel-generator/classes/');
   }
 
   public function setDefaultConfig()
