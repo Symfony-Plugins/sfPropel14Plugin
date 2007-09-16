@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-set_include_path(get_include_path().PATH_SEPARATOR.dirname(__FILE__).'/../vendor');
+set_include_path(get_include_path().PATH_SEPARATOR.dirname(__FILE__).'/../vendor'.PATH_SEPARATOR.dirname(__FILE__).'/../vendor/propel-generator/classes/');
 
 require_once('phing/Phing.php');
 if (!class_exists('Phing'))
