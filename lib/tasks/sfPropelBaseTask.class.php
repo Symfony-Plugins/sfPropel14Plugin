@@ -8,13 +8,7 @@
  * file that was distributed with this source code.
  */
 
-set_include_path(get_include_path().PATH_SEPARATOR.dirname(__FILE__).'/../vendor'.PATH_SEPARATOR.dirname(__FILE__).'/../vendor/propel-generator/classes/');
-
-require_once('phing/Phing.php');
-if (!class_exists('Phing'))
-{
-  throw new sfCommandException('You must install Phing to use this task. (pear install http://phing.info/pear/phing-current.tgz)');
-}
+require_once(dirname(__FILE__).'/../../config/config.php');
 
 /**
  * Base class for all symfony Propel tasks.
@@ -35,6 +29,12 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
     $commandApplication->getAutoloader()->addDirectory(dirname(__FILE__).'/../vendor');
     $commandApplication->getAutoloader()->addDirectory(sfConfig::get('sf_root_dir').'/lib/model');
+
+    require_once('phing/Phing.php');
+    if (!class_exists('Phing'))
+    {
+      throw new sfCommandException('You must install Phing to use propel tasks. (pear install http://phing.info/pear/phing-current.tgz)');
+    }
   }
 
   protected function schemaToYML($checkSchema = self::CHECK_SCHEMA, $prefix = '')
