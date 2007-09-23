@@ -70,11 +70,8 @@ EOF;
   {
     $this->bootstrapSymfony($arguments['application'], $options['env'], true);
 
-    if (!is_null($this->commandApplication))
-    {
-      $this->commandApplication->getAutoloader()->unregister();
-      $this->commandApplication->getAutoloader()->register();
-    }
+    sfSimpleAutoload::getInstance()->unregister();
+    sfSimpleAutoload::getInstance()->register();
 
     if (count($options['dir']))
     {
@@ -101,7 +98,7 @@ EOF;
         continue;
       }
 
-      $this->log($this->formatSection('propel', sprintf('load data from "%s"', $fixturesDir)));
+      $this->dispatcher->notify(new sfEvent($this, 'command.log', array($this->formatter->formatSection('propel', sprintf('load data from "%s"', $fixturesDir)))));
       $data->loadData($fixturesDir, $options['connection']);
     }
   }
