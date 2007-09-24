@@ -28,6 +28,8 @@ class sfPropelData extends sfData
   /**
    * Loads data from a file or directory into a Propel data source
    *
+   * @see sfPropelData::loadData()
+   *
    * @param mixed A file or directory path
    * @param string The Propel connection name, default 'propel'
    *
@@ -41,7 +43,7 @@ class sfPropelData extends sfData
     $this->con = Propel::getConnection($connectionName);
     try
     {
-      $this->con->begin();
+      $this->con->beginTransaction();
 
       $this->doDeleteCurrentData($fixture_files);
 
@@ -51,7 +53,7 @@ class sfPropelData extends sfData
     }
     catch (Exception $e)
     {
-      $this->con->rollback();
+      $this->con->rollBack();
       throw $e;
     }
   }

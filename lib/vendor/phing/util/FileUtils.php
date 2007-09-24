@@ -36,11 +36,11 @@ include_once 'phing/system/io/PhingFile.php';
  * @version  $Revision: 1.10 $
  */
 class FileUtils {
-        
+
     /**
      * Returns a new Reader with filterchains applied.  If filterchains are empty,
      * simply returns passed reader.
-     * 
+     *
      * @param Reader $in Reader to modify (if appropriate).
      * @param array &$filterChains filter chains to apply.
      * @param Project $project
@@ -59,20 +59,20 @@ class FileUtils {
             return $in;
         }
     }
-    
+
     /**
      * Copies a file using filter chains.
-     * 
+     *
      * @param PhingFile $sourceFile
      * @param PhingFile $destFile
      * @param boolean $overwrite
      * @param boolean $preserveLastModified
-     * @param array $filterChains 
+     * @param array $filterChains
      * @param Project $project
      * @return void
      */
     function copyFile(PhingFile $sourceFile, PhingFile $destFile, $overwrite = false, $preserveLastModified = true, &$filterChains = null, Project $project) {
-       
+
         if ($overwrite || !$destFile->exists() || $destFile->lastModified() < $sourceFile->lastModified()) {
             if ($destFile->exists() && $destFile->isFile()) {
                 $destFile->delete();
@@ -85,15 +85,15 @@ class FileUtils {
             }
 
             if ((is_array($filterChains)) && (!empty($filterChains))) {
-                
+
                 $in = self::getChainedReader(new BufferedReader(new FileReader($sourceFile)), $filterChains, $project);
-                $out = new BufferedWriter(new FileWriter($destFile));                
-                
-                // New read() methods returns a big buffer.                
+                $out = new BufferedWriter(new FileWriter($destFile));
+
+                // New read() methods returns a big buffer.
                 while(-1 !== ($buffer = $in->read())) { // -1 indicates EOF
                     $out->write($buffer);
                 }
-                
+
                 if ( $in !== null )
                     $in->close();
                 if ( $out !== null )
@@ -174,7 +174,7 @@ class FileUtils {
      * @return string
      */
     function normalize($path) {
-    
+
         $path = (string) $path;
         $orig = $path;
 
@@ -198,7 +198,7 @@ class FileUtils {
             $ca = StringHelper::toCharArray($ca);
 
             $path = strtoupper($ca[0]).':';
-            
+
             for ($i=2, $_i=count($ca); $i < $_i; $i++) {
                 if (($ca[$i] !== '\\') ||
                         ($ca[$i] === '\\' && $ca[$i - 1] !== '\\')
@@ -206,7 +206,7 @@ class FileUtils {
                     $path .= $ca[$i];
                 }
             }
-         
+
             $path = str_replace('\\', DIRECTORY_SEPARATOR, $path);
 
             if (strlen($path) == 2) {
@@ -235,7 +235,7 @@ class FileUtils {
         $s = array();
         array_push($s, $root);
         $tok = strtok($path, DIRECTORY_SEPARATOR);
-        while ($tok !== false) {            
+        while ($tok !== false) {
             $thisToken = $tok;
             if ("." === $thisToken) {
                 $tok = strtok(DIRECTORY_SEPARATOR);
@@ -270,12 +270,12 @@ class FileUtils {
         }
         return $path;
     }
-    
+
     /**
      * @return boolean Whether contents of two files is the same.
      */
     public function contentEquals(PhingFile $file1, PhingFile $file2) {
-        
+
         if (!($file1->exists() || $file2->exists())) {
             return false;
         }
@@ -283,12 +283,12 @@ class FileUtils {
         if (!($file1->canRead() || $file2->canRead())) {
             return false;
         }
-        
+
         $c1 = file_get_contents($file1->getAbsolutePath());
         $c2 = file_get_contents($file2->getAbsolutePath());
-        
-        return trim($c1) == trim($c2);    
+
+        return trim($c1) == trim($c2);
     }
-    
+
 }
 ?>

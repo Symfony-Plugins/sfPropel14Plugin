@@ -35,7 +35,7 @@ include_once 'phing/util/StringHelper.php';
  * </replacetokens>
  *
  * or:
- * 
+ *
  * <filterreader classname="phing.filters.ReplaceTokens">
  *   <param type="tokensource>
  *     <param name="classname" value="phing.filters.util.IniFileTokenReader" />
@@ -80,8 +80,8 @@ class TokenSource extends DataType {
         if ($this->classname === null) {
             throw new BuildException("No Classname given to TokenSource.");
         }
-        
-        $classname = Phing::import($this->classname);        
+
+        $classname = Phing::import($this->classname);
         $this->reader = new $classname($this->project);
 
         // Configure Reader
@@ -93,9 +93,9 @@ class TokenSource extends DataType {
                 $this->tokens[] = $token;
             }
         } catch (BuildException $e) {
-            $this->log("Error reading TokenSource: " . $e->getMessage(), PROJECT_MSG_WARN);
+            $this->log("Error reading TokenSource: " . $e->getMessage(), Project::MSG_WARN);
         } catch (IOException $e) {
-            $this->log("Error reading TokenSource: " . $e->getMessage(), PROJECT_MSG_WARN);
+            $this->log("Error reading TokenSource: " . $e->getMessage(), Project::MSG_WARN);
         }
     }
 
@@ -125,7 +125,7 @@ class TokenSource extends DataType {
             $reader->$method_name($value);
         }
     }
-    
+
     /**
      * Set the classname (dot-path) to use for handling token replacement.
      * @param string $c
@@ -133,7 +133,7 @@ class TokenSource extends DataType {
     function setClassname($c) {
         $this->classname = $c;
     }
-    
+
     /**
      * Returns the qualified classname (dot-path) to use for handling token replacement.
      * @return string

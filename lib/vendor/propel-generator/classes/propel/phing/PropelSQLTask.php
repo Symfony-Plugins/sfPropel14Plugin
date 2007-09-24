@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PropelSQLTask.php 536 2007-01-10 14:30:38Z heltem $
+ *  $Id: PropelSQLTask.php 521 2007-01-05 13:29:36Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -111,7 +111,7 @@ class PropelSQLTask extends AbstractPropelDataModelTask {
 		} else {
 			// the traditional way is to map the schema.xml filenames
 			$dmMap = $this->getDataModelDbMap();
-			foreach(array_keys($dmMap) as $dataModelName) {
+			foreach (array_keys($dmMap) as $dataModelName) {
 				$sqlFile = $this->getMappedFile($dataModelName);
 				if ($this->getDatabase() === null) {
 					$databaseName = $dmMap[$dataModelName];
@@ -133,7 +133,7 @@ class PropelSQLTask extends AbstractPropelDataModelTask {
 
 		$this->validate();
 
-		if(!$this->mapperElement) {
+		if (!$this->mapperElement) {
 			throw new BuildException("You must use a <mapper/> element to describe how names should be transformed.");
 		}
 
@@ -171,13 +171,13 @@ class PropelSQLTask extends AbstractPropelDataModelTask {
 				// First add any "header" SQL
 				$ddl = call_user_func(array($builderClazz, 'getDatabaseStartDDL'));
 
-				foreach($database->getTables() as $table) {
+				foreach ($database->getTables() as $table) {
 
 					if (!$table->isSkipSql()) {
 						$builder = DataModelBuilder::builderFactory($table, 'ddl');
 						$this->log("\t+ " . $table->getName() . " [builder: " . get_class($builder) . "]");
 						$ddl .= $builder->build();
-						foreach($builder->getWarnings() as $warning) {
+						foreach ($builder->getWarnings() as $warning) {
 							$this->log($warning, PROJECT_MSG_WARN);
 						}
 					} else {
@@ -189,7 +189,7 @@ class PropelSQLTask extends AbstractPropelDataModelTask {
 				// Finally check to see if there is any "footer" SQL
 				$ddl .= call_user_func(array($builderClazz, 'getDatabaseEndDDL'));
 
-
+				#var_dump($outFile->getAbsolutePath());
 				// Now we're done.  Write the file!
 				file_put_contents($outFile->getAbsolutePath(), $ddl);
 

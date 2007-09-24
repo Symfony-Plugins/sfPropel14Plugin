@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: Table.php 536 2007-01-10 14:30:38Z heltem $
+ *  $Id: Table.php 682 2007-07-22 21:07:42Z david $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -40,7 +40,7 @@ include_once 'propel/engine/database/model/Validator.php';
  * @author     John McNally <jmcnally@collab.net> (Torque)
  * @author     Daniel Rall <dlr@collab.net> (Torque)
  * @author     Byron Foster <byron_foster@yahoo.com> (Torque)
- * @version    $Revision: 536 $
+ * @version    $Revision: 682 $
  * @package    propel.engine.database.model
  */
 class Table extends XMLElement implements IDMethod {
@@ -78,7 +78,7 @@ class Table extends XMLElement implements IDMethod {
 	private $needsTransactionInPostgres;//maybe this can be retrieved from vendorSpecificInfo?
 	private $heavyIndexing;
 	private $forReferenceOnly;
-	private $isTree;
+	private $treeMode;
 
 	/**
 	 * Constructs a table object with a name
@@ -125,7 +125,7 @@ class Table extends XMLElement implements IDMethod {
 						&& $this->getDatabase()->isHeavyIndexing() ) );
 		$this->description = $this->getAttribute("description");
 		$this->enterface = $this->getAttribute("interface"); // sic ('interface' is reserved word)
-		$this->isTree = $this->booleanValue($this->getAttribute("isTree"));
+		$this->treeMode = $this->getAttribute("treeMode");
 	}
 
 	/**
@@ -150,17 +150,21 @@ class Table extends XMLElement implements IDMethod {
 
 		// if idMethod is "native" and in fact there are no autoIncrement
 		// columns in the table, then change it to "none"
-		if ($this->getIdMethod() === IDMethod::NATIVE) {
-			$anyAutoInc = false;
-			foreach($this->getColumns() as $col) {
-				if ($col->isAutoIncrement()) {
-					$anyAutoInc = true;
-					break;
-				}
+		$anyAutoInc = false;
+		$hasPK = false;
+		foreach ($this->getColumns() as $col) {
+			if ($col->isAutoIncrement()) {
+				$anyAutoInc = true;
 			}
-			if (!$anyAutoInc) {
-				$this->setIdMethod(IDMethod::NO_ID_METHOD);
+			if ($col->isPrimaryKey()) {
+				$hasPK = true;
 			}
+		}
+		if ($this->getIdMethod() === IDMethod::NATIVE && !$anyAutoInc) {
+			$this->setIdMethod(IDMethod::NO_ID_METHOD);
+		}
+		if (!$hasPK) {
+			throw new EngineException("Table '" . $this->getName() . "' does not define a primary key column!");
 		}
 	}
 
@@ -361,7 +365,7 @@ class Table extends XMLElement implements IDMethod {
 	 {
 	  $validator = $data;
 	  $col = $this->getColumn($validator->getColumnName());
-	  if($col == null) {
+	  if ($col == null) {
 		throw new EngineException("Failed adding validator to table '" . $this->getName() .
 		  "': column '" . $validator->getColumnName() . "' does not exist !");
 	  }
@@ -776,7 +780,7 @@ class Table extends XMLElement implements IDMethod {
 	public function getNumLazyLoadColumns()
 	{
 		$count = 0;
-		foreach($this->columnList as $col) {
+		foreach ($this->columnList as $col) {
 			if ($col->isLazyLoad()) {
 				$count++;
 			}
@@ -807,36 +811,6 @@ class Table extends XMLElement implements IDMethod {
 	public function getIdMethodParameters()
 	{
 		return $this->idMethodParameters;
-	}
-
-	/**
-	 * A name to use for creating a sequence if one is not specified.
-	 */
-	public function getSequenceName()
-	{
-		static $longNamesMap = array();
-		$result = null;
-		if ($this->getIdMethod() == self::NATIVE) {
-			$idMethodParams = $this->getIdMethodParameters();
-			if ($idMethodParams === null) {
-				$maxIdentifierLength = $this->getDatabase()->getPlatform()->getMaxColumnNameLength();
-				if(strlen($this->getName() . "_SEQ") > $maxIdentifierLength)
-				{
-				  if(!isset($longNamesMap[$this->getName()]))
-				  {
-					$longNamesMap[$this->getName()] = strval(count($longNamesMap) + 1);
-				  }
-				  $result = substr($this->getName(), 0, $maxIdentifierLength - strlen("_SEQ_" . $longNamesMap[$this->getName()])) . "_SEQ_" . $longNamesMap[$this->getName()];
-				}
-				else
-				{
-				  $result = $this->getName() . "_SEQ";
-				}
-			} else {
-				$result = $idMethodParams[0]->getValue();
-			}
-		}
-		return $result;
 	}
 
 	/**
@@ -883,7 +857,7 @@ class Table extends XMLElement implements IDMethod {
 	public function getForeignKey($col)
 	{
 		$firstFK = null;
-		for($i=0,$size=count($this->foreignKeys); $i < $size; $i++) {
+		for ($i=0,$size=count($this->foreignKeys); $i < $size; $i++) {
 			$key = $this->foreignKeys[$i];
 			if (in_array($col, $key->getLocalColumns())) {
 				if ($firstFK === null) {
@@ -950,22 +924,22 @@ class Table extends XMLElement implements IDMethod {
 		$this->forReferenceOnly = (boolean) $v;
 	}
 
-   /**
+	/**
 	 * Flag to determine if tree node class should be generated for this table.
-	 * @return     valur of isTree
-	*/
-   public function isTree()
-   {
-		return $this->isTree;
-   }
+	 * @return     valur of treeMode
+	 */
+	public function treeMode()
+	{
+		return $this->treeMode;
+	}
 
 	/**
 	 * Flag to determine if tree node class should be generated for this table.
-	 * @param      v  Value to assign to isTree.
+	 * @param      v  Value to assign to treeMode.
 	 */
-	public function setIsTree($v)
+	public function setTreeMode($v)
 	{
-		$this->isTree = (boolean) $v;
+		$this->treeMode = $v;
 	}
 
 	/**
@@ -1001,10 +975,10 @@ class Table extends XMLElement implements IDMethod {
 				  . '"';
 		}
 
-		if ($this->isTree) {
-			$result .= " isTree=\""
-				  . ($this->isTree ? "true" : "false")
-				  . '"';
+		if ($this->treeMode) {
+			$result .= " treeMode=\""
+					. $this->treeMode
+					. '"';
 		}
 
 		if ($this->forReferenceOnly) {
@@ -1015,7 +989,7 @@ class Table extends XMLElement implements IDMethod {
 
 		if ($this->abstractValue) {
 			$result .= " abstract=\""
-				  . ($abstractValue ? "true" : "false")
+				  . ($this->abstractValue ? "true" : "false")
 				  . '"';
 		}
 
@@ -1046,25 +1020,25 @@ class Table extends XMLElement implements IDMethod {
 		$result .= ">\n";
 
 		if ($this->columnList !== null) {
-			for($i=0,$_i=count($this->columnList); $i < $_i; $i++) {
+			for ($i=0,$_i=count($this->columnList); $i < $_i; $i++) {
 				$result .= $this->columnList[$i]->toString();
 			}
 		}
 
 		if ($this->validatorList !== null) {
-			for($i=0,$_i=count($this->validatorList); $i < $_i; $i++) {
+			for ($i=0,$_i=count($this->validatorList); $i < $_i; $i++) {
 				$result .= $this->validatorList[$i]->toString();
 			}
 		}
 
 		if ($this->foreignKeys !== null) {
-			for($i=0,$_i=count($this->foreignKeys); $i < $_i; $i++) {
+			for ($i=0,$_i=count($this->foreignKeys); $i < $_i; $i++) {
 				$result .= $this->foreignKeys[$i]->toString();
 			}
 		}
 
 		if ($this->idMethodParameters !== null) {
-			for($i=0,$_i=count($this->idMethodParameters); $i < $_i; $i++) {
+			for ($i=0,$_i=count($this->idMethodParameters); $i < $_i; $i++) {
 				$result .= $this->idMethodParameters[$i]->toString();
 			}
 		}
@@ -1078,12 +1052,12 @@ class Table extends XMLElement implements IDMethod {
 	 * Returns the collection of Columns which make up the single primary
 	 * key for this table.
 	 *
-	 * @return     array A list of the primary key parts.
+	 * @return     array Column[] A list of the primary key parts.
 	 */
 	public function getPrimaryKey()
 	{
 		$pk = array();
-		for($i=0,$_i=count($this->columnList); $i < $_i; $i++) {
+		for ($i=0,$_i=count($this->columnList); $i < $_i; $i++) {
 			$col = $this->columnList[$i];
 			if ($col->isPrimaryKey()) {
 				$pk[] = $col;
@@ -1140,7 +1114,7 @@ class Table extends XMLElement implements IDMethod {
 	private function printList($list){
 		$result = "";
 		$comma = 0;
-		for($i=0,$_i=count($list); $i < $_i; $i++) {
+		for ($i=0,$_i=count($list); $i < $_i; $i++) {
 			$col = $list[$i];
 			if ($col->isPrimaryKey()) {
 				$result .= ($comma++ ? ',' : '') . $this->getDatabase()->getPlatform()->quoteIdentifier($col->getName());

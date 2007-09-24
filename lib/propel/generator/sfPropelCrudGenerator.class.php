@@ -141,4 +141,242 @@ class sfPropelCrudGenerator extends sfAdminGenerator
 
     return $relatedTable->getPhpName();
   }
+
+  /**
+   * Returns HTML code for a column in edit mode.
+   *
+   * @param string  The column name
+   * @param array   The parameters
+   *
+   * @return string HTML code
+   */
+  public function getCrudColumnEditTag($column, $params = array())
+  {
+    $type = $column->getType();
+
+    if ($column->isForeignKey())
+    {
+      if (!$column->isNotNull() && !isset($params['include_blank']))
+      {
+        $params['include_blank'] = true;
+      }
+
+      return $this->getPHPObjectHelper('select_tag', $column, $params, array('related_class' => $this->getRelatedClassName($column)));
+    }
+    else if ($type == PropelColumnTypes::DATE)
+    {
+      // rich=false not yet implemented
+      return $this->getPHPObjectHelper('input_date_tag', $column, $params, array('rich' => true));
+    }
+    else if ($type == PropelColumnTypes::TIMESTAMP)
+    {
+      // rich=false not yet implemented
+      return $this->getPHPObjectHelper('input_date_tag', $column, $params, array('rich' => true, 'withtime' => true));
+    }
+    else if ($type == PropelColumnTypes::BOOLEAN)
+    {
+      return $this->getPHPObjectHelper('checkbox_tag', $column, $params);
+    }
+    else if ($type == PropelColumnTypes::CHAR || $type == PropelColumnTypes::VARCHAR)
+    {
+      $size = ($column->getSize() > 20 ? ($column->getSize() < 80 ? $column->getSize() : 80) : 20);
+      return $this->getPHPObjectHelper('input_tag', $column, $params, array('size' => $size));
+    }
+    else if ($type == PropelColumnTypes::INTEGER || $type == PropelColumnTypes::TINYINT || $type == PropelColumnTypes::SMALLINT || $type == PropelColumnTypes::BIGINT)
+    {
+      return $this->getPHPObjectHelper('input_tag', $column, $params, array('size' => 7));
+    }
+    else if ($type == PropelColumnTypes::FLOAT || $type == PropelColumnTypes::DOUBLE || $type == PropelColumnTypes::DECIMAL || $type == PropelColumnTypes::NUMERIC || $type == PropelColumnTypes::REAL)
+    {
+      return $this->getPHPObjectHelper('input_tag', $column, $params, array('size' => 7));
+    }
+    else if ($type == PropelColumnTypes::LONGVARCHAR)
+    {
+      return $this->getPHPObjectHelper('textarea_tag', $column, $params, array('size' => '30x3'));
+    }
+    else
+    {
+      return $this->getPHPObjectHelper('input_tag', $column, $params, array('disabled' => true));
+    }
+  }
+
+  /**
+   * Returns HTML code for a column in filter mode.
+   *
+   * @param string  The column name
+   * @param array   The parameters
+   *
+   * @return string HTML code
+   */
+  public function getColumnFilterTag($column, $params = array())
+  {
+    $user_params = $this->getParameterValue('list.fields.'.$column->getName().'.params');
+    $user_params = is_array($user_params) ? $user_params : sfToolkit::stringToArray($user_params);
+    $params      = $user_params ? array_merge($params, $user_params) : $params;
+
+    if ($column->isComponent())
+    {
+      return "get_component('".$this->getModuleName()."', '".$column->getName()."', array('type' => 'list'))";
+    }
+    else if ($column->isPartial())
+    {
+      return "get_partial('".$column->getName()."', array('type' => 'filter', 'filters' => \$filters))";
+    }
+
+    $type = $column->getType();
+
+    $default_value = "isset(\$filters['".$column->getName()."']) ? \$filters['".$column->getName()."'] : null";
+    $unquotedName = 'filters['.$column->getName().']';
+    $name = "'$unquotedName'";
+
+    if ($column->isForeignKey())
+    {
+      $params = $this->getObjectTagParams($params, array('include_blank' => true, 'related_class'=>$this->getRelatedClassName($column), 'text_method'=>'__toString', 'control_name'=>$unquotedName));
+      return "object_select_tag($default_value, null, $params)";
+
+    }
+    else if ($type == PropelColumnTypes::DATE)
+    {
+      // rich=false not yet implemented
+      $params = $this->getObjectTagParams($params, array('rich' => true, 'calendar_button_img' => sfConfig::get('sf_admin_web_dir').'/images/date.png'));
+      return "input_date_range_tag($name, $default_value, $params)";
+    }
+    else if ($type == PropelColumnTypes::TIMESTAMP)
+    {
+      // rich=false not yet implemented
+      $params = $this->getObjectTagParams($params, array('rich' => true, 'withtime' => true, 'calendar_button_img' => sfConfig::get('sf_admin_web_dir').'/images/date.png'));
+      return "input_date_range_tag($name, $default_value, $params)";
+    }
+    else if ($type == PropelColumnTypes::BOOLEAN)
+    {
+      $defaultIncludeCustom = '__("yes or no")';
+
+      $option_params = $this->getObjectTagParams($params, array('include_custom' => $defaultIncludeCustom));
+      $params = $this->getObjectTagParams($params);
+
+      // little hack
+      $option_params = preg_replace("/'".preg_quote($defaultIncludeCustom)."'/", $defaultIncludeCustom, $option_params);
+
+      $options = "options_for_select(array(1 => __('yes'), 0 => __('no')), $default_value, $option_params)";
+
+      return "select_tag($name, $options, $params)";
+    }
+    else if ($type == PropelColumnTypes::CHAR || $type == PropelColumnTypes::VARCHAR || $type == PropelColumnTypes::LONGVARCHAR)
+    {
+      $size = ($column->getSize() < 15 ? $column->getSize() : 15);
+      $params = $this->getObjectTagParams($params, array('size' => $size));
+      return "input_tag($name, $default_value, $params)";
+    }
+    else if ($type == PropelColumnTypes::INTEGER || $type == PropelColumnTypes::TINYINT || $type == PropelColumnTypes::SMALLINT || $type == PropelColumnTypes::BIGINT)
+    {
+      $params = $this->getObjectTagParams($params, array('size' => 7));
+      return "input_tag($name, $default_value, $params)";
+    }
+    else if ($type == PropelColumnTypes::FLOAT || $type == PropelColumnTypes::DOUBLE || $type == PropelColumnTypes::DECIMAL || $type == PropelColumnTypes::NUMERIC || $type == PropelColumnTypes::REAL)
+    {
+      $params = $this->getObjectTagParams($params, array('size' => 7));
+      return "input_tag($name, $default_value, $params)";
+    }
+    else
+    {
+      $params = $this->getObjectTagParams($params, array('disabled' => true));
+      return "input_tag($name, $default_value, $params)";
+    }
+  }
+
+  /**
+   * Returns HTML code for a column in edit mode.
+   *
+   * @param string  The column name
+   * @param array   The parameters
+   *
+   * @return string HTML code
+   */
+  public function getColumnEditTag($column, $params = array())
+  {
+    // user defined parameters
+    $user_params = $this->getParameterValue('edit.fields.'.$column->getName().'.params');
+    $user_params = is_array($user_params) ? $user_params : sfToolkit::stringToArray($user_params);
+    $params      = $user_params ? array_merge($params, $user_params) : $params;
+
+    if ($column->isComponent())
+    {
+      return "get_component('".$this->getModuleName()."', '".$column->getName()."', array('type' => 'edit', '{$this->getSingularName()}' => \${$this->getSingularName()}))";
+    }
+    else if ($column->isPartial())
+    {
+      return "get_partial('".$column->getName()."', array('type' => 'edit', '{$this->getSingularName()}' => \${$this->getSingularName()}))";
+    }
+
+    // default control name
+    $params = array_merge(array('control_name' => $this->getSingularName().'['.$column->getName().']'), $params);
+
+    // default parameter values
+    $type = $column->getType();
+    if ($type == PropelColumnTypes::DATE)
+    {
+      $params = array_merge(array('rich' => true, 'calendar_button_img' => sfConfig::get('sf_admin_web_dir').'/images/date.png'), $params);
+    }
+    else if ($type == PropelColumnTypes::TIMESTAMP)
+    {
+      $params = array_merge(array('rich' => true, 'withtime' => true, 'calendar_button_img' => sfConfig::get('sf_admin_web_dir').'/images/date.png'), $params);
+    }
+
+    // user sets a specific tag to use
+    if ($inputType = $this->getParameterValue('edit.fields.'.$column->getName().'.type'))
+    {
+      if ($inputType == 'plain')
+      {
+        return $this->getColumnListTag($column, $params);
+      }
+      else
+      {
+        return $this->getPHPObjectHelper($inputType, $column, $params);
+      }
+    }
+
+    // guess the best tag to use with column type
+    return $this->getCrudColumnEditTag($column, $params);
+  }
+
+  /**
+   * Returns HTML code for a column in list mode.
+   *
+   * @param string  The column name
+   * @param array   The parameters
+   *
+   * @return string HTML code
+   */
+  public function getColumnListTag($column, $params = array())
+  {
+    $user_params = $this->getParameterValue('list.fields.'.$column->getName().'.params');
+    $user_params = is_array($user_params) ? $user_params : sfToolkit::stringToArray($user_params);
+    $params      = $user_params ? array_merge($params, $user_params) : $params;
+
+    $type = $column->getType();
+
+    $columnGetter = $this->getColumnGetter($column, true);
+
+    if ($column->isComponent())
+    {
+      return "get_component('".$this->getModuleName()."', '".$column->getName()."', array('type' => 'list', '{$this->getSingularName()}' => \${$this->getSingularName()}))";
+    }
+    else if ($column->isPartial())
+    {
+      return "get_partial('".$column->getName()."', array('type' => 'list', '{$this->getSingularName()}' => \${$this->getSingularName()}))";
+    }
+    else if ($type == PropelColumnTypes::DATE || $type == PropelColumnTypes::TIMESTAMP)
+    {
+      $format = isset($params['date_format']) ? $params['date_format'] : ($type == PropelColumnTypes::DATE ? 'D' : 'f');
+      return "($columnGetter !== null && $columnGetter !== '') ? format_date($columnGetter, \"$format\") : ''";
+    }
+    elseif ($type == PropelColumnTypes::BOOLEAN)
+    {
+      return "$columnGetter ? image_tag(sfConfig::get('sf_admin_web_dir').'/images/tick.png') : '&nbsp;'";
+    }
+    else
+    {
+      return "$columnGetter";
+    }
+  }
 }

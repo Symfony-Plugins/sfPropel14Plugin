@@ -26,7 +26,7 @@ require_once 'propel/engine/platform/DefaultPlatform.php';
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
- * @version    $Revision: 536 $
+ * @version    $Revision: 589 $
  * @package    propel.engine.platform
  */
 class MysqlPlatform extends DefaultPlatform {
@@ -39,8 +39,6 @@ class MysqlPlatform extends DefaultPlatform {
 		parent::initialize();
 		$this->setSchemaDomainMapping(new Domain(PropelTypes::NUMERIC, "DECIMAL"));
 		$this->setSchemaDomainMapping(new Domain(PropelTypes::LONGVARCHAR, "TEXT"));
-		$this->setSchemaDomainMapping(new Domain(PropelTypes::TIMESTAMP, "DATETIME"));
-		$this->setSchemaDomainMapping(new Domain(PropelTypes::BU_TIMESTAMP, "DATETIME"));
 		$this->setSchemaDomainMapping(new Domain(PropelTypes::BINARY, "BLOB"));
 		$this->setSchemaDomainMapping(new Domain(PropelTypes::VARBINARY, "MEDIUMBLOB"));
 		$this->setSchemaDomainMapping(new Domain(PropelTypes::LONGVARBINARY, "LONGBLOB"));
@@ -70,7 +68,7 @@ class MysqlPlatform extends DefaultPlatform {
 	public function supportsNativeDeleteTrigger()
 	{
 		$usingInnoDB = false;
-		if(class_exists('DataModelBuilder', false))
+		if (class_exists('DataModelBuilder', false))
 		{
 			$usingInnoDB = strtolower(DataModelBuilder::getBuildProperty('mysqlTableType')) == 'innodb';
 		}
@@ -80,7 +78,8 @@ class MysqlPlatform extends DefaultPlatform {
 	/**
 	 * @see        Platform#hasSize(String)
 	 */
-	public function hasSize($sqlType) {
+	public function hasSize($sqlType)
+	{
 		return !("MEDIUMTEXT" == $sqlType || "LONGTEXT" == $sqlType
 				|| "BLOB" == $sqlType || "MEDIUMBLOB" == $sqlType
 				|| "LONGBLOB" == $sqlType);
@@ -91,8 +90,13 @@ class MysqlPlatform extends DefaultPlatform {
 	 * @param      string $text
 	 * @return     string
 	 */
-	public function escapeText($text) {
-		return mysql_escape_string($text);
+	public function disconnectedEscapeText($text)
+	{
+		if (function_exists('mysql_escape_string')) {
+			return mysql_escape_string($text);
+		} else {
+			return addslashes($text);
+		}
 	}
 
 	/**

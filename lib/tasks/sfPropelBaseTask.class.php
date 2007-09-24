@@ -33,8 +33,6 @@ abstract class sfPropelBaseTask extends sfBaseTask
     $autoloader->addDirectory(sfConfig::get('sf_root_dir').'/lib/model');
     $autoloader->register();
 
-
-    require_once('phing/Phing.php');
     if (!class_exists('Phing'))
     {
       throw new sfCommandException('You must install Phing to use propel tasks. (pear install http://phing.info/pear/phing-current.tgz)');

@@ -56,19 +56,19 @@ class LineContains extends BaseParamFilterReader implements ChainableReader {
     /**
      * The parameter name for the string to match on.
      * @var string
-     */ 
+     */
     const CONTAINS_KEY = "contains";
 
     /**
      * Array of Contains objects.
      * @var array
-     */ 
+     */
     private $_contains = array();
 
     /**
-     * [Deprecated] 
+     * [Deprecated]
      * @var string
-     */ 
+     */
     private $_line = null;
 
     /**
@@ -80,35 +80,35 @@ class LineContains extends BaseParamFilterReader implements ChainableReader {
             $this->_initialize();
             $this->setInitialized(true);
         }
-        
+
         $buffer = $this->in->read($len);
-        
+
         if ($buffer === -1) {
             return -1;
         }
-        
-        $lines = explode("\n", $buffer);        
-        $matched = array();        
+
+        $lines = explode("\n", $buffer);
+        $matched = array();
         $containsSize = count($this->_contains);
-        
-        foreach($lines as $line) {                                
+
+        foreach($lines as $line) {
             for($i = 0 ; $i < $containsSize ; $i++) {
                 $containsStr = $this->_contains[$i]->getValue();
                 if ( strstr($line, $containsStr) === false ) {
                     $line = null;
                     break;
                 }
-            }                
+            }
             if($line !== null) {
                 $matched[] = $line;
-            }                
-        }        
-        $filtered_buffer = implode("\n", $matched);    
+            }
+        }
+        $filtered_buffer = implode("\n", $matched);
         return $filtered_buffer;
     }
-    
+
     /**
-     * [Deprecated. For reference only, used to be read() method.] 
+     * [Deprecated. For reference only, used to be read() method.]
      * Returns the next character in the filtered stream, only including
      * lines from the original stream which contain all of the specified words.
      *
@@ -207,7 +207,7 @@ class LineContains extends BaseParamFilterReader implements ChainableReader {
         $newFilter = new LineContains($reader);
         $newFilter->setContains($this->getContains());
         $newFilter->setInitialized(true);
-        $newFilter->setProject($this->getProject());        
+        $newFilter->setProject($this->getProject());
         return $newFilter;
     }
 
@@ -236,21 +236,21 @@ class Contains {
 
     /**
      * @var string
-     */ 
+     */
     private $_value;
-    
+
     /**
      * Set 'contains' value.
      * @param string $contains
-     */ 
+     */
     function setValue($contains) {
         $this->_value = (string) $contains;
     }
-    
+
     /**
      * Returns 'contains' value.
      * @return string
-     */ 
+     */
     function getValue() {
         return $this->_value;
     }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: DBNone.php 536 2007-01-10 14:30:38Z heltem $
+ *  $Id: DBNone.php 521 2007-01-05 13:29:36Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -20,8 +20,6 @@
  * <http://propel.phpdb.org>.
  */
 
-require_once 'propel/adapter/DBAdapter.php';
-
 /**
  * This DatabaseHandler is used when you do not have a database
  * installed.
@@ -29,18 +27,10 @@ require_once 'propel/adapter/DBAdapter.php';
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Jon S. Stevens <jon@clearink.com> (Torque)
  * @author     Brett McLaughlin <bmclaugh@algx.net> (Torque)
- * @version    $Revision: 536 $
+ * @version    $Revision: 521 $
  * @package    propel.adapter
  */
 class DBNone extends DBAdapter {
-
-	/**
-	 * @return     null
-	 */
-	public function getConnection()
-	{
-		return null;
-	}
 
 	/**
 	 * @see        DBAdapter::init()
@@ -107,25 +97,4 @@ class DBNone extends DBAdapter {
 		return strlen($s);
 	}
 
-	/**
-	 * Locks the specified table.
-	 *
-	 * @param      Connection $con The Creole connection to use.
-	 * @param      string $table The name of the table to lock.
-	 * @throws     SQLException No Statement could be created or executed.
-	 */
-	public function lockTable(Connection $con, $table)
-	{
-	}
-
-	/**
-	 * Unlocks the specified table.
-	 *
-	 * @param      Connection $con The Creole connection to use.
-	 * @param      string $table The name of the table to unlock.
-	 * @throws     SQLException No Statement could be created or executed.
-	 */
-	public function unlockTable(Connection $con, $table)
-	{
-	}
 }

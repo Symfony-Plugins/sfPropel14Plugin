@@ -25,7 +25,7 @@ require_once 'propel/engine/platform/DefaultPlatform.php';
  * SQLite Platform implementation.
  *
  * @author     Hans Lellelid <hans@xmpl.org>
- * @version    $Revision: 536 $
+ * @version    $Revision: 578 $
  * @package    propel.engine.platform
  */
 class SqlitePlatform extends DefaultPlatform {
@@ -78,8 +78,13 @@ class SqlitePlatform extends DefaultPlatform {
 	 * @param      string $text
 	 * @return     string
 	 */
-	public function escapeText($text) {
-		return sqlite_escape_string($text);
+	public function disconnectedEscapeText($text)
+	{
+		if (function_exists('sqlite_escape_string')) {
+			return sqlite_escape_string($text);
+		} else {
+			return parent::disconnectedEscapeText($text);
+		}
 	}
 
 	/**

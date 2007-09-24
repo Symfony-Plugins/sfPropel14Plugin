@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: DataModelBuilder.php 536 2007-01-10 14:30:38Z heltem $
+ *  $Id: DataModelBuilder.php 602 2007-03-07 17:52:53Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -52,6 +52,8 @@ abstract class DataModelBuilder {
 	 */
 	private static $buildProperties = array();
 
+	private static $cache = array();
+
 	/**
 	 * Sets the [name transformed] build properties to use.
 	 * @param      array Property values keyed by [transformed] prop names.
@@ -91,8 +93,11 @@ abstract class DataModelBuilder {
 		// This is a slight hack to workaround camel case inconsistencies for the DDL classes.
 		// Basically, we want to turn ?.?.?.sqliteDDLBuilder into ?.?.?.SqliteDDLBuilder
 		$lastdotpos = strrpos($classpath, '.');
-		if ($lastdotpos) $classpath{$lastdotpos+1} = strtoupper($classpath{$lastdotpos+1});
-		else ucfirst($classpath);
+		if ($lastdotpos !== false) {
+			$classpath{$lastdotpos+1} = strtoupper($classpath{$lastdotpos+1});
+		} else {
+			$classpath = ucfirst($classpath);
+		}
 
 		return Phing::import($classpath);
 	}
@@ -106,7 +111,14 @@ abstract class DataModelBuilder {
 	public static function builderFactory(Table $table, $type)
 	{
 		$classname = self::getBuilderClass($type);
-		return new $classname($table);
+
+		$cacheKey = strtolower($classname . $table->getName());
+
+		if (!isset(self::$cache[$cacheKey])) {
+			self::$cache[$cacheKey] = new $classname($table);
+		}
+
+		return self::$cache[$cacheKey];
 	}
 
 	/**
@@ -217,5 +229,52 @@ abstract class DataModelBuilder {
 			return $this->getPlatform()->quoteIdentifier($text);
 		}
 		return $text;
+	}
+
+	/**
+	 * Returns the name of the current class being built, with a possible prefix.
+	 * @return     string
+	 * @see        OMBuilder#getClassname()
+	 */
+	public static function prefixClassname($identifier)
+	{
+		return self::getBuildProperty('classPrefix') . $identifier;
+	}
+
+	/**
+	 * Returns the name of the current table being built, with a possible prefix.
+	 * @return     string
+	 */
+	public static function prefixTablename($identifier)
+	{
+		return self::getBuildProperty('tablePrefix') . $identifier;
+	}
+
+	/**
+	 * A name to use for creating a sequence if one is not specified.
+	 */
+	public function getSequenceName()
+	{
+		$table = $this->getTable();
+		static $longNamesMap = array();
+		$result = null;
+		if ($table->getIdMethod() == IDMethod::NATIVE) {
+			$idMethodParams = $table->getIdMethodParameters();
+			if ($idMethodParams === null) {
+				$maxIdentifierLength = $table->getDatabase()->getPlatform()->getMaxColumnNameLength();
+				if (strlen($table->getName() . "_SEQ") > $maxIdentifierLength) {
+					if (!isset($longNamesMap[$table->getName()])) {
+						$longNamesMap[$table->getName()] = strval(count($longNamesMap) + 1);
+					}
+					$result = substr($table->getName(), 0, $maxIdentifierLength - strlen("_SEQ_" . $longNamesMap[$table->getName()])) . "_SEQ_" . $longNamesMap[$table->getName()];
+				}
+				else {
+					$result = $table->getName() . "_SEQ";
+				}
+			} else {
+				$result = $idMethodParams[0]->getValue();
+			}
+		}
+		return $result;
 	}
 }

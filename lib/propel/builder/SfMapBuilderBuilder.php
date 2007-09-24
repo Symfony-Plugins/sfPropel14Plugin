@@ -24,7 +24,7 @@ class SfMapBuilderBuilder extends PHP5MapBuilderBuilder
     {
       return sfToolkit::stripComments(parent::build());
     }
-    
+
     return parent::build();
   }
 
@@ -48,6 +48,6 @@ class SfMapBuilderBuilder extends PHP5MapBuilderBuilder
     {
       $sizes[$col->getPhpName()] = !$col->getSize() ? 'null' : $col->getSize();
     }
-    $script = preg_replace("/\\\$tMap\->addColumn\('([^']+)', '([^']+)', '([^']+)', CreoleTypes\:\:VARCHAR, (false|true)\)/e", '"\\\$tMap->addColumn(\'$1\', \'$2\', \'$3\', CreoleTypes::VARCHAR, $4, {$sizes[\'$2\']})"', $script);
+    $script = preg_replace("/\\\$tMap\->addColumn\('([^']+)', '([^']+)', '([^']+)', PropelTypes\:\:VARCHAR, (false|true)\)/e", '"\\\$tMap->addColumn(\'$1\', \'$2\', \'$3\', PropelTypes::VARCHAR, $4, {$sizes[\'$2\']})"', $script);
   }
 }

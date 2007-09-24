@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: DBSybase.php 536 2007-01-10 14:30:38Z heltem $
+ *  $Id: DBSybase.php 521 2007-01-05 13:29:36Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -20,11 +20,8 @@
  * <http://propel.phpdb.org>.
  */
 
-require_once 'propel/adapter/DBAdapter.php';
-
 /**
- * This is used to connect to a Sybase database using Sybase's
- * Creole driver.
+ * This is used to connect to a Sybase database.
  *
  * <B>NOTE:</B><I>Currently JConnect does not implement the required
  * methods for ResultSetMetaData, and therefore the village API's may
@@ -32,7 +29,7 @@ require_once 'propel/adapter/DBAdapter.php';
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Jeff Brekke <ekkerbj@netscape.net> (Torque)
- * @version    $Revision: 536 $
+ * @version    $Revision: 521 $
  * @package    propel.adapter
  */
 class DBSybase extends DBAdapter {
@@ -93,34 +90,6 @@ class DBSybase extends DBAdapter {
 	public function strLength($s)
 	{
 		return "LEN($s)";
-	}
-
-	/**
-	 * Locks the specified table.
-	 *
-	 * @param      Connection $con The Creole connection to use.
-	 * @param      string $table The name of the table to lock.
-	 * @throws     SQLException No Statement could be created or executed.
-	 */
-	public function lockTable(Connection $con, $table)
-	{
-		$statement = $con->createStatement();
-		$sql = "SELECT next_id FROM " . $table . " FOR UPDATE";
-		$statement->executeQuery($sql);
-	}
-
-	/**
-	 * Unlocks the specified table.
-	 *
-	 * @param      Connection $con The Creole connection to use.
-	 * @param      string $table The name of the table to unlock.
-	 * @throws     SQLException No Statement could be created or executed.
-	 */
-	public function unlockTable(Connection $con, $table)
-	{
-		// Tables in Sybase are unlocked when a commit is issued.  The
-		// user may have issued a commit but do it here to be sure.
-		$con->commit();
 	}
 
 	/**

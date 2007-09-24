@@ -28,7 +28,7 @@ require_once 'phing/system/io/PhingFile.php';
  *
  * @author      Andreas Aderhold <andi@binarycloud.com>
  * @copyright (c) 2001,2002 THYRELL. All rights reserved
- * @version   $Revision: 1.14 $ $Date: 2005/10/04 19:13:44 $
+ * @version   $Revision: 1.14 $ $Date: 2007-01-25 11:38:05 -0800 (Thu, 25 Jan 2007) $
  * @access    public
  * @package   phing.parser
  */
@@ -67,6 +67,7 @@ class ProjectHandler extends AbstractHandler {
         $def = null;
         $name = null;
         $id    = null;
+        $desc = null;
         $baseDir = null;
 
         // some shorthands
@@ -82,6 +83,8 @@ class ProjectHandler extends AbstractHandler {
                 $id = $value;
             } elseif ($key === "basedir") {
                 $baseDir = $value;
+            } elseif ($key === "description") {
+                $desc = $value;
             } else {
                 throw new ExpatParseException("Unexpected attribute '$key'");
             }
@@ -98,6 +101,10 @@ class ProjectHandler extends AbstractHandler {
 
         if ($id !== null) {
             $project->addReference($id, $project);
+        }
+
+        if ($desc !== null) {
+            $project->setDescription($desc);
         }
 
         if ($project->getProperty("project.basedir") !== null) {
@@ -127,10 +134,10 @@ class ProjectHandler extends AbstractHandler {
      * @access public
      */
     function startElement($name, $attrs) {
-    
+
 		$project = $this->configurator->project;
         $types = $project->getDataTypeDefinitions();
-		
+
 		if ($name == "target") {
 			$tf = new TargetHandler($this->parser, $this, $this->configurator);
 			$tf->init($name, $attrs);

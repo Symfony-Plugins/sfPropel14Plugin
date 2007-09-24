@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5ComplexObjectBuilder.php 536 2007-01-10 14:30:38Z heltem $
+ *  $Id: PHP5ComplexObjectBuilder.php 700 2007-09-17 13:08:12Z soenke $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -51,7 +51,7 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 			$this->addFKAttributes($script, $fk);
 		}
 
-		foreach($table->getReferrers() as $refFK) {
+		foreach ($table->getReferrers() as $refFK) {
 			// if ($refFK->getTable()->getName() != $table->getName()) {
 				$this->addRefFKAttributes($script, $refFK);
 			// }
@@ -106,27 +106,38 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 ";
 		} /* if col is foreign key */
 
-		foreach ($col->getReferrers() as $fk) {
+		foreach ($col->getReferrers() as $refFK) {
 
-			$tblFK = $this->getDatabase()->getTable($fk->getForeignTableName());
+			$tblFK = $this->getDatabase()->getTable($refFK->getForeignTableName());
 
 			if ( $tblFK->getName() != $table->getName() ) {
-
-				$collName = $this->getRefFKCollVarName($fk);
 
 				$tblFK = $table->getDatabase()->getTable($col->getRelatedTableName());
 				$colFK = $tblFK->getColumn($col->getRelatedColumnName());
 
-				$script .= "
+				if ($refFK->isLocalPrimaryKey()) {
+					$varName = $this->getPKRefFKVarName($refFK);
+					$script .= "
+		// update associated ".$tblFK->getPhpName()."
+		if (\$this->$varName !== null) {
+			\$this->{$varName}->set".$colFK->getPhpName()."(\$v);
+		}
+";
+				} else {
+					$collName = $this->getRefFKCollVarName($refFK);
+					$script .= "
 
 		// update associated ".$tblFK->getPhpName()."
 		if (\$this->$collName !== null) {
-			foreach(\$this->$collName as \$referrerObject) {
+			foreach (\$this->$collName as \$referrerObject) {
 				  \$referrerObject->set".$colFK->getPhpName()."(\$v);
 			  }
 		  }
 ";
-			} // if
+				} // if (isLocalPrimaryKey
+
+			} // if tablFk != table
+
 		} // foreach
 
 		$script .= "
@@ -140,6 +151,7 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 	 */
 	protected function addManipulationMethods(&$script)
 	{
+		$this->addReload($script);
 		$this->addDelete($script);
 		$this->addSave($script);
 		$this->addDoSave($script);
@@ -176,8 +188,12 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 	 */
 	public function getFKPhpNameAffix(ForeignKey $fk, $plural = false)
 	{
-		$className = $this->getForeignTable($fk)->getPhpName();
-		return $className . ($plural ? 's' : '') . $this->getRelatedBySuffix($fk);
+		if ($fk->getPhpName()) {
+			return $fk->getPhpName() . ($plural ? 's' : '');
+		} else {
+			$className = $this->getForeignTable($fk)->getPhpName();
+			return $className . ($plural ? 's' : '') . $this->getRelatedBySuffix($fk, true);
+		}
 	}
 
 	/**
@@ -192,8 +208,12 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 	 */
 	public function getRefFKPhpNameAffix(ForeignKey $fk, $plural = false)
 	{
-		$className = $fk->getTable()->getPhpName();
-		return $className . ($plural ? 's' : '') . $this->getRelatedBySuffix($fk);
+		if ($fk->getRefPhpName()) {
+			return $fk->getRefPhpName() . ($plural ? 's' : '');
+		} else {
+			$className = $fk->getTable()->getPhpName();
+			return $className . ($plural ? 's' : '') . $this->getRelatedBySuffix($fk);
+		}
 	}
 
 	/**
@@ -205,7 +225,7 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 	 *
 	 * @return     string
 	 */
-	protected function getRelatedBySuffix(ForeignKey $fk)
+	protected function getRelatedBySuffix(ForeignKey $fk, $columnCheck = false)
 	{
 		$relCol = "";
 		foreach ($fk->getLocalColumns() as $columnName) {
@@ -215,6 +235,7 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 				print $e;
 				throw $e;
 			}
+
 			if ($column->isMultipleFK() || $fk->getForeignTableName() == $fk->getTable()->getName()) {
 				// if there are seeral foreign keys that point to the same table
 				// then we need to generate methods like getAuthorRelatedByColName()
@@ -224,6 +245,18 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 			}
 		}
 
+		#var_dump($fk->getForeignTableName() . ' - ' .$fk->getTableName() . ' - ' . $this->getTable()->getName());
+
+		#$fk->getForeignTableName() != $this->getTable()->getName() &&
+		// @todo comment on it
+		if ($columnCheck && !$relCol && $fk->getTable()->getColumn($fk->getForeignTableName())) {
+			foreach ($fk->getLocalColumns() as $columnName) {
+				$column = $fk->getTable()->getColumn($columnName);
+				$relCol .= $column->getPhpName();
+			}
+		}
+
+
 		if ($relCol != "") {
 			$relCol = "RelatedBy" . $relCol;
 		}
@@ -231,16 +264,43 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 		return $relCol;
 	}
 
+	/**
+	 * Constructs variable name for fkey-related objects.
+	 * @param      ForeignKey $fk
+	 * @return     string
+	 */
 	protected function getFKVarName(ForeignKey $fk)
 	{
 		return 'a' . $this->getFKPhpNameAffix($fk, $plural = false);
 	}
 
+	/**
+	 * Constructs variable name for objects which referencing current table by specified foreign key.
+	 * @param      ForeignKey $fk
+	 * @return     string
+	 */
 	protected function getRefFKCollVarName(ForeignKey $fk)
 	{
 		return 'coll' . $this->getRefFKPhpNameAffix($fk, $plural = true);
 	}
 
+	/**
+	 * Constructs variable name for single object which references current table by specified foreign key
+	 * which is ALSO a primary key (hence one-to-one relationship).
+	 * @param      ForeignKey $fk
+	 * @return     string
+	 */
+	protected function getPKRefFKVarName(ForeignKey $fk)
+	{
+		return 'single' . $this->getRefFKPhpNameAffix($fk, $plural = false);
+	}
+
+	/**
+	 * Gets variable name for the Criteria which was used to fetch the objects which
+	 * referencing current table by specified foreign key.
+	 * @param      ForeignKey $fk
+	 * @return     string
+	 */
 	protected function getRefFKLastCriteriaVarName(ForeignKey $fk)
 	{
 		return 'last' . $this->getRefFKPhpNameAffix($fk, $plural = false) . 'Criteria';
@@ -289,7 +349,10 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 	{
 		$table = $this->getTable();
 		$tblFK = $this->getForeignTable($fk);
-		$className = $this->getForeignTable($fk)->getPhpName();
+
+		$joinTableObjectBuilder = OMBuilder::getNewObjectBuilder($tblFK);
+
+		$className = $joinTableObjectBuilder->getObjectClassname();
 		$varName = $this->getFKVarName($fk);
 
 		$script .= "
@@ -300,18 +363,16 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 	 * @return     void
 	 * @throws     PropelException
 	 */
-	public function set".$this->getFKPhpNameAffix($fk, $plural = false)."(\$v)
-	{
-";
-			foreach ($fk->getLocalColumns() as $columnName) {
-				$column = $table->getColumn($columnName);
-				$lfmap = $fk->getLocalForeignMapping();
-				$colFKName = $lfmap[$columnName];
-				$colFK = $tblFK->getColumn($colFKName);
-				$script .= "
-
+	public function set".$this->getFKPhpNameAffix($fk, $plural = false)."($className \$v = null)
+	{";
+		foreach ($fk->getLocalColumns() as $columnName) {
+			$column = $table->getColumn($columnName);
+			$lfmap = $fk->getLocalForeignMapping();
+			$colFKName = $lfmap[$columnName];
+			$colFK = $tblFK->getColumn($colFKName);
+			$script .= "
 		if (\$v === null) {
-			\$this->set".$column->getPhpName()."(".var_export($column->getDefaultValue(), true).");
+			\$this->set".$column->getPhpName()."(".$this->getDefaultValueString($column).");
 		} else {
 			\$this->set".$column->getPhpName()."(\$v->get".$colFK->getPhpName()."());
 		}
@@ -319,9 +380,26 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 
 			} /* foreach local col */
 
-			$script .= "
-
+		$script .= "
 		\$this->$varName = \$v;
+";
+		// Now, we must check to see whether this foreign key represents a one-to-one
+		// relationship with the foreign object.
+		// If the foreign key is also the local primary key, then this is a one-to-one relationship
+
+		if ($fk->isLocalPrimaryKey()) {
+
+			$script .= "
+		// This foreign key represents a one-to-one relationship, since it is also the primary key,
+		// therefore, we will bind the relationship bi-directionally.
+		if (\$v !== null) {
+			\$v->set".$this->getRefFKPhpNameAffix($fk, $plural = false)."(\$this);
+		}
+";
+		} // if fk->isLocalPrimaryKey
+
+		$script .= "
+
 	}
 ";
 	}
@@ -334,7 +412,6 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 	{
 		$table = $this->getTable();
 
-		$className = $this->getForeignTable($fk)->getPhpName();
 		$varName = $this->getFKVarName($fk);
 
 		$and = "";
@@ -344,13 +421,13 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 		$argsize = 0;
 		foreach ($fk->getLocalColumns() as $columnName) {
 			$column = $table->getColumn($columnName);
-			$cptype = $column->getPhpNative();
+			$cptype = $column->getPhpType();
 			$clo = strtolower($column->getName());
 
 			// FIXME: is this correct? what about negative numbers?
 			if ($cptype == "integer" || $cptype == "float" || $cptype == "double") {
 				$conditional .= $and . "\$this->". $clo ." > 0";
-			} elseif($cptype == "string") {
+			} elseif ($cptype == "string") {
 				$conditional .= $and . "(\$this->" . $clo ." !== \"\" && \$this->".$clo." !== null)";
 			} else {
 				$conditional .= $and . "\$this->" . $clo ." !== null";
@@ -364,35 +441,40 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 		$pCollName = $this->getFKPhpNameAffix($fk, $plural = true);
 
 		$fkPeerBuilder = OMBuilder::getNewPeerBuilder($this->getForeignTable($fk));
+                $fkObjectBuilder = OMBuilder::getNewObjectBuilder($this->getForeignTable($fk))->getStubObjectBuilder();
+                $className = $fkObjectBuilder->getClassname(); // get the Classname that has maybe a prefix
 
 		$script .= "
 
 	/**
 	 * Get the associated $className object
 	 *
-	 * @param      Connection Optional Connection object.
+	 * @param      PDO Optional Connection object.
 	 * @return     $className The associated $className object.
 	 * @throws     PropelException
 	 */
-	public function get".$this->getFKPhpNameAffix($fk, $plural = false)."(\$con = null)
-	{
-		// include the related Peer class
-		include_once '".$fkPeerBuilder->getClassFilePath()."';
-
-		if (\$this->$varName === null && ($conditional)) {
-";
+	public function get".$this->getFKPhpNameAffix($fk, $plural = false)."(PDO \$con = null)
+	{";
 		$script .= "
-			\$this->$varName = ".$fkPeerBuilder->getPeerClassname()."::".$fkPeerBuilder->getRetrieveMethodName()."($arglist, \$con);
-
-			/* The following can be used instead of the line above to
+		if (\$this->$varName === null && ($conditional)) {";
+		$script .= "
+			\$this->$varName = ".$fkPeerBuilder->getPeerClassname()."::".$fkPeerBuilder->getRetrieveMethodName()."($arglist, \$con);";
+		if ($fk->isLocalPrimaryKey()) {
+			$script .= "
+			// Because this foreign key represents a one-to-one relationship, we will create a bi-directional association.
+			\$this->{$varName}->set".$this->getRefFKPhpNameAffix($fk, $plural = false)."(\$this);";
+		} else {
+			$script .= "
+			/* The following can be used additionally to
 			   guarantee the related object contains a reference
-			   to this object, but this level of coupling
-			   may be undesirable in many circumstances.
-			   As it can lead to a db query with many results that may
-			   never be used.
-			   \$obj = ".$fkPeerBuilder->getPeerClassname()."::retrieveByPK($arglist, \$con);
-			   \$obj->add$pCollName(\$this);
-			 */
+			   to this object.  This level of coupling may, however, be
+			   undesirable since it could result in an only partially populated collection
+			   in the referenced object.
+			   \$this->{$varName}->add".$this->getRefFKPhpNameAffix($fk, $plural = true)."(\$this);
+			 */";
+		}
+
+		$script .= "
 		}
 		return \$this->$varName;
 	}
@@ -439,7 +521,7 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 			$i = 0;
 			foreach ($fk->getLocalColumns() as $colName) {
 				$col = $table->getColumn($colName);
-				$fktype = $col->getPhpNative();
+				$fktype = $col->getPhpType();
 				$script .= "
 			\$this->set".$col->getPhpName()."( ($fktype) \$key[$i] );
 ";
@@ -449,7 +531,7 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 			$lcols = $fk->getLocalColumns();
 			$colName = $lcols[0];
 			$col = $table->getColumn($colName);
-			$fktype = $col->getPhpNative();
+			$fktype = $col->getPhpType();
 			$script .= "
 		\$this->set".$col->getPhpName()."( ($fktype) \$key);
 ";
@@ -525,8 +607,8 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 	 */
 	public function get".$relCol."Join".$relCol2."(\$criteria = null, \$con = null)
 	{
-		// include the Peer class
-		include_once '".$fkPeerBuilder->getClassFilePath()."';
+		";
+		$script .= "
 		if (\$criteria === null) {
 			\$criteria = new Criteria();
 		}
@@ -583,7 +665,7 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 		return \$this->$collName;
 	}
 ";
-			} /* end if($doJoinGet) */
+			} /* end if ($doJoinGet) */
 
 		} /* end foreach ($tblFK->getForeignKeys() as $fk2) { */
 
@@ -604,22 +686,29 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 	 */
 	protected function addRefFKAttributes(&$script, ForeignKey $refFK)
 	{
-		$collName = $this->getRefFKCollVarName($refFK);
-		$lastCriteriaName = $this->getRefFKLastCriteriaVarName($refFK);
+		$joinedTableObjectBuilder = OMBuilder::getNewObjectBuilder($refFK->getTable());
+		$className = $joinedTableObjectBuilder->getObjectClassname();
 
-		$script .= "
+		if ($refFK->isLocalPrimaryKey()) {
+			$script .= "
 	/**
-	 * Collection to store aggregation of $collName.
-	 * @var        array
+	 * @var        $className one-to-one related $className object
 	 */
-	protected $".$collName.";
-
-	/**
-	 * The criteria used to select the current contents of $collName.
-	 * @var        Criteria
-	 */
-	protected \$".$lastCriteriaName." = null;
+	protected $".$this->getPKRefFKVarName($refFK).";
 ";
+		} else {
+			$script .= "
+	/**
+	 * @var        array {$className}[] Collection to store aggregation of $className objects.
+	 */
+	protected $".$this->getRefFKCollVarName($refFK).";
+
+	/**
+	 * @var        Criteria The criteria used to select the current contents of ".$this->getRefFKCollVarName($refFK).".
+	 */
+	private $".$this->getRefFKLastCriteriaVarName($refFK)." = null;
+";
+		}
 	}
 
 	/**
@@ -628,14 +717,17 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 	 */
 	protected function addRefFKMethods(&$script)
 	{
-		foreach($this->getTable()->getReferrers() as $refFK) {
-			// if ( $refFK->getTable()->getName() != $this->getTable()->getName() ) {
+		foreach ($this->getTable()->getReferrers() as $refFK) {
+			if ($refFK->isLocalPrimaryKey()) {
+				$this->addPKRefFKGet($script, $refFK);
+				$this->addPKRefFKSet($script, $refFK);
+			} else {
 				$this->addRefFKInit($script, $refFK);
 				$this->addRefFKGet($script, $refFK);
 				$this->addRefFKCount($script, $refFK);
 				$this->addRefFKAdd($script, $refFK);
 				$this->addRefFKGetJoinMethods($script, $refFK);
-			// }
+			}
 		}
 	}
 
@@ -653,7 +745,11 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 	 * Temporary storage of $collName to save a possible db hit in
 	 * the event objects are add to the collection, but the
 	 * complete collection is never requested.
+	 *
 	 * @return     void
+	 * @deprecated - This method will be removed in 2.0 since arrays
+	 *				are automatically initialized in the add$relCol() method.
+	 * @see        add$relCol()
 	 */
 	public function init$relCol()
 	{
@@ -671,14 +767,16 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 	protected function addRefFKAdd(&$script, ForeignKey $refFK)
 	{
 		$tblFK = $refFK->getTable();
-		$className = $refFK->getTable()->getPhpName();
 
 		$joinedTableObjectBuilder = OMBuilder::getNewObjectBuilder($refFK->getTable());
+		$className = $joinedTableObjectBuilder->getObjectClassname();
+
+		$collName = $this->getRefFKCollVarName($refFK);
 
 		$script .= "
 	/**
-	 * Method called to associate a ".$tblFK->getPhpName()." object to this object
-	 * through the $className foreign key attribute
+	 * Method called to associate a $className object to this object
+	 * through the $className foreign key attribute.
 	 *
 	 * @param      $className \$l $className
 	 * @return     void
@@ -686,7 +784,8 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 	 */
 	public function add".$this->getRefFKPhpNameAffix($refFK, $plural = false)."($className \$l)
 	{
-		\$this->coll".$this->getRefFKPhpNameAffix($refFK, $plural = true)."[] = \$l;
+		\$this->$collName = (array) \$this->$collName;
+		array_push(\$this->$collName, \$l);
 		\$l->set".$this->getFKPhpNameAffix($refFK, $plural = false)."(\$this);
 	}
 ";
@@ -708,13 +807,13 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 	 *
 	 * @param      Criteria \$criteria
 	 * @param      boolean \$distinct
-	 * @param      Connection \$con
+	 * @param      PDO \$con
 	 * @throws     PropelException
 	 */
-	public function count$relCol(\$criteria = null, \$distinct = false, \$con = null)
+	public function count$relCol(\$criteria = null, \$distinct = false, PDO \$con = null)
 	{
-		// include the Peer class
-		include_once '".$fkPeerBuilder->getClassFilePath()."';
+		";
+		$script .= "
 		if (\$criteria === null) {
 			\$criteria = new Criteria();
 		}
@@ -755,22 +854,22 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 
 		$script .= "
 	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this ".$table->getPhpName()." has previously
-	 * been saved, it will retrieve related $relCol from storage.
-	 * If this ".$table->getPhpName()." is new, it will return
-	 * an empty collection or the current collection, the criteria
-	 * is ignored on a new object.
+	 * Gets an array of $className objects which contain a foreign key that references this object.
 	 *
-	 * @param      Connection \$con
+	 * If this collection has already been initialized with an identical Criteria, it returns the collection.
+	 * Otherwise if this ".$this->getObjectClassname()." has previously been saved, it will retrieve
+	 * related $relCol from storage. If this ".$this->getObjectClassname()." is new, it will return
+	 * an empty collection or the current collection, the criteria is ignored on a new object.
+	 *
+	 * @param      PDO \$con
 	 * @param      Criteria \$criteria
+	 * @return     array {$className}[]
 	 * @throws     PropelException
 	 */
-	public function get$relCol(\$criteria = null, \$con = null)
+	public function get$relCol(\$criteria = null, PDO \$con = null)
 	{
-		// include the Peer class
-		include_once '".$fkPeerBuilder->getClassFilePath()."';
+		";
+		$script .= "
 		if (\$criteria === null) {
 			\$criteria = new Criteria();
 		}
@@ -829,7 +928,96 @@ $script .= "
 ";
 	} // addRefererGet()
 
+	/**
+	 * Adds the method that gets a one-to-one related referrer fkey.
+	 * This is for one-to-one relationship special case.
+	 * @param      string &$script The script will be modified in this method.
+	 */
+	protected function addPKRefFKGet(&$script, ForeignKey $refFK)
+	{
+		$table = $this->getTable();
+		$tblFK = $refFK->getTable();
 
+		$joinedTableObjectBuilder = OMBuilder::getNewObjectBuilder($refFK->getTable());
+		$joinedTablePeerBuilder = OMBuilder::getNewObjectBuilder($refFK->getTable());
+		$className = $joinedTableObjectBuilder->getObjectClassname();
+
+		$varName = $this->getPKRefFKVarName($refFK);
+
+		$script .= "
+	/**
+	 * Gets a single $className object, which is related to this object by a one-to-one relationship.
+	 *
+	 * @param      PDO \$con
+	 * @return     $className
+	 * @throws     PropelException
+	 */
+	public function get".$this->getRefFKPhpNameAffix($refFK, $plural = false)."(PDO \$con = null)
+	{
+";
+		$script .= "
+		if (\$this->$varName === null && !\$this->isNew()) {
+";
+
+		$lfmap = $refFK->getLocalForeignMapping();
+
+		// remember: this object represents the foreign table,
+		// so we need foreign columns of the reffk to know the local columns
+		// that we need to set :)
+
+		$localcols = $refFK->getForeignColumns();
+
+		// we know that at least every column in the primary key of the foreign table
+		// is represented in this foreign key
+
+		$params = array();
+		foreach ($tblFK->getPrimaryKey() as $col) {
+			$localColumn = $table->getColumn($lfmap[$col->getName()]);
+			$params[] = "\$this->get".$localColumn->getPhpName()."()";
+		}
+
+		$script .= "
+			\$this->$varName = ".$joinedTableObjectBuilder->getPeerClassname()."::retrieveByPK(".implode(", ", $params).", \$con);
+		} // if (\$this->$varName === null)
+
+		return \$this->$varName;
+	}
+";
+	} // addPKRefFKGet()
+
+	/**
+	 * Adds the method that sets a one-to-one related referrer fkey.
+	 * This is for one-to-one relationships special case.
+	 * @param      string &$script The script will be modified in this method.
+	 * @param      ForeignKey $refFK The referencing foreign key.
+	 */
+	protected function addPKRefFKSet(&$script, ForeignKey $refFK)
+	{
+		$tblFK = $refFK->getTable();
+
+		$joinedTableObjectBuilder = OMBuilder::getNewObjectBuilder($refFK->getTable());
+		$className = $joinedTableObjectBuilder->getObjectClassname();
+
+		$varName = $this->getPKRefFKVarName($refFK);
+
+		$script .= "
+	/**
+	 * Sets a single $className object as related to this object by a one-to-one relationship.
+	 *
+	 * @param      $className \$l $className
+	 * @throws     PropelException
+	 */
+	public function set".$this->getRefFKPhpNameAffix($refFK, $plural = false)."($className \$v)
+	{
+		\$this->$varName = \$v;
+
+		// Make sure that that the passed-in $className isn't already associated with this object
+		if (\$v->get".$this->getFKPhpNameAffix($refFK, $plural = false)."() === null) {
+			\$v->set".$this->getFKPhpNameAffix($refFK, $plural = false)."(\$this);
+		}
+	}
+";
+	} // addPKRefFKSet
 
 	// ----------------------------------------------------------------
 	//
@@ -852,12 +1040,12 @@ $script .= "
 	 * If the object is new, it inserts it; otherwise an update is performed.
 	 * All related objects are also updated in this method.
 	 *
-	 * @param      Connection \$con
+	 * @param      PDO \$con
 	 * @return     int The number of rows affected by this insert/update and any referring fk objects' save() operations.
 	 * @throws     PropelException
 	 * @see        save()
 	 */
-	protected function doSave(\$con)
+	protected function doSave(PDO \$con)
 	{
 		\$affectedRows = 0; // initialize var to track total num of affected rows
 		if (!\$this->alreadyInSave) {
@@ -874,12 +1062,12 @@ $script .= "
 			// foreign key reference.
 ";
 
-			foreach($table->getForeignKeys() as $fk)
+			foreach ($table->getForeignKeys() as $fk)
 			{
 				$aVarName = $this->getFKVarName($fk);
 				$script .= "
 			if (\$this->$aVarName !== null) {
-				if (\$this->".$aVarName."->isModified()) {
+				if (\$this->".$aVarName."->isModified() || \$this->".$aVarName."->isNew()) {
 					\$affectedRows += \$this->".$aVarName."->save(\$con);
 				}
 				\$this->set".$this->getFKPhpNameAffix($fk, $plural = false)."(\$this->$aVarName);
@@ -931,22 +1119,30 @@ $script .= "
 			}
 ";
 
-		foreach ($table->getReferrers() as $fk) {
-			$collName = $this->getRefFKCollVarName($fk);
-			//HL: commenting out self-referrential check below
-			//		it seems to work as expected and is desireable since we are also enabling the copy()ing of these related rows
-			//if ( $fk->getTable()->getName() != $table->getName() ) {
+		foreach ($table->getReferrers() as $refFK) {
+
+			if ($refFK->isLocalPrimaryKey()) {
+				$varName = $this->getPKRefFKVarName($refFK);
+				$script .= "
+			if (\$this->$varName !== null) {
+				if (!\$this->{$varName}->isDeleted()) {
+						\$affectedRows += \$this->{$varName}->save(\$con);
+				}
+			}
+";
+			} else {
+				$collName = $this->getRefFKCollVarName($refFK);
 				$script .= "
 			if (\$this->$collName !== null) {
-				foreach(\$this->$collName as \$referrerFK) {
+				foreach (\$this->$collName as \$referrerFK) {
 					if (!\$referrerFK->isDeleted()) {
 						\$affectedRows += \$referrerFK->save(\$con);
 					}
 				}
 			}
 ";
-			//HL: commenting out close of self-referrential check
-			//} /* if tableFK != table */
+			} // if refFK->isLocalPrimaryKey()
+
 		} /* foreach getReferrers() */
 		$script .= "
 			\$this->alreadyInSave = false;
@@ -985,12 +1181,12 @@ $script .= "
 	 * it inserts it; otherwise an update is performed.  This method
 	 * wraps the doSave() worker method in a transaction.
 	 *
-	 * @param      Connection \$con
+	 * @param      PDO \$con
 	 * @return     int The number of rows affected by this insert/update and any referring fk objects' save() operations.
 	 * @throws     PropelException
 	 * @see        doSave()
 	 */
-	public function save(\$con = null)
+	public function save(PDO \$con = null)
 	{
 		if (\$this->isDeleted()) {
 			throw new PropelException(\"You cannot save an object that has been deleted.\");
@@ -1001,9 +1197,10 @@ $script .= "
 		}
 
 		try {
-			\$con->begin();
+			\$con->beginTransaction();
 			\$affectedRows = \$this->doSave(\$con);
 			\$con->commit();
+			".$this->getPeerClassname()."::addInstanceToPool(\$this);
 			return \$affectedRows;
 		} catch (PropelException \$e) {
 			\$con->rollback();
@@ -1097,7 +1294,7 @@ $script .= "
 			// method.  This object relates to these object(s) by a
 			// foreign key reference.
 ";
-			foreach($table->getForeignKeys() as $fk) {
+			foreach ($table->getForeignKeys() as $fk) {
 				$aVarName = $this->getFKVarName($fk);
 				$script .= "
 			if (\$this->".$aVarName." !== null) {
@@ -1106,7 +1303,7 @@ $script .= "
 				}
 			}
 ";
-			} /* for() */
+			} /* for () */
 		} /* if count(fkeys) */
 
 		$script .= "
@@ -1117,20 +1314,28 @@ $script .= "
 
 ";
 
-		foreach ($table->getReferrers() as $fk) {
-			$tblFK = $fk->getTable();
-			if ( $tblFK->getName() != $table->getName() ) {
-				$collName = $this->getRefFKCollVarName($fk);
+		foreach ($table->getReferrers() as $refFK) {
+			if ($refFK->isLocalPrimaryKey()) {
+				$varName = $this->getPKRefFKVarName($refFK);
+				$script .= "
+				if (\$this->$varName !== null) {
+					if (!\$this->".$varName."->validate(\$columns)) {
+						\$failureMap = array_merge(\$failureMap, \$this->".$varName."->getValidationFailures());
+					}
+				}
+";
+			} else {
+				$collName = $this->getRefFKCollVarName($refFK);
 				$script .= "
 				if (\$this->$collName !== null) {
-					foreach(\$this->$collName as \$referrerFK) {
+					foreach (\$this->$collName as \$referrerFK) {
 						if (!\$referrerFK->validate(\$columns)) {
 							\$failureMap = array_merge(\$failureMap, \$referrerFK->getValidationFailures());
 						}
 					}
 				}
 ";
-			} /* if tableFK !+ table */
+			}
 		} /* foreach getReferrers() */
 
 		$script .= "
@@ -1142,6 +1347,56 @@ $script .= "
 	}
 ";
 	} // addDoValidate()
+
+	/**
+	 * Adds the ensureConsistency() method to ensure that internal state is correct.
+	 * @param      string &$script The script will be modified in this method.
+	 */
+	protected function addEnsureConsistency(&$script)
+	{
+		$table = $this->getTable();
+
+		$script .= "
+	/**
+	 * Checks and repairs the internal consistency of the object.
+	 *
+	 * This method is executed after an already-instantiated object is re-hydrated
+	 * from the database.  It exists to check any foreign keys to make sure that
+	 * the objects related to the current object are correct based on foreign key.
+	 *
+	 * You can override this method in the stub class, but you should always invoke
+	 * the base method from the overridden method (i.e. parent::ensureConsistency()),
+	 * in case your model changes.
+	 *
+	 * @throws     PropelException
+	 */
+	public function ensureConsistency()
+	{
+";
+		foreach ($table->getColumns() as $col) {
+
+			$clo=strtolower($col->getName());
+
+			if ($col->isForeignKey()) {
+
+				$tblFK = $table->getDatabase()->getTable($col->getRelatedTableName());
+				$colFK = $tblFK->getColumn($col->getRelatedColumnName());
+
+				$varName = $this->getFKVarName($col->getForeignKey());
+
+				$script .= "
+		if (\$this->".$varName." !== null && \$this->$clo !== \$this->".$varName."->get".$colFK->getPhpName()."()) {
+			\$this->$varName = null;
+		}
+	";
+			} /* if col is foreign key */
+
+		} // foreach
+
+		$script .= "
+	} // ensureConsistency
+";
+	} // addCheckRelConsistency
 
 	/**
 	 * Adds the copy() method, which (in complex OM) includes the $deepCopy param for making copies of related objects.
@@ -1163,14 +1418,14 @@ $script .= "
 	 * objects.
 	 *
 	 * @param      boolean \$deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
-	 * @return     ".$table->getPhpName()." Clone of current object.
+	 * @return     ".$this->getObjectClassname()." Clone of current object.
 	 * @throws     PropelException
 	 */
 	public function copy(\$deepCopy = false)
 	{
 		// we use get_class(), because this might be a subclass
 		\$clazz = get_class(\$this);
-		\$copyObj = new \$clazz();
+		" . $this->buildObjectInstanceCreationCode('$copyObj', '$clazz') . "
 		\$this->copyInto(\$copyObj, \$deepCopy);
 		return \$copyObj;
 	}
@@ -1193,7 +1448,7 @@ $script .= "
 	 * If desired, this method can also make copies of all associated (fkey referrers)
 	 * objects.
 	 *
-	 * @param      object \$copyObj An object of ".$table->getPhpName()." (or compatible) type.
+	 * @param      object \$copyObj An object of ".$this->getObjectClassname()." (or compatible) type.
 	 * @param      boolean \$deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
 	 * @throws     PropelException
 	 */
@@ -1227,19 +1482,14 @@ $script .= "
 			\$copyObj->setNew(false);
 ";
 			foreach ($table->getReferrers() as $fk) {
-				// Continue if $this and $copyObj are the same class and have the same primary key
-				// to avoid endless loops
+				//HL: commenting out self-referrential check below
+				//		it seems to work as expected and is probably desireable to have those referrers from same table deep-copied.
+				//if ( $fk->getTable()->getName() != $table->getName() ) {
 				$script .= "
-			foreach(\$this->get".$this->getRefFKPhpNameAffix($fk, true)."() as \$relObj) {";
-				if ($table->getName() === $fk->getTableName()) {
-					$script .= "
-				if(\$this->getPrimaryKey() === \$relObj->getPrimaryKey()) {
-						continue;
-				}
-";
-				}
-				$script .= "
+			foreach (\$this->get".$this->getRefFKPhpNameAffix($fk, true)."() as \$relObj) {
+				if (\$relObj !== \$this) {  // ensure that we don't try to copy a reference to ourselves
 				\$copyObj->add".$this->getRefFKPhpNameAffix($fk)."(\$relObj->copy(\$deepCopy));
+			}
 			}
 ";
 				// HL: commenting out close of self-referential check
@@ -1269,5 +1519,89 @@ $script .= "
 	}
 ";
 	} // addCopyInto()
+
+	/**
+	 * Adds a reload() method to re-fetch the data for this object from the database.
+	 * @param      string &$script The script will be modified in this method.
+	 */
+	protected function addReload(&$script)
+	{
+		$table = $this->getTable();
+		$script .= "
+	/**
+	 * Reloads this object from datastore based on primary key and (optionally) resets all associated objects.
+	 *
+	 * This will only work if the object has been saved and has a valid primary key set.
+	 *
+	 * @param      boolean \$deep (optional) Whether to also de-associated any related objects. 
+	 * @param      PDO \$con (optional) The PDO connection to use.
+	 * @return     void
+	 * @throws     PropelException - if this object is deleted, unsaved or doesn't have pk match in db
+	 */
+	public function reload(\$deep = false, PDO \$con = null)
+	{
+		if (\$this->isDeleted()) {
+			throw new PropelException(\"Cannot reload a deleted object.\");
+		}
+
+		if (\$this->isNew()) {
+			throw new PropelException(\"Cannot reload an unsaved object.\");
+		}
+
+		if (\$con === null) {
+			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME);
+		}
+
+		// We don't need to alter the object instance pool; we're just modifying this instance
+		// already in the pool.
+
+		\$stmt = ".$this->getPeerClassname()."::doSelectStmt(\$this->buildPkeyCriteria(), \$con);
+		\$row = \$stmt->fetch(PDO::FETCH_NUM);
+		if (!\$row) {
+			throw new PropelException('Cannot find matching row in the database to reload object values.');
+		}
+		\$this->hydrate(\$row, 0, true); // rehydrate
+";
+		
+		// support for lazy load columns
+		foreach($table->getColumns() as $col) {
+			if ($col->isLazyLoad()) {
+				$clo = strtolower($col->getName());
+				$script .= "
+		// Reset the $clo lazy-load column
+		\$this->" . $clo . " = null;
+		\$this->".$clo."_isLoaded = false;
+";
+			}
+		}
+		
+		$script .= "
+		if (\$deep) {  // also de-associate any related objects?
+";
+		
+		foreach ($table->getForeignKeys() as $fk) {
+			$varName = $this->getFKVarName($fk);
+			$script .= "
+			\$this->".$varName." = null;";
+		}
+
+		foreach ($table->getReferrers() as $refFK) {
+			if ($refFK->isLocalPrimaryKey()) {
+				$script .= "
+			\$this->".$this->getPKRefFKVarName($refFK)." = null;
+";
+			} else {
+				$script .= "	
+			\$this->".$this->getRefFKCollVarName($refFK)." = null;
+			\$this->".$this->getRefFKLastCriteriaVarName($refFK)." = null;
+";
+			}
+		}
+		
+		$script .= "
+		} // if (deep)
+	}
+";
+	} // addReload()
 
 } // PHP5ComplexObjectBuilder

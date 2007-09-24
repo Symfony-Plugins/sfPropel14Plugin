@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: DBMSSQL.php 536 2007-01-10 14:30:38Z heltem $
+ *  $Id: DBMSSQL.php 563 2007-02-01 09:45:55Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -20,17 +20,67 @@
  * <http://propel.phpdb.org>.
  */
 
-require_once 'propel/adapter/DBSybase.php';
-
 /**
  * This is used to connect to a MSSQL database.  For now, this class
  * simply extends the adaptor for Sybase.
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
- * @author     Gonzalo Diethelm <gonzalo.diethelm@sonda.com> (Torque)
- * @version    $Revision: 536 $
+ * @version    $Revision: 563 $
  * @package    propel.adapter
  */
 class DBMSSQL extends DBSybase {
 	// no difference currently
+
+	/**
+	 * @see        DBAdapter::applyLimit()
+	 */
+	public function applyLimit(&$sql, $offset, $limit)
+	{
+ 		throw new PropelException("LIMIT/OFFSET support in MSSQL not yet implemented...");
+
+ 		/*
+ 		 Here's one solution:
+
+		CREATE PROCEDURE [owner].[LimitSelect]
+		@query CHAR (256), -- SQL query, it'd better be a SELECT!
+		@offset INT, -- start result set from offset
+		@limit INT -- limit the result set of the query
+		AS
+		-- Execute call to declare a global cursor (node_cursor) for the query passed to the SP
+		EXEC ('DECLARE node_cursor CURSOR GLOBAL SCROLL READ_ONLY FOR ' + @query)
+
+		-- open the global cursor declared above
+		OPEN node_cursor
+
+		-- tweak the starting values of limit and offset for use in the loop
+		SET @offset = @offset + 1
+		SET @limit = @limit
+
+		-- advanced the cursor to the offset in the result set
+		FETCH ABSOLUTE @offset FROM node_cursor
+
+		-- counter i
+		DECLARE @i INTEGER
+
+		SET @i = 0
+
+		-- loop until limit reached by counter i
+		WHILE (@i < @limit)
+		BEGIN
+		-- fetch the next row in the result set and advance counter i
+		FETCH NEXT FROM node_cursor
+		SET @i = @i + 1
+		END
+
+		-- clean finish
+		CLOSE node_cursor
+		DEALLOCATE node_cursor
+		*/
+	}
+
+	public function random($seed=NULL)
+	{
+		return 'NEWID()';
+	}
+
 }

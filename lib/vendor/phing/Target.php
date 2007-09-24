@@ -26,33 +26,33 @@ include_once 'phing/TaskContainer.php';
  *  abstract class {@link TaskContainer}
  *
  *  @author    Andreas Aderhold <andi@binarycloud.com>
- *  @copyright © 2001,2002 THYRELL. All rights reserved
- *  @version   $Revision: 1.10 $ $Date: 2005/10/04 19:13:44 $
+ *  @copyright ï¿½ 2001,2002 THYRELL. All rights reserved
+ *  @version   $Revision: 1.10 $ $Date: 2007-03-14 06:52:03 -0700 (Wed, 14 Mar 2007) $
  *  @access    public
  *  @see       TaskContainer
  *  @package   phing
  */
 
 class Target implements TaskContainer {
-    
+
     /** name of target */
     private $name;
-    
+
     /** dependencies */
     private $dependencies = array();
-    
+
     /** holds objects of children of this target */
     private $children = array();
-    
+
     /** the if cond. from xml */
     private $ifCondition = "";
-    
+
     /** the unless cond. from xml */
     private $unlessCondition = "";
-    
+
     /** description of this target */
     private $description;
-    
+
     /** reference to project */
     private $project;
 
@@ -88,7 +88,7 @@ class Target implements TaskContainer {
             $trimmed = trim($deps[$i]);
             if ($trimmed === "") {
                 throw new BuildException("Syntax Error: Depend attribute for target ".$this->getName()." is malformed.");
-            } 
+            }
             $this->addDependency($trimmed);
         }
     }
@@ -244,9 +244,9 @@ class Target implements TaskContainer {
                 }
             }
         } elseif (!$this->testIfCondition()) {
-            $this->project->log("Skipped target '".$this->name."' because property '".$this->ifCondition."' not set.", PROJECT_MSG_VERBOSE);
+            $this->project->log("Skipped target '".$this->name."' because property '".$this->ifCondition."' not set.", Project::MSG_VERBOSE);
         } else {
-            $this->project->log("Skipped target '".$this->name."' because property '".$this->unlessCondition."' set.", PROJECT_MSG_VERBOSE);
+            $this->project->log("Skipped target '".$this->name."' because property '".$this->unlessCondition."' set.", Project::MSG_VERBOSE);
         }
     }
 
@@ -262,12 +262,12 @@ class Target implements TaskContainer {
             $this->project->fireTargetStarted($this);
             $this->main();
             $this->project->fireTargetFinished($this, $null=null);
-        } catch (Exception $exc) {
+        } catch (BuildException $exc) {
             // log here and rethrow
             $this->project->fireTargetFinished($this, $exc);
             throw $exc;
         }
-    }    
+    }
 
     /**
      *  Tests if the property set in ifConfiditon exists.
@@ -303,7 +303,7 @@ class Target implements TaskContainer {
         if ($this->unlessCondition === "") {
             return true;
         }
-        
+
         $properties = explode(",", $this->unlessCondition);
 
         $result = true;

@@ -81,7 +81,7 @@ abstract class DDLBuilder extends DataModelBuilder {
 	public function getColumnList($columns, $delim=',')
 	{
 		$list = array();
-		foreach($columns as $col) {
+		foreach ($columns as $col) {
 			if ($col instanceof Column) {
 				$col = $col->getName();
 			}
@@ -108,6 +108,19 @@ abstract class DDLBuilder extends DataModelBuilder {
 	public static function getDatabaseEndDDL()
 	{
 		return '';
+	}
+
+	/**
+	 * Resets any static variables between building a SQL file for a database.
+	 *
+	 * Theoretically, Propel could build multiple .sql files for multiple databases; in
+	 * many cases we don't want static values to persist between these.  This method provides
+	 * a way to clear out static values between iterations, if the subclasses choose to implement
+	 * it.
+	 */
+	public static function reset()
+	{
+		// nothing by default
 	}
 
 	/**

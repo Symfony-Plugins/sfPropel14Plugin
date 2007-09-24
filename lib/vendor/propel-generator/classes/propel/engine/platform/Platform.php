@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Platform.php 536 2007-01-10 14:30:38Z heltem $
+ *  $Id: Platform.php 656 2007-06-20 15:25:53Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -24,7 +24,7 @@
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
- * @version    $Revision: 536 $
+ * @version    $Revision: 656 $
  * @package    propel.engine.platform
  */
 interface Platform {
@@ -34,6 +34,18 @@ interface Platform {
 
 	/** constant for native id method */
 	const SEQUENCE = "sequence";
+
+	/**
+	 * Sets a database connection to use (for quoting, etc.).
+	 * @param      PDO $con The database connection to use in this Platform class.
+	 */
+	public function setConnection(PDO $con = null);
+
+	/**
+	 * Returns the database connection to use for this Platform class.
+	 * @return     PDO The database connection or NULL if none has been set.
+	 */
+	public function getConnection();
 
 	/**
 	 * Returns the short name of the database type that this platform represents.
@@ -92,11 +104,11 @@ interface Platform {
 	public function hasScale($sqlType);
 
 	/**
-	 * Escape the string for RDBMS.
+	 * Quote and escape needed characters in the string for unerlying RDBMS.
 	 * @param      string $text
 	 * @return     string
 	 */
-	public function escapeText($text);
+	public function quote($text);
 
 	/**
 	 * Quotes identifiers used in database SQL.
@@ -124,5 +136,10 @@ interface Platform {
 	 * @return     mixed
 	 */
 	public function getBooleanString($tf);
-
+	
+	/**
+	 * Whether the underlying PDO driver for this platform returns BLOB columns as streams (instead of strings).
+	 * @return     boolean 
+	 */
+	public function hasStreamBlobImpl();
 }

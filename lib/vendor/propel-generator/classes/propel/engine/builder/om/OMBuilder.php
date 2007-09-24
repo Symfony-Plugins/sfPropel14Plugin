@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: OMBuilder.php 536 2007-01-10 14:30:38Z heltem $
+ *  $Id: OMBuilder.php 563 2007-02-01 09:45:55Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -27,7 +27,7 @@ require_once 'propel/engine/builder/DataModelBuilder.php';
  *
  * OM-building classes are those that build a PHP (or other) class to service
  * a single table.  This includes Peer classes, Entity classes, Map classes,
- * Node classes, etc.
+ * Node classes, Nested Set classes, etc.
  *
  * @author     Hans Lellelid <hans@xmpl.org>
  * @package    propel.engine.builder.om
@@ -100,6 +100,17 @@ abstract class OMBuilder extends DataModelBuilder {
 	 */
 	private $stubNodePeerBuilder;
 
+	/**
+	 * NestedSet object builder for current table.
+	 * @var        DataModelBuilder
+	 */
+	private $nestedSetBuilder;
+
+	/**
+	 * NestedSet peer builder for current table.
+	 * @var        DataModelBuilder
+	 */
+	private $nestedSetPeerBuilder;
 
 	/**
 	 * Returns new or existing Peer builder class for this table.
@@ -235,6 +246,30 @@ abstract class OMBuilder extends DataModelBuilder {
 	}
 
 	/**
+	 * Returns new or existing nested set Object builder class for this table.
+	 * @return     DataModelBuilder
+	 */
+	public function getNestedSetBuilder()
+	{
+		if (!isset($this->nestedSetBuilder)) {
+			$this->nestedSetBuilder = DataModelBuilder::builderFactory($this->getTable(), 'nestedset');
+		}
+		return $this->nestedSetBuilder;
+	}
+
+	/**
+	 * Returns new or existing nested set Peer builder class for this table.
+	 * @return     DataModelBuilder
+	 */
+	public function getNestedSetPeerBuilder()
+	{
+		if (!isset($this->nestedSetPeerBuilder)) {
+			$this->nestedSetPeerBuilder = DataModelBuilder::builderFactory($this->getTable(), 'nestedsetpeer');
+		}
+		return $this->nestedSetPeerBuilder;
+	}
+
+	/**
 	 * Convenience method to return a NEW Peer class builder instance.
 	 * This is used very frequently from the peer and object builders to get
 	 * a peer builder for a RELATED table.
@@ -279,11 +314,32 @@ abstract class OMBuilder extends DataModelBuilder {
 	}
 
 	/**
-	 * Returns the name of the current class being built.
+	 * Creates a $obj = new Book(); code snippet. Can be used by frameworks, for instance, to
+	 * extend this behavior, e.g. initialize the object after creating the instance or so.
+	 *
+	 * @return     string Some code
+	 */
+	public function buildObjectInstanceCreationCode($objName, $clsName)
+	{
+		return "$objName = new $clsName();";
+	}
+
+	/**
+	 * Returns the qualified (prefixed) classname that is being built by the current class.
+	 * This method must be implemented by child classes.
 	 * @return     string
 	 */
-	abstract public function getClassname();
+	abstract public function getUnprefixedClassname();
 
+	/**
+	 * Returns the prefixed clasname that is being built by the current class.
+	 * @return     string
+	 * @see        DataModelBuilder#prefixClassname()
+	 */
+	public function getClassname()
+	{
+		return DataModelBuilder::prefixClassname($this->getUnprefixedClassname());
+	}
 	/**
 	 * Gets the dot-path representation of current class being built.
 	 * @return     string
@@ -356,19 +412,20 @@ abstract class OMBuilder extends DataModelBuilder {
 	 * Get the column constant name (e.g. PeerName::COLUMN_NAME).
 	 *
 	 * @param      Column $col The column we need a name for.
-	 * @param      string $phpName The PHP Name of the peer class. The 'Peer' is appended automatically.
+	 * @param      string $classname The Peer classname to use.
 	 *
-	 * @return     string If $phpName is provided, then will return {$phpName}Peer::COLUMN_NAME; if not, then uses current table COLUMN_NAME.
+	 * @return     string If $classname is provided, then will return $classname::COLUMN_NAME; if not, then the peername is looked up for current table to yield $currTablePeer::COLUMN_NAME.
 	 */
-	public function getColumnConstant($col, $phpName = null)
+	public function getColumnConstant($col, $classname = null)
 	{
 		if ($col === null) {
 			$e = new Exception("No col specified.");
 			print $e;
 			throw $e;
 		}
-		$classname = $this->getPeerClassname($phpName);
-
+		if ($classname === null) {
+			$classname = $this->getPeerClassname();
+		}
 		// was it overridden in schema.xml ?
 		if ($col->getPeerName()) {
 			$const = strtoupper($col->getPeerName());
@@ -376,21 +433,6 @@ abstract class OMBuilder extends DataModelBuilder {
 			$const = strtoupper($col->getName());
 		}
 		return $classname.'::'.$const;
-	}
-
-	/**
-	 * Gets just classname, given a dot-path to class.
-	 * @param      string $qualifiedName
-	 * @return     string
-	 */
-	public function classname($qualifiedName)
-	{
-		$pos = strrpos($qualifiedName, '.');
-		if ($pos === false) {
-			return $qualifiedName;  // there is no '.' in the qualifed name
-		} else {
-			return substr($qualifiedName, $pos + 1); // start just after '.'
-		}
 	}
 
 	/**
@@ -406,4 +448,11 @@ abstract class OMBuilder extends DataModelBuilder {
 		return $class;
 	}
 
+	/**
+	 *
+	 */
+	protected function getBuilder($tablename, $type) {
+		$table = $this->getTable()->getDatabase()->getTable($tablename);
+		return self::builderFactory($table, $type);
+	}
 }

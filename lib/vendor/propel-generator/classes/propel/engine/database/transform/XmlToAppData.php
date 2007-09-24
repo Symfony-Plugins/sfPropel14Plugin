@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: XmlToAppData.php 536 2007-01-10 14:30:38Z heltem $
+ *  $Id: XmlToAppData.php 521 2007-01-05 13:29:36Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -35,7 +35,7 @@ include_once 'phing/system/io/FileReader.php';
  * @author     Jason van Zyl <jvanzyl@apache.org> (Torque)
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
  * @author     Daniel Rall <dlr@collab.net> (Torque)
- * @version    $Revision: 536 $
+ * @version    $Revision: 521 $
  * @package    propel.engine.database.transform
  */
 class XmlToAppData extends AbstractHandler {
@@ -94,7 +94,7 @@ class XmlToAppData extends AbstractHandler {
 	public function parseFile($xmlFile)
 	{
 		// we don't want infinite recursion
-		if($this->isAlreadyParsed($xmlFile)) {
+		if ($this->isAlreadyParsed($xmlFile)) {
 			return;
 		}
 
@@ -175,7 +175,7 @@ class XmlToAppData extends AbstractHandler {
 
 						//"referenceOnly" attribute is valid in the main schema XML file only,
 						//and it's ingnored in the nested external-schemas
-						if(!$this->isExternalSchema()) {
+						if (!$this->isExternalSchema()) {
 							$isForRefOnly = @$attributes["referenceOnly"];
 							$this->isForReferenceOnly = ($isForRefOnly !== null ? (strtolower($isForRefOnly) === "true") : true); // defaults to TRUE
 						}
@@ -315,7 +315,7 @@ class XmlToAppData extends AbstractHandler {
 
 				switch($name) {
 					case "parameter":
-						if($this->currVendorObject->isCompatible($this->platform->getDatabaseType())) {
+						if ($this->currVendorObject->isCompatible($this->platform->getDatabaseType())) {
 							$this->currVendorObject->setVendorParameter($attributes['name'], iconv('utf-8',$this->encoding, $attributes['value']));
 						}
 					break;

@@ -3,7 +3,7 @@
 /*
  * This file is part of the symfony package.
  * (c) 2004-2006 Fabien Potencier <fabien.potencier@symfony-project.com>
- * 
+ *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
@@ -11,7 +11,7 @@
 require_once(dirname(__FILE__).'/../../../../../../test/bootstrap/unit.php');
 set_include_path(sfConfig::get('sf_symfony_lib_dir').'/plugins/sfPropelPlugin/lib/vendor'.PATH_SEPARATOR.get_include_path());
 
-$t = new lime_test(4, new lime_output_color());
+$t = new lime_test(2, new lime_output_color());
 
 $p = new sfPropelDatabase();
 
@@ -21,15 +21,11 @@ $configuration = array(
       'propel' => array(
         'adapter' => 'mysql',
         'connection' => array(
-          'phptype'    => 'mysql',
-          'hostspec'   => 'localhost',
-          'database'   => 'testdb',
-          'username'   => 'foo',
+          'dsn'        => 'mysql:dbname=testdb;host=localhost',
+          'user'       => 'foo',
           'password'   => 'bar',
-          'port'       => null,
           'encoding'   => 'utf8',
-          'persistent' => '1',
-          'protocol'   => null,
+          'persistent' => true,
         ),
       ),
       'default' => 'propel',
@@ -39,31 +35,12 @@ $configuration = array(
 
 $parametersTests = array(
   array(
-    'dsn'        => 'mysql://foo:bar@localhost/testdb?encoding=utf8&persistent=1',
-  ),
-  array(
-    'dsn'        => 'mysql://foo:bar@localhost/testdb',
-    'encoding'   => 'utf8',
-    'persistent' => 1,
-  ),
-  array(
-    'phptype'    => 'mysql',
-    'database'   => 'testdb',
-    'encoding'   => 'utf8',
-    'host'       => 'localhost',
+    'dsn'        => 'mysql:dbname=testdb;host=localhost',
     'username'   => 'foo',
     'password'   => 'bar',
-    'persistent' => 1,
-  ),
-  array(
-    'phptype'    => 'mysql',
-    'database'   => 'testdb',
     'encoding'   => 'utf8',
-    'hostspec'   => 'localhost',
-    'username'   => 'foo',
-    'password'   => 'bar',
-    'persistent' => 1,
-  ),
+    'persistent' => true,
+  )
 );
 
 foreach ($parametersTests as $parameters)

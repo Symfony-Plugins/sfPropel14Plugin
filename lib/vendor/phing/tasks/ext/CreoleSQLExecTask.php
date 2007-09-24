@@ -70,6 +70,11 @@ class CreoleSQLExecTask extends CreoleTask {
     private $filesets = array();
 
     /**
+     * all filterchains objects assigned to this task
+     */
+    private $filterChains  = array();
+
+    /**
      * SQL statement
      */
     private $statement = null;
@@ -152,6 +157,17 @@ class CreoleSQLExecTask extends CreoleTask {
      */
     public function addFileset(FileSet $set) {
         $this->filesets[] = $set;
+    }
+
+    /**
+     * Creates a filterchain
+     *
+     * @access public
+     * @return  object  The created filterchain object
+     */
+    function createFilterChain() {
+        $num = array_push($this->filterChains, new FilterChain($this->project));
+        return $this->filterChains[$num-1];
     }
 
     /**
@@ -303,7 +319,7 @@ class CreoleSQLExecTask extends CreoleTask {
                 try {
                     
                     if ($this->output !== null) {
-                        $this->log("Opening output file " . $this->output, PROJECT_MSG_VERBOSE);
+                        $this->log("Opening output file " . $this->output, Project::MSG_VERBOSE);
                         $out = new BufferedWriter(new FileWriter($this->output->getAbsolutePath(), $this->append));
                     }
                     
@@ -311,7 +327,7 @@ class CreoleSQLExecTask extends CreoleTask {
                     for ($i=0,$size=count($this->transactions); $i < $size; $i++) {
                         $this->transactions[$i]->runTransaction($out);
                         if (!$this->isAutocommit()) {
-                            $this->log("Commiting transaction", PROJECT_MSG_VERBOSE);
+                            $this->log("Commiting transaction", Project::MSG_VERBOSE);
                             $this->conn->commit();
                         }
                     }
@@ -357,9 +373,25 @@ class CreoleSQLExecTask extends CreoleTask {
     public function runStatements(Reader $reader, $out = null) {
         $sql = "";
         $line = "";
-        $in = new BufferedReader($reader);
-        try {
+
+		$buffer = '';
+
+        if ((is_array($this->filterChains)) && (!empty($this->filterChains))) {    
+            $in = FileUtils::getChainedReader(new BufferedReader($reader), $this->filterChains, $this->getProject());
+			while(-1 !== ($read = $in->read())) { // -1 indicates EOF
+				   $buffer .= $read;
+            }
+            $lines = explode("\n", $buffer);
+        } else {
+	        $in = new BufferedReader($reader);
+
             while (($line = $in->readLine()) !== null) {
+				$lines[] = $line;
+			}
+		}
+
+        try {
+			foreach ($lines as $line) {
                 $line = trim($line);
                 $line = ProjectConfigurator::replaceProperties($this->project, $line,
                         $this->project->getProperties());
@@ -389,8 +421,8 @@ class CreoleSQLExecTask extends CreoleTask {
                         && StringHelper::endsWith($this->delimiter, $sql)
                         || $this->delimiterType == self::DELIM_ROW
                         && $line == $this->delimiter) {
-                    $this->log("SQL: " . $sql, PROJECT_MSG_VERBOSE);
-                    $this->execSQL(StringHelper::substring($sql, 0, strlen($sql) - strlen($this->delimiter) - 1), $out);
+                    $this->log("SQL: " . $sql, Project::MSG_VERBOSE);
+                    $this->execSQL(StringHelper::substring($sql, 0, strlen($sql) - strlen($this->delimiter)), $out);
                     $sql = "";
                 }
             }
@@ -418,7 +450,7 @@ class CreoleSQLExecTask extends CreoleTask {
         try {
             $this->totalSql++;
             if (!$this->statement->execute($sql)) {
-                $this->log($this->statement->getUpdateCount() . " rows affected", PROJECT_MSG_VERBOSE);
+                $this->log($this->statement->getUpdateCount() . " rows affected", Project::MSG_VERBOSE);
             } else {
                 if ($this->print) {
                     $this->printResults($out);
@@ -428,11 +460,11 @@ class CreoleSQLExecTask extends CreoleTask {
             $this->goodSql++;
             
         } catch (SQLException $e) {            
-            $this->log("Failed to execute: " . $sql, PROJECT_MSG_ERR);
+            $this->log("Failed to execute: " . $sql, Project::MSG_ERR);
             if ($this->onError != "continue") {            
                 throw new BuildException("Failed to execute SQL", $e);
             }
-            $this->log($e->getMessage(), PROJECT_MSG_ERR);
+            $this->log($e->getMessage(), Project::MSG_ERR);
         }
     }
     
@@ -441,14 +473,14 @@ class CreoleSQLExecTask extends CreoleTask {
      * @throw SQLException
      */
     protected function printResults($out = null) {
-        $lSep = Phing::getProperty('line.separator');
+        
         $rs = null;        
         do {
             $rs = $this->statement->getResultSet();
             
             if ($rs !== null) {
             
-                $this->log("Processing new result set.", PROJECT_MSG_VERBOSE);            
+                $this->log("Processing new result set.", Project::MSG_VERBOSE);            
     
                 $line = "";
 
@@ -467,7 +499,7 @@ class CreoleSQLExecTask extends CreoleTask {
                             $out->write($line);
                             $out->newLine();
                         } else {
-                            print($line.$lSep);
+                            print($line.PHP_EOL);
                         }
                         $line = "";
                         $colsprinted = true;
@@ -492,14 +524,14 @@ class CreoleSQLExecTask extends CreoleTask {
                         $out->write($line);
                         $out->newLine();
                     } else {                    
-                        print($line . $lSep);
+                        print($line . PHP_EOL);
                     }
                     $line = "";
                     
                 } // while rs->next()
             }
         } while ($this->statement->getMoreResults());
-        print($lSep);
+        print(PHP_EOL);
         if ($out !== null) $out->newLine();
     }
 }
@@ -539,14 +571,16 @@ class SQLExecTransaction {
     public function runTransaction($out = null)
     {
         if (!empty($this->tSqlCommand)) {
-            $this->parent->log("Executing commands", PROJECT_MSG_INFO);
+            $this->parent->log("Executing commands", Project::MSG_INFO);
             $this->parent->runStatements(new StringReader($this->tSqlCommand), $out);
         }
 
         if ($this->tSrcFile !== null) {
             $this->parent->log("Executing file: " . $this->tSrcFile->getAbsolutePath(),
-                PROJECT_MSG_INFO);
+                Project::MSG_INFO);
+
             $reader = new FileReader($this->tSrcFile);
+
             $this->parent->runStatements($reader, $out);
             $reader->close();
         }

@@ -23,7 +23,7 @@ require_once 'phing/Task.php';
 require_once 'phing/system/io/PhingFile.php';
 require_once 'phing/system/io/Writer.php';
 require_once 'phing/system/util/Properties.php';
-require_once 'phing/tasks/ext/phpunit2/PHPUnit2Util.php';
+require_once 'phing/tasks/ext/phpunit/PHPUnitUtil.php';
 require_once 'phing/tasks/ext/coverage/CoverageReportTransformer.php';
 
 /**
@@ -117,7 +117,7 @@ class CoverageReportTask extends Task
 
 	protected function addClassToPackage($classname, $element)
 	{
-		$packageName = PHPUnit2Util::getPackageName($classname);
+		$packageName = PHPUnitUtil::getPackageName($classname);
 
 		$package = $this->getPackageElement($packageName);
 
@@ -186,8 +186,15 @@ class CoverageReportTask extends Task
 				$line = $lines[$i];
 				
 				$line = rtrim($line);
-
-				$lines[$i] = utf8_encode($line);
+				
+				if (function_exists('mb_convert_encoding'))
+				{
+					$lines[$i] = mb_convert_encoding($line, 'UTF-8');
+				}
+				else
+				{
+					$lines[$i] = utf8_encode($line);
+				}
 			}
 			
 			return $lines;
@@ -198,6 +205,11 @@ class CoverageReportTask extends Task
 	{
 		$sourceElement = $this->doc->createElement('sourcefile');
 		$sourceElement->setAttribute('name', basename($filename));
+		
+		/**
+		 * Add original/full filename to document
+		 */
+		$sourceElement->setAttribute('sourcefile', $filename);
 
 		$filelines = $this->highlightSourceFile($filename);
 
@@ -235,7 +247,7 @@ class CoverageReportTask extends Task
 		end($coverageInformation);
 		unset($coverageInformation[key($coverageInformation)]);
 		
-		$classes = PHPUnit2Util::getDefinedClasses($filename, $this->classpath);
+		$classes = PHPUnitUtil::getDefinedClasses($filename, $this->classpath);
 		
 		if (is_array($classes))
 		{

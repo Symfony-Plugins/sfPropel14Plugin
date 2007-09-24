@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: AbstractPropelDataModelTask.php 536 2007-01-10 14:30:38Z heltem $
+ *  $Id: AbstractPropelDataModelTask.php 659 2007-06-26 13:39:30Z ron $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -99,12 +99,6 @@ abstract class AbstractPropelDataModelTask extends Task {
 	protected $outputDirectory;
 
 	/**
-	 * Path where Capsule looks for templates.
-	 * @var        PhingFile
-	 */
-	protected $templatePath;
-
-	/**
 	 * Whether to package the datamodels or not
 	 * @var        PhingFile
 	 */
@@ -127,6 +121,30 @@ abstract class AbstractPropelDataModelTask extends Task {
 	 * @var        PhingFile
 	 */
 	protected $xslFile;
+
+	/**
+	 * Optional database connection url.
+	 * @var        string
+	 */
+	private $url = null;
+
+	/**
+	 * Optional database connection user name.
+	 * @var        string
+	 */
+	private $userId = null;
+
+	/**
+	 * Optional database connection password.
+	 * @var        string
+	 */
+	private $password = null;
+
+	/**
+	 * PDO Connection.
+	 * @var        PDO
+	 */
+	private $conn = false;
 
 	/**
 	 * Return the data models that have been
@@ -240,44 +258,6 @@ abstract class AbstractPropelDataModelTask extends Task {
 	}
 
 	/**
-	 * [REQUIRED] Set the path where Capsule will look
-	 * for templates using the file template
-	 * loader.
-	 * @return     void
-	 * @throws     Exception
-	 */
-	public function setTemplatePath($templatePath) {
-		$resolvedPath = "";
-		$tok = strtok($templatePath, ",");
-		while ( $tok ) {
-			// resolve relative path from basedir and leave
-			// absolute path untouched.
-			$fullPath = $this->project->resolveFile($tok);
-			$cpath = $fullPath->getCanonicalPath();
-			if ($cpath === false) {
-				$this->log("Template directory does not exist: " . $fullPath->getAbsolutePath());
-			} else {
-				$resolvedPath .= $cpath;
-			}
-			$tok = strtok(",");
-			if ( $tok ) {
-				$resolvedPath .= ",";
-			}
-		}
-		$this->templatePath = $resolvedPath;
-	 }
-
-	/**
-	 * Get the path where Velocity will look
-	 * for templates using the file template
-	 * loader.
-	 * @return     string
-	 */
-	public function getTemplatePath() {
-		return $this->templatePath;
-	}
-
-	/**
 	 * [REQUIRED] Set the output directory. It will be
 	 * created if it doesn't exist.
 	 * @param      PhingFile $outputDirectory
@@ -305,7 +285,37 @@ abstract class AbstractPropelDataModelTask extends Task {
 	 */
 	public function setDbEncoding($v)
 	{
-	   $this->dbEncoding = $v;
+		$this->dbEncoding = $v;
+	}
+
+	/**
+	 * Set the DB connection url.
+	 *
+	 * @param      string $url connection url
+	 */
+	public function setUrl($url)
+	{
+		$this->url = $url;
+	}
+
+	/**
+	 * Set the user name for the DB connection.
+	 *
+	 * @param      string $userId database user
+	 */
+	public function setUserid($userId)
+	{
+		$this->userId = $userId;
+	}
+
+	/**
+	 * Set the password for the DB connection.
+	 *
+	 * @param      string $password database password
+	 */
+	public function setPassword($password)
+	{
+		$this->password = $password;
 	}
 
 	/**
@@ -339,7 +349,7 @@ abstract class AbstractPropelDataModelTask extends Task {
 	 */
 	protected function getMappedFile($from)
 	{
-		if(!$this->mapperElement) {
+		if (!$this->mapperElement) {
 			throw new BuildException("This task requires you to use a <mapper/> element to describe how filename changes should be handled.");
 		}
 
@@ -355,8 +365,38 @@ abstract class AbstractPropelDataModelTask extends Task {
 	}
 
 	/**
+	 * Gets the PDO connection, if URL specified.
+	 * @return     PDO Connection to use (for quoting, Platform class, etc.) or NULL if no connection params were specified.
+	 */
+	public function getConnection()
+	{
+		if ($this->conn === false) {
+			$this->conn = null;
+			if ($this->url) {
+				$buf = "Using database settings:\n"
+					. " URL: " . $this->url . "\n"
+					. ($this->userId ? " user: " . $this->userId . "\n" : "")
+				. ($this->password ? " password: " . $this->password . "\n" : "");
+
+				$this->log($buf, PROJECT_MSG_VERBOSE);
+
+				// Set user + password to null if they are empty strings
+				if (!$this->userId) { $this->userId = null; }
+				if (!$this->password) { $this->password = null; }
+				try {
+					$this->conn = new PDO($this->url, $this->userId, $this->password);
+					$this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+				} catch (PDOException $x) {
+					$this->log("Unable to create a PDO connection: " . $x->getMessage(), PROJECT_MSG_WARN);
+				}
+			}
+		}
+		return $this->conn;
+	}
+
+	/**
 	 * Get the Platform class based on the target database type.
-	 * @return     Platform Class that implements the Platform interface.
+	 * @return     Platform Object that implements the Platform interface.
 	 */
 	protected function getPlatformForTargetDatabase()
 	{
@@ -369,15 +409,26 @@ abstract class AbstractPropelDataModelTask extends Task {
 		// This is a slight hack to workaround camel case inconsistencies for the DDL classes.
 		// Basically, we want to turn ?.?.?.sqliteDDLBuilder into ?.?.?.SqliteDDLBuilder
 		$lastdotpos = strrpos($classpath, '.');
-		if ($lastdotpos) $classpath{$lastdotpos+1} = strtoupper($classpath{$lastdotpos+1});
-		else ucfirst($classpath);
+		if ($lastdotpos !== null) {
+			$classpath{$lastdotpos+1} = strtoupper($classpath{$lastdotpos+1});
+		} else {
+			$classpath = ucfirst($classpath);
+		}
 
 		if (empty($classpath)) {
 			throw new BuildException("Unable to find class path for '$propname' property.");
 		}
 
 		$clazz = Phing::import($classpath);
-		return new $clazz();
+		$platform = new $clazz();
+
+		if (!$platform instanceof Platform) {
+			throw new BuildException("Specified platform class ($classpath) does not implement Platform interface.", $this->getLocation());
+		}
+
+		$platform->setConnection($this->getConnection());
+
+		return $platform;
 	}
 
 	/**
@@ -389,7 +440,7 @@ abstract class AbstractPropelDataModelTask extends Task {
 		$ads = array();
 
 		// Get all matched files from schemaFilesets
-		foreach($this->schemaFilesets as $fs) {
+		foreach ($this->schemaFilesets as $fs) {
 			$ds = $fs->getDirectoryScanner($this->project);
 			$srcDir = $fs->getDir($this->project);
 
@@ -398,7 +449,7 @@ abstract class AbstractPropelDataModelTask extends Task {
 			$platform = $this->getPlatformForTargetDatabase();
 
 			// Make a transaction for each file
-			foreach($dataModelFiles as $dmFilename) {
+			foreach ($dataModelFiles as $dmFilename) {
 
 				$this->log("Processing: ".$dmFilename);
 				$xmlFile = new PhingFile($srcDir, $dmFilename);
@@ -412,6 +463,8 @@ abstract class AbstractPropelDataModelTask extends Task {
 					if (!class_exists('XSLTProcessor')) {
 						$this->log("Could not perform XLST transformation.  Make sure PHP has been compiled/configured to support XSLT.", PROJECT_MSG_ERR);
 					} else {
+						// modify schema to include any external schema's (and remove the external-schema nodes)
+						$this->includeExternalSchemas($dom, $srcDir);
 						// normalize the document using normalizer stylesheet
 
 						$xsl = new XsltProcessor();
@@ -456,7 +509,7 @@ abstract class AbstractPropelDataModelTask extends Task {
 
 			// Different datamodels may state the same database
 			// names, we just want the unique names of databases.
-			foreach($this->dataModels as $dm) {
+			foreach ($this->dataModels as $dm) {
 				$database = $dm->getDatabase();
 				$this->dataModelDbMap[$dm->getName()] = $database->getName();
 				$this->databaseNames[$database->getName()] = $database->getName(); // making list of *unique* dbnames.
@@ -471,6 +524,31 @@ abstract class AbstractPropelDataModelTask extends Task {
 	}
 
 	/**
+	 * Replaces all external-schema nodes with the content of xml schema that node refers to
+	 *
+	 * Recurses to include any external schema referenced from in an included xml (and deeper)
+	 * Note: this function very much assumes at least a reasonable XML schema, maybe it'll proof 
+	 * users don't have those and adding some more informative exceptions would be better
+	 *
+	 * @param DomDocument $dom
+	 * @param string $srcDir
+	 * @return void (objects, DomDocument, are references by default in PHP 5, so returning it is useless)
+	 **/
+	protected function includeExternalSchemas(DomDocument $dom, $srcDir) { 
+		$databaseNode = $dom->getElementsByTagName("database")->item(0);
+		foreach ($dom->getElementsByTagName("external-schema") as $externalSchema) {
+			$include = $externalSchema->getAttribute("filename");
+			$externalSchema->parentNode->removeChild($externalSchema);
+			$externalSchemaFile = new PhingFile($srcDir, $include);
+			$externalSchemaDom = new DomDocument('1.0', 'UTF-8');
+			$externalSchemaDom->load($externalSchemaFile->getAbsolutePath());
+			$this->includeExternalSchemas($externalSchemaDom, $srcDir);
+			foreach ($externalSchemaDom->getElementsByTagName("table") as $tableNode) { // see xsd, datatase may only have table or external-schema, the latter was just deleted so this should cover everything
+				$databaseNode->appendChild($dom->importNode($tableNode, true));
+			}
+		}
+	}
+	/**
 	 * Joins the datamodels collected from schema.xml files into one big datamodel
 	 *
 	 * This applies only when the the packageObjectModel option is set. We need to
@@ -481,7 +559,7 @@ abstract class AbstractPropelDataModelTask extends Task {
 	 */
 	protected function joinDatamodels($ads) {
 
-		foreach($ads as $ad) {
+		foreach ($ads as $ad) {
 			$db = $ad->getDatabase(null, false);
 			$this->dataModelDbMap[$ad->getName()] = $db->getName();
 		}
@@ -513,42 +591,6 @@ abstract class AbstractPropelDataModelTask extends Task {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Creates a new Capsule context with some basic properties set.
-	 * (Capsule is a simple PHP encapsulation system -- aka a php "template" class.)
-	 * @return     Capsule
-	 */
-	protected function createContext() {
-
-		$context = new Capsule();
-
-		// Make sure the output directory exists, if it doesn't
-		// then create it.
-		$outputDir = new PhingFile($this->outputDirectory);
-		if (!$outputDir->exists()) {
-			$this->log("Output directory does not exist, creating: " . $outputDir->getAbsolutePath());
-			$outputDir->mkdirs();
-		}
-
-		// Place our set of data models into the context along
-		// with the names of the databases as a convenience for now.
-		$context->put("targetDatabase", $this->targetDatabase);
-		$context->put("targetPackage", $this->targetPackage);
-		$context->put("now", strftime("%c"));
-
-		$this->log("Target database type: " . $this->targetDatabase);
-		$this->log("Target package: " . $this->targetPackage);
-		$this->log("Using template path: " . $this->templatePath);
-		$this->log("Output directory: " . $this->outputDirectory);
-
-		$context->setTemplatePath($this->templatePath);
-		$context->setOutputDirectory($this->outputDirectory);
-
-		$this->populateContextProperties($context);
-
-		return $context;
 	}
 
 	/**
@@ -592,27 +634,11 @@ abstract class AbstractPropelDataModelTask extends Task {
 	}
 
 	/**
-	 * Adds the propel.xxx properties to the passed Capsule context, changing names to just xxx.
+	 * Checks this class against Basic requrements of any propel datamodel task.
 	 *
-	 * Also, move xxx.yyy properties to xxxYyy as PHP doesn't like the xxx.yyy syntax.
-	 *
-	 * @param      Capsule $context
-	 * @see        getPropelProperties()
+	 * @throws     BuildException 	- if schema fileset was not defined
+	 * 							- if no output directory was specified
 	 */
-	public function populateContextProperties(Capsule $context)
-	{
-		foreach ($this->getPropelProperties() as $key => $propValue) {
-			$this->log('Adding property ${' . $key . '} to context', PROJECT_MSG_DEBUG);
-			$context->put($key, $propValue);
-		}
-	}
-
-  /**
-   * Checks this class against Basic requrements of any propel datamodel task.
-   *
-   * @throws     BuildException 	- if schema fileset was not defined
-   * 							- if no output directory was specified
-   */
 	protected function validate()
 	{
 		if (empty($this->schemaFilesets)) {

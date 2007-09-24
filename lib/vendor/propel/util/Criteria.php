@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Criteria.php 561 2007-02-01 02:09:52Z hans $
+ *  $Id: Criteria.php 633 2007-05-21 16:55:09Z david $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -32,7 +32,7 @@
  * @author     Eric Dobbs <eric@dobbse.net> (Torque)
  * @author     Henning P. Schmiedehausen <hps@intermeta.de> (Torque)
  * @author     Sam Joseph <sam@neurogrid.com> (Torque)
- * @version    $Revision: 561 $
+ * @version    $Revision: 633 $
  * @package    propel.util
  */
 class Criteria implements IteratorAggregate {
@@ -176,21 +176,21 @@ class Criteria implements IteratorAggregate {
 
 	/**
 	 * Implementing SPL IteratorAggregate interface.  This allows
-	 * you to foreach() over a Criteria object.
+	 * you to foreach () over a Criteria object.
 	 */
 	public function getIterator()
 	{
 		return new CriterionIterator($this);
 	}
 
-		/**
-		 * Get the criteria map.
-		 * @return     array
-		 */
-		public function getMap()
-		{
-			return $this->map;
-		}
+	/**
+	 * Get the criteria map.
+	 * @return     array
+	 */
+	public function getMap()
+	{
+		return $this->map;
+	}
 
 	/**
 	 * Brings this criteria back to its initial state, so that it
@@ -342,9 +342,10 @@ class Criteria implements IteratorAggregate {
 	 */
 	public function getCriterion($column)
 	{
-		if (isset($this->map[$column])) {
+		if ( isset ( $this->map[$column] ) ) {
 			return $this->map[$column];
 		}
+		return null;
 	}
 
 	/**
@@ -500,6 +501,7 @@ class Criteria implements IteratorAggregate {
 	 */
 	public function putAll($t)
 	{
+
 		if (is_array($t)) {
 
 			foreach ($t as $key=>$value) {
@@ -553,11 +555,9 @@ class Criteria implements IteratorAggregate {
 	public function add($p1, $value = null, $comparison = null)
 	{
 		if ($p1 instanceof Criterion) {
-			$c = $p1;
-			$this->map[$c->getTable() . '.' . $c->getColumn()] = $c;
+			$this->map[$p1->getTable() . '.' . $p1->getColumn()] = $p1;
 		} else {
-			$column = $p1;
-			$this->map[$column] = new Criterion($this, $column, $value, $comparison);
+			$this->map[$p1] = new Criterion($this, $p1, $value, $comparison);
 		}
 		return $this;
 	}
@@ -591,8 +591,13 @@ class Criteria implements IteratorAggregate {
 	 * @return     an array which contains objects of type Join,
 	 *         or an empty array if the criteria does not contains any joins
 	 */
-	function & getJoins()
+	public function & getJoins()
 	{
+		// TODO: do we want to return by reference to the real array?
+		// objects arent cloned and it is then possible for the user
+		// to insert an invalid object or string into the stack
+		// someone who knows this better, please remove this comment if
+		// this functionality is wanted or remove the reference
 		return $this->joins;
 	}
 
@@ -695,6 +700,7 @@ class Criteria implements IteratorAggregate {
 	 */
 	public function setLimit($limit)
 	{
+		// TODO: do we enforce int here? 32bit issue if we do
 		$this->limit = $limit;
 		return $this;
 	}
@@ -717,6 +723,7 @@ class Criteria implements IteratorAggregate {
 	 */
 	public function setOffset($offset)
 	{
+		// TODO: do we enforce int here? 32bit issue if we do
 		$this->offset = $offset;
 		return $this;
 	}
@@ -760,8 +767,7 @@ class Criteria implements IteratorAggregate {
 	 * @return     Criteria A modified Criteria object.
 	 */
 	public function clearSelectColumns() {
-		$this->selectColumns = array();
-		$this->asColumns = array();
+		$this->selectColumns = $this->asColumns = array();
 		return $this;
 	}
 
@@ -871,12 +877,14 @@ class Criteria implements IteratorAggregate {
 	 */
 	public function remove($key)
 	{
-		$c = isset($this->map[$key]) ? $this->map[$key] : null;
-		unset($this->map[$key]);
-		if ($c instanceof Criterion) {
-			return $c->getValue();
+		if ( isset ( $this->map[$key] ) ) {
+			$removed = $this->map[$key];
+			unset ( $this->map[$key] );
+			if ( $removed instanceof Criterion ) {
+				return $removed->getValue();
+			}
+			return $removed;
 		}
-		return $c;
 	}
 
 	/**
@@ -890,8 +898,9 @@ class Criteria implements IteratorAggregate {
 
 		try {
 
+			$params = array();
 			$sb .= "\nCurrent Query SQL (may not be complete or applicable): "
-			  . BasePeer::createSelectSql($this, $params=array());
+			  . BasePeer::createSelectSql($this, $params);
 
 			$sb .= "\nParameters to replace: " . var_export($params, true);
 
@@ -939,7 +948,7 @@ class Criteria implements IteratorAggregate {
 			   )
 			{
 				$isEquiv = true;
-				foreach($criteria->keys() as $key) {
+				foreach ($criteria->keys() as $key) {
 					if ($this->containsKey($key)) {
 						$a = $this->getCriterion($key);
 						$b = $criteria->getCriterion($key);
@@ -1014,7 +1023,7 @@ class Criteria implements IteratorAggregate {
 			// addAnd(column, value, comparison)
 			$oc = $this->getCriterion($p1);
 			$nc = new Criterion($this, $p1, $p2, $p3);
-			if ($oc === null) {
+			if ( $oc === null) {
 				$this->map[$p1] = $nc;
 			} else {
 				$oc->addAnd($nc);
@@ -1024,12 +1033,11 @@ class Criteria implements IteratorAggregate {
 			$this->addAnd($p1, $p2, self::EQUAL);
 		} elseif ($p1 instanceof Criterion) {
 			// addAnd(Criterion)
-			$c = $p1;
-			$oc = $this->getCriterion($c->getTable() . '.' . $c->getColumn());
+			$oc = $this->getCriterion($p1->getTable() . '.' . $p1->getColumn());
 			if ($oc === null) {
-				$this->add($c);
+				$this->add($p1);
 			} else {
-				$oc->addAnd($c);
+				$oc->addAnd($p1);
 			}
 		} elseif ($p2 === null && $p3 === null) {
 			// client has not specified $p3 (comparison)
@@ -1069,9 +1077,9 @@ class Criteria implements IteratorAggregate {
 	{
 		if ($p3 !== null) {
 			// addOr(column, value, comparison)
-			$oc = $this->getCriterion($p1);
 			$nc = new Criterion($this, $p1, $p2, $p3);
-			if ($oc === null) {
+						$oc = $this->getCriterion($p1);
+						if ($oc === null) {
 				$this->map[$p1] = $nc;
 			} else {
 				$oc->addOr($nc);
@@ -1081,12 +1089,11 @@ class Criteria implements IteratorAggregate {
 			$this->addOr($p1, $p2, self::EQUAL);
 		} elseif ($p1 instanceof Criterion) {
 			// addOr(Criterion)
-			$c = $p1;
-			$oc = $this->getCriterion($c->getTable() . '.' . $c->getColumn());
+			$oc = $this->getCriterion($p1->getTable() . '.' . $p1->getColumn());
 			if ($oc === null) {
-				$this->add($c);
+				$this->add($p1);
 			} else {
-				$oc->addOr($c);
+				$oc->addOr($p1);
 			}
 		} elseif ($p2 === null && $p3 === null) {
 			// client has not specified $p3 (comparison)
@@ -1100,11 +1107,11 @@ class Criteria implements IteratorAggregate {
 }
 
 // --------------------------------------------------------------------
-// Criterion Iterator class -- allows foreach($criteria as $criterion)
+// Criterion Iterator class -- allows foreach ($criteria as $criterion)
 // --------------------------------------------------------------------
 
 /**
- * Class that implements SPL Iterator interface.  This allows foreach() to
+ * Class that implements SPL Iterator interface.  This allows foreach () to
  * be used w/ Criteria objects.  Probably there is no performance advantage
  * to doing it this way, but it makes sense -- and simpler code.
  *
@@ -1118,7 +1125,7 @@ class CriterionIterator implements Iterator {
 	private $criteriaKeys;
 	private $criteriaSize;
 
-	public function __construct($criteria) {
+	public function __construct(Criteria $criteria) {
 		$this->criteria = $criteria;
 		$this->criteriaKeys = $criteria->keys();
 		$this->criteriaSize = count($this->criteriaKeys);
@@ -1227,12 +1234,14 @@ class Criterion  {
 		} catch (Exception $e) {
 			// we are only doing this to allow easier debugging, so
 			// no need to throw up the exception, just make note of it.
-			Propel::log("Could not get a DBAdapter, generated sql may be wrong", Propel::LOG_ERR);
+			Propel::log("Could not get a DBAdapter, sql may be wrong", Propel::LOG_ERR);
 		}
 
 		//init $this->realtable
 		$realtable = $criteria->getTableForAlias($this->table);
-		if(!$realtable) $realtable = $this->table;
+		if (! strlen ( $realtable ) ) {
+			$realtable = $this->table;
+		}
 		$this->realtable = $realtable;
 
 	}
@@ -1308,8 +1317,8 @@ class Criterion  {
 	public function setDB(DBAdapter $v)
 	{
 		$this->db = $v;
-		for($i=0, $_i=count($this->clauses); $i < $_i; $i++) {
-			$this->clauses[$i]->setDB($v);
+		foreach ( $this->clauses as $clause ) {
+			$clause->setDB($v);
 		}
 	}
 
@@ -1321,7 +1330,7 @@ class Criterion  {
 	 */
 	public function setIgnoreCase($b)
 	{
-		$this->ignoreStringCase = $b;
+		$this->ignoreStringCase = (boolean) $b;
 		return $this;
 	}
 
@@ -1346,7 +1355,7 @@ class Criterion  {
 
 	/**
 	 * Get the list of conjunctions in this Criterion
-	 * @return array
+	 * @return     array
 	 */
 	public function getConjunctions()
 	{
@@ -1385,7 +1394,7 @@ class Criterion  {
 	 * @throws     PropelException - if the expression builder cannot figure out how to turn a specified
 	 *                           expression into proper SQL.
 	 */
-	public function appendPsTo(&$sb, &$params)
+	public function appendPsTo(&$sb, array &$params)
 	{
 		if ($this->column === null) {
 			return;
@@ -1428,7 +1437,6 @@ class Criterion  {
 				}
 				unset ( $value, $valuesLength );
 
-
 			// OPTION 2:  table.column LIKE ? or table.column NOT LIKE ?  (or ILIKE for Postgres)
 			} elseif ($this->comparison === Criteria::LIKE || $this->comparison === Criteria::NOT_LIKE
 				|| $this->comparison === Criteria::ILIKE || $this->comparison === Criteria::NOT_ILIKE) {
@@ -1437,13 +1445,12 @@ class Criterion  {
 				// If selection is case insensitive use ILIKE for PostgreSQL or SQL
 				// UPPER() function on column name for other databases.
 				if ($this->ignoreStringCase) {
-					include_once 'propel/adapter/DBPostgres.php';
 					if ($db instanceof DBPostgres) {
 						if ($this->comparison === Criteria::LIKE) {
 							$this->comparison = Criteria::ILIKE;
 						} elseif ($this->comparison === Criteria::NOT_LIKE) {
 							$this->comparison = Criteria::NOT_ILIKE;
-						  }
+						}
 					} else {
 						$field = $db->ignoreCase($field);
 					}
@@ -1473,7 +1480,7 @@ class Criterion  {
 						$sb .= $field . $this->comparison . $this->value;
 					} else {
 						// default case, it is a normal col = value expression; value
-						// will be replaced w/ '?' and will be inserted later using native Creole functions
+						// will be replaced w/ '?' and will be inserted later using PDO bindValue()
 						if ($this->ignoreStringCase) {
 							$sb .= $db->ignoreCase($field) . $this->comparison . $db->ignoreCase("?");
 						} else {
@@ -1516,6 +1523,7 @@ class Criterion  {
 	 */
 	public function equals($obj)
 	{
+		// TODO: optimize me with early outs
 		if ($this === $obj) {
 			return true;
 		}
@@ -1596,7 +1604,7 @@ class Criterion  {
 	 * us a string array of tables from each criterion
 	 * @return     void
 	 */
-	private function addCriterionTable(Criterion $c, &$s)
+	private function addCriterionTable(Criterion $c, array &$s)
 	{
 		$s[] = $c->getTable();
 		foreach ( $c->getClauses() as $clause ) {
@@ -1623,7 +1631,7 @@ class Criterion  {
 	 * @param      array &$a
 	 * @return     void
 	 */
-	private function traverseCriterion(Criterion $c, &$a)
+	private function traverseCriterion(Criterion $c, array &$a)
 	{
 		$a[] = $c;
 		foreach ( $c->getClauses() as $clause ) {
@@ -1683,15 +1691,15 @@ class Join
 		return $this->leftColumn;
 	}
 
-		public function getLeftColumnName()
-		{
-			return substr($this->leftColumn, strpos($this->leftColumn, '.') + 1);
-		}
+	public function getLeftColumnName()
+	{
+		return substr($this->leftColumn, strpos($this->leftColumn, '.') + 1);
+	}
 
-		public function getLeftTableName()
-		{
-			return substr($this->leftColumn, 0, strpos($this->leftColumn, '.'));
-		}
+	public function getLeftTableName()
+	{
+		return substr($this->leftColumn, 0, strpos($this->leftColumn, '.'));
+	}
 
 	/**
 	 * @return     the right column of the join condition
@@ -1701,15 +1709,15 @@ class Join
 		return $this->rightColumn;
 	}
 
-		public function getRightColumnName()
-		{
-			return substr($this->rightColumn, strpos($this->rightColumn, '.') + 1);
-		}
+	public function getRightColumnName()
+	{
+		return substr($this->rightColumn, strpos($this->rightColumn, '.') + 1);
+	}
 
-		public function getRightTableName()
-		{
-			return substr($this->rightColumn, 0, strpos($this->rightColumn, '.'));
-		}
+	public function getRightTableName()
+	{
+		return substr($this->rightColumn, 0, strpos($this->rightColumn, '.'));
+	}
 
 	/**
 	 * returns a String representation of the class,
@@ -1719,7 +1727,7 @@ class Join
 	public function toString()
 	{
 		$result = "";
-		if ($this->joinType != null)
+		if ($this->joinType !== null)
 		{
 			$result .= $this->joinType . " : ";
 		}

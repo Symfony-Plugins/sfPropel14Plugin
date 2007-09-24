@@ -56,7 +56,7 @@ if (isset($fixtures))
       continue;
     }
 
-    $con->executeQuery('CREATE TABLE '.$table);
+    $con->query('CREATE TABLE '.$table);
   }
 
   // load fixtures

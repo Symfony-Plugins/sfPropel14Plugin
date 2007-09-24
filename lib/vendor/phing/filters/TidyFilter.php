@@ -1,7 +1,7 @@
 <?php
 /*
- *  $Id$  
- * 
+ *  $Id$
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -24,7 +24,7 @@ include_once 'phing/filters/ChainableReader.php';
 
 /**
  * This filter uses the bundled-with-PHP Tidy extension to filter input.
- * 
+ *
  * <p>
  * Example:<br/>
  * <pre>
@@ -33,19 +33,19 @@ include_once 'phing/filters/ChainableReader.php';
  *   <config name="output-xhtml" value="true"/>
  * </tidyfilter>
  * </pre>
- * 
+ *
  * @author Hans Lellelid <hans@xmpl.org>
- * @version   $Revision: 1.2 $ $Date: 2005/12/08 19:15:20 $
+ * @version   $Revision: 1.2 $ $Date: 2006-09-14 13:19:08 -0700 (Thu, 14 Sep 2006) $
  * @package   phing.filters
  */
 class TidyFilter extends BaseParamFilterReader implements ChainableReader {
-   	
+
 	/** @var string Encoding of resulting document. */
 	private $encoding = 'utf8';
-   
+
     /** @var array Parameter[] */
 	private $configParameters = array();
-     
+
 	/**
 	 * Set the encoding for resulting (X)HTML document.
 	 * @param string $v
@@ -53,7 +53,7 @@ class TidyFilter extends BaseParamFilterReader implements ChainableReader {
 	public function setEncoding($v) {
 		$this->encoding = $v;
 	}
-	
+
 	/**
 	 * Sets the config params.
 	 * @param array Parameter[]
@@ -63,7 +63,7 @@ class TidyFilter extends BaseParamFilterReader implements ChainableReader {
 	{
 		$this->configParameters = $params;
 	}
-	
+
 	/**
 	 * Adds a <config> element (which is a Parameter).
 	 * @return Parameter
@@ -72,7 +72,7 @@ class TidyFilter extends BaseParamFilterReader implements ChainableReader {
 		$num = array_push($this->configParameters, new Parameter());
         return $this->configParameters[$num-1];
 	}
-	
+
 	/**
 	 * Converts the Parameter objects being used to store configuration into a simle assoc array.
 	 * @return array
@@ -84,48 +84,48 @@ class TidyFilter extends BaseParamFilterReader implements ChainableReader {
 		}
 		return $config;
 	}
-	
+
     /**
      * Reads input and returns Tidy-filtered output.
-     * 
+     *
      * @return the resulting stream, or -1 if the end of the resulting stream has been reached
-     * 
+     *
      * @throws IOException if the underlying stream throws an IOException
-     *                        during reading     
+     *                        during reading
      */
     function read($len = null) {
-    	
+
 		if (!class_exists('Tidy')) {
 			throw new BuildException("You must enable the 'tidy' extension in your PHP configuration in order to use the Tidy filter.");
 		}
-		
+
 		if ( !$this->getInitialized() ) {
             $this->_initialize();
             $this->setInitialized(true);
         }
-		
+
         $buffer = $this->in->read($len);
         if($buffer === -1) {
             return -1;
         }
-		
+
 		$config = $this->getDistilledConfig();
-		
+
 		$tidy = new Tidy();
 		$tidy->parseString($buffer, $config, $this->encoding);
 		$tidy->cleanRepair();
 
 		return tidy_get_output($tidy);
-		
+
     }
 
 
     /**
      * Creates a new TidyFilter using the passed in Reader for instantiation.
-     * 
+     *
      * @param reader A Reader object providing the underlying stream.
      *               Must not be <code>null</code>.
-     * 
+     *
      * @return a new filter based on this configuration, but filtering
      *         the specified reader
      */
@@ -136,7 +136,7 @@ class TidyFilter extends BaseParamFilterReader implements ChainableReader {
         $newFilter->setProject($this->getProject());
         return $newFilter;
     }
-	
+
 	/**
      * Initializes any parameters (e.g. config options).
      * This method is only called when this filter is used through a <filterreader> tag in build file.
@@ -148,13 +148,13 @@ class TidyFilter extends BaseParamFilterReader implements ChainableReader {
 				if ($param->getType() == "config") {
 					$this->configParameters[] = $param;
 				} else {
-					
+
 					if ($param->getName() == "encoding") {
 					    $this->setEncoding($param->getValue());
 					}
-					
+
 				}
-				
+
 			}
 		}
     }

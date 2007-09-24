@@ -25,9 +25,9 @@ include_once 'phing/filters/ChainableReader.php';
 
 /**
  * Applies XSL stylesheet to incoming text.
- * 
+ *
  * Uses PHP XSLT support (libxslt).
- * 
+ *
  * @author    Hans Lellelid <hans@velum.net>
  * @author    Yannick Lecaillez <yl@seasonfive.com>
  * @author    Andreas Aderhold <andi@binarycloud.com>
@@ -48,18 +48,18 @@ class XsltFilter extends BaseParamFilterReader implements ChainableReader {
      * @var boolean
      */
     private $processed = false;
-    
+
     /**
      * XSLT Params.
      * @var array
      */
-    private $xsltParams = array();    
-    
+    private $xsltParams = array();
+
     /**
      * Whether to use loadHTML() to parse the input XML file.
      */
     private $html = false;
-    
+
     /**
      * Create new XSLT Param object, to handle the <param/> nested element.
      * @return XSLTParam
@@ -68,7 +68,7 @@ class XsltFilter extends BaseParamFilterReader implements ChainableReader {
         $num = array_push($this->xsltParams, new XSLTParam());
         return $this->xsltParams[$num-1];
     }
-    
+
     /**
      * Sets the XSLT params for this class.
      * This is used to "clone" this class, in the chain() method.
@@ -77,7 +77,7 @@ class XsltFilter extends BaseParamFilterReader implements ChainableReader {
     function setParams($params) {
         $this->xsltParams = $params;
     }
-    
+
     /**
      * Returns the XSLT params set for this class.
      * This is used to "clone" this class, in the chain() method.
@@ -86,7 +86,7 @@ class XsltFilter extends BaseParamFilterReader implements ChainableReader {
     function getParams() {
         return $this->xsltParams;
     }
-        
+
     /**
      * Set the XSLT stylesheet.
      * @param mixed $file PhingFile object or path.
@@ -103,15 +103,15 @@ class XsltFilter extends BaseParamFilterReader implements ChainableReader {
     function getHtml() {
         return $this->html;
     }
-    
+
     /**
      * Whether to use HTML parser for XML.
      * @param boolean $b
      */
-    function setHtml($b) {        
+    function setHtml($b) {
         $this->html = (boolean) $b;
     }
-    
+
     /**
      * Get the path to XSLT stylesheet.
      * @return mixed XSLT stylesheet path.
@@ -119,22 +119,22 @@ class XsltFilter extends BaseParamFilterReader implements ChainableReader {
     function getStyle() {
         return $this->xslFile;
     }
-    
+
     /**
      * Reads stream, applies XSLT and returns resulting stream.
      * @return string transformed buffer.
      * @throws BuildException - if XSLT support missing, if error in xslt processing
      */
     function read($len = null) {
-        
+
         if (!class_exists('XSLTProcessor')) {
             throw new BuildException("Could not find the XSLTProcessor class. Make sure PHP has been compiled/configured to support XSLT.");
         }
-        
+
         if ($this->processed === true) {
             return -1; // EOF
         }
-        
+
         if ( !$this->getInitialized() ) {
             $this->_initialize();
             $this->setInitialized(true);
@@ -150,22 +150,22 @@ class XsltFilter extends BaseParamFilterReader implements ChainableReader {
         }
 
         if(empty($_xml)) {
-            $this->log("XML file is empty!", PROJECT_MSG_WARN);
+            $this->log("XML file is empty!", Project::MSG_WARN);
             return ''; // return empty string, don't attempt to apply XSLT
         }
-       
+
         // Read XSLT
         $_xsl = null;
         $xslFr = new FileReader($this->xslFile);
         $xslFr->readInto($_xsl);
-        
-        $this->log("Tranforming XML " . $this->in->getResource() . " using style " . $this->xslFile->getPath(), PROJECT_MSG_VERBOSE);
-        
+
+        $this->log("Tranforming XML " . $this->in->getResource() . " using style " . $this->xslFile->getPath(), Project::MSG_VERBOSE);
+
         $out = '';
         try {
             $out = $this->process($_xml, $_xsl);
             $this->processed = true;
-        } catch (IOException $e) {            
+        } catch (IOException $e) {
             throw new BuildException($e);
         }
 
@@ -181,40 +181,40 @@ class XsltFilter extends BaseParamFilterReader implements ChainableReader {
      *
      * @throws BuildException   On XSLT errors
      */
-    protected function process($xml, $xsl) {    
-                
+    protected function process($xml, $xsl) {
+
         $processor = new XSLTProcessor();
-        
+
         $xmlDom = new DOMDocument();
-        $xslDom = new DOMDocument();        
-        
-        if ($this->html) {            
+        $xslDom = new DOMDocument();
+
+        if ($this->html) {
             $xmlDom->loadHTML($xml);
         } else {
             $xmlDom->loadXML($xml);
         }
-        
+
         $xslDom->loadxml($xsl);
-        
+
         $processor->importStylesheet($xslDom);
 
         // ignoring param "type" attrib, because
         // we're only supporting direct XSL params right now
         foreach($this->xsltParams as $param) {
-            $this->log("Setting XSLT param: " . $param->getName() . "=>" . $param->getExpression(), PROJECT_MSG_DEBUG);
+            $this->log("Setting XSLT param: " . $param->getName() . "=>" . $param->getExpression(), Project::MSG_DEBUG);
             $processor->setParameter(null, $param->getName(), $param->getExpression());
         }
-        
+
         $result = $processor->transformToXML($xmlDom);
-        
+
         if ( !$result ) {
             //$errno = xslt_errno($processor);
-            //$err   = xslt_error($processor);    
-            throw new BuildException("XSLT Error");            
+            //$err   = xslt_error($processor);
+            throw new BuildException("XSLT Error");
         } else {
             return $result;
         }
-    }    
+    }
 
     /**
      * Creates a new XsltFilter using the passed in
@@ -239,7 +239,7 @@ class XsltFilter extends BaseParamFilterReader implements ChainableReader {
     /**
      * Parses the parameters to get stylesheet path.
      */
-    private function _initialize() {        
+    private function _initialize() {
         $params = $this->getParameters();
         if ( $params !== null ) {
             for($i = 0, $_i=count($params) ; $i < $_i; $i++) {
@@ -264,11 +264,11 @@ class XsltFilter extends BaseParamFilterReader implements ChainableReader {
  * Class that holds an XSLT parameter.
  */
 class XSLTParam {
-    
+
     private $name;
-    
-    private $expr;    
-    
+
+    private $expr;
+
     /**
      * Sets param name.
      * @param string $name
@@ -276,7 +276,7 @@ class XSLTParam {
     public function setName($name) {
         $this->name = $name;
     }
-    
+
     /**
      * Get param name.
      * @return string
@@ -284,7 +284,7 @@ class XSLTParam {
     public function getName() {
         return $this->name;
     }
-    
+
     /**
      * Sets expression value.
      * @param string $expr
@@ -292,15 +292,15 @@ class XSLTParam {
     public function setExpression($expr) {
         $this->expr = $expr;
     }
-    
+
     /**
      * Sets expression to dynamic register slot.
      * @param RegisterSlot $expr
      */
     public function setListeningExpression(RegisterSlot $expr) {
-        $this->expr = $expr;    
+        $this->expr = $expr;
     }
-    
+
     /**
      * Returns expression value -- performs lookup if expr is registerslot.
      * @return string
@@ -311,7 +311,7 @@ class XSLTParam {
         } else {
             return $this->expr;
         }
-    }        
+    }
 }
 
 ?>

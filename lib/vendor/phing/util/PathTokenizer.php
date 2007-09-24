@@ -16,7 +16,7 @@
  *
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the LGPL. For more information please see
- * <http://phing.info>. 
+ * <http://phing.info>.
  */
 
 
@@ -47,11 +47,11 @@ include_once 'phing/util/StringHelper.php';
 
  * @pacakge phing.util
 
- */ 
+ */
 
 class PathTokenizer {
 
-    
+
 
     /**
 
@@ -61,7 +61,7 @@ class PathTokenizer {
 
     private $tokens = array();
 
-    
+
 
     /**
 
@@ -75,7 +75,7 @@ class PathTokenizer {
 
     private $lookahead;
 
-    
+
 
     /**
 
@@ -95,7 +95,7 @@ class PathTokenizer {
 
      * Constructs a path tokenizer for the specified path.
 
-     * 
+     *
 
      * @param path The path to tokenize. Must not be <code>null</code>.
 
@@ -105,7 +105,7 @@ class PathTokenizer {
 
         // on Windows and Unix, we can ignore delimiters and still have
 
-        // enough information to tokenize correctly.    
+        // enough information to tokenize correctly.
 
         $this->tokens = preg_split("/[;:]/", $path, -1, PREG_SPLIT_NO_EMPTY);
 
@@ -119,13 +119,13 @@ class PathTokenizer {
 
      * Tests if there are more path elements available from this tokenizer's
 
-     * path. If this method returns <code>true</code>, then a subsequent call 
+     * path. If this method returns <code>true</code>, then a subsequent call
 
      * to nextToken will successfully return a token.
 
-     * 
+     *
 
-     * @return <code>true</code> if and only if there is at least one token 
+     * @return <code>true</code> if and only if there is at least one token
 
      * in the string after the current position; <code>false</code> otherwise.
 
@@ -137,23 +137,23 @@ class PathTokenizer {
 
             return true;
 
-        }        
+        }
 
         return !empty($this->tokens);
 
     }
 
-    
+
 
     /**
 
      * Returns the next path element from this tokenizer.
 
-     * 
+     *
 
      * @return the next path element from this tokenizer.
 
-     * 
+     *
 
      * @throws Exception if there are no more elements in this tokenizer's path.
 
@@ -161,7 +161,7 @@ class PathTokenizer {
 
     public function nextToken() {
 
-            
+
 
         if ($this->lookahead !== null) {
 
@@ -175,7 +175,7 @@ class PathTokenizer {
 
         }
 
-            
+
 
 
 
@@ -195,7 +195,7 @@ class PathTokenizer {
 
                 // we know we are on a DOS style platform and the next path
 
-                // starts with a slash or backslash, so we know this is a 
+                // starts with a slash or backslash, so we know this is a
 
                 // drive spec
 
@@ -211,7 +211,7 @@ class PathTokenizer {
 
         }
 
-        
+
 
         return $token;
 
@@ -233,11 +233,11 @@ class PathTokenizer {
 
     public function contains($path) {
 
-        return in_array($path, $this->tokens, true);        
+        return in_array($path, $this->tokens, true);
 
     }
 
-    
+
 
 }
 

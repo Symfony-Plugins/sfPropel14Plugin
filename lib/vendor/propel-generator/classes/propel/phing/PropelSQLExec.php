@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PropelSQLExec.php 536 2007-01-10 14:30:38Z heltem $
+ *  $Id: PropelSQLExec.php 521 2007-01-05 13:29:36Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -21,7 +21,6 @@
  */
 
 require_once 'phing/Task.php';
-include_once 'creole/Connection.php';
 
 /**
  * Executes all SQL files referenced in the sqldbmap file against their mapped databases.
@@ -36,7 +35,7 @@ include_once 'creole/Connection.php';
  * @author     Tim Stephenson <tim.stephenson@sybase.com> (Torque)
  * @author     Jason van Zyl <jvanzyl@apache.org> (Torque)
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
- * @version    $Revision: 536 $
+ * @version    $Revision: 521 $
  * @package    propel.phing
  */
 class PropelSQLExec extends Task {
@@ -56,17 +55,11 @@ class PropelSQLExec extends Task {
 	//private static $delimiterTypes = array(DELIM_NORMAL, DELIM_ROW);
 	//private static $errorActions = array("continue", "stop", "abort");
 
-	/** Database connection */
+	/** PDO Database connection */
 	private $conn = null;
 
 	/** Autocommit flag. Default value is false */
 	private $autocommit = false;
-
-	/** SQL statement */
-	private $statement = null;
-
-	/** DB driver. */
-	private $driver = null;
 
 	/** DB url. */
 	private $url = null;
@@ -161,16 +154,6 @@ class PropelSQLExec extends Task {
 	public function addText($sql)
 	{
 		$this->sqlCommand .= $sql;
-	}
-
-	/**
-	 * Set the Creole driver to be used.
-	 *
-	 * @param      string $driver driver class name
-	 */
-	public function setDriver($driver)
-	{
-		$this->driver = $driver;
 	}
 
 	/**
@@ -309,7 +292,7 @@ class PropelSQLExec extends Task {
 
 		$databases = array();
 
-		foreach($map->keys() as $sqlfile) {
+		foreach ($map->keys() as $sqlfile) {
 
 			$database = $map->getProperty($sqlfile);
 
@@ -329,10 +312,10 @@ class PropelSQLExec extends Task {
 			}
 		}
 
-		foreach($databases as $db => $files) {
+		foreach ($databases as $db => $files) {
 			$transactions = array();
 
-			foreach($files as $fileName) {
+			foreach ($files as $fileName) {
 
 				$file = new PhingFile($this->srcDir, $fileName);
 
@@ -366,29 +349,22 @@ class PropelSQLExec extends Task {
 		try {
 
 			$buf = "Database settings:\n"
-			. " driver: " . ($this->driver ? $this->driver : "(default)" ). "\n"
 			. " URL: " . $url . "\n"
 			. ($this->userId ? " user: " . $this->userId . "\n" : "")
 			. ($this->password ? " password: " . $this->password . "\n" : "");
 
 			$this->log($buf, PROJECT_MSG_VERBOSE);
 
-			$dsn = Creole::parseDSN($url);
+			// Set user + password to null if they are empty strings
+			if (!$this->userId) { $this->userId = null; }
 
-			if($this->userId) {
-				$dsn["username"] = $this->userId;
-			}
-			if ($this->password) {
-				$dsn["password"] = $this->password;
-			}
-			if ($this->driver) {
-				Creole::registerDriver($dsn['phptype'], $this->driver);
-			}
+			if (!$this->password) { $this->password = null; }
 
-			$this->conn = Creole::getConnection($dsn);
+			$this->conn = new PDO($url, $this->userId, $this->password);
+			$this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-			$this->conn->setAutoCommit($this->autocommit);
-			$this->statement = $this->conn->createStatement();
+			// $this->conn->setAutoCommit($this->autocommit);
+			// $this->statement = $this->conn->createStatement();
 
 			$out = null;
 
@@ -415,27 +391,27 @@ class PropelSQLExec extends Task {
 			if (!$this->autocommit && $this->conn !== null && $this->onError == "abort") {
 				try {
 					$this->conn->rollback();
-				} catch (SQLException $ex) {
+				} catch (PDOException $ex) {
 					// do nothing.
 					System::println("Rollback failed.");
 				}
 			}
-			if ($this->statement) $this->statement->close();
+			if ($this->statement) $this->statement = null; // close
 			throw new BuildException($e);
-		} catch (SQLException $e) {
+		} catch (PDOException $e) {
 			if (!$this->autocommit && $this->conn !== null && $this->onError == "abort") {
 				try {
 					$this->conn->rollback();
-				} catch (SQLException $ex) {
+				} catch (PDOException $ex) {
 					// do nothing.
 					System::println("Rollback failed");
 				}
 			}
-			if ($this->statement) $this->statement->close();
+			if ($this->statement) $this->statement = null; // close
 			throw new BuildException($e);
 		}
 
-		   $this->statement->close();
+		   $this->statement = null; // close
 
 		$this->log($this->goodSql . " of " . $this->totalSql
 				. " SQL statements executed successfully");
@@ -450,7 +426,7 @@ class PropelSQLExec extends Task {
 	 *
 	 * @param      Reader $reader
 	 * @param      $out Optional output stream.
-	 * @throws     SQLException
+	 * @throws     PDOException
 	 * @throws     IOException
 	 */
 	public function runStatements(Reader $reader, $out = null)
@@ -479,7 +455,7 @@ class PropelSQLExec extends Task {
 					continue;
 				}
 
-				if($sqlBacklog !== "")
+				if ($sqlBacklog !== "")
 				{
 					$sql = $sqlBacklog;
 					$sqlBacklog = "";
@@ -495,18 +471,18 @@ class PropelSQLExec extends Task {
 				}
 
 				// DELIM_ROW doesn't need this (as far as i can tell)
-				if($this->delimiterType == self::DELIM_NORMAL) {
+				if ($this->delimiterType == self::DELIM_NORMAL) {
 
 					$reg = "#((?:\"(?:\\\\.|[^\"])*\"?)+|'(?:\\\\.|[^'])*'?|" . preg_quote($this->delimiter) . ")#";
 
 					$sqlParts = preg_split($reg, $sql, 0, PREG_SPLIT_DELIM_CAPTURE);
 					$sqlBacklog = "";
-					foreach($sqlParts as $sqlPart) {
+					foreach ($sqlParts as $sqlPart) {
 						// we always want to append, even if it's a delim (which will be stripped off later)
 						$sqlBacklog .= $sqlPart;
 
 						// we found a single (not enclosed by ' or ") delimiter, so we can use all stuff before the delim as the actual query
-						if($sqlPart === $this->delimiter) {
+						if ($sqlPart === $this->delimiter) {
 							$sql = $sqlBacklog;
 							$sqlBacklog = "";
 							$hasQuery = true;
@@ -528,7 +504,7 @@ class PropelSQLExec extends Task {
 			if ($sql !== "") {
 				$this->execSQL($sql, $out);
 			}
-		} catch (SQLException $e) {
+		} catch (PDOException $e) {
 			throw $e;
 		}
 	}
@@ -538,7 +514,7 @@ class PropelSQLExec extends Task {
 	 *
 	 * @param      sql
 	 * @param      out
-	 * @throws     SQLException
+	 * @throws     PDOException
 	 */
 	protected function execSQL($sql, $out = null)
 	{
@@ -549,18 +525,17 @@ class PropelSQLExec extends Task {
 
 		try {
 			$this->totalSql++;
-			if (!$this->statement->execute($sql)) {
-				$this->log($this->statement->getUpdateCount() . " rows affected",
-						PROJECT_MSG_VERBOSE);
-			} else {
-				if ($this->print) {
-					$this->printResults($out);
-				}
-			}
+
+			if (!$this->autocommit) $this->conn->beginTransaction();
+
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute();
+			$this->log($stmt->rowCount() . " rows affected", PROJECT_MSG_VERBOSE);
+
+			if (!$this->autocommit) $this->conn->commit();
 
 			$this->goodSql++;
-
-		} catch (SQLException $e) {
+		} catch (PDOException $e) {
 			$this->log("Failed to execute: " . $sql, PROJECT_MSG_ERR);
 			if ($this->onError != "continue") {
 				throw $e;
@@ -573,7 +548,7 @@ class PropelSQLExec extends Task {
 	 * print any results in the statement.
 	 *
 	 * @param      out
-	 * @throws     SQLException
+	 * @throws     PDOException
 	 */
 	protected function printResults($out = null)
 	{
@@ -594,14 +569,14 @@ class PropelSQLExec extends Task {
 
 					if (!$colsprinted && $this->showheaders) {
 						$first = true;
-						foreach($this->fields as $fieldName => $ignore) {
+						foreach ($this->fields as $fieldName => $ignore) {
 							if ($first) $first = false; else $line .= ",";
 							$line .= $fieldName;
 						}
 					} // if show headers
 
 					$first = true;
-					foreach($rs->fields as $columnValue) {
+					foreach ($rs->fields as $columnValue) {
 
 						if ($columnValue != null) {
 							$columnValue = trim($columnValue);
@@ -661,18 +636,17 @@ class PropelSQLExecTransaction {
 	}
 
 	/**
-	 * @throws     IOException, SQLException
+	 * @throws     IOException, PDOException
 	 */
 	public function runTransaction($out = null)
 	{
 		if (!empty($this->tSqlCommand)) {
 			$this->parent->log("Executing commands", PROJECT_MSG_INFO);
-			$this->parent->runStatements($tSqlCommand, $out);
+			$this->parent->runStatements($this->tSqlCommand, $out);
 		}
 
 		if ($this->tSrcFile !== null) {
-			$this->parent->log("Executing file: " . $this->tSrcFile->getAbsolutePath(),
-				PROJECT_MSG_INFO);
+			$this->parent->log("Executing file: " . $this->tSrcFile->getAbsolutePath(), PROJECT_MSG_INFO);
 			$reader = new FileReader($this->tSrcFile);
 			$this->parent->runStatements($reader, $out);
 			$reader->close();

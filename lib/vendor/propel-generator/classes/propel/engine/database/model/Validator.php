@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Validator.php 536 2007-01-10 14:30:38Z heltem $
+ *  $Id: Validator.php 521 2007-01-05 13:29:36Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -28,7 +28,7 @@ include_once 'propel/engine/database/model/Rule.php';
  * Validator.
  *
  * @author     Michael Aichler <aichler@mediacluster.de> (Propel)
- * @version    $Revision: 536 $
+ * @version    $Revision: 521 $
  * @package    propel.engine.database.model
  */
 class Validator extends XMLElement {
@@ -174,7 +174,7 @@ class Validator extends XMLElement {
 		$result .= ">\n";
 
 		if ($this->ruleList !== null) {
-			for($i=0,$_i=count($this->ruleList); $i < $_i; $i++) {
+			for ($i=0,$_i=count($this->ruleList); $i < $_i; $i++) {
 				$result .= $this->ruleList[$i]->toString();
 			}
 		}

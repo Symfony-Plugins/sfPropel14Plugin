@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: BasePeer.php 536 2007-01-10 14:30:38Z heltem $
+ *  $Id: BasePeer.php 657 2007-06-20 17:25:02Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -19,14 +19,6 @@
  * <http://propel.phpdb.org>.
  */
 
-include_once 'propel/adapter/DBAdapter.php';
-include_once 'propel/map/ColumnMap.php';
-include_once 'propel/map/DatabaseMap.php';
-include_once 'propel/map/MapBuilder.php';
-include_once 'propel/map/TableMap.php';
-include_once 'propel/map/ValidatorMap.php';
-include_once 'propel/validator/ValidationFailed.php';
-
 /**
  * This is a utility class for all generated Peer classes in the system.
  *
@@ -42,7 +34,7 @@ include_once 'propel/validator/ValidationFailed.php';
  * @author     John D. McNally <jmcnally@collab.net> (Torque)
  * @author     Brett McLaughlin <bmclaugh@algx.net> (Torque)
  * @author     Stephen Haberman <stephenh@chase3000.com> (Torque)
- * @version    $Revision: 536 $
+ * @version    $Revision: 657 $
  * @package    propel.util
  */
 class BasePeer
@@ -59,6 +51,12 @@ class BasePeer
 	 * e.g. 'AuthorId'
 	 */
 	const TYPE_PHPNAME = 'phpName';
+
+	/**
+	 * studlyphpname type
+	 * e.g. 'authorId'
+	 */
+	const TYPE_STUDLYPHPNAME = 'studlyPhpName';
 
 	/**
 	 * column (peer) name type
@@ -105,15 +103,15 @@ class BasePeer
 	 * Criteria.
 	 *
 	 * @param      Criteria $criteria The criteria to use.
-	 * @param      Connection $con A Connection.
+	 * @param      PDO $con A PDO connection object.
 	 * @return     int	The number of rows affected by last statement execution.  For most
 	 * 				uses there is only one delete statement executed, so this number
 	 * 				will correspond to the number of rows affected by the call to this
 	 * 				method.  Note that the return value does require that this information
-	 * 				is returned (supported) by the Creole db driver.
+	 * 				is returned (supported) by the PDO driver.
 	 * @throws     PropelException
 	 */
-	public static function doDelete(Criteria $criteria, Connection $con)
+	public static function doDelete(Criteria $criteria, PDO $con)
 	{
 		$db = Propel::getDB($criteria->getDbName());
 		$dbMap = Propel::getDatabaseMap($criteria->getDbName());
@@ -122,8 +120,8 @@ class BasePeer
 		// be executed per table)
 
 		$tables_keys = array();
-		foreach($criteria as $c) {
-			foreach($c->getAllTables() as $tableName) {
+		foreach ($criteria as $c) {
+			foreach ($c->getAllTables() as $tableName) {
 				$tableName2 = $criteria->getTableForAlias($tableName);
 				if ($tableName2 !== null) {
 					$tables_keys[$tableName2 . ' ' . $tableName] = true;
@@ -137,11 +135,11 @@ class BasePeer
 
 		$tables = array_keys($tables_keys);
 
-		foreach($tables as $tableName) {
+		foreach ($tables as $tableName) {
 
 			$whereClause = array();
 			$selectParams = array();
-			foreach($dbMap->getTable($tableName)->getColumns() as $colMap) {
+			foreach ($dbMap->getTable($tableName)->getColumns() as $colMap) {
 				$key = $tableName . '.' . $colMap->getColumnName();
 				if ($criteria->containsKey($key)) {
 					$sb = "";
@@ -156,27 +154,12 @@ class BasePeer
 
 			// Execute the statement.
 			try {
-
-				$sqlSnippet = implode(" AND ", $whereClause);
-
-				if ($criteria->isSingleRecord()) {
-					$sql = "SELECT COUNT(*) FROM " . $tableName . " WHERE " . $sqlSnippet;
-					$stmt = $con->prepareStatement($sql);
-					self::populateStmtValues($stmt, $selectParams, $dbMap);
-					$rs = $stmt->executeQuery(ResultSet::FETCHMODE_NUM);
-					$rs->next();
-					if ($rs->getInt(1) > 1) {
-						$rs->close();
-						throw new PropelException("Expecting to delete 1 record, but criteria match multiple.");
-					}
-					$rs->close();
-				}
-
-				$sql = "DELETE FROM " . $tableName . " WHERE " .  $sqlSnippet;
+				$sql = "DELETE FROM " . $tableName . " WHERE " .  implode(" AND ", $whereClause);
 				Propel::log($sql, Propel::LOG_DEBUG);
-				$stmt = $con->prepareStatement($sql);
-				self::populateStmtValues($stmt, $selectParams, $dbMap);
-				$affectedRows = $stmt->executeUpdate();
+				$stmt = $con->prepare($sql);
+				self::populateStmtValues($stmt, $selectParams, $dbMap, $db);
+				$stmt->execute();
+				$affectedRows = $stmt->rowCount();
 			} catch (Exception $e) {
 				Propel::log($e->getMessage(), Propel::LOG_ERR);
 				throw new PropelException("Unable to execute DELETE statement.",$e);
@@ -200,19 +183,20 @@ class BasePeer
 	 * </code>
 	 *
 	 * @param      string $tableName The name of the table to empty.
-	 * @param      Connection $con A Connection.
+	 * @param      PDO $con A PDO connection object.
 	 * @return     int	The number of rows affected by the statement.  Note
 	 * 				that the return value does require that this information
 	 * 				is returned (supported) by the Creole db driver.
 	 * @throws     PropelException - wrapping SQLException caught from statement execution.
 	 */
-	public static function doDeleteAll($tableName, Connection $con)
+	public static function doDeleteAll($tableName, PDO $con)
 	{
 		try {
 			$sql = "DELETE FROM " . $tableName;
 			Propel::log($sql, Propel::LOG_DEBUG);
-			$stmt = $con->prepareStatement($sql);
-			return $stmt->executeUpdate();
+			$stmt = $con->prepare($sql);
+			$stmt->execute();
+			return $stmt->rowCount();
 		} catch (Exception $e) {
 			Propel::log($e->getMessage(), Propel::LOG_ERR);
 			throw new PropelException("Unable to perform DELETE ALL operation.", $e);
@@ -237,15 +221,17 @@ class BasePeer
 	 * inserted as specified in Criteria and null will be returned.
 	 *
 	 * @param      Criteria $criteria Object containing values to insert.
-	 * @param      Connection $con A Connection.
+	 * @param      PDO $con A PDO connection.
 	 * @return     mixed The primary key for the new row if (and only if!) the primary key
 	 *				is auto-generated.  Otherwise will return <code>null</code>.
 	 * @throws     PropelException
 	 */
-	public static function doInsert(Criteria $criteria, Connection $con) {
+	public static function doInsert(Criteria $criteria, PDO $con) {
 
 		// the primary key
 		$id = null;
+
+		$db = Propel::getDB($criteria->getDbName());
 
 		// Get the table name and method for determining the primary
 		// key value.
@@ -260,7 +246,7 @@ class BasePeer
 		$tableMap = $dbMap->getTable($tableName);
 		$keyInfo = $tableMap->getPrimaryKeyMethodInfo();
 		$useIdGen = $tableMap->isUseIdGenerator();
-		$keyGen = $con->getIdGenerator();
+		//$keyGen = $con->getIdGenerator();
 
 		$pk = self::getPrimaryKey($criteria);
 
@@ -272,25 +258,27 @@ class BasePeer
 
 		// pk will be null if there is no primary key defined for the table
 		// we're inserting into.
-		if ($pk !== null && $useIdGen && !$criteria->containsKey($pk->getFullyQualifiedName())) {
-
-			// If the keyMethod is SEQUENCE get the id before the insert.
-			if ($keyGen->isBeforeInsert()) {
-				try {
-					$id = $keyGen->getId($keyInfo);
-				} catch (Exception $e) {
-					throw new PropelException("Unable to get sequence id.", $e);
-				}
-				$criteria->add($pk->getFullyQualifiedName(), $id);
+		if ($pk !== null && $useIdGen && !$criteria->containsKey($pk->getFullyQualifiedName()) && $db->isGetIdBeforeInsert()) {
+			try {
+				$id = $db->getId($con, $keyInfo);
+			} catch (Exception $e) {
+				throw new PropelException("Unable to get sequence id.", $e);
 			}
+			$criteria->add($pk->getFullyQualifiedName(), $id);
 		}
 
 		try {
+			$adapter = Propel::getDB($criteria->getDBName());
 
 			$qualifiedCols = $criteria->keys(); // we need table.column cols when populating values
 			$columns = array(); // but just 'column' cols for the SQL
-			foreach($qualifiedCols as $qualifiedCol) {
+			foreach ($qualifiedCols as $qualifiedCol) {
 				$columns[] = substr($qualifiedCol, strpos($qualifiedCol, '.') + 1);
+			}
+
+			// add identifiers
+			if ($adapter->useQuoteIdentifier()) {
+				$columns = array_map(array($adapter, 'quoteIdentifier'), $columns);
 			}
 
 			$sql = "INSERT INTO " . $tableName
@@ -299,20 +287,19 @@ class BasePeer
 
 			Propel::log($sql, Propel::LOG_DEBUG);
 
-			$stmt = $con->prepareStatement($sql);
-			self::populateStmtValues($stmt, self::buildParams($qualifiedCols, $criteria), $dbMap);
-			$stmt->executeUpdate();
+			$stmt = $con->prepare($sql);
+			self::populateStmtValues($stmt, self::buildParams($qualifiedCols, $criteria), $dbMap, $db);
+			$stmt->execute();
 
 		} catch (Exception $e) {
 			Propel::log($e->getMessage(), Propel::LOG_ERR);
 			throw new PropelException("Unable to execute INSERT statement.", $e);
 		}
 
-		// If the primary key column is auto-incremented, get the id
-		// now.
-		if ($pk !== null && $useIdGen && $keyGen->isAfterInsert()) {
+		// If the primary key column is auto-incremented, get the id now.
+		if ($pk !== null && $useIdGen && $db->isGetIdAfterInsert()) {
 			try {
-				$id = $keyGen->getId($keyInfo);
+				$id = $db->getId($con, $keyInfo);
 			} catch (Exception $e) {
 				throw new PropelException("Unable to get autoincrement id.", $e);
 			}
@@ -334,7 +321,7 @@ class BasePeer
 	 *		clause.
 	 * @param      $updateValues A Criteria object containing values used in set
 	 *		clause.
-	 * @param      $con 	The Connection to use.
+	 * @param      PDO $con The PDO connection object to use.
 	 * @return     int	The number of rows affected by last update statement.  For most
 	 * 				uses there is only one update statement executed, so this number
 	 * 				will correspond to the number of rows affected by the call to this
@@ -342,7 +329,7 @@ class BasePeer
 	 * 				is returned (supported) by the Creole db driver.
 	 * @throws     PropelException
 	 */
-	public static function doUpdate(Criteria $selectCriteria, Criteria $updateValues, Connection $con) {
+	public static function doUpdate(Criteria $selectCriteria, Criteria $updateValues, PDO $con) {
 
 		$db = Propel::getDB($selectCriteria->getDbName());
 		$dbMap = Propel::getDatabaseMap($selectCriteria->getDbName());
@@ -355,57 +342,47 @@ class BasePeer
 
 		$affectedRows = 0; // initialize this in case the next loop has no iterations.
 
-		foreach($tablesColumns as $tableName => $columns) {
+		foreach ($tablesColumns as $tableName => $columns) {
 
 			$whereClause = array();
 
 			$selectParams = array();
-			foreach($columns as $colName) {
+			foreach ($columns as $colName) {
 				$sb = "";
 				$selectCriteria->getCriterion($colName)->appendPsTo($sb, $selectParams);
 				$whereClause[] = $sb;
 			}
 
-			$rs = null;
 			$stmt = null;
 			try {
 
-				$sqlSnippet = implode(" AND ", $whereClause);
-
-				if ($selectCriteria->isSingleRecord()) {
-					// Get affected records.
-					$sql = "SELECT COUNT(*) FROM " . $tableName . " WHERE " . $sqlSnippet;
-					$stmt = $con->prepareStatement($sql);
-					self::populateStmtValues($stmt, $selectParams, $dbMap);
-					$rs = $stmt->executeQuery(ResultSet::FETCHMODE_NUM);
-					$rs->next();
-					if ($rs->getInt(1) > 1) {
-						$rs->close();
-						throw new PropelException("Expected to update 1 record, multiple matched.");
-					}
-					$rs->close();
-				}
-
 				$sql = "UPDATE " . $tableName . " SET ";
-				foreach($updateTablesColumns[$tableName] as $col) {
-					$sql .= substr($col, strpos($col, '.') + 1) . " = ?,";
+				foreach ($updateTablesColumns[$tableName] as $col) {
+					$updateColumnName = substr($col, strpos($col, '.') + 1);
+					// add identifiers for the actual database?
+					if ($db->useQuoteIdentifier()) {
+						$updateColumnName = $db->quoteIdentifier($updateColumnName);
+					}
+					$sql .= $updateColumnName . " = ?,";
 				}
 
-				$sql = substr($sql, 0, -1) . " WHERE " . $sqlSnippet;
+				$sql = substr($sql, 0, -1) . " WHERE " .  implode(" AND ", $whereClause);
 
 				Propel::log($sql, Propel::LOG_DEBUG);
 
-				$stmt = $con->prepareStatement($sql);
+				$stmt = $con->prepare($sql);
 
 				// Replace '?' with the actual values
-				self::populateStmtValues($stmt, array_merge(self::buildParams($updateTablesColumns[$tableName], $updateValues), $selectParams), $dbMap);
+				self::populateStmtValues($stmt, array_merge(self::buildParams($updateTablesColumns[$tableName], $updateValues), $selectParams), $dbMap, $db);
 
-				$affectedRows = $stmt->executeUpdate();
-				$stmt->close();
+				$stmt->execute();
+
+				$affectedRows = $stmt->rowCount();
+
+				$stmt = null; // close
 
 			} catch (Exception $e) {
-				if ($rs) $rs->close();
-				if ($stmt) $stmt->close();
+				if ($stmt) $stmt = null; // close
 				Propel::log($e->getMessage(), Propel::LOG_ERR);
 				throw new PropelException("Unable to execute UPDATE statement.", $e);
 			}
@@ -419,17 +396,19 @@ class BasePeer
 	 * Executes query build by createSelectSql() and returns ResultSet.
 	 *
 	 * @param      Criteria $criteria A Criteria.
-	 * @param      Connection $con A connection to use.
+	 * @param      PDO $con A PDO connection to use.
 	 * @return     ResultSet The resultset.
 	 * @throws     PropelException
 	 * @see        createSelectSql()
 	 */
-	public static function doSelect(Criteria $criteria, $con = null)
+	public static function doSelect(Criteria $criteria, PDO $con = null)
 	{
 		$dbMap = Propel::getDatabaseMap($criteria->getDbName());
+		$db = Propel::getDB($criteria->getDbName());
 
-		if ($con === null)
+		if ($con === null) {
 			$con = Propel::getConnection($criteria->getDbName());
+		}
 
 		$stmt = null;
 
@@ -438,27 +417,96 @@ class BasePeer
 			// Transaction support exists for (only?) Postgres, which must
 			// have SELECT statements that include bytea columns wrapped w/
 			// transactions.
-			if ($criteria->isUseTransaction()) $con->begin();
+			if ($criteria->isUseTransaction()) Transaction::begin($con);
 
 			$params = array();
 			$sql = self::createSelectSql($criteria, $params);
 
-			$stmt = $con->prepareStatement($sql);
-			$stmt->setLimit($criteria->getLimit());
-			$stmt->setOffset($criteria->getOffset());
+ 			$stmt = $con->prepare($sql);
 
-			self::populateStmtValues($stmt, $params, $dbMap);
+ 			// FIXME - add SQL-modification for LIMIT/OFFSET into DBAdapters & createSelectSql method.
+			// $stmt->setLimit($criteria->getLimit());
+			// $stmt->setOffset($criteria->getOffset());
 
-			$rs = $stmt->executeQuery(ResultSet::FETCHMODE_NUM);
-			if ($criteria->isUseTransaction()) $con->commit();
+			self::populateStmtValues($stmt, $params, $dbMap, $db);
+
+			$stmt->execute();
+
+			if ($criteria->isUseTransaction()) Transaction::commit($con);
+
 		} catch (Exception $e) {
-			if ($stmt) $stmt->close();
-			if ($criteria->isUseTransaction()) $con->rollback();
+			if ($stmt) $stmt = null; // close
+			if ($criteria->isUseTransaction()) Transaction::rollback($con);
 			Propel::log($e->getMessage(), Propel::LOG_ERR);
 			throw new PropelException($e);
 		}
 
-		return $rs;
+		return $stmt;
+	}
+
+	/**
+	 * Populates values in a prepared statement.
+	 *
+	 * @param      PreparedStatement $stmt
+	 * @param      array $params array('column' => ..., 'table' => ..., 'value' => ...)
+	 * @param      DatabaseMap $dbMap
+	 * @return     int The number of params replaced.
+	 */
+	private static function populateStmtValues($stmt, $params, DatabaseMap $dbMap, DBAdapter $db)
+	{
+		$i = 1;
+		foreach ($params as $param) {
+			$tableName = $param['table'];
+			$columnName = $param['column'];
+			$value = $param['value'];
+
+			if ($value === null) {
+
+				$stmt->bindValue($i++, null, PDO::PARAM_NULL);
+				// $stmt->setNull($i++);
+
+			} else {
+
+				$cMap = $dbMap->getTable($tableName)->getColumn($columnName);
+				$type = $cMap->getType();
+				$pdoType = $cMap->getPdoType();
+
+				// FIXME - This is a temporary hack to get around apparent bugs w/ PDO+MYSQL
+				// See http://pecl.php.net/bugs/bug.php?id=9919
+				if ($pdoType == PDO::PARAM_BOOL && $db instanceof DBMySQL) {
+					$value = (int) $value;
+					$pdoType = PDO::PARAM_INT;
+				} elseif (is_numeric($value) && $cMap->isEpochTemporal()) { // it's a timestamp that needs to be formatted
+					if ($type == PropelColumnTypes::TIMESTAMP) {
+						$value = date($db->getTimestampFormatter(), $value);
+					} else if ($type == PropelColumnTypes::DATE) {
+						$value = date($db->getDateFormatter(), $value);
+					} else if ($type == PropelColumnTypes::TIME) {
+						$value = date($db->getTimeFormatter(), $value);
+					}
+				} elseif ($value instanceof DateTime && $cMap->isTemporal()) { // it's a timestamp that needs to be formatted
+					if ($type == PropelColumnTypes::TIMESTAMP || $type == PropelColumnTypes::BU_TIMESTAMP) {
+						$value = $value->format($db->getTimestampFormatter());
+					} else if ($type == PropelColumnTypes::DATE || $type == PropelColumnTypes::BU_DATE) {
+						$value = $value->format($db->getDateFormatter());
+					} else if ($type == PropelColumnTypes::TIME) {
+						$value = $value->format($db->getTimeFormatter());
+					}
+				} elseif (is_resource($value) && $cMap->isLob()) {
+					// we always need to make sure that the stream is rewound, otherwise nothing will
+					// get written to database.
+					rewind($value);
+				}
+
+				if ($type == PropelColumnTypes::BLOB || $type == PropelColumnTypes::CLOB ) {
+					Propel::log("Binding [LOB value] at position $i w/ Propel type $type and PDO type $pdoType", Propel::LOG_DEBUG);
+				} else {
+					Propel::log("Binding " . var_export($value, true) . " at position $i w/ Propel type $type and PDO type $pdoType", Propel::LOG_DEBUG);
+				}
+
+				$stmt->bindValue($i++, $value, $pdoType);
+			}
+		} // foreach
 	}
 
 	/**
@@ -473,12 +521,12 @@ class BasePeer
 		$dbMap = Propel::getDatabaseMap($dbName);
 		$tableMap = $dbMap->getTable($tableName);
 		$failureMap = array(); // map of ValidationFailed objects
-		foreach($columns as $colName => $colValue) {
+		foreach ($columns as $colName => $colValue) {
 			if ($tableMap->containsColumn($colName)) {
 				$col = $tableMap->getColumn($colName);
-				foreach($col->getValidators() as $validatorMap) {
+				foreach ($col->getValidators() as $validatorMap) {
 					$validator = BasePeer::getValidator($validatorMap->getClass());
-					if($validator && ($col->isNotNull() || $colValue !== null) && $validator->isValid($validatorMap, $colValue) === false) {
+					if ($validator && ($col->isNotNull() || $colValue !== null) && $validator->isValid($validatorMap, $colValue) === false) {
 						if (!isset($failureMap[$colName])) { // for now we do one ValidationFailed per column, not per rule
 							$failureMap[$colName] = new ValidationFailed($colName, $validatorMap->getMessage(), $validator);
 						}
@@ -520,7 +568,7 @@ class BasePeer
 			}
 
 			$columns = $dbMap->getTable($table)->getColumns();
-			foreach(array_keys($columns) as $key) {
+			foreach (array_keys($columns) as $key) {
 				if ($columns[$key]->isPrimaryKey()) {
 					$pk = $columns[$key];
 					break;
@@ -536,7 +584,7 @@ class BasePeer
 	 * This method creates only prepared statement SQL (using ? where values
 	 * will go).  The second parameter ($params) stores the values that need
 	 * to be set before the statement is executed.  The reason we do it this way
-	 * is to let the Creole layer handle all escaping & value formatting.
+	 * is to let the PDO layer handle all escaping & value formatting.
 	 *
 	 * @param      Criteria $criteria Criteria for the SELECT query.
 	 * @param      array &$params Parameters that are to be replaced in prepared statement.
@@ -567,7 +615,7 @@ class BasePeer
 		$selectModifiers = $criteria->getSelectModifiers();
 
 		// get selected columns
-		foreach($select as $columnName) {
+		foreach ($select as $columnName) {
 
 			// expect every column to be of "table.column" formation
 			// it could be a function:  e.g. MAX(books.price)
@@ -608,14 +656,14 @@ class BasePeer
 		}
 
 		// set the aliases
-		foreach($aliases as $alias => $col) {
+		foreach ($aliases as $alias => $col) {
 			$selectClause[] = $col . " AS " . $alias;
 		}
 
 		// add the criteria to WHERE clause
 		// this will also add the table names to the FROM clause if they are not already
 		// invluded via a LEFT JOIN
-		foreach($criteria->keys() as $key) {
+		foreach ($criteria->keys() as $key) {
 
 			$criterion = $criteria->getCriterion($key);
 			$someCriteria = $criterion->getAttachedCriterion();
@@ -774,7 +822,7 @@ class BasePeer
 
 		 if (!empty($orderBy)) {
 
-			foreach($orderBy as $orderByColumn) {
+			foreach ($orderBy as $orderByColumn) {
 
 				// Add function expression as-is.
 
@@ -828,18 +876,35 @@ class BasePeer
 			}
 		}
 
+		// from / join tables quoten if it is necessary
+		if ($db->useQuoteIdentifier()) {
+			$fromClause = array_map(array($db, 'quoteIdentifier'), $fromClause);
+			$joinClause = $joinClause ? $joinClause : array_map(array($db, 'quoteIdentifier'), $joinClause);
+		}
+
+		// build from-clause
+		$from = '';
+		if (!empty($joinClause) && count($fromClause) > 1 && ($db instanceof DBMySQL)) {
+			$from .= "(" . implode(", ", $fromClause) . ")";
+		} else {
+			$from .= implode(", ", $fromClause);
+		}
+		$from .= $joinClause ? ' ' . implode(' ', $joinClause) : '';
+
 		// Build the SQL from the arrays we compiled
 		$sql =  "SELECT "
 				.($selectModifiers ? implode(" ", $selectModifiers) . " " : "")
 				.implode(", ", $selectClause)
-				." FROM ". ( (!empty($joinClause) && count($fromClause) > 1 && (substr(get_class($db), 0, 7) == 'DBMySQL')) ? "(" . implode(", ", $fromClause) . ")" : implode(", ", $fromClause) )
-								.($joinClause ? ' ' . implode(' ', $joinClause) : '')
+				." FROM "  . $from
 				.($whereClause ? " WHERE ".implode(" AND ", $whereClause) : "")
 				.($groupByClause ? " GROUP BY ".implode(",", $groupByClause) : "")
 				.($havingString ? " HAVING ".$havingString : "")
 				.($orderByClause ? " ORDER BY ".implode(",", $orderByClause) : "");
 
-		Propel::log($sql . ' [LIMIT: ' . $criteria->getLimit() . ', OFFSET: ' . $criteria->getOffset() . ']', Propel::LOG_DEBUG);
+		// APPLY OFFSET & LIMIT to the query.
+		if ($criteria->getLimit() || $criteria->getOffset()) {
+			$db->applyLimit($sql, $criteria->getOffset(), $criteria->getLimit());
+		}
 
 		return $sql;
 
@@ -854,39 +919,13 @@ class BasePeer
 	 */
 	private static function buildParams($columns, Criteria $values) {
 		$params = array();
-		foreach($columns as $key) {
+		foreach ($columns as $key) {
 			if ($values->containsKey($key)) {
 				$crit = $values->getCriterion($key);
 				$params[] = array('column' => $crit->getColumn(), 'table' => $crit->getTable(), 'value' => $crit->getValue());
 			}
 		}
 		return $params;
-	}
-
-	/**
-	 * Populates values in a prepared statement.
-	 *
-	 * @param      PreparedStatement $stmt
-	 * @param      array $params array('column' => ..., 'table' => ..., 'value' => ...)
-	 * @param      DatabaseMap $dbMap
-	 * @return     int The number of params replaced.
-	 */
-	private static function populateStmtValues($stmt, $params, DatabaseMap $dbMap)
-	{
-		$i = 1;
-		foreach($params as $param) {
-			$tableName = $param['table'];
-			$columnName = $param['column'];
-			$value = $param['value'];
-
-			if ($value === null) {
-				$stmt->setNull($i++);
-			} else {
-				$cMap = $dbMap->getTable($tableName)->getColumn($columnName);
-				$setter = 'set' . CreoleTypes::getAffix($cMap->getCreoleType());
-				$stmt->$setter($i++, $value);
-			}
-		} // foreach
 	}
 
 	/**
@@ -901,44 +940,13 @@ class BasePeer
 		try {
 			$v = isset(self::$validatorMap[$classname]) ? self::$validatorMap[$classname] : null;
 			if ($v === null) {
-				$cls = Propel::import($classname);
+				$cls = substr('.'.$classname, strrpos('.'.$classname, '.') + 1);
 				$v = new $cls();
 				self::$validatorMap[$classname] = $v;
 			}
 			return $v;
 		} catch (Exception $e) {
 			Propel::log("BasePeer::getValidator(): failed trying to instantiate " . $classname . ": ".$e->getMessage(), Propel::LOG_ERR);
-		}
-	}
-
-	/**
-	 * This method returns the MapBuilder specified in the name
-	 * parameter.  You should pass in the full dot-path path to the class, ie:
-	 * myapp.propel.MyMapMapBuilder.  The MapBuilder instances are cached in
-	 * this class for speed.
-	 *
-	 * @param      string $classname The dot-path name of class (e.g. myapp.propel.MyMapBuilder)
-	 * @return     MapBuilder or null (and logs the error) if the MapBuilder was not found.
-	 * @todo       -cBasePeer Consider adding app-level caching support for map builders.
-	 */
-	public static function getMapBuilder($classname)
-	{
-		try {
-			$mb = isset(self::$mapBuilders[$classname]) ? self::$mapBuilders[$classname] : null;
-			if ($mb === null) {
-				$cls = Propel::import($classname);
-				$mb = new $cls();
-				self::$mapBuilders[$classname] = $mb;
-			}
-			if (!$mb->isBuilt()) {
-				$mb->doBuild();
-			}
-			return $mb;
-		} catch (Exception $e) {
-			// Have to catch possible exceptions because method is
-			// used in initialization of Peers.  Log the exception and
-			// return null.
-			Propel::log("BasePeer::getMapBuilder() failed trying to instantiate " . $classname . ": " . $e->getMessage(), Propel::LOG_ERR);
 		}
 	}
 

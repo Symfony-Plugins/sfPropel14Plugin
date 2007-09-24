@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: XmlToData.php 536 2007-01-10 14:30:38Z heltem $
+ *  $Id: XmlToData.php 521 2007-01-05 13:29:36Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -31,7 +31,7 @@ require_once 'phing/parser/AbstractHandler.php';
  * @author     Jason van Zyl <jvanzyl@apache.org> (Torque)
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
  * @author     Fedor Karpelevitch <fedor.karpelevitch@home.com> (Torque)
- * @version    $Revision: 536 $
+ * @version    $Revision: 521 $
  * @package    propel.engine.database.transform
  */
 class XmlToData extends AbstractHandler {
@@ -108,7 +108,7 @@ class XmlToData extends AbstractHandler {
 				$table = $this->database->getTableByPhpName($name);
 
 				$this->columnValues = array();
-				foreach($attributes as $name => $value) {
+				foreach ($attributes as $name => $value) {
 					$col = $table->getColumnByPhpName($name);
 					$this->columnValues[] = new ColumnValue($col, iconv('utf-8',$this->encoding, $value));
 				}

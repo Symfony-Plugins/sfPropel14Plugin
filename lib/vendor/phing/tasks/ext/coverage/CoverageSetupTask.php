@@ -83,9 +83,7 @@ class CoverageSetupTask extends Task
 	}
 	
 	/**
-	 * Iterate over all filesets and return the filename of all files
-	 * that end with .php. This is to avoid loading an xml file
-	 * for example.
+	 * Iterate over all filesets and return the filename of all files.
 	 *
 	 * @return array an array of (basedir, filenames) pairs
 	 */
@@ -102,12 +100,9 @@ class CoverageSetupTask extends Task
 
 			foreach ($includedFiles as $file)
 			{
-				if (strstr($file, ".php"))
-				{
-					$fs = new PhingFile(realpath($ds->getBaseDir()), $file);
+				$fs = new PhingFile(realpath($ds->getBaseDir()), $file);
 					
-					$files[] = array('key' => strtolower($fs->getAbsolutePath()), 'fullname' => $fs->getAbsolutePath());
-				}
+				$files[] = array('key' => strtolower($fs->getAbsolutePath()), 'fullname' => $fs->getAbsolutePath());
 			}
 		}
 
@@ -116,9 +111,9 @@ class CoverageSetupTask extends Task
 	
 	function init()
 	{
-		include_once 'PHPUnit2/Framework/TestCase.php';
-		if (!class_exists('PHPUnit2_Framework_TestCase')) {
-			throw new Exception("PHPUnit2Task depends on PEAR PHPUnit2 package being installed.");
+		if (!extension_loaded('xdebug'))
+		{
+			throw new Exception("CoverageSetupTask depends on Xdebug being installed.");
 		}
 	}
 

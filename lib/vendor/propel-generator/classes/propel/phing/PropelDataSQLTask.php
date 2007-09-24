@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PropelDataSQLTask.php 536 2007-01-10 14:30:38Z heltem $
+ *  $Id: PropelDataSQLTask.php 521 2007-01-05 13:29:36Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -32,7 +32,7 @@ include_once 'propel/engine/database/transform/XmlToData.php';
  * @author     Jason van Zyl  <jvanzyl@periapt.com> (Torque)
  * @author     John McNally  <jmcnally@collab.net> (Torque)
  * @author     Fedor Karpelevitch  <fedor.karpelevitch@home.com> (Torque)
- * @version    $Revision: 536 $
+ * @version    $Revision: 521 $
  * @package    propel.phing
  */
 class PropelDataSQLTask extends AbstractPropelDataModelTask {
@@ -122,8 +122,8 @@ class PropelDataSQLTask extends AbstractPropelDataModelTask {
 	 */
 	private function getDatabase($name)
 	{
-		foreach($this->getDataModels() as $dm) {
-			foreach($dm->getDatabases() as $db) {
+		foreach ($this->getDataModels() as $dm) {
+			foreach ($dm->getDatabases() as $db) {
 				if ($db->getName() == $name) {
 					return $db;
 				}
@@ -157,7 +157,7 @@ class PropelDataSQLTask extends AbstractPropelDataModelTask {
 
 		// Parse each file in teh data -> db map
 
-		foreach($map->keys() as $dataXMLFilename) {
+		foreach ($map->keys() as $dataXMLFilename) {
 
 			$dataXMLFile = new PhingFile($this->srcDir, $dataXMLFilename);
 

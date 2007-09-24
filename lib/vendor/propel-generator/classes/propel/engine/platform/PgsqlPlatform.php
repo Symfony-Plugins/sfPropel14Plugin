@@ -26,7 +26,7 @@ require_once 'propel/engine/platform/DefaultPlatform.php';
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
- * @version    $Revision: 536 $
+ * @version    $Revision: 656 $
  * @package    propel.engine.platform
  */
 class PgsqlPlatform extends DefaultPlatform {
@@ -80,8 +80,13 @@ class PgsqlPlatform extends DefaultPlatform {
 	 * @param      string $text
 	 * @return     string
 	 */
-	public function escapeText($text) {
-		return pg_escape_string($text);
+	public function disconnectedEscapeText($text)
+	{
+		if (function_exists('pg_escape_string')) {
+			return pg_escape_string($text);
+		} else {
+			return parent::disconnectedEscapeText($text);
+		}
 	}
 
 	/**
@@ -110,5 +115,14 @@ class PgsqlPlatform extends DefaultPlatform {
 	public function hasSize($sqlType)
 	{
 		return !("BYTEA" == $sqlType || "TEXT" == $sqlType);
+	}
+
+	/**
+	 * Whether the underlying PDO driver for this platform returns BLOB columns as streams (instead of strings).
+	 * @return     boolean 
+	 */
+	public function hasStreamBlobImpl()
+	{
+		return true;
 	}
 }

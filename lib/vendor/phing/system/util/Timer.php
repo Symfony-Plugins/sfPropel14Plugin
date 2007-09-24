@@ -38,15 +38,15 @@
  * @author    Charles Killian
  * @author    Hans Lellelid <hans@xmpl.org>
  * @package    phing.system.util
- * @version    $Revision: 1.5 $ $Date: 2003/12/24 13:02:09 $
+ * @version    $Revision: 1.5 $ $Date: 2006-09-14 13:19:08 -0700 (Thu, 14 Sep 2006) $
  */
 class Timer {
 
     /** start time */
     protected $stime;
-    
+
     /** end time */
-    protected $etime;  
+    protected $etime;
 
     /**
      * This function sets the class variable $stime to the current time in
@@ -65,7 +65,7 @@ class Timer {
     function stop() {
         $this->etime = $this->getMicrotime();
     }
-    
+
     /**
      * This function returns the elapsed time in seconds.
      *

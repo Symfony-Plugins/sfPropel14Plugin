@@ -1,6 +1,6 @@
 <?php
 
-/* 
+/*
  *  $Id$
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -17,7 +17,7 @@
  *
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the LGPL. For more information please see
- * <http://phing.info>. 
+ * <http://phing.info>.
  */
 
 /**
@@ -32,26 +32,27 @@
  * FIXME:
  *  - Error handling reduced to min fallthrough runtime excetions
  *    more precise errorhandling is done by the PhingFile class
- *    
+ *
  * @author Charlie Killian <charlie@tizac.com>
  * @author Hans Lellelid <hans@xmpl.org>
  * @version $Revision: 1.11 $
  * @package phing.system.io
  */
-abstract class FileSystem {    
+abstract class FileSystem {
 
     /* properties for simple boolean attributes */
     const BA_EXISTS    = 0x01;
     const BA_REGULAR   = 0x02;
     const BA_DIRECTORY = 0x04;
     const BA_HIDDEN    = 0x08;
-    
+
     /** Instance for getFileSystem() method. */
     private static $fs;
-    
+
     /**
      * Static method to return the FileSystem singelton representing
      * this platform's local filesystem driver.
+     * @return FileSystem
      */
     public static function getFileSystem() {
         if (self::$fs === null) {
@@ -105,7 +106,7 @@ abstract class FileSystem {
      * will be a string in normal form.
      */
     abstract function resolve($parent, $child);
-    
+
     /**
      * Resolve the given abstract pathname into absolute form.  Invoked by the
      * getAbsolutePath and getCanonicalPath methods in the PhingFile class.
@@ -134,12 +135,12 @@ abstract class FileSystem {
      */
     abstract function isAbsolute(PhingFile $f);
 
-    /** 
-     * canonicalize filename by checking on disk 
+    /**
+     * canonicalize filename by checking on disk
      * @return mixed Canonical path or false if the file doesn't exist.
      */
     function canonicalize($strPath) {
-        return @realpath($strPath);        
+        return @realpath($strPath);
     }
 
     /* -- Attribute accessors -- */
@@ -196,7 +197,7 @@ abstract class FileSystem {
      * some other I/O error occurs.
      */
     function getLastModifiedTime(PhingFile $f) {
-        
+
         if (!$f->exists()) {
             return 0;
         }
@@ -238,19 +239,19 @@ abstract class FileSystem {
      * IOException if an I/O error occurs.
      *
      * @param       string      Path of the file to be created.
-     *     
+     *
      * @throws      IOException
      */
     function createNewFile($strPathname) {
         if (@file_exists($strPathname))
             return false;
-            
+
         // Create new file
         $fp = @fopen($strPathname, "w");
         if ($fp === false) {
-            throw new IOException("The file \"$strPathname\" could not be created");            
+            throw new IOException("The file \"$strPathname\" could not be created");
         }
-        @fclose($fp);        
+        @fclose($fp);
         return true;
     }
 
@@ -312,10 +313,10 @@ abstract class FileSystem {
      *
      * @param PhingFile $f1 abstract source file
      * @param PhingFile $f2 abstract destination file
-     * @return void    
+     * @return void
      * @throws Exception if rename cannot be performed
      */
-    function rename(PhingFile $f1, PhingFile $f2) {        
+    function rename(PhingFile $f1, PhingFile $f2) {
         // get the canonical paths of the file to rename
         $src = $f1->getAbsolutePath();
         $dest = $f2->getAbsolutePath();
@@ -332,7 +333,7 @@ abstract class FileSystem {
      * @return void
      * @throws Exception
      */
-    function setLastModifiedTime(PhingFile $f, $time) {        
+    function setLastModifiedTime(PhingFile $f, $time) {
         $path = $f->getPath();
         $success = @touch($path, $time);
         if (!$success) {
@@ -373,7 +374,7 @@ abstract class FileSystem {
      * @param PhingFile $src Source path and name file to copy.
      * @param PhingFile $dest Destination path and name of new file.
      *
-     * @return void     
+     * @return void
      * @throws Exception if file cannot be copied.
      */
     function copy(PhingFile $src, PhingFile $dest) {
@@ -386,7 +387,7 @@ abstract class FileSystem {
             $msg = "FileSystem::copy() FAILED. Cannot copy $srcPath to $destPath. $php_errormsg";
             throw new Exception($msg);
         }
-        
+
         try {
             $dest->setMode($src->getMode());
         } catch(Exception $exc) {
@@ -403,13 +404,13 @@ abstract class FileSystem {
      *                        directory. If using octal add leading 0. eg. 0777.
      *                        Mode is affected by the umask system setting.
      *
-     * @return void     
+     * @return void
      * @throws Exception if operation failed.
      */
-    function chmod($pathname, $mode) {    
-        $str_mode = decoct($mode); // Show octal in messages.    
+    function chmod($pathname, $mode) {
+        $str_mode = decoct($mode); // Show octal in messages.
         if (false === @chmod($pathname, $mode)) {// FAILED.
-            $msg = "FileSystem::chmod() FAILED. Cannot chmod $pathname. Mode $str_mode. $php_errormsg";
+            $msg = "FileSystem::chmod() FAILED. Cannot chmod $pathname. Mode $str_mode." . (isset($php_errormsg) ? ' ' . $php_errormsg : "");
             throw new Exception($msg);
         }
     }
@@ -463,7 +464,7 @@ abstract class FileSystem {
 
     /**
      * Symbolically link a file to another name.
-     * 
+     *
      * Currently symlink is not implemented on Windows. Don't use if the application is to be portable.
      *
      * @param string $target Path and/or name of file to link.
@@ -471,7 +472,7 @@ abstract class FileSystem {
      * @return void
      */
     function symlink($target, $link) {
-    
+
         // If Windows OS then symlink() will report it is not supported in
         // the build. Use this error instead of checking for Windows as the OS.
 
@@ -487,12 +488,12 @@ abstract class FileSystem {
      * Set the modification and access time on a file to the present time.
      *
      * @param string $file Path and/or name of file to touch.
-     * @param int $time 
+     * @param int $time
      * @return void
      */
     function touch($file, $time = null) {
         global $php_errormsg;
-        
+
         if (null === $time) {
             $error = @touch($file);
         } else {
@@ -501,8 +502,8 @@ abstract class FileSystem {
 
         if (false === $error) { // FAILED.
             // Add error from php to end of log message. $php_errormsg.
-            $msg = "FileSystem::touch() FAILED. Cannot touch '$file'. $php_errormsg";            
-            throw new Exception($msg);            
+            $msg = "FileSystem::touch() FAILED. Cannot touch '$file'. $php_errormsg";
+            throw new Exception($msg);
         }
     }
 
@@ -517,23 +518,23 @@ abstract class FileSystem {
      */
     function rmdir($dir, $children = false) {
         global $php_errormsg;
-        
+
         // If children=FALSE only delete dir if empty.
         if (false === $children) {
-        
+
             if (false === @rmdir($dir)) { // FAILED.
                 // Add error from php to end of log message. $php_errormsg.
                 $msg = "FileSystem::rmdir() FAILED. Cannot rmdir $dir. $php_errormsg";
                 throw new Exception($msg);
             }
-            
+
         } else { // delete contents and dir.
 
             $handle = @opendir($dir);
 
             if (false === $handle) { // Error.
 
-                $msg = "FileSystem::rmdir() FAILED. Cannot opendir() $dir. $php_errormsg";                
+                $msg = "FileSystem::rmdir() FAILED. Cannot opendir() $dir. $php_errormsg";
                 throw new Exception($msg);
 
             } else { // Read from handle.
@@ -558,16 +559,16 @@ abstract class FileSystem {
 
                         // Don't error on is_dir()
                         if (false == @is_dir($next_entry)) { // Is file.
-                            
+
                             try {
                                 self::unlink($next_entry); // Delete.
-                            } catch (Exception $e) {                            
+                            } catch (Exception $e) {
                                 $msg = "FileSystem::Rmdir() FAILED. Cannot FileSystem::Unlink() $next_entry. ". $e->getMessage();
                                 throw new Exception($msg);
                             }
 
                         } else { // Is directory.
-                            
+
                             try {
                                 self::rmdir($next_entry, true); // Delete
                             } catch (Exception $e) {
@@ -582,15 +583,15 @@ abstract class FileSystem {
 
             // Don't error on closedir()
             @closedir($handle);
-            
+
             if (false === @rmdir($dir)) { // FAILED.
                 // Add error from php to end of log message. $php_errormsg.
                 $msg = "FileSystem::rmdir() FAILED. Cannot rmdir $dir. $php_errormsg";
                 throw new Exception($msg);
             }
-            
+
         }
-                
+
     }
 
     /**
@@ -600,15 +601,15 @@ abstract class FileSystem {
      *                    octal. Number between 0 and 0777.
      *
      * @return void
-     * @throws Exception if there is an error performing operation.     
+     * @throws Exception if there is an error performing operation.
      */
     function umask($mode) {
         global $php_errormsg;
-        
+
         // CONSIDERME:
         // Throw a warning if mode is 0. PHP converts illegal octal numbers to
         // 0 so 0 might not be what the user intended.
-                        
+
         $str_mode = decoct($mode); // Show octal in messages.
 
         if (false === @umask($mode)) { // FAILED.
@@ -628,7 +629,7 @@ abstract class FileSystem {
      *                 -1 if file2 is newer.
      *                  0 if files have the same time.
      *                  Err object on failure.
-     *     
+     *
      * @throws Exception - if cannot get modified time of either file.
      */
     function compareMTimes($file1, $file2) {
@@ -636,15 +637,15 @@ abstract class FileSystem {
         $mtime1 = filemtime($file1);
         $mtime2 = filemtime($file2);
 
-        if ($mtime1 === false) { // FAILED. Log and return err.        
+        if ($mtime1 === false) { // FAILED. Log and return err.
             // Add error from php to end of log message. $php_errormsg.
             $msg = "FileSystem::compareMTimes() FAILED. Cannot can not get modified time of $file1.";
-            throw new Exception($msg);            
+            throw new Exception($msg);
         } elseif ($mtime2 === false) { // FAILED. Log and return err.
             // Add error from php to end of log message. $php_errormsg.
             $msg = "FileSystem::compareMTimes() FAILED. Cannot can not get modified time of $file2.";
             throw new Exception($msg);
-        } else { // Worked. Log and return compare.                
+        } else { // Worked. Log and return compare.
             // Compare mtimes.
             if ($mtime1 == $mtime2) {
                 return 0;
@@ -653,5 +654,5 @@ abstract class FileSystem {
             } // end compare
         }
     }
-        
+
 }

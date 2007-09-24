@@ -26,7 +26,7 @@ include_once 'phing/parser/ExpatParseException.php';
  * This is an abstract class all SAX handler classes must extend
  *
  * @author    Andreas Aderhold <andi@binarycloud.com>
- * @copyright © 2001,2002 THYRELL. All rights reserved
+ * @copyright ï¿½ 2001,2002 THYRELL. All rights reserved
  * @version   $Revision: 1.6 $
  * @package   phing.parser
  */
@@ -48,7 +48,7 @@ abstract class AbstractHandler {
         $this->parser = $parser;
         $this->parser->setHandler($this);
     }
-        
+
     /**
      * Gets invoked when a XML open tag occurs
      *
@@ -77,7 +77,7 @@ abstract class AbstractHandler {
      * @param  string  the name of the XML element
      */
     public function endElement($name) {
-        $this->finished();        
+        $this->finished();
         $this->parser->setHandler($this->parentHandler);
     }
 

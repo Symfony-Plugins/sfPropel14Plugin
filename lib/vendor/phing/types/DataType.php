@@ -16,7 +16,7 @@
  *
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the LGPL. For more information please see
- * <http://phing.info>. 
+ * <http://phing.info>.
  */
 
 require_once 'phing/ProjectComponent.php';
@@ -50,7 +50,7 @@ class DataType extends ProjectComponent {
      * @var boolean
      */
     protected $checked = true;
-  
+
     /**
      * Sets a description of the current data type. It will be useful
      * in commenting what we are doing.
@@ -75,7 +75,7 @@ class DataType extends ProjectComponent {
      * Subclasses may need to check whether any other attributes
      * have been set as well or child elements have been created and
      * thus override this method. if they do they must call parent::setRefid()
-	 * 
+	 *
 	 * @param Reference $r
 	 * @return void
      */
@@ -106,7 +106,7 @@ class DataType extends ProjectComponent {
         $o = $this->ref->getReferencedObject($p);
 
         if ($o instanceof DataType) {
-            
+
             // TESTME - make sure that in_array() works just as well here
             //
             // check if reference is in stack
@@ -132,12 +132,12 @@ class DataType extends ProjectComponent {
 
     /** Performs the check for circular references and returns the referenced object. */
     function getCheckedRef($requiredClass, $dataTypeName) {
-    
+
         if (!$this->checked) {
             // should be in stack
             $stk = array();
             $stk[] = $this;
-            $this->dieOnCircularReference($stk, $this->getProject());            
+            $this->dieOnCircularReference($stk, $this->getProject());
         }
 
         $o = $this->ref->getReferencedObject($this->getProject());
@@ -171,9 +171,9 @@ class DataType extends ProjectComponent {
     function circularReference() {
         return new BuildException("This data type contains a circular reference.");
     }
-    
+
     /**
-     * Template method being called when the data type has been 
+     * Template method being called when the data type has been
      * parsed completely.
      * @return void
      */

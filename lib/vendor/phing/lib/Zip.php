@@ -660,7 +660,7 @@ class Archive_Zip
     function errorName($p_with_code=false)
     {
         $v_const_list = get_defined_constants();
-  	
+
       	// ----- Extract error constants from all const.
         for (reset($v_const_list);
 		     list($v_key, $v_value) = each($v_const_list);) {
@@ -669,7 +669,7 @@ class Archive_Zip
     		    $v_error_list[$v_key] = $v_value;
     	    }
         }
-    
+
         // ----- Search the name form the code value
         $v_key=array_search($this->_error_code, $v_error_list, true);
   	    if ($v_key!=false) {
@@ -678,7 +678,7 @@ class Archive_Zip
   	    else {
             $v_value = 'NoName';
   	    }
-  	
+
         if ($p_with_code) {
             return($v_value.' ('.$this->_error_code.')');
         }
@@ -885,7 +885,7 @@ class Archive_Zip
     }
 
     // ----- Swap the file descriptor
-    // Here is a trick : I swap the temporary fd with the zip fd, in order to 
+    // Here is a trick : I swap the temporary fd with the zip fd, in order to
     // use the following methods on the temporary fil and not the real archive
     $v_swap = $this->_zip_fd;
     $this->_zip_fd = $v_zip_temp_fd;
@@ -1268,6 +1268,8 @@ class Archive_Zip
     // ----- Look for partial path remove
     else if ($p_remove_dir != "")
     {
+      $p_remove_dir = $this->_tool_TranslateWinPath($p_remove_dir, false);
+
       if (substr($p_remove_dir, -1) != '/')
         $p_remove_dir .= "/";
 
@@ -1387,7 +1389,7 @@ class Archive_Zip
           $this->_errorLog(ARCHIVE_ZIP_ERR_READ_OPEN_FAIL, "Unable to open file '$p_filename' in binary read mode");
           return Archive_Zip::errorCode();
         }
-        
+
         if ($p_params['no_compression']) {
           // ----- Read the file content
           $v_content_compressed = @fread($v_file, $p_header['size']);
@@ -3221,14 +3223,14 @@ class Archive_Zip
   */
   function _check_parameters(&$p_params, $p_default)
   {
-    
+
     // ----- Check that param is an array
     if (!is_array($p_params)) {
         $this->_errorLog(ARCHIVE_ZIP_ERR_INVALID_PARAMETER,
 		                 'Unsupported parameter, waiting for an array');
         return Archive_Zip::errorCode();
     }
-    
+
     // ----- Check that all the params are valid
     for (reset($p_params); list($v_key, $v_value) = each($p_params); ) {
     	if (!isset($p_default[$v_key])) {
@@ -3245,7 +3247,7 @@ class Archive_Zip
     		$p_params[$v_key] = $p_default[$v_key];
     	}
     }
-    
+
     // ----- Check specific parameters
     $v_callback_list = array ('callback_pre_add','callback_post_add',
 	                          'callback_pre_extract','callback_post_extract');

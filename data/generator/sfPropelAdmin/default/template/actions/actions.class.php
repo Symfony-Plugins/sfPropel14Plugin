@@ -180,7 +180,7 @@ else
     $<?php echo $this->getSingularName() ?>->save();
 
 <?php foreach ($this->getColumnCategories('edit.display') as $category): ?>
-<?php foreach ($this->getColumns('edit.display', $category) as $name => $column): $type = $column->getCreoleType(); ?>
+<?php foreach ($this->getColumns('edit.display', $category) as $name => $column): $type = $column->getType(); ?>
 <?php $name = $column->getName() ?>
 <?php if ($column->isPrimaryKey()) continue ?>
 <?php $credentials = $this->getParameterValue('edit.fields.'.$column->getName().'.credentials') ?>
@@ -246,7 +246,7 @@ $column = sfPropelManyToMany::getColumn($class, $through_class);
     $<?php echo $this->getSingularName() ?> = $this->getRequestParameter('<?php echo $this->getSingularName() ?>');
 
 <?php foreach ($this->getColumnCategories('edit.display') as $category): ?>
-<?php foreach ($this->getColumns('edit.display', $category) as $name => $column): $type = $column->getCreoleType(); ?>
+<?php foreach ($this->getColumns('edit.display', $category) as $name => $column): $type = $column->getType(); ?>
 <?php $name = $column->getName() ?>
 <?php if ($column->isPrimaryKey()) continue ?>
 <?php $credentials = $this->getParameterValue('edit.fields.'.$column->getName().'.credentials') ?>
@@ -269,7 +269,7 @@ $column = sfPropelManyToMany::getColumn($class, $through_class);
 
     if (!$this->getRequest()->hasErrors() && $this->getRequest()->getFileSize('<?php echo $this->getSingularName() ?>[<?php echo $name ?>]'))
     {
-<?php elseif ($type != CreoleTypes::BOOLEAN): ?>
+<?php elseif ($type != PropelColumnTypes::BOOLEAN): ?>
     if (isset($<?php echo $this->getSingularName() ?>['<?php echo $name ?>']))
     {
 <?php endif; ?>
@@ -286,14 +286,14 @@ $column = sfPropelManyToMany::getColumn($class, $through_class);
       }
       $this->getRequest()->moveFile('<?php echo $this->getSingularName() ?>[<?php echo $name ?>]', sfConfig::get('sf_upload_dir')."/<?php echo $upload_dir ?>/".$fileName.$ext);
       $this-><?php echo $this->getSingularName() ?>->set<?php echo $column->getPhpName() ?>($fileName.$ext);
-<?php elseif ($type == CreoleTypes::DATE || $type == CreoleTypes::TIMESTAMP): ?>
+<?php elseif ($type == PropelColumnTypes::DATE || $type == PropelColumnTypes::TIMESTAMP): ?>
       if ($<?php echo $this->getSingularName() ?>['<?php echo $name ?>'])
       {
         try
         {
           $dateFormat = new sfDateFormat($this->getUser()->getCulture());
-          <?php $inputPattern  = $type == CreoleTypes::DATE ? 'd' : 'g'; ?>
-          <?php $outputPattern = $type == CreoleTypes::DATE ? 'i' : 'I'; ?>
+          <?php $inputPattern  = $type == PropelColumnTypes::DATE ? 'd' : 'g'; ?>
+          <?php $outputPattern = $type == PropelColumnTypes::DATE ? 'i' : 'I'; ?>
           if (!is_array($<?php echo $this->getSingularName() ?>['<?php echo $name ?>']))
           {
             $value = $dateFormat->format($<?php echo $this->getSingularName() ?>['<?php echo $name ?>'], '<?php echo $outputPattern ?>', $dateFormat->getInputPattern('<?php echo $inputPattern ?>'));
@@ -314,14 +314,14 @@ $column = sfPropelManyToMany::getColumn($class, $through_class);
       {
         $this-><?php echo $this->getSingularName() ?>->set<?php echo $column->getPhpName() ?>(null);
       }
-<?php elseif ($type == CreoleTypes::BOOLEAN): ?>
+<?php elseif ($type == PropelColumnTypes::BOOLEAN): ?>
     $this-><?php echo $this->getSingularName() ?>->set<?php echo $column->getPhpName() ?>(isset($<?php echo $this->getSingularName() ?>['<?php echo $name ?>']) ? $<?php echo $this->getSingularName() ?>['<?php echo $name ?>'] : 0);
 <?php elseif ($column->isForeignKey()): ?>
     $this-><?php echo $this->getSingularName() ?>->set<?php echo $column->getPhpName() ?>($<?php echo $this->getSingularName() ?>['<?php echo $name ?>'] ? $<?php echo $this->getSingularName() ?>['<?php echo $name ?>'] : null);
 <?php else: ?>
       $this-><?php echo $this->getSingularName() ?>->set<?php echo $column->getPhpName() ?>($<?php echo $this->getSingularName() ?>['<?php echo $name ?>']);
 <?php endif; ?>
-<?php if ($type != CreoleTypes::BOOLEAN): ?>
+<?php if ($type != PropelColumnTypes::BOOLEAN): ?>
     }
 <?php endif; ?>
 <?php if ($credentials): ?>
@@ -353,8 +353,8 @@ $column = sfPropelManyToMany::getColumn($class, $through_class);
     if ($this->getRequest()->hasParameter('filter'))
     {
       $filters = $this->getRequestParameter('filters');
-<?php foreach ($this->getColumns('list.filters') as $column): $type = $column->getCreoleType() ?>
-<?php if ($type == CreoleTypes::DATE || $type == CreoleTypes::TIMESTAMP): ?>
+<?php foreach ($this->getColumns('list.filters') as $column): $type = $column->getType() ?>
+<?php if ($type == PropelColumnTypes::DATE || $type == PropelColumnTypes::TIMESTAMP): ?>
       if (isset($filters['<?php echo $column->getName() ?>']['from']) && $filters['<?php echo $column->getName() ?>']['from'] !== '')
       {
         $filters['<?php echo $column->getName() ?>']['from'] = $this->getContext()->getI18N()->getTimestampForCulture($filters['<?php echo $column->getName() ?>']['from'], $this->getUser()->getCulture());
@@ -397,7 +397,7 @@ $column = sfPropelManyToMany::getColumn($class, $through_class);
   protected function addFiltersCriteria($c)
   {
 <?php if ($this->getParameterValue('list.filters')): ?>
-<?php foreach ($this->getColumns('list.filters') as $column): $type = $column->getCreoleType() ?>
+<?php foreach ($this->getColumns('list.filters') as $column): $type = $column->getType() ?>
 <?php if (($column->isPartial() || $column->isComponent()) && $this->getParameterValue('list.fields.'.$column->getName().'.filter_criteria_disabled')) continue ?>
     if (isset($this->filters['<?php echo $column->getName() ?>_is_empty']))
     {
@@ -405,12 +405,12 @@ $column = sfPropelManyToMany::getColumn($class, $through_class);
       $criterion->addOr($c->getNewCriterion(<?php echo $this->getPeerClassName() ?>::<?php echo strtoupper($column->getName()) ?>, null, Criteria::ISNULL));
       $c->add($criterion);
     }
-<?php if ($type == CreoleTypes::DATE || $type == CreoleTypes::TIMESTAMP): ?>
+<?php if ($type == PropelColumnTypes::DATE || $type == PropelColumnTypes::TIMESTAMP): ?>
     else if (isset($this->filters['<?php echo $column->getName() ?>']))
     {
       if (isset($this->filters['<?php echo $column->getName() ?>']['from']) && $this->filters['<?php echo $column->getName() ?>']['from'] !== '')
       {
-<?php if ($type == CreoleTypes::DATE): ?>
+<?php if ($type == PropelColumnTypes::DATE): ?>
         $criterion = $c->getNewCriterion(<?php echo $this->getPeerClassName() ?>::<?php echo strtoupper($column->getName()) ?>, date('Y-m-d', $this->filters['<?php echo $column->getName() ?>']['from']), Criteria::GREATER_EQUAL);
 <?php else: ?>
         $criterion = $c->getNewCriterion(<?php echo $this->getPeerClassName() ?>::<?php echo strtoupper($column->getName()) ?>, $this->filters['<?php echo $column->getName() ?>']['from'], Criteria::GREATER_EQUAL);
@@ -420,7 +420,7 @@ $column = sfPropelManyToMany::getColumn($class, $through_class);
       {
         if (isset($criterion))
         {
-<?php if ($type == CreoleTypes::DATE): ?>
+<?php if ($type == PropelColumnTypes::DATE): ?>
           $criterion->addAnd($c->getNewCriterion(<?php echo $this->getPeerClassName() ?>::<?php echo strtoupper($column->getName()) ?>, date('Y-m-d', $this->filters['<?php echo $column->getName() ?>']['to']), Criteria::LESS_EQUAL));
 <?php else: ?>
           $criterion->addAnd($c->getNewCriterion(<?php echo $this->getPeerClassName() ?>::<?php echo strtoupper($column->getName()) ?>, $this->filters['<?php echo $column->getName() ?>']['to'], Criteria::LESS_EQUAL));
@@ -428,7 +428,7 @@ $column = sfPropelManyToMany::getColumn($class, $through_class);
         }
         else
         {
-<?php if ($type == CreoleTypes::DATE): ?>
+<?php if ($type == PropelColumnTypes::DATE): ?>
           $criterion = $c->getNewCriterion(<?php echo $this->getPeerClassName() ?>::<?php echo strtoupper($column->getName()) ?>, date('Y-m-d', $this->filters['<?php echo $column->getName() ?>']['to']), Criteria::LESS_EQUAL);
 <?php else: ?>
           $criterion = $c->getNewCriterion(<?php echo $this->getPeerClassName() ?>::<?php echo strtoupper($column->getName()) ?>, $this->filters['<?php echo $column->getName() ?>']['to'], Criteria::LESS_EQUAL);
@@ -444,7 +444,7 @@ $column = sfPropelManyToMany::getColumn($class, $through_class);
 <?php else: ?>
     else if (isset($this->filters['<?php echo $column->getName() ?>']) && $this->filters['<?php echo $column->getName() ?>'] !== '')
     {
-<?php if ($type == CreoleTypes::CHAR || $type == CreoleTypes::VARCHAR || $type == CreoleTypes::LONGVARCHAR): ?>
+<?php if ($type == PropelColumnTypes::CHAR || $type == PropelColumnTypes::VARCHAR || $type == PropelColumnTypes::LONGVARCHAR): ?>
       $c->add(<?php echo $this->getPeerClassName() ?>::<?php echo strtoupper($column->getName()) ?>, strtr($this->filters['<?php echo $column->getName() ?>'], '*', '%'), Criteria::LIKE);
 <?php else: ?>
       $c->add(<?php echo $this->getPeerClassName() ?>::<?php echo strtoupper($column->getName()) ?>, $this->filters['<?php echo $column->getName() ?>']);
