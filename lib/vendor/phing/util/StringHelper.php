@@ -14,7 +14,7 @@ class StringHelper {
 
     private static $TRUE_VALUES = array("on", "true", "t", "yes");
     private static $FALSE_VALUES = array("off", "false", "f", "no");
-
+    
     /**
      * Replaces identifier tokens with corresponding text values in passed string.
      *
@@ -28,7 +28,7 @@ class StringHelper {
         $results = array();
         foreach ($strings as $string) {
             $results[] = str_replace($tokens, $replacements, $string);
-        }
+        }        
         return $results;
     }
 
@@ -41,14 +41,14 @@ class StringHelper {
     public static function unqualify($qualifiedName, $separator = '.') {
         // if false, then will be 0
         $pos = strrpos($qualifiedName, $separator);
-        if ($pos === false) {
+        if ($pos === false) { 
             return $qualifiedName;  // there is no '.' in the qualifed name
         } else {
             return substr($qualifiedName, $pos + 1); // start just after '.'
         }
     }
 
-    /**
+    /** 
      * Converts a string to an indexed array of chars
      * There's really no reason for this to be used in PHP, since strings
      * are all accessible using the $string{0} notation.
@@ -64,12 +64,12 @@ class StringHelper {
         }
         return $ret;
     }
-
+    
     /**
      * Get the qualifier part of a qualified name.
      * E.g. eg.Cat -> eg
      * @return string
-     */
+     */    
     public static function qualifier($qualifiedName, $seperator = '.') {
         $pos = strrchr($qualifiedName, $seperator);
         if ($pos === false) {
@@ -78,40 +78,40 @@ class StringHelper {
             return substr($qualifiedName, 0, $pos);
         }
     }
-
+    
     /**
      * @param array $columns String[]
      * @param string $prefix
      * @return array String[]
-     */
+     */ 
     public static function prefix( $columns, $prefix) {
         if ($prefix == null) return $columns;
         $qualified = array();
         foreach($columns as $key => $column) {
             $qualified[$key] = $prefix . $column;
-        }
+        }        
         return $qualified;
     }
-
+    
     /**
      *
      * @return string
-     */
+     */ 
     public static function root($qualifiedName, $separator = '.') {
         $loc = strpos($qualifiedName, $separator);
         return ($loc === false) ? $qualifiedName : substr($qualifiedName, 0, $loc);
     }
-
+    
     /**
      * @return int
      */
     public static function hashCode($string) {
         return crc32($string);
     }
-
+    
     /**
      * @return boolean
-     */
+     */ 
     public static function booleanValue($s) {
         if (is_bool($s)) {
             return $s; // it's already boolean (not a string)
@@ -127,7 +127,7 @@ class StringHelper {
         if (is_bool($s)) {
             return true; // it already is boolean
         }
-
+        
         if ($s === "" || $s === null || !is_string($s)) {
             return false; // not a valid string for testing
         }
@@ -135,7 +135,7 @@ class StringHelper {
         $test = trim(strtolower($s));
         return (boolean) in_array($test, array_merge(self::$FALSE_VALUES, self::$TRUE_VALUES));
     }
-
+        
     /**
      * Creates a key based on any number of passed params.
      * @return string
@@ -143,8 +143,8 @@ class StringHelper {
     public static function key() {
         $args = func_get_args();
         return serialize($args);
-    }
-
+    }    
+    
     /** tests if a string starts with a given string */
     public static function startsWith($check, $string) {
         if ($check === "" || $check === $string) {
@@ -153,7 +153,7 @@ class StringHelper {
             return (strpos($string, $check) === 0) ? true : false;
         }
     }
-
+    
     /** tests if a string ends with a given string */
     public static function endsWith($check, $string) {
         if ($check === "" || $check === $string) {
@@ -161,11 +161,11 @@ class StringHelper {
         } else {
             return (strpos(strrev($string), strrev($check)) === 0) ? true : false;
         }
-    }
+    }            
 
     /**
      * a natural way of getting a subtring, php's circular string buffer and strange
-     * return values suck if you want to program strict as of C or friends
+     * return values suck if you want to program strict as of C or friends 
      */
     public static function substring($string, $startpos, $endpos = -1) {
         $len    = strlen($string);
@@ -186,14 +186,14 @@ class StringHelper {
 
     /**
      * Does the value correspond to a slot variable?
-     * @param string $value
+     * @param string $value    
      */
     public static function isSlotVar($value) {
         $value = trim($value);
         if ($value === "") return false;
         return preg_match('/^%\{([\w\.\-]+)\}$/', $value);
     }
-
+    
     /**
      * Extracts the variable name for a slot var in the format %{task.current_file}
      * @param string $var The var from build file.
@@ -202,7 +202,7 @@ class StringHelper {
     public static function slotVar($var) {
         return trim($var, '%{} ');
     }
-
+    
 }
 
 

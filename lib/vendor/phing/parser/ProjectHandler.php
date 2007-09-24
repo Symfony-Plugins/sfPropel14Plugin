@@ -102,10 +102,10 @@ class ProjectHandler extends AbstractHandler {
         if ($id !== null) {
             $project->addReference($id, $project);
         }
-
+        
         if ($desc !== null) {
             $project->setDescription($desc);
-        }
+        }        
 
         if ($project->getProperty("project.basedir") !== null) {
             $project->setBasedir($project->getProperty("project.basedir"));
@@ -134,10 +134,10 @@ class ProjectHandler extends AbstractHandler {
      * @access public
      */
     function startElement($name, $attrs) {
-
+    
 		$project = $this->configurator->project;
         $types = $project->getDataTypeDefinitions();
-
+		
 		if ($name == "target") {
 			$tf = new TargetHandler($this->parser, $this, $this->configurator);
 			$tf->init($name, $attrs);

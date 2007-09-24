@@ -1,7 +1,7 @@
 <?php
 /*
- *  $Id: FileWriter.php 123 2006-09-14 20:19:08Z mrook $
- *
+ *  $Id: FileWriter.php 123 2006-09-14 20:19:08Z mrook $  
+ * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -24,16 +24,16 @@ require_once 'phing/system/io/PhingFile.php';
 
 /**
  * Input stream subclass for file streams.
- *
+ * 
  * @package   phing.system.io
  */
 class FileInputStream extends InputStream {
-
+	
 	/**
 	 * @var PhingFile The associated file.
 	 */
 	protected $file;
-
+	
     /**
      * Construct a new FileInputStream.
      * @param mixed $file
@@ -48,15 +48,15 @@ class FileInputStream extends InputStream {
         } else {
             throw new Exception("Invalid argument type for \$file.");
         }
-
+        
         $stream = @fopen($this->file->getAbsolutePath(), "rb");
         if ($stream === false) {
         	throw new IOException("Unable to open " . $this->file->__toString() . " for reading: " . $php_errormsg);
         }
-
+        
         parent::__construct($stream);
     }
-
+    
     /**
      * Returns a string representation of the attached file.
      * @return string
@@ -64,7 +64,7 @@ class FileInputStream extends InputStream {
     public function __toString() {
         return $this->file->getPath();
     }
-
+    
     /**
      * Mark is supported by FileInputStream.
      * @return boolean TRUE

@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5NestedSetPeerBuilder.php 628 2007-05-04 11:04:32Z david $
+ *  $Id: PHP5NestedSetPeerBuilder.php 701 2007-09-18 09:13:01Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -734,7 +734,7 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 		\$stmt = $peerClassname::doSelectStmt(\$c, \$con);
 
 		$peerClassname::hydrateDescendants(\$node, \$stmt);
-		return \$node->_children;
+		return \$node->getChildren(\$con);
 	}
 ";
 	}

@@ -11,16 +11,16 @@
  * need, and that is to allow access to dynamic values that are set by logic
  * that is not represented in a build file.  For exampe, we need a system for getting
  * the current resource (file) that is being processed by a filterchain in a fileset.
- *
+ * 
  * Each slot corresponds to only one read-only, dynamic-value RegisterSlot object. In
  * a build.xml register slots are expressed using a syntax similar to variables:
- *
+ * 
  * <replaceregexp>
  *    <regexp pattern="\n" replace="%{task.current_file}"/>
  * </replaceregexp>
- *
+ * 
  * The task/type must provide a supporting setter for the attribute:
- *
+ * 
  * <code>
  *     function setListeningReplace(RegisterSlot $slot) {
  *        $this->replace = $slot;
@@ -39,15 +39,15 @@
  * @package phing.system.util
  */
 class Register {
-
+    
     /** Slots that have been registered */
     private static $slots = array();
-
+    
     /**
      * Returns RegisterSlot for specified key.
-     *
+     * 
      * If not slot exists a new one is created for key.
-     *
+     * 
      * @param string $key
      * @return RegisterSlot
      */
@@ -56,7 +56,7 @@ class Register {
             self::$slots[$key] = new RegisterSlot($key);
         }
         return self::$slots[$key];
-    }
+    }    
 }
 
 
@@ -64,13 +64,13 @@ class Register {
  * Represents a slot in the register.
  */
 class RegisterSlot {
-
+    
     /** The name of this slot. */
     private $key;
-
+    
     /** The value for this slot. */
     private $value;
-
+    
     /**
      * Constructs a new RegisterSlot, setting the key to passed param.
      * @param string $key
@@ -78,7 +78,7 @@ class RegisterSlot {
     public function __construct($key) {
         $this->key = (string) $key;
     }
-
+    
     /**
      * Sets the key / name for this slot.
      * @param string $k
@@ -94,7 +94,7 @@ class RegisterSlot {
     public function getKey() {
         return $this->key;
     }
-
+    
     /**
      * Sets the value for this slot.
      * @param mixed
@@ -102,7 +102,7 @@ class RegisterSlot {
     public function setValue($v) {
         $this->value = $v;
     }
-
+    
     /**
      * Returns the value at this slot.
      * @return mixed
@@ -110,6 +110,6 @@ class RegisterSlot {
     public function getValue() {
         return $this->value;
     }
-
+    
 }
 ?>

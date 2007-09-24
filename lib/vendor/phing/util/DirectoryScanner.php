@@ -19,7 +19,7 @@
  * <http://phing.info>.
  */
 
-require_once 'phing/types/selectors/SelectorScanner.php';
+require_once 'phing/types/selectors/SelectorScanner.php'; 
 include_once 'phing/util/StringHelper.php';
 include_once 'phing/types/selectors/SelectorUtils.php';
 
@@ -180,12 +180,12 @@ class DirectoryScanner implements SelectorScanner {
 
     /** Selectors */
     protected $selectors = null;
-
+    
     protected $filesDeselected;
     protected $dirsDeselected;
-
+    
     /** if there are no deselected files */
-    protected $everythingIncluded = true;
+    protected $everythingIncluded = true;        
 
     /**
      * Does the path match the start of this pattern up to the first "**".
@@ -326,7 +326,7 @@ class DirectoryScanner implements SelectorScanner {
      *
      */
     function scan() {
-
+    
         if ((empty($this->basedir)) || (!@is_dir($this->basedir))) {
             return false;
         }
@@ -347,14 +347,14 @@ class DirectoryScanner implements SelectorScanner {
         $this->dirsExcluded = array();
         $this->dirsDeselected = array();
         $this->filesDeselected = array();
-
+        
         if ($this->isIncluded("")) {
             if (!$this->isExcluded("")) {
                 if ($this->isSelected("", $this->basedir)) {
                     $this->dirsIncluded[] = "";
                 } else {
                     $this->dirsDeselected[] = "";
-                }
+                }                
             } else {
                 $this->dirsExcluded[] = "";
             }
@@ -437,15 +437,15 @@ class DirectoryScanner implements SelectorScanner {
      * @see #dirsExcluded
      */
     private function scandir($_rootdir, $_vpath, $_fast) {
-
+        
         if (!is_readable($_rootdir)) {
             return;
-        }
-
+        }                                
+        
         $newfiles = self::listDir($_rootdir);
-
+        
         for ($i=0,$_i=count($newfiles); $i < $_i; $i++) {
-
+            
             $file = $_rootdir . DIRECTORY_SEPARATOR . $newfiles[$i];
             $name = $_vpath . $newfiles[$i];
 
@@ -462,8 +462,8 @@ class DirectoryScanner implements SelectorScanner {
                             $this->dirsDeselected[] = $name;
                             if ($_fast && $this->couldHoldIncluded($name)) {
                                 $this->scandir($file, $name.DIRECTORY_SEPARATOR, $_fast);
-                            }
-                        }
+                            }                            
+                        }                                                
                     } else {
                         $this->everythingIncluded = false;
                         $this->dirsExcluded[] = $name;
@@ -478,11 +478,11 @@ class DirectoryScanner implements SelectorScanner {
                         $this->scandir($file, $name.DIRECTORY_SEPARATOR, $_fast);
                     }
                 }
-
+                
                 if (!$_fast) {
                     $this->scandir($file, $name.DIRECTORY_SEPARATOR, $_fast);
                 }
-
+                
             } elseif (@is_file($file)) {
                 if ($this->isIncluded($name)) {
                     if (!$this->isExcluded($name)) {
@@ -491,7 +491,7 @@ class DirectoryScanner implements SelectorScanner {
                         } else {
                             $this->everythingIncluded = false;
                             $this->filesDeselected[] = $name;
-                        }
+                        }                        
                     } else {
                         $this->everythingIncluded = false;
                         $this->filesExcluded[] = $name;
@@ -560,7 +560,7 @@ class DirectoryScanner implements SelectorScanner {
      * @return the names of the files
      */
     function getIncludedFiles() {
-        return $this->filesIncluded;
+        return $this->filesIncluded;        
     }
 
     /**
@@ -599,7 +599,7 @@ class DirectoryScanner implements SelectorScanner {
      * @see #slowScan
      */
     public function getDeselectedFiles() {
-        $this->slowScan();
+        $this->slowScan();        
         return $this->filesDeselected;
     }
 
@@ -612,7 +612,7 @@ class DirectoryScanner implements SelectorScanner {
      */
 
     function getIncludedDirectories() {
-        return $this->dirsIncluded;
+        return $this->dirsIncluded;        
     }
 
     /**
@@ -624,7 +624,7 @@ class DirectoryScanner implements SelectorScanner {
      */
     function getNotIncludedDirectories() {
         $this->slowScan();
-        return $this->dirsNotIncluded;
+        return $this->dirsNotIncluded;        
     }
 
     /**
@@ -642,7 +642,7 @@ class DirectoryScanner implements SelectorScanner {
         $this->slowScan();
         return $this->dirsDeselected;
     }
-
+    
     /**
      * Get the names of the directories that matched at least one of the include
      * patterns, an matched also at least one of the exclude patterns.
@@ -652,7 +652,7 @@ class DirectoryScanner implements SelectorScanner {
      */
     function getExcludedDirectories() {
         $this->slowScan();
-        return $this->dirsExcluded;
+        return $this->dirsExcluded;        
     }
 
     /**
@@ -667,7 +667,7 @@ class DirectoryScanner implements SelectorScanner {
             $this->excludes[] = $pattern;
         }
     }
-
+    
     /**
      * Sets the selectors that will select the filelist.
      *
@@ -687,7 +687,7 @@ class DirectoryScanner implements SelectorScanner {
     public function isEverythingIncluded() {
         return $this->everythingIncluded;
     }
-
+        
     /**
      * Tests whether a name should be selected.
      *

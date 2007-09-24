@@ -24,7 +24,7 @@
  *  the project components
  *
  * @author    Andreas Aderhold <andi@binarycloud.com>
- * @author    Hans Lellelid <hans@xmpl.org>
+ * @author    Hans Lellelid <hans@xmpl.org> 
  * @version   $Revision: 1.5 $
  * @package   phing
  */

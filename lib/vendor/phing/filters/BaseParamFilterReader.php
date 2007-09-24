@@ -28,28 +28,28 @@ include_once 'phing/types/Parameter.php';
  * Base class for core filter readers.
  *
  * @author <a href="mailto:yl@seasonfive.com">Yannick Lecaillez</a>
- * @copyright ï¿½ 2003 seasonfive. All rights reserved
+ * @copyright © 2003 seasonfive. All rights reserved
  * @version   $Revision: 1.5 $ $Date: 2006-09-14 13:19:08 -0700 (Thu, 14 Sep 2006) $
  * @access    public
  * @see       FilterReader
  * @package   phing.filters
  */
 class BaseParamFilterReader extends BaseFilterReader implements Parameterizable {
-
+    
     /** The passed in parameter array. */
     protected $_parameters = array();
-
+    
     /*
      * Sets the parameters used by this filter, and sets
      * the filter to an uninitialized status.
-     *
+     * 
      * @param array Array of parameters to be used by this filter.
      *              Should not be <code>null</code>.
     */
     function setParameters($parameters) {
         // type check, error must never occur, bad code of it does
         if ( !is_array($parameters) ) {
-            throw new Exception("Expected parameters array got something else");
+            throw new Exception("Expected parameters array got something else");            
         }
 
         $this->_parameters = $parameters;
@@ -58,7 +58,7 @@ class BaseParamFilterReader extends BaseFilterReader implements Parameterizable 
 
     /*
      * Returns the parameters to be used by this filter.
-     *
+     * 
      * @return the parameters to be used by this filter
     */
     function &getParameters() {

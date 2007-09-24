@@ -66,16 +66,16 @@ class UnknownElement extends Task {
      * @throws  BuildException if the element can not be configured
      */
     public function maybeConfigure() {
-
+    
         $this->realThing = $this->makeObject($this, $this->wrapper);
         $this->wrapper->setProxy($this->realThing);
         if ($this->realThing instanceof Task) {
             $this->realThing->setRuntimeConfigurableWrapper($this->wrapper);
         }
-
+    
         $this->handleChildren($this->realThing, $this->wrapper);
         $this->wrapper->maybeConfigure($this->getProject());
-
+                                    
     }
 
     /**
@@ -84,17 +84,17 @@ class UnknownElement extends Task {
      * @throws  BuildException if the task can not be created
      */
     public function main() {
-
+    
         if ($this->realThing === null) {
             // plain impossible to get here, maybeConfigure should
             // have thrown an exception.
             throw new BuildException("Should not be executing UnknownElement::main() -- task/type: {$this->elementName}");
         }
-
+        
         if ($this->realThing instanceof Task) {
             $this->realThing->main();
         }
-
+        
     }
 
     /**
@@ -138,11 +138,11 @@ class UnknownElement extends Task {
             if ($realChild instanceof Task) {
                 $realChild->setRuntimeConfigurableWrapper($childWrapper);
             }
-
+			
             if ($realChild instanceof ProjectComponent) {
             	$child->handleChildren($realChild, $childWrapper);
             }
-
+            
             if ($realChild instanceof Task) {
                 $realChild->maybeConfigure();
             }
@@ -168,7 +168,7 @@ class UnknownElement extends Task {
         }
         return $o;
     }
-
+    
     /**
      *  Create a named task and configure it up to the init() stage.
      *
@@ -185,7 +185,7 @@ class UnknownElement extends Task {
             if (!$onTopLevel) {
                 throw new BuildException("Could not create task of type: '".$this->elementName."'. Make sure that this class has been declared using taskdef.");
             }
-            return null;
+            return null;            
         }
 
         // used to set the location within the xmlfile so that exceptions can

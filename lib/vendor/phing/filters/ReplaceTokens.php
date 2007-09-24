@@ -1,8 +1,8 @@
 <?php
 
 /*
- *  $Id$
- *
+ *  $Id$  
+ * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -107,11 +107,11 @@ class ReplaceTokens extends BaseParamFilterReader implements ChainableReader {
      * @access private
      */
     private function replaceTokenCallback($matches) {
-
+                
         $key = $matches[1];
-
+        
         /* Get tokens from tokensource and merge them with the
-         * tokens given directly via build file. This should be
+         * tokens given directly via build file. This should be 
          * done a bit more elegantly
          */
         if ($this->_alltokens === null) {
@@ -139,7 +139,7 @@ class ReplaceTokens extends BaseParamFilterReader implements ChainableReader {
         }
 
         if ($replaceWith === null) {
-            $replaceWith = $this->_beginToken . $key . $this->_endToken;
+            $replaceWith = $this->_beginToken . $key . $this->_endToken;            
             $this->log("No token defined for key \"".$this->_beginToken  . $key . $this->_endToken."\"");
         } else {
             $this->log("Replaced \"".$this->_beginToken  . $key . $this->_endToken ."\" with \"".$replaceWith."\"");
@@ -151,7 +151,7 @@ class ReplaceTokens extends BaseParamFilterReader implements ChainableReader {
     /**
      * Returns stream with tokens having been replaced with appropriate values.
      * If a replacement value is not found for a token, the token is left in the stream.
-     *
+     * 
      * @return mixed filtered stream, -1 on EOF.
      */
     function read($len = null) {
@@ -165,8 +165,8 @@ class ReplaceTokens extends BaseParamFilterReader implements ChainableReader {
 
         if($buffer === -1) {
             return -1;
-        }
-
+        }    
+        
         // filter buffer
         $buffer = preg_replace_callback(
             "/".preg_quote($this->_beginToken)."([\w\.\-:]+?)".preg_quote($this->_endToken)."/",
@@ -174,10 +174,10 @@ class ReplaceTokens extends BaseParamFilterReader implements ChainableReader {
 
         return $buffer;
     }
-
+   
     /**
      * Sets the "begin token" character.
-     *
+     * 
      * @param string $beginToken the character used to denote the beginning of a token.
      */
     function setBeginToken($beginToken) {
@@ -186,7 +186,7 @@ class ReplaceTokens extends BaseParamFilterReader implements ChainableReader {
 
     /**
      * Returns the "begin token" character.
-     *
+     * 
      * @return string The character used to denote the beginning of a token.
      */
     function getBeginToken() {
@@ -195,7 +195,7 @@ class ReplaceTokens extends BaseParamFilterReader implements ChainableReader {
 
     /**
      * Sets the "end token" character.
-     *
+     * 
      * @param string $endToken the character used to denote the end of a token
      */
     function setEndToken($endToken) {
@@ -204,7 +204,7 @@ class ReplaceTokens extends BaseParamFilterReader implements ChainableReader {
 
     /**
      * Returns the "end token" character.
-     *
+     * 
      * @return the character used to denote the beginning of a token
      */
     function getEndToken() {
@@ -213,7 +213,7 @@ class ReplaceTokens extends BaseParamFilterReader implements ChainableReader {
 
     /**
      * Adds a token element to the map of tokens to replace.
-     *
+     * 
      * @return object The token added to the map of replacements.
      *               Must not be <code>null</code>.
      */
@@ -221,7 +221,7 @@ class ReplaceTokens extends BaseParamFilterReader implements ChainableReader {
         $num = array_push($this->_tokens, new Token());
         return $this->_tokens[$num-1];
     }
-
+    
     /**
      * Adds a token source to the sources of this filter.
      *
@@ -260,9 +260,9 @@ class ReplaceTokens extends BaseParamFilterReader implements ChainableReader {
 
     /**
      * Sets the tokensources to use; used by ReplaceTokens::chain()
-     *
+     * 
      * @param   array   An array of token sources.
-     */
+     */ 
     function setTokensources($sources) {
         // type check
         if ( !is_array($sources)) {
@@ -273,7 +273,7 @@ class ReplaceTokens extends BaseParamFilterReader implements ChainableReader {
 
     /**
      * Returns the token sources used by this filter; used by ReplaceTokens::chain()
-     *
+     * 
      * @return  array
      */
     function getTokensources() {
@@ -283,10 +283,10 @@ class ReplaceTokens extends BaseParamFilterReader implements ChainableReader {
     /**
      * Creates a new ReplaceTokens using the passed in
      * Reader for instantiation.
-     *
+     * 
      * @param object A Reader object providing the underlying stream.
      *               Must not be <code>null</code>.
-     *
+     * 
      * @return object A new filter based on this configuration, but filtering
      *         the specified reader
      */
@@ -338,7 +338,7 @@ class ReplaceTokens extends BaseParamFilterReader implements ChainableReader {
 
                         // Create TokenSource
                         $tokensource = new TokenSource();
-                        if (isset($arr["classname"]))
+                        if (isset($arr["classname"])) 
                             $tokensource->setClassname($arr["classname"]);
 
                         // Copy other parameters 1:1 to freshly created TokenSource
@@ -377,7 +377,7 @@ class Token {
 
     /**
      * Sets the token key.
-     *
+     * 
      * @param string $key The key for this token. Must not be <code>null</code>.
      */
     function setKey($key) {
@@ -386,7 +386,7 @@ class Token {
 
     /**
      * Sets the token value.
-     *
+     * 
      * @param string $value The value for this token. Must not be <code>null</code>.
      */
     function setValue($value) {
@@ -395,7 +395,7 @@ class Token {
 
     /**
      * Returns the key for this token.
-     *
+     * 
      * @return string The key for this token.
      */
     function getKey() {
@@ -404,7 +404,7 @@ class Token {
 
     /**
      * Returns the value for this token.
-     *
+     * 
      * @return string The value for this token.
      */
     function getValue() {

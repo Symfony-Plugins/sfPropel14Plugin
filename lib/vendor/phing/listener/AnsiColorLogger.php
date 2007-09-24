@@ -62,7 +62,7 @@ include_once 'phing/system/util/Properties.php';
  *
  * Format for AnsiColorLogger.*=
  *  Attribute;Foreground;Background
- *
+ * 
  *  Attribute is one of the following:
  *  0 -> Reset All Attributes (return to normal mode)
  *  1 -> Bright (Usually turns on BOLD)
@@ -91,7 +91,7 @@ include_once 'phing/system/util/Properties.php';
  *  45 -> Magenta
  *  46 -> Cyan
  *  47 -> White
- *
+ * 
  * @author     Hans Lellelid <hans@xmpl.org> (Phing)
  * @author     Magesh Umasankar (Ant)
  * @package    phing.listener
@@ -137,7 +137,7 @@ final class AnsiColorLogger extends DefaultLogger {
     private $debugColor;
 
     private $colorsSet = false;
-
+    
     /**
      * Construct new AnsiColorLogger
      * Perform initializations that cannot be done in var declarations.
@@ -150,13 +150,13 @@ final class AnsiColorLogger extends DefaultLogger {
         $this->verboseColor = self::PREFIX . self::ATTR_DIM . self::SEPARATOR . self::FG_GREEN . self::SUFFIX;
         $this->debugColor = self::PREFIX . self::ATTR_DIM . self::SEPARATOR . self::FG_BLUE . self::SUFFIX;
     }
-
+    
     /**
      * Set the colors to use from a property file specified by the
      * special ant property ant.logger.defaults
      */
     private final function setColors() {
-
+    
         $userColorFile = Phing::getProperty("phing.logger.defaults");
         $systemColorFile = new PhingFile(Phing::getResourcePath("phing/listener/defaults.properties"));
 
@@ -169,8 +169,8 @@ final class AnsiColorLogger extends DefaultLogger {
                 $prop->load($userColorFile);
             } else {
                 $prop->load($systemColorFile);
-            }
-
+            }                        
+            
             $err = $prop->getProperty("AnsiColorLogger.ERROR_COLOR");
             $warn = $prop->getProperty("AnsiColorLogger.WARNING_COLOR");
             $info = $prop->getProperty("AnsiColorLogger.INFO_COLOR");
@@ -204,18 +204,18 @@ final class AnsiColorLogger extends DefaultLogger {
      */
     protected final function printMessage($message, OutputStream $stream, $priority) {
         if ($message !== null) {
-
+        
             if (!$this->colorsSet) {
                 $this->setColors();
                 $this->colorsSet = true;
             }
-
+            
             switch ($priority) {
                 case Project::MSG_ERR:
                     $message = $this->errColor . $message . self::END_COLOR;
                     break;
                 case Project::MSG_WARN:
-                    $message = $this->warnColor . $message . self::END_COLOR;
+                    $message = $this->warnColor . $message . self::END_COLOR;                    
                     break;
                 case Project::MSG_INFO:
                     $message = $this->infoColor . $message . self::END_COLOR;
@@ -227,7 +227,7 @@ final class AnsiColorLogger extends DefaultLogger {
                     $message = $this->debugColor . $message . self::END_COLOR;
                     break;
             }
-
+            
             $stream->write($message . PHP_EOL);
         }
     }

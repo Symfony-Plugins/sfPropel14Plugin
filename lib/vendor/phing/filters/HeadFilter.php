@@ -1,8 +1,8 @@
 <?php
 
 /*
- *  $Id$
- *
+ *  $Id$  
+ * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -45,69 +45,69 @@ class HeadFilter extends BaseParamFilterReader implements ChainableReader {
 
     /**
      * Parameter name for the number of lines to be returned.
-     */
+     */ 
     const LINES_KEY = "lines";
-
+    
     /**
      * Number of lines currently read in.
      * @var integer
-     */
+     */ 
     private $_linesRead = 0;
-
+    
     /**
      * Number of lines to be returned in the filtered stream.
      * @var integer
-     */
+     */ 
     private $_lines     = 10;
 
     /**
      * Returns first n lines of stream.
      * @return the resulting stream, or -1
      * if the end of the resulting stream has been reached
-     *
+     * 
      * @exception IOException if the underlying stream throws an IOException
-     * during reading
+     * during reading     
      */
     function read($len = null) {
-
+    
         if ( !$this->getInitialized() ) {
             $this->_initialize();
             $this->setInitialized(true);
         }
-
+        
         // note, if buffer contains fewer lines than
         // $this->_lines this code will not work.
-
+        
         if($this->_linesRead < $this->_lines) {
-
+        
             $buffer = $this->in->read($len);
-
+            
             if($buffer === -1) {
                 return -1;
             }
-
+            
             // now grab first X lines from buffer
-
+            
             $lines = explode("\n", $buffer);
-
+            
             $linesCount = count($lines);
-
-            // must account for possibility that the num lines requested could
-            // involve more than one buffer read.
+            
+            // must account for possibility that the num lines requested could 
+            // involve more than one buffer read.            
             $len = ($linesCount > $this->_lines ? $this->_lines - $this->_linesRead : $linesCount);
             $filtered_buffer = implode("\n", array_slice($lines, 0, $len) );
             $this->_linesRead += $len;
-
+            
             return $filtered_buffer;
-
+        
         }
-
+        
         return -1; // EOF, since the file is "finished" as far as subsequent filters are concerned.
-    }
+    }    
 
     /**
      * Sets the number of lines to be returned in the filtered stream.
-     *
+     * 
      * @param integer $lines the number of lines to be returned in the filtered stream.
      */
     function setLines($lines) {
@@ -116,7 +116,7 @@ class HeadFilter extends BaseParamFilterReader implements ChainableReader {
 
     /**
      * Returns the number of lines to be returned in the filtered stream.
-     *
+     * 
      * @return integer The number of lines to be returned in the filtered stream.
      */
     function getLines() {
@@ -126,10 +126,10 @@ class HeadFilter extends BaseParamFilterReader implements ChainableReader {
     /**
      * Creates a new HeadFilter using the passed in
      * Reader for instantiation.
-     *
+     * 
      * @param object A Reader object providing the underlying stream.
      *            Must not be <code>null</code>.
-     *
+     * 
      * @return object A new filter based on this configuration, but filtering
      *         the specified reader.
      */
@@ -137,7 +137,7 @@ class HeadFilter extends BaseParamFilterReader implements ChainableReader {
         $newFilter = new HeadFilter($reader);
         $newFilter->setLines($this->getLines());
         $newFilter->setInitialized(true);
-        $newFilter->setProject($this->getProject());
+        $newFilter->setProject($this->getProject());        
         return $newFilter;
     }
 

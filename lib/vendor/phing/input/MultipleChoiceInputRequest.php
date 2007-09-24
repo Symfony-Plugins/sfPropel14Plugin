@@ -38,7 +38,7 @@ class MultipleChoiceInputRequest extends InputRequest {
      *                Must not be null.
      */
     public function __construct($prompt, $choices) {
-        parent::__construct($prompt);
+        parent::__construct($prompt);        
         $this->choices = $choices;
     }
 

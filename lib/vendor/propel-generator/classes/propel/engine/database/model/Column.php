@@ -159,7 +159,7 @@ class Column extends XMLElement {
 			$this->name = $this->getAttribute("name");
 			$this->phpName = $this->getAttribute("phpName");
 			$this->phpType = $this->getAttribute("phpType");
-
+			
 			if ($this->getAttribute("prefix", null) !== null) {
 			    $this->namePrefix = $this->getAttribute("prefix");
 			} elseif ($this->getTable()->getAttribute('columnPrefix', null) !== null) {
@@ -167,7 +167,7 @@ class Column extends XMLElement {
 			} else {
 			    $this->namePrefix = '';
 			}
-
+			
 			// Accessor visibility
 			if ($this->getAttribute('accessorVisibility', null) !==  null) {
 			    $this->setAccessorVisibility($this->getAttribute('accessorVisibility'));
@@ -178,7 +178,7 @@ class Column extends XMLElement {
 			} else {
 			    $this->setAccessorVisibility(self::DEFAULT_VISIBILITY);
 			}
-
+			
 			// Mutator visibility
 			if ($this->getAttribute('mutatorVisibility', null) !==  null) {
 			    $this->setMutatorVisibility($this->getAttribute('mutatorVisibility'));
@@ -189,7 +189,7 @@ class Column extends XMLElement {
 			} else {
 			    $this->setMutatorVisibility(self::DEFAULT_VISIBILITY);
 			}
-
+			
 			$this->peerName = $this->getAttribute("peerName");
 
 			// retrieves the method for converting from specified name to a PHP name, defaulting to parent tables default method
@@ -343,7 +343,7 @@ class Column extends XMLElement {
 			return self::DEFAULT_VISIBILITY;
 		}
 	}
-
+	
 	/**
 	 * Set the visibility of the accessor methods for this column / attribute
 	 * @param      $newVisibility string
@@ -354,7 +354,7 @@ class Column extends XMLElement {
 		} else {
 			$this->accessorVisibility = self::DEFAULT_VISIBILITY;
 		}
-
+		
 	}
 
 	/**
@@ -368,7 +368,7 @@ class Column extends XMLElement {
 			return self::DEFAULT_VISIBILITY;
 		}
 	}
-
+	
 	/**
 	 * Set the visibility of the mutator methods for this column / attribute
 	 * @param      $newVisibility string
@@ -379,7 +379,7 @@ class Column extends XMLElement {
 		} else {
 			$this->mutatorVisibility = self::DEFAULT_VISIBILITY;
 		}
-
+		
 	}
 
 	/**

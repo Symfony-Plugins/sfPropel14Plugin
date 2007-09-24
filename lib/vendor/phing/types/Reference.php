@@ -16,7 +16,7 @@
  *
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the LGPL. For more information please see
- * <http://phing.info>.
+ * <http://phing.info>. 
  */
 
 /** Class to hold a reference to another object in the project.
@@ -41,13 +41,13 @@ class Reference {
     }
 
     /** returns reference to object in references container of project */
-    function getReferencedObject($project) {
+    function getReferencedObject($project) {    
         if ($this->refid === null) {
             throw new BuildException("No reference specified");
         }
         $refs = $project->getReferences();
         $o = @$refs[$this->refid];
-        if (!is_object($o)) {
+        if (!is_object($o)) {       
             throw new BuildException("Reference {$this->refid} not found.");
         }
         return $o;

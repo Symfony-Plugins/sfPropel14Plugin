@@ -41,5 +41,5 @@ interface InputHandler {
      * @throws BuildException
      */
     public function handleInput(InputRequest $request);
-
+    
 }

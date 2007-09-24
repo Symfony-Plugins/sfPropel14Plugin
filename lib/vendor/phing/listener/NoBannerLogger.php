@@ -43,11 +43,11 @@ class NoBannerLogger extends DefaultLogger {
 	}
 
 	function messageLogged(BuildEvent $event) {
-
+		
 		if ($event->getPriority() > $this->msgOutputLevel || null === $event->getMessage() || trim($event->getMessage() === "")) {
 			return;
 		}
-
+		
 		if ($this->targetName !== null) {
 			$msg = PHP_EOL . $event->getProject()->getName() . ' > ' . $this->targetName . ':' . PHP_EOL;
 			$this->printMessage($msg, $this->out, $event->getPriority());

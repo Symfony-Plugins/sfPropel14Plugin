@@ -38,37 +38,37 @@ include_once 'phing/filters/ChainableReader.php';
  * @package   phing.filters
  */
 class ExpandProperties extends BaseFilterReader implements ChainableReader {
-
+   
     /**
-     * Returns the filtered stream.
+     * Returns the filtered stream. 
      * The original stream is first read in fully, and the Phing properties are expanded.
-     *
+     * 
      * @return mixed     the filtered stream, or -1 if the end of the resulting stream has been reached.
-     *
+     * 
      * @exception IOException if the underlying stream throws an IOException
      * during reading
      */
     function read($len = null) {
-
+                
         $buffer = $this->in->read($len);
-
+        
         if($buffer === -1) {
             return -1;
         }
-
+        
         $project = $this->getProject();
         $buffer = ProjectConfigurator::replaceProperties($project, $buffer, $project->getProperties());
-
+        
         return $buffer;
     }
-
+        
     /**
      * Creates a new ExpandProperties filter using the passed in
      * Reader for instantiation.
-     *
+     * 
      * @param object A Reader object providing the underlying stream.
      *               Must not be <code>null</code>.
-     *
+     * 
      * @return object A new filter based on this configuration, but filtering
      *         the specified reader
      */

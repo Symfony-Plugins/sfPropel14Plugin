@@ -36,7 +36,7 @@ require_once 'phing/types/AbstractFileSet.php';
  * @package phing.types
  */
 class FileSet extends AbstractFileSet {
-
+    
     function __construct($fileset = null) {
         parent::__construct($fileset);
     }

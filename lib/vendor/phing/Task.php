@@ -39,27 +39,27 @@ abstract class Task extends ProjectComponent {
 	 * @var Target owning Target object
 	 */
     protected $target;
-
+    
     /**
 	 * @var string description of the task
 	 */
     protected $description;
-
+    
     /**
 	 * @var string internal taskname (req)
 	 */
     protected $taskType;
-
+    
     /**
 	 * @var string Taskname for logger
 	 */
     protected $taskName;
-
+    
     /**
 	 * @var Location stored buildfile location
 	 */
     protected $location;
-
+    
     /**
 	 * @var RuntimeConfigurable wrapper of the task
 	 */
@@ -127,15 +127,15 @@ abstract class Task extends ProjectComponent {
     public function setTaskType($name) {
         $this->taskType = (string) $name;
     }
-
+	
 	/**
-	 * Returns a name
-	 *
+	 * Returns a name 
+	 * 
 	 */
 	protected function getRegisterSlot($slotName) {
 		return Register::getSlot('task.' . $this->getTaskName() . '.' . $slotName);
 	}
-
+	
     /**
      * Provides a project level log event to the task.
      *

@@ -25,7 +25,7 @@
  * (that is, a description that applies to a buildfile as a whole).
  * If present, the &lt;description&gt; element is printed out before the
  * target descriptions.
- *
+ * 
  * Description has no attributes, only text.  There can only be one
  * project description per project.  A second description element will
  * overwrite the first.
@@ -49,5 +49,5 @@ class Description extends DataType {
             $this->project->setDescription($currentDescription . $text);
         }
     }
-
+    
 }

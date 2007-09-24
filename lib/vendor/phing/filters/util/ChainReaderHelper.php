@@ -33,12 +33,12 @@ include_once 'phing/filters/ChainableReader.php';
  *
  * Here, the interesting method is 'getAssembledReader'.
  * The purpose of this one is to create a simple Reader object which
- * apply all filters on another primary Reader object.
+ * apply all filters on another primary Reader object. 
  *
  * For example : In copyFile (phing.util.FileUtils) the primary Reader
- * is a FileReader object (more accuratly, a BufferedReader) previously
+ * is a FileReader object (more accuratly, a BufferedReader) previously 
  * setted for the source file to copy. So, consider this filterchain :
- *
+ *        
  *     <filterchain>
  *        <stripphpcomments />
  *        <linecontains>
@@ -66,16 +66,16 @@ include_once 'phing/filters/ChainableReader.php';
  * @package   phing.filters.util
 */
 class ChainReaderHelper {
-
+    
     /** Primary reader to wich the reader chain is to be attached */
     private $primaryReader = null;
-
+    
     /** The site of the buffer to be used. */
     private $bufferSize = 8192;
-
+    
     /** Chain of filters */
     private $filterChains = array();
-
+    
     /** The Phing project */
     private $project;
 
@@ -119,7 +119,7 @@ class ChainReaderHelper {
      * Assemble the reader
     */
     function getAssembledReader() {
-
+    
         $instream = $this->primaryReader;
         $filterReadersCount = count($this->filterChains);
         $finalFilters = array();
@@ -139,36 +139,36 @@ class ChainReaderHelper {
         if ( $filtersCount > 0 ) {
             for($i = 0 ; $i<$filtersCount ; $i++) {
                 $filter = $finalFilters[$i];
-
+                
                 if ( $filter instanceof PhingFilterReader ) {
-
+                
                     // This filter reader is an external class.
                     $className = $filter->getClassName();
                     $classpath = $filter->getClasspath();
                     $project   = $filter->getProject();
-
+                    
                     if ( $className !== null ) {
                         $cls = Phing::import($className, $classpath);
-                        $impl = new $cls();
+                        $impl = new $cls();                        
                     }
 
                     if ( !($impl instanceof FilterReader) ) {
                         throw new Exception($className." does not extend phing.system.io.FilterReader");
                     }
-
+                    
                     $impl->setReader($instream); // chain
                     $impl->setProject($this->getProject()); // what about $project above ?
 
                     if ( $impl instanceof Parameterizable ) {
                         $impl->setParameters($filter->getParams());
                     }
-
+                    
                     $instream = $impl; // now that it's been chained
-
-                } elseif (($filter instanceof ChainableReader) && ($filter instanceof Reader)) {
+                                                            
+                } elseif (($filter instanceof ChainableReader) && ($filter instanceof Reader)) {                   
                     if ( $this->getProject() !== null && ($filter instanceof BaseFilterReader) ) {
                         $filter->setProject($this->getProject());
-                    }
+                    }                    
                     $instream = $filter->chain($instream);
                 } else {
                     throw new Exception("Cannot chain invalid filter: " . get_class($filter));
@@ -177,7 +177,7 @@ class ChainReaderHelper {
         }
 
         return $instream;
-    }
+    }    
 
 }
 

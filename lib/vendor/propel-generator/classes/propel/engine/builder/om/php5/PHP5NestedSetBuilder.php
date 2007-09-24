@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: PHP5NestedSetBuilder.php 622 2007-04-23 09:53:15Z heltem $
+ *  $Id: PHP5NestedSetBuilder.php 701 2007-09-18 09:13:01Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -437,14 +437,14 @@ abstract class ".$this->getClassname()." extends ".$this->getObjectBuilder()->ge
 		$peerClassname = $this->getStubPeerBuilder()->getClassname();
 		$script .= "
 	/**
-	 * Gets the total number of desceandants for the node
+	 * Gets the total number of descendants for the node
 	 *
 	 * @param      PDO Connection to use.
 	 * @return     int
 	 */
 	public function getNumberOfDescendants(PDO \$con = null)
 	{
-		return $peerClassname::getNumberOfDescendants(\$node, \$con);
+		return $peerClassname::getNumberOfDescendants(\$this, \$con);
 	}
 ";
 	}

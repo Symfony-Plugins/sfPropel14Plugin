@@ -90,7 +90,7 @@ public class PropertyFileInputHandler implements InputHandler {
      */
     public void handleInput(InputRequest request) throws BuildException {
         readProps();
-
+        
         Object o = props.get(request.getPrompt());
         if (o == null) {
             throw new BuildException("Unable to find input for \'"
@@ -115,9 +115,9 @@ public class PropertyFileInputHandler implements InputHandler {
                                          + " for PropertyFileInputHandler not"
                                          + " set");
             }
-
+            
             props = new Properties();
-
+            
             try {
                 props.load(new FileInputStream(propsFile));
             } catch (IOException e) {

@@ -25,9 +25,9 @@ include_once 'phing/filters/ChainableReader.php';
 
 /**
  * Applies Xinclude parsing to incoming text.
- *
+ * 
  * Uses PHP DOM XML support
- *
+ * 
  * @author    Bill Karwin <bill@karwin.com>
  * @version   $Revision: 1.16 $
  * @see       FilterReader
@@ -53,15 +53,15 @@ class XincludeFilter extends BaseParamFilterReader implements ChainableReader {
      * @throws BuildException - if XSLT support missing, if error in xslt processing
      */
     function read($len = null) {
-
+        
         if (!class_exists('DomDocument')) {
             throw new BuildException("Could not find the DomDocument class. Make sure PHP has been compiled/configured to support DOM XML.");
         }
-
+        
         if ($this->processed === true) {
             return -1; // EOF
         }
-
+        
         // Read XML
         $_xml = null;
         while ( ($data = $this->in->read($len)) !== -1 )
@@ -73,16 +73,16 @@ class XincludeFilter extends BaseParamFilterReader implements ChainableReader {
 
         if (empty($_xml)) {
             $this->log("XML file is empty!", Project::MSG_WARN);
-            return '';
+            return ''; 
         }
-
+       
         $this->log("Transforming XML " . $this->in->__toString() . " using Xinclude ", Project::MSG_VERBOSE);
-
+        
         $out = '';
         try {
             $out = $this->process($_xml);
             $this->processed = true;
-        } catch (IOException $e) {
+        } catch (IOException $e) {            
             throw new BuildException($e);
         }
 
@@ -96,8 +96,8 @@ class XincludeFilter extends BaseParamFilterReader implements ChainableReader {
      *
      * @throws BuildException   On errors
      */
-    protected function process($xml) {
-
+    protected function process($xml) {    
+                
         if ($this->basedir) {
             $cwd = getcwd();
             chdir($this->basedir);
@@ -105,7 +105,7 @@ class XincludeFilter extends BaseParamFilterReader implements ChainableReader {
 
         $xmlDom = new DomDocument();
         $xmlDom->loadXML($xml);
-
+        
         $xmlDom->xinclude();
 
         if ($this->basedir) {
@@ -113,7 +113,7 @@ class XincludeFilter extends BaseParamFilterReader implements ChainableReader {
         }
 
         return $xmlDom->saveXML();
-    }
+    }    
 
     /**
      * Creates a new XincludeFilter using the passed in

@@ -18,7 +18,7 @@
  * and is licensed under the LGPL. For more information please see
  * <http://phing.info>.
  */
-
+ 
 
 /**
  * Commandline objects help handling command lines specifying processes to
@@ -48,7 +48,7 @@ class Commandline {
      * @var array CommandlineArguments[]
      */
     public $arguments = array(); // public so "inner" class can access
-
+    
     /**
      * Full path (if not on %PATH% env var) to executable program.
      * @var string
@@ -58,7 +58,7 @@ class Commandline {
     const DISCLAIMER = "The ' characters around the executable and arguments are not part of the command.";
 
     public function __construct($to_process = null) {
-        if ($to_process !== null) {
+        if ($to_process !== null) {                 
             $tmp = $this->translateCommandline($to_process);
             if ($tmp) {
                 $this->setExecutable(array_shift($tmp)); // removes first el
@@ -66,7 +66,7 @@ class Commandline {
                     $this->createArgument()->setValue($arg);
                 }
             }
-        }
+        }    
     }
 
 
@@ -133,7 +133,7 @@ class Commandline {
         $result = array();
         foreach($this->arguments as $arg) {
             $parts = $arg->getParts();
-            if ($parts !== null) {
+            if ($parts !== null) {                           
                 foreach($parts as $part) {
                     $result[] = $part;
                 }
@@ -170,7 +170,7 @@ class Commandline {
             return $argument;
         }
     }
-
+        
     /**
      * Quotes the parts of the given array in way that makes them
      * usable as command line arguments.
@@ -191,29 +191,29 @@ class Commandline {
         }
         return $result;
     }
-
+    
     /**
      *
      * @param string $to_process
      * @return array
      */
     public static function translateCommandline($to_process) {
-
+        
         if (!$to_process) {
             return array();
         }
-
+            
         // parse with a simple finite state machine
 
         $normal = 0;
         $inQuote = 1;
         $inDoubleQuote = 2;
-
+        
         $state = $normal;
         $args = array();
         $current = "";
         $lastTokenHasBeenQuoted = false;
-
+        
         $tok = strtok($to_process, "");
         $tokens = preg_split('/(["\' ])/', $to_process, -1, PREG_SPLIT_DELIM_CAPTURE);
         while(($nextTok = array_shift($tokens)) !== null) {
@@ -315,15 +315,15 @@ class Commandline {
      * @return string
      */
     public function describeCommand($args = null) {
-
+       
         if ($args === null) {
             $args = $this->getCommandline();
         }
-
+           
         if (!$args) {
             return "";
         }
-
+        
         $buf = "Executing '";
         $buf .= $args[0];
         $buf .= "'";
@@ -347,12 +347,12 @@ class Commandline {
     protected function describeArguments($args = null, $offset = 0) {
         if ($args === null) {
             $args = $this->getArguments();
-        }
-
+        }                
+        
         if ($args === null || count($args) <= $offset) {
             return "";
         }
-
+        
         $buf = "argument";
         if (count($args) > $offset) {
             $buf .= "s";
@@ -374,11 +374,11 @@ class CommandlineArgument {
 
     private $parts = array();
     private $outer;
-
+    
     public function __construct(Commandline $outer) {
         $this->outer = $outer;
     }
-
+    
     /**
      * Sets a single commandline argument.
      *
@@ -441,7 +441,7 @@ class CommandlineMarker {
     private $position;
     private $realPos = -1;
     private $outer;
-
+    
     public function __construct(Comandline $outer, $position) {
         $this->outer = $outer;
         $this->position = $position;

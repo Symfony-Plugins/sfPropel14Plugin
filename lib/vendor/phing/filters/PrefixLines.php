@@ -47,18 +47,18 @@ class PrefixLines extends BaseParamFilterReader implements ChainableReader {
     /**
      * Parameter name for the prefix.
      * @var string
-     */
+     */ 
     const PREFIX_KEY = "lines";
-
+    
     /**
      * The prefix to be used.
      * @var string
-     */
+     */ 
     private    $_prefix = null;
-
+ 
     /**
      * Adds a prefix to each line of input stream and returns resulting stream.
-     *
+     * 
      * @return mixed buffer, -1 on EOF
      */
     function read($len = null) {
@@ -66,28 +66,28 @@ class PrefixLines extends BaseParamFilterReader implements ChainableReader {
             $this->_initialize();
             $this->setInitialized(true);
         }
-
+        
         $buffer = $this->in->read($len);
-
+        
         if ($buffer === -1) {
             return -1;
         }
-
-        $lines = explode("\n", $buffer);
-        $filtered = array();
-
+        
+        $lines = explode("\n", $buffer);        
+        $filtered = array();        
+        
         foreach($lines as $line) {
             $line = $this->_prefix . $line;
             $filtered[] = $line;
         }
-
-        $filtered_buffer = implode("\n", $filtered);
+                
+        $filtered_buffer = implode("\n", $filtered);    
         return $filtered_buffer;
     }
-
+    
     /**
      * Sets the prefix to add at the start of each input line.
-     *
+     * 
      * @param string $prefix The prefix to add at the start of each input line.
      *               May be <code>null</code>, in which case no prefix
      *               is added.
@@ -98,7 +98,7 @@ class PrefixLines extends BaseParamFilterReader implements ChainableReader {
 
     /**
      * Returns the prefix which will be added at the start of each input line.
-     *
+     * 
      * @return string The prefix which will be added at the start of each input line
      */
     function getPrefix() {
@@ -108,18 +108,18 @@ class PrefixLines extends BaseParamFilterReader implements ChainableReader {
     /**
      * Creates a new PrefixLines filter using the passed in
      * Reader for instantiation.
-     *
+     * 
      * @param object A Reader object providing the underlying stream.
      *               Must not be <code>null</code>.
-     *
+     * 
      * @return object A new filter based on this configuration, but filtering
      *         the specified reader
      */
-    function chain(Reader $reader) {
+    function chain(Reader $reader) {  
         $newFilter = new PrefixLines($reader);
         $newFilter->setPrefix($this->getPrefix());
         $newFilter->setInitialized(true);
-        $newFilter->setProject($this->getProject());
+        $newFilter->setProject($this->getProject());        
         return $newFilter;
     }
 

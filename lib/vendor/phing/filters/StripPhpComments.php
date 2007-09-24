@@ -50,27 +50,27 @@ class StripPhpComments extends BaseFilterReader implements ChainableReader {
      * literal.
      * @var boolean
      */
-    private $_inString = false;
+    private $_inString = false;    
 
     /**
      * Returns the  stream without Php comments.
-     *
+     * 
      * @return the resulting stream, or -1
      *         if the end of the resulting stream has been reached
-     *
+     * 
      * @throws IOException if the underlying stream throws an IOException
-     *                        during reading
+     *                        during reading     
      */
     function read($len = null) {
-
+    
         $buffer = $this->in->read($len);
         if($buffer === -1) {
             return -1;
         }
-
+        
         // This regex replace /* */ and // style comments
         $buffer = preg_replace('/\/\*[^*]*\*+([^\/*][^*]*\*+)*\/|\/\/[^\n]*|("(\\\\.|[^"\\\\])*"|\'(\\\\.|[^\'\\\\])*\'|.[^\/"\'\\\\]*)/s', "$2", $buffer);
-
+                
         // The regex above is not identical to, but is based on the expression below:
         //
         // created by Jeffrey Friedl
@@ -111,20 +111,20 @@ class StripPhpComments extends BaseFilterReader implements ChainableReader {
         //            [^/"'\\]*   ##  Chars which doesn't start a comment, string or escape
         //          )
         //        }{$2}gxs;
-
+                                
         return $buffer;
     }
-
-
+        
+    
     /*
      * Returns the next character in the filtered stream, not including
      * Php comments.
-     *
+     * 
      * @return the next character in the resulting stream, or -1
      *         if the end of the resulting stream has been reached
-     *
+     * 
      * @throws IOException if the underlying stream throws an IOException
-     *                        during reading
+     *                        during reading     
      * @deprecated
      */
     function readChar() {
@@ -173,16 +173,16 @@ class StripPhpComments extends BaseFilterReader implements ChainableReader {
     /**
      * Creates a new StripJavaComments using the passed in
      * Reader for instantiation.
-     *
+     * 
      * @param reader A Reader object providing the underlying stream.
      *               Must not be <code>null</code>.
-     *
+     * 
      * @return a new filter based on this configuration, but filtering
      *         the specified reader
      */
     function chain(Reader $reader) {
         $newFilter = new StripPhpComments($reader);
-        $newFilter->setProject($this->getProject());
+        $newFilter->setProject($this->getProject());        
         return $newFilter;
     }
 }

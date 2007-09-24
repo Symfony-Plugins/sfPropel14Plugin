@@ -21,7 +21,7 @@
  */
 
 require_once 'propel/engine/builder/DataModelBuilder.php';
-require_once 'propel/engine/database/model/PropelTypes.php';
+require_once 'creole/CreoleTypes.php';
 
 /**
  * Baseclass for SQL data dump SQL building classes.
@@ -74,8 +74,9 @@ abstract class DataSQLBuilder extends DataModelBuilder {
 	protected function getColumnValueSql(ColumnValue $colValue)
 	{
 		$column = $colValue->getColumn();
-		$method = 'get' . $column->getPhpNative() . 'Sql';
-
+		$creoleTypeString = PropelTypes::getCreoleType($column->getPropelType());
+		$creoleTypeCode = CreoleTypes::getCreoleCode($creoleTypeString);
+		$method = 'get' . CreoleTypes::getAffix($creoleTypeCode) . 'Sql';
 		return $this->$method($colValue->getValue());
 	}
 

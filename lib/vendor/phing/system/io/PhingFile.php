@@ -35,7 +35,7 @@ class PhingFile {
 
     /** path separator string, static, obtained from FileSystem (; or :)*/
     public static $pathSeparator;
-
+    
     /**
      * This abstract pathname's normalized pathname string.  A normalized
      * pathname string uses the default name-separator character and does not
@@ -48,7 +48,7 @@ class PhingFile {
 
     /** constructor */
     function __construct($arg1 = null, $arg2 = null) {
-
+        
         if (self::$separator === null || self::$pathSeparator === null) {
             $fs = FileSystem::getFileSystem();
             self::$separator = $fs->getSeparator();
@@ -75,7 +75,7 @@ class PhingFile {
     function getPrefixLength() {
         return (int) $this->prefixLength;
     }
-
+    
     /* -- constructors not called by signature match, so we need some helpers --*/
 
     function _constructPathname($pathname) {
@@ -240,7 +240,7 @@ class PhingFile {
      * @see     #isAbsolute()
      */
     function getAbsolutePath() {
-        $fs = FileSystem::getFileSystem();
+        $fs = FileSystem::getFileSystem();        
         return $fs->resolveFile($this);
     }
 
@@ -393,7 +393,7 @@ class PhingFile {
      *          abstract pathname exists; false otherwise
      *
      */
-    function exists() {
+    function exists() {                
 		clearstatcache();
         if ($this->isFile()) {
             return @file_exists($this->path);
@@ -500,7 +500,7 @@ class PhingFile {
         }
         return file_get_contents($this->getAbsolutePath());
     }
-
+    
     /* -- File operations -- */
 
     /**
@@ -612,7 +612,7 @@ class PhingFile {
 	        }
 		} catch (IOException $ioe) {
 			// IOException from mkdir() means that directory propbably didn't exist.
-		}
+		}        
         $parentFile = $this->getParentFile();
         return (($parentFile !== null) && ($parentFile->mkdirs() && $this->mkdir()));
     }
@@ -790,7 +790,7 @@ class PhingFile {
      * @access      public
      */
     function createTempFile($prefix, $suffix, PhingFile $directory) {
-
+        
         // quick but efficient hack to create a unique filename ;-)
         $result = null;
         do {
@@ -860,7 +860,7 @@ class PhingFile {
     function toString() {
         return $this->getPath();
     }
-
+    
     /** PHP5's native method. */
     function __toString() {
         return $this->getPath();

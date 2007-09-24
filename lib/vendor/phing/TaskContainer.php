@@ -24,7 +24,7 @@
  *  Used to check if a class can contain tasks (via instanceof)
  *
  *  @author    Andreas Aderhold <andi@binarycloud.com>
- *  @copyright ï¿½ 2001,2002 THYRELL. All rights reserved
+ *  @copyright © 2001,2002 THYRELL. All rights reserved
  *  @version   $Revision: 1.5 $ $Date: 2006-09-14 13:19:08 -0700 (Thu, 14 Sep 2006) $
  *  @access    public
  *  @package   phing
