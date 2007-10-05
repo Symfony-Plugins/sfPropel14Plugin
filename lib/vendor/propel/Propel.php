@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Propel.php 630 2007-05-08 14:16:30Z tpk $
+ *  $Id: Propel.php 703 2007-10-03 01:27:06Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -37,7 +37,7 @@ require 'propel/util/PropelPDO.php';
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
  * @author     Henning P. Schmiedehausen <hps@intermeta.de> (Torque)
  * @author     Kurt Schrader <kschrader@karmalab.org> (Torque)
- * @version    $Revision: 630 $
+ * @version    $Revision: 703 $
  * @package    propel
  */
 class Propel
@@ -176,6 +176,7 @@ class Propel
 		'PropelColumnTypes' => 'propel/util/PropelColumnTypes.php',
 		'PropelPDO' => 'propel/util/PropelPDO.php',
 		'PropelPager' => 'propel/util/PropelPager.php',
+		'PropelDateTime' => 'propel/util/PropelDateTime.php',
 
 		'BasicValidator' => 'propel/validator/BasicValidator.php',
 		'MatchValidator' => 'propel/validator/MatchValidator.php',
