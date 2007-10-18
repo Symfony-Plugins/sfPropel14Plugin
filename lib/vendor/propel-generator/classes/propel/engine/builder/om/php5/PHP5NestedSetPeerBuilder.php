@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5NestedSetPeerBuilder.php 701 2007-09-18 09:13:01Z heltem $
+ *  $Id: PHP5NestedSetPeerBuilder.php 709 2007-10-17 09:25:08Z gamr $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -465,7 +465,7 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 
 		self::shiftRLRange(\$dest->getLeftValue(), \$dest->getRightValue(), -1, \$con);
 		self::shiftRLValues(\$dest->getRightValue() + 1, -2, \$con);
-		return \$dest->delete(false, \$con);
+		return \$dest->delete(\$con);
 	}
 ";
 	}

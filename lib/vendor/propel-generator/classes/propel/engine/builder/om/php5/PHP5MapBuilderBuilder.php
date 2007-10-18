@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5MapBuilderBuilder.php 562 2007-02-01 02:17:24Z hans $
+ *  $Id: PHP5MapBuilderBuilder.php 710 2007-10-18 16:39:15Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -275,11 +275,11 @@ class ".$this->getClassname()." implements MapBuilder {
 			foreach ($val->getRules() as $rule) {
 				if ($val->getTranslate() !== Validator::TRANSLATE_NONE) {
 					$script .= "
-		\$tMap->addValidator('$cup', '".$rule->getName()."', '".$rule->getClass()."', '".$rule->getValue()."', ".$val->getTranslate()."('".str_replace("'", "\'", $rule->getMessage())."'));
+		\$tMap->addValidator('$cup', '".$rule->getName()."', '".$rule->getClass()."', '".str_replace("'", "\'", $rule->getValue())."', ".$val->getTranslate()."('".str_replace("'", "\'", $rule->getMessage())."'));
 ";
 				} else {
 					$script .= "
-		\$tMap->addValidator('$cup', '".$rule->getName()."', '".$rule->getClass()."', '".$rule->getValue()."', '".str_replace("'", "\'", $rule->getMessage())."');
+		\$tMap->addValidator('$cup', '".$rule->getName()."', '".$rule->getClass()."', '".str_replace("'", "\'", $rule->getValue())."', '".str_replace("'", "\'", $rule->getMessage())."');
 ";
 				} // if ($rule->getTranslation() ...
   			} // foreach rule
