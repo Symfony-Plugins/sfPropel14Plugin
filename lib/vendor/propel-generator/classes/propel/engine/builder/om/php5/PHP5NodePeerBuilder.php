@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5NodePeerBuilder.php 602 2007-03-07 17:52:53Z hans $
+ *  $Id: PHP5NodePeerBuilder.php 711 2007-10-19 12:40:28Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -256,7 +256,7 @@ abstract class ".$this->getClassname()." {
 
 		try {
 
-			\$con->begin();
+			\$con->beginTransaction();
 
 			// Move root tree to an invalid node path.
 			$nodePeerClassname::moveNodeSubTree('1', '0', \$con);
