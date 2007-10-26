@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: DBOracle.php 681 2007-07-22 20:42:13Z gamr $
+ *  $Id: DBOracle.php 718 2007-10-26 01:31:34Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -29,7 +29,7 @@
  * @author     Brett McLaughlin <bmclaugh@algx.net> (Torque)
  * @author     Bill Schneider <bschneider@vecna.com> (Torque)
  * @author     Daniel Rall <dlr@finemaltcoding.com> (Torque)
- * @version    $Revision: 681 $
+ * @version    $Revision: 718 $
  * @package    propel.adapter
  */
 class DBOracle extends DBAdapter {
@@ -127,10 +127,10 @@ class DBOracle extends DBAdapter {
 		if ($name === null) {
 			throw new PropelException("Unable to fetch next sequence ID without sequence name.");
 		}
-		
+
 		$stmt = $con->query("SELECT " . $name . ".nextval FROM dual");
 		$row = $stmt->fetch(PDO::FETCH_NUM);
-		
+
 		return $row[0];
 	}
 

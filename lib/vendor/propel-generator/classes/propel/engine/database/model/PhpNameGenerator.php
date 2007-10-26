@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: PhpNameGenerator.php 652 2007-06-20 06:56:30Z bgoldschmidt $
+ *  $Id: PhpNameGenerator.php 718 2007-10-26 01:31:34Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -28,7 +28,7 @@ include_once 'propel/engine/database/model/NameGenerator.php';
  * @author     Daniel Rall <dlr@finemaltcoding.com> (Torque)
  * @author     Byron Foster <byron_foster@yahoo.com> (Torque)
  * @author     Bernd Goldschmidt <bgoldschmidt@rapidsoft.de>
- * @version    $Revision: 652 $
+ * @version    $Revision: 718 $
  * @package    propel.engine.database.model
  */
 class PhpNameGenerator implements NameGenerator {
@@ -36,7 +36,7 @@ class PhpNameGenerator implements NameGenerator {
 	/**
 	 * <code>inputs</code> should consist of two (three) elements, the
 	 * original name of the database element and the method for
-	 * generating the name.  
+	 * generating the name.
 	 * The optional third element may contain a prefix that will be
 	 * stript from name prior to generate the resulting name.
 	 * There are currently three methods:
@@ -58,12 +58,12 @@ class PhpNameGenerator implements NameGenerator {
 	{
 		$schemaName = $inputs[0];
 		$method = $inputs[1];
-		
-		if(count($inputs)>2) {
-		    $prefix = $inputs[2];
-		    if($prefix != '' && substr($schemaName, 0, strlen($prefix)) == $prefix) {
-		        $schemaName = substr($schemaName, strlen($prefix));
-		    }
+
+		if (count($inputs)>2) {
+			$prefix = $inputs[2];
+			if ($prefix != '' && substr($schemaName, 0, strlen($prefix)) == $prefix) {
+				$schemaName = substr($schemaName, strlen($prefix));
+			}
 		}
 
 		$phpName = null;

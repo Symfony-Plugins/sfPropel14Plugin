@@ -26,7 +26,7 @@ require_once 'propel/engine/platform/DefaultPlatform.php';
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
- * @version    $Revision: 656 $
+ * @version    $Revision: 718 $
  * @package    propel.engine.platform
  */
 class PgsqlPlatform extends DefaultPlatform {
@@ -119,7 +119,7 @@ class PgsqlPlatform extends DefaultPlatform {
 
 	/**
 	 * Whether the underlying PDO driver for this platform returns BLOB columns as streams (instead of strings).
-	 * @return     boolean 
+	 * @return     boolean
 	 */
 	public function hasStreamBlobImpl()
 	{

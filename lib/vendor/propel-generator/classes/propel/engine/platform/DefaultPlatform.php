@@ -27,7 +27,7 @@ include_once 'propel/engine/database/model/PropelTypes.php';
  * Default implementation for the Platform interface.
  *
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
- * @version    $Revision: 656 $
+ * @version    $Revision: 718 $
  * @package    propel.engine.platform
  */
 class DefaultPlatform implements Platform {
@@ -207,13 +207,13 @@ class DefaultPlatform implements Platform {
 
 	/**
 	 * Whether the underlying PDO driver for this platform returns BLOB columns as streams (instead of strings).
-	 * @return     boolean 
+	 * @return     boolean
 	 */
 	public function hasStreamBlobImpl()
 	{
 		return false;
 	}
-	
+
 	/**
 	 * @see        Platform::getBooleanString()
 	 */

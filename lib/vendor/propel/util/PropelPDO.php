@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: PropelPDO.php 689 2007-08-31 09:46:11Z gamr $
+ *  $Id: PropelPDO.php 718 2007-10-26 01:31:34Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -142,9 +142,9 @@ class PropelPDO extends PDO {
 	/**
 	 * Overrides PDO::prepare() to add logging.
 	 */
-	public function prepare($sql,array $driver_options=array())
+	public function prepare($sql, array $driver_options = array())
 	{
 		Propel::log($sql, Propel::LOG_DEBUG);
-		return parent::prepare($sql,$driver_options);
+		return parent::prepare($sql, $driver_options);
 	}
 }

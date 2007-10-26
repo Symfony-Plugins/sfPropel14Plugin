@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Propel.php 703 2007-10-03 01:27:06Z hans $
+ *  $Id: Propel.php 718 2007-10-26 01:31:34Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -37,7 +37,7 @@ require 'propel/util/PropelPDO.php';
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
  * @author     Henning P. Schmiedehausen <hps@intermeta.de> (Torque)
  * @author     Kurt Schrader <kschrader@karmalab.org> (Torque)
- * @version    $Revision: 703 $
+ * @version    $Revision: 718 $
  * @package    propel
  */
 class Propel
@@ -602,7 +602,7 @@ class Propel
 	{
 		self::$instancePoolingEnabled = false;
 	}
-	
+
 	/**
 	 * Enable instance pooling (enabled by default).
 	 */
@@ -610,7 +610,7 @@ class Propel
 	{
 		self::$instancePoolingEnabled = true;
 	}
-	
+
 	/**
 	 *  the instance pooling behaviour. True by default.
 	 *

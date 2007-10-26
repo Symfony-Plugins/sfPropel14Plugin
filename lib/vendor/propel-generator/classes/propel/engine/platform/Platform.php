@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Platform.php 656 2007-06-20 15:25:53Z hans $
+ *  $Id: Platform.php 718 2007-10-26 01:31:34Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -24,7 +24,7 @@
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
- * @version    $Revision: 656 $
+ * @version    $Revision: 718 $
  * @package    propel.engine.platform
  */
 interface Platform {
@@ -136,10 +136,10 @@ interface Platform {
 	 * @return     mixed
 	 */
 	public function getBooleanString($tf);
-	
+
 	/**
 	 * Whether the underlying PDO driver for this platform returns BLOB columns as streams (instead of strings).
-	 * @return     boolean 
+	 * @return     boolean
 	 */
 	public function hasStreamBlobImpl();
 }

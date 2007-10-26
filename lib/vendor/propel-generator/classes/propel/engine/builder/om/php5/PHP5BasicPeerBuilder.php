@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5BasicPeerBuilder.php 712 2007-10-24 04:59:30Z gamr $
+ *  $Id: PHP5BasicPeerBuilder.php 719 2007-10-26 01:54:37Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -492,7 +492,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 	 *
 	 * @param      Criteria \$criteria
 	 * @param      boolean \$distinct Whether to select only distinct columns (You can also set DISTINCT modifier in Criteria).
-	 * @param      PropelPropelPDO \$con
+	 * @param      PropelPDO \$con
 	 * @return     int Number of matching rows.
 	 */
 	public static function doCount(Criteria \$criteria, \$distinct = false, PropelPDO \$con = null)
@@ -674,7 +674,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 	 */
 	public static function removeInstanceFromPool(\$value)
 	{";
-                $script .= "
+		$script .= "
 		if (Propel::isInstancePoolingEnabled()) {";
 		$pk = $table->getPrimaryKey();
 

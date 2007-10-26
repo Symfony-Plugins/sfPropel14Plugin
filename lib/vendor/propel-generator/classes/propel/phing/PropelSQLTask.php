@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PropelSQLTask.php 521 2007-01-05 13:29:36Z heltem $
+ *  $Id: PropelSQLTask.php 717 2007-10-25 19:51:50Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -84,7 +84,7 @@ class PropelSQLTask extends AbstractPropelDataModelTask {
 	 *
 	 * @throws     IOException - if unable to store properties
 	 */
-	private function createSqlDbMap()
+	protected function createSqlDbMap()
 	{
 		if ($this->getSqlDbMap() === null) {
 			return;
