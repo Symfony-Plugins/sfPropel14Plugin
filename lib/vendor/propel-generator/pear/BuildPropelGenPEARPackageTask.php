@@ -27,7 +27,7 @@ include_once 'phing/tasks/ext/pearpackage/Fileset.php';
  *
  * @author     Hans Lellelid <hans@xmpl.org>
  * @package    phing.tasks.ext
- * @version    $Revision: 521 $
+ * @version    $Revision: 718 $
  */
 class BuildPropelGenPEARPackageTask extends MatchingTask {
 
@@ -164,12 +164,16 @@ class BuildPropelGenPEARPackageTask extends MatchingTask {
 
 
 		// "core" dependencies
-		$package->setPhpDep('5.0.0');
+		$package->setPhpDep('5.2.0');
 		$package->setPearinstallerDep('1.4.0');
 
 		// "package" dependencies
-		$package->addPackageDepWithChannel( 'required', 'phing', 'pear.phing.info', '2.2.0RC1');
-		$package->addPackageDepWithChannel( 'required', 'creole', 'pear.phpdb.org', '1.1.0RC1');
+		$package->addPackageDepWithChannel( 'required', 'phing', 'pear.phing.info', '2.2.0');
+		$package->addPackageDepWithChannel( 'optional', 'creole', 'pear.phpdb.org', '1.1.0');
+
+		$package->addExtensionDep('required', 'pdo');
+		$package->addExtensionDep('required', 'xml');
+		$package->addExtensionDep('required', 'xsl');
 
 		// now add the replacements ....
 		$package->addReplacement('Phing.php', 'pear-config', '@DATA-DIR@', 'data_dir');

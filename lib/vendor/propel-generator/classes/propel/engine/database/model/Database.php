@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: Database.php 576 2007-02-09 19:08:40Z hans $
+ *  $Id: Database.php 724 2007-10-28 19:52:02Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -34,7 +34,7 @@ include_once 'propel/engine/database/model/Table.php';
  * @author     Martin Poeschl<mpoeschl@marmot.at> (Torque)
  * @author     Daniel Rall<dlr@collab.net> (Torque)
  * @author     Byron Foster <byron_foster@yahoo.com> (Torque)
- * @version    $Revision: 576 $
+ * @version    $Revision: 724 $
  * @package    propel.engine.database.model
  */
 class Database extends XMLElement {
@@ -68,7 +68,7 @@ class Database extends XMLElement {
 		$this->baseClass = $this->getAttribute("baseClass");
 		$this->basePeer = $this->getAttribute("basePeer");
 		$this->defaultPhpType = $this->getAttribute("defaultPhpType");
-		$this->defaultIdMethod = $this->getAttribute("defaultIdMethod");
+		$this->defaultIdMethod = $this->getAttribute("defaultIdMethod", IDMethod::NATIVE);
 		$this->defaultPhpNamingMethod = $this->getAttribute("defaultPhpNamingMethod", NameGenerator::CONV_METHOD_UNDERSCORE);
 		$this->defaultTranslateMethod = $this->getAttribute("defaultTranslateMethod", Validator::TRANSLATE_NONE);
 		$this->heavyIndexing = $this->booleanValue($this->getAttribute("heavyIndexing"));

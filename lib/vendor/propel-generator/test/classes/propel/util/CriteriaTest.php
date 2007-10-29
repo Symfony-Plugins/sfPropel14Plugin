@@ -9,7 +9,7 @@ include_once 'propel/util/BasePeer.php';
  *
  * @author     <a href="mailto:celkins@scardini.com">Christopher Elkins</a>
  * @author     <a href="mailto:sam@neurogrid.com">Sam Joseph</a>
- * @version    $Id: CriteriaTest.php 685 2007-08-15 17:13:47Z hans $
+ * @version    $Id: CriteriaTest.php 718 2007-10-26 01:31:34Z heltem $
  */
 class CriteriaTest extends BaseTestCase {
 
@@ -506,26 +506,26 @@ class CriteriaTest extends BaseTestCase {
 		}
 		$this->assertEquals($expect, $result);
 	}
-	
+
 	/**
-	 * @link http://propel.phpdb.org/trac/ticket/451
+	 * @link       http://propel.phpdb.org/trac/ticket/451
 	 */
 	public function testMultipleMixedJoinOrders()
 	{
 		$c = new Criteria();
 		$c->clearSelectColumns()->
 			addJoin("TABLE_A.FOO_ID", "TABLE_B.ID", Criteria::LEFT_JOIN)->
-            addJoin("TABLE_A.BAR_ID", "TABLE_C.ID", Criteria::INNER_JOIN)->
-            addSelectColumn("TABLE_A.ID");
-		
-        $expect = 'SELECT TABLE_A.ID FROM (TABLE_A, TABLE_C)'
+			addJoin("TABLE_A.BAR_ID", "TABLE_C.ID", Criteria::INNER_JOIN)->
+			addSelectColumn("TABLE_A.ID");
+
+		$expect = 'SELECT TABLE_A.ID FROM (TABLE_A, TABLE_C)'
 					.' LEFT JOIN TABLE_B ON (TABLE_A.FOO_ID=TABLE_B.ID) WHERE TABLE_A.BAR_ID=TABLE_C.ID';
-        
-        $result = BasePeer::createSelectSql($c, $params=array());
-        
-        print $result . "\n";
-        
-        
-        $this->assertEquals($expect, $result);
+
+		$result = BasePeer::createSelectSql($c, $params=array());
+
+		print $result . "\n";
+
+
+		$this->assertEquals($expect, $result);
 	}
 }

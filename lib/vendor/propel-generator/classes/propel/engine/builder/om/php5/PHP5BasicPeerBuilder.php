@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5BasicPeerBuilder.php 719 2007-10-26 01:54:37Z heltem $
+ *  $Id: PHP5BasicPeerBuilder.php 726 2007-10-28 23:23:12Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -898,7 +898,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 ";
 			foreach ($col->getChildren() as $child) {
 				$script .= "
-				case self::CLASSKEY_".$child->getKey().":
+				case self::CLASSKEY_".strtoupper($child->getKey()).":
 					\$omClass = self::CLASSNAME_".strtoupper($child->getKey()).";
 					break;
 ";
