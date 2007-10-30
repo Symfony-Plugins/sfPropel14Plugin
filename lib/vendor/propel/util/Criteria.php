@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Criteria.php 633 2007-05-21 16:55:09Z david $
+ *  $Id$
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -32,7 +32,7 @@
  * @author     Eric Dobbs <eric@dobbse.net> (Torque)
  * @author     Henning P. Schmiedehausen <hps@intermeta.de> (Torque)
  * @author     Sam Joseph <sam@neurogrid.com> (Torque)
- * @version    $Revision: 633 $
+ * @version    $Revision$
  * @package    propel.util
  */
 class Criteria implements IteratorAggregate {
@@ -894,15 +894,20 @@ class Criteria implements IteratorAggregate {
 	 */
 	public function toString()
 	{
-		$sb = "Criteria:: ";
 
+		$sb = "Criteria:";
 		try {
 
 			$params = array();
-			$sb .= "\nCurrent Query SQL (may not be complete or applicable): "
+			$sb .= "\nSQL (may not be complete): "
 			  . BasePeer::createSelectSql($this, $params);
 
-			$sb .= "\nParameters to replace: " . var_export($params, true);
+			$sb .= "\nParams: ";
+			$paramstr = array();
+			foreach($params as $param) {
+				$paramstr[] = $param['table'] . '.' . $param['column'] . ' => ' . var_export($param['value'], true);
+			}
+			$sb .= implode(", ", $paramstr);
 
 		} catch (Exception $exc) {
 			$sb .= "(Error: " . $exc->getMessage() . ")";
