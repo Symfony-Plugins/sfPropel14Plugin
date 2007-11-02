@@ -16,12 +16,16 @@
  */
 require_once 'propel/Propel.php';
 
+$dispatcher = sfContext::getInstance()->getEventDispatcher();
+
 if (sfConfig::get('sf_debug') && sfConfig::get('sf_logging_enabled'))
 {
   // add propel logger
-  Propel::setLogger(new sfPropelLogger());
+  Propel::setLogger(new sfPropelLogger($dispatcher));
 }
 
 // propel initialization
 Propel::setConfiguration(sfPropelDatabase::getConfiguration());
 Propel::initialize();
+
+sfPropel::initialize($dispatcher, sfContext::getInstance()->getUser()->getCulture());
