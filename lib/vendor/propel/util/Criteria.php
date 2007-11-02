@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id$
+ *  $Id: Criteria.php 730 2007-10-30 00:43:31Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -32,7 +32,7 @@
  * @author     Eric Dobbs <eric@dobbse.net> (Torque)
  * @author     Henning P. Schmiedehausen <hps@intermeta.de> (Torque)
  * @author     Sam Joseph <sam@neurogrid.com> (Torque)
- * @version    $Revision$
+ * @version    $Revision: 730 $
  * @package    propel.util
  */
 class Criteria implements IteratorAggregate {
@@ -894,7 +894,7 @@ class Criteria implements IteratorAggregate {
 	 */
 	public function toString()
 	{
-
+		
 		$sb = "Criteria:";
 		try {
 
@@ -905,7 +905,7 @@ class Criteria implements IteratorAggregate {
 			$sb .= "\nParams: ";
 			$paramstr = array();
 			foreach($params as $param) {
-				$paramstr[] = $param['table'] . '.' . $param['column'] . ' => ' . var_export($param['value'], true);
+				$paramstr[] = $param['table'] . '.' . $param['column'] . ' => ' . var_export($param['value'], true);  
 			}
 			$sb .= implode(", ", $paramstr);
 

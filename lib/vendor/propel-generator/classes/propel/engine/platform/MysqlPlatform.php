@@ -26,7 +26,7 @@ require_once 'propel/engine/platform/DefaultPlatform.php';
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
- * @version    $Revision: 589 $
+ * @version    $Revision: 731 $
  * @package    propel.engine.platform
  */
 class MysqlPlatform extends DefaultPlatform {
@@ -37,6 +37,7 @@ class MysqlPlatform extends DefaultPlatform {
 	protected function initialize()
 	{
 		parent::initialize();
+		$this->setSchemaDomainMapping(new Domain(PropelTypes::BOOLEAN, "TINYINT"));
 		$this->setSchemaDomainMapping(new Domain(PropelTypes::NUMERIC, "DECIMAL"));
 		$this->setSchemaDomainMapping(new Domain(PropelTypes::LONGVARCHAR, "TEXT"));
 		$this->setSchemaDomainMapping(new Domain(PropelTypes::BINARY, "BLOB"));
