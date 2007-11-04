@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: ColumnTest.php 521 2007-01-05 13:29:36Z heltem $
+ *  $Id: ColumnTest.php 759 2007-11-04 01:22:29Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -20,7 +20,7 @@
  * <http://propel.phpdb.org>.
  */
 
-require_once 'PHPUnit2/Framework/TestCase.php';
+require_once 'PHPUnit/Framework/TestCase.php';
 require_once 'propel/engine/database/model/Column.php';
 include_once 'propel/engine/platform/MysqlPlatform.php';
 
@@ -28,9 +28,9 @@ include_once 'propel/engine/platform/MysqlPlatform.php';
  * Tests for package handling.
  *
  * @author     <a href="mailto:mpoeschl@marmot.at>Martin Poeschl</a>
- * @version    $Id: ColumnTest.php 521 2007-01-05 13:29:36Z heltem $
+ * @version    $Revision: 759 $
  */
-class ColumnTest extends PHPUnit2_Framework_TestCase {
+class ColumnTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * Tests static Column::makeList() method.

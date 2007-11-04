@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5BasicPeerBuilder.php 726 2007-10-28 23:23:12Z hans $
+ *  $Id: PHP5BasicPeerBuilder.php 747 2007-11-03 16:32:21Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -344,7 +344,6 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 	public static function getMapBuilder()
 	{
 		if (self::\$mapBuilder === null) {
-			require_once '" . $this->getMapBuilderBuilder()->getClassFilePath()."';
 			self::\$mapBuilder = new ".$this->getMapBuilderBuilder()->getClassname()."();
 		}
 		return self::\$mapBuilder;

@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: BookstoreTestBase.php 718 2007-10-26 01:31:34Z heltem $
+ *  $Id: BookstoreTestBase.php 752 2007-11-03 17:19:19Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -19,13 +19,13 @@
  * <http://propel.phpdb.org>.
  */
 
-require_once 'PHPUnit2/Framework/TestCase.php';
+require_once 'PHPUnit/Framework/TestCase.php';
 include_once 'bookstore/BookstoreDataPopulator.php';
 
 /**
  * Base class contains some methods shared by subclass test cases.
  */
-abstract class BookstoreTestBase extends PHPUnit2_Framework_TestCase {
+abstract class BookstoreTestBase extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * This is run before each unit test; it populates the database.

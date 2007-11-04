@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: FieldnameRelatedTest.php 580 2007-02-21 21:39:25Z hans $
+ *  $Id: FieldnameRelatedTest.php 752 2007-11-03 17:19:19Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -19,6 +19,7 @@
  * <http://propel.phpdb.org>.
  */
 
+require_once 'PHPUnit/Framework/TestCase.php';
 require_once 'bookstore/BookstoreTestBase.php';
 
 /**
@@ -39,7 +40,7 @@ require_once 'bookstore/BookstoreTestBase.php';
  *
  * @author     Sven Fuchs <svenfuchs@artweb-design.de>
  */
-class FieldnameRelatedTest extends PHPUnit2_Framework_TestCase {
+class FieldnameRelatedTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * Tests if fieldname type constants are defined

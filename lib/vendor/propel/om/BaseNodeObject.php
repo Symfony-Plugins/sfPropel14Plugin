@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: BaseNodeObject.php 728 2007-10-29 10:52:32Z heltem $
+ *  $Id: BaseNodeObject.php 735 2007-11-03 12:00:37Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -24,19 +24,25 @@
  * business objects within the system to handle Node object.
  *
  * @author     Heltem <heltme@o2php.com> (Propel)
- * @version    $Revision: 728 $
+ * @version    $Revision: 735 $
  * @package    propel.om
  */
 interface BaseNodeObject extends IteratorAggregate {
 	/**
 	 * If object is saved without left/right values, set them as undefined (0)
+	 *
 	 * @param      PropelPDO $con	Connection to use.
+	 * @return     void
+	 * @throws     PropelException
 	 */
 	public function save(PropelPDO $con = null);
 
 	/**
 	 * Delete node and descendants
+	 *
 	 * @param      PropelPDO $con	Connection to use.
+	 * @return     void
+	 * @throws     PropelException
 	 */
 	public function delete(PropelPDO $con = null);
 

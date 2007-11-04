@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: TableTest.php 521 2007-01-05 13:29:36Z heltem $
+ *  $Id: TableTest.php 759 2007-11-04 01:22:29Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -20,7 +20,7 @@
  * <http://propel.phpdb.org>.
  */
 
-require_once 'PHPUnit2/Framework/TestCase.php';
+require_once 'PHPUnit/Framework/TestCase.php';
 include_once 'propel/engine/database/transform/XmlToAppData.php';
 include_once 'propel/engine/platform/MysqlPlatform.php';
 
@@ -28,9 +28,9 @@ include_once 'propel/engine/platform/MysqlPlatform.php';
  * Tests for package handling.
  *
  * @author     <a href="mailto:mpoeschl@marmot.at>Martin Poeschl</a>
- * @version    $Id: TableTest.php 521 2007-01-05 13:29:36Z heltem $
+ * @version    $Revision: 759 $
  */
-class TableTest extends PHPUnit2_Framework_TestCase {
+class TableTest extends PHPUnit_Framework_TestCase {
 
 	private $xmlToAppData;
 	private $appData;

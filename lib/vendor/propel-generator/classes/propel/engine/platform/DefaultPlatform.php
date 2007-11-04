@@ -27,7 +27,7 @@ include_once 'propel/engine/database/model/PropelTypes.php';
  * Default implementation for the Platform interface.
  *
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
- * @version    $Revision: 718 $
+ * @version    $Revision: 745 $
  * @package    propel.engine.platform
  */
 class DefaultPlatform implements Platform {
@@ -186,10 +186,6 @@ class DefaultPlatform implements Platform {
 	}
 
 	/**
-	 *
-	 */
-
-	/**
 	 * @see        Platform::quoteIdentifier()
 	 */
 	public function quoteIdentifier($text)
@@ -221,5 +217,14 @@ class DefaultPlatform implements Platform {
 	{
 		$b = ($b === true || strtolower($b) === 'true' || $b === 1 || $b === '1' || strtolower($b) === 'y' || strtolower($b) === 'yes');
 		return ($b ? '1' : '0');
+	}
+	
+	/**
+	 * Gets the preferred timestamp formatter for setting date/time values.
+	 * @return string
+	 */
+	public function getTimestampFormatter()
+	{
+		return DateTime::ISO8601;
 	}
 }

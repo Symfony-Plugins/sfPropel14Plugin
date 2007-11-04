@@ -1,7 +1,7 @@
 <?php
 
 require_once 'propel/Propel.php';
-require_once 'PHPUnit2/Framework/TestCase.php';
+require_once 'PHPUnit/Framework/TestCase.php';
 
 /**
  * Base functionality to be extended by all Propel test cases.  Test
@@ -10,9 +10,9 @@ require_once 'PHPUnit2/Framework/TestCase.php';
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Daniel Rall <dlr@finemaltcoding.com> (Torque)
  * @author     Christopher Elkins <celkins@scardini.com> (Torque)
- * @version    $Revision: 521 $
+ * @version    $Revision: 752 $
  */
-abstract class BaseTestCase extends PHPUnit2_Framework_TestCase {
+abstract class BaseTestCase extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * Conditional compilation flag.

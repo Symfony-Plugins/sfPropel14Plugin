@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Platform.php 718 2007-10-26 01:31:34Z heltem $
+ *  $Id: Platform.php 745 2007-11-03 16:20:46Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -24,7 +24,7 @@
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
- * @version    $Revision: 718 $
+ * @version    $Revision: 745 $
  * @package    propel.engine.platform
  */
 interface Platform {
@@ -142,4 +142,10 @@ interface Platform {
 	 * @return     boolean
 	 */
 	public function hasStreamBlobImpl();
+	
+	/**
+	 * Gets the preferred timestamp formatter for setting date/time values.
+	 * @return string
+	 */
+	public function getTimestampFormatter();
 }

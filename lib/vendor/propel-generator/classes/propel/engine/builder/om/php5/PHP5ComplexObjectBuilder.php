@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5ComplexObjectBuilder.php 718 2007-10-26 01:31:34Z heltem $
+ *  $Id: PHP5ComplexObjectBuilder.php 732 2007-11-03 11:00:40Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -141,6 +141,7 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 		} // foreach
 
 		$script .= "
+		return \$this;
 	} // set$cfc()
 ";
 	} // addMutatorClose()

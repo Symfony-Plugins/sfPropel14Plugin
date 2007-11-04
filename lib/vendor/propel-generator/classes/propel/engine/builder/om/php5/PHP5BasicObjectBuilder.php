@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5BasicObjectBuilder.php 718 2007-10-26 01:31:34Z heltem $
+ *  $Id: PHP5BasicObjectBuilder.php 745 2007-11-03 16:20:46Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -577,7 +577,7 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 	 * Set the value of [$clo] column.
 	 * ".$col->getDescription()."
 	 * @param      ".$col->getPhpType()." \$v new value
-	 * @return     void
+	 * @return     \$this
 	 */
 	".$visibility." function set$cfc(\$v)
 	{";
@@ -602,6 +602,7 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 	protected function addMutatorClose(&$script, Column $col)
 	{
 		$script .= "
+		return \$this;
 	} // set".$col->getPhpName()."()
 ";
 	}
@@ -644,24 +645,26 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 		$clo = strtolower($col->getName());
 
 		$this->addMutatorOpen($script, $col);
-
+		
+		$fmt = var_export($this->getPlatform()->getTimestampFormatter(), true);
+		
 		$script .= "
 		if (\$v === null) {
 			\$date = null;
 		} elseif (\$v instanceof DateTime) {
-			\$date = \$v->format(DateTime::ISO8601);
+			\$date = \$v->format($fmt);
 		} else {
 			// some string/numeric value passed
 			try {
 				if (is_numeric(\$v)) { // if it's a unix timestamp
-					\$dt = new PropelDateTime(date(DateTime::ISO8601, \$v));
+					\$dt = new PropelDateTime(date($fmt, \$v));
 				} else {
 					\$dt = new PropelDateTime(\$v);
 				}
 			} catch (Exception \$x) {
 				throw new PropelException('Error parsing date/time value: ' . var_export(\$v, true), \$x);
 			}
-			\$date = \$dt->format(DateTime::ISO8601);
+			\$date = \$dt->format($fmt);
 		}
 
 		// For date/time columns we have to compare the formatting

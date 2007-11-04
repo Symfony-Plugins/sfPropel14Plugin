@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: ColumnMap.php 657 2007-06-20 17:25:02Z hans $
+ *  $Id: ColumnMap.php 751 2007-11-03 17:02:06Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -38,7 +38,7 @@
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     John D. McNally <jmcnally@collab.net> (Torque)
- * @version    $Revision: 657 $
+ * @version    $Revision: 751 $
  * @package    propel.map
  */
 class ColumnMap {
@@ -54,6 +54,9 @@ class ColumnMap {
 
 	/** Is null value allowed ?*/
 	private $notNull = false;
+	
+	/** The default value for this column. */
+	private $defaultValue;
 
 	/** Name of the table that this column is related to. */
 	private $relatedTableName = "";
