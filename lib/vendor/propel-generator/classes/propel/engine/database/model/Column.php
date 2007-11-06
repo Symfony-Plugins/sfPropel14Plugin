@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Column.php 718 2007-10-26 01:31:34Z heltem $
+ *  $Id: Column.php 773 2007-11-06 12:55:51Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -36,7 +36,7 @@ include_once 'propel/engine/database/model/ColumnDefaultValue.php';
  * @author     Daniel Rall <dlr@finemaltcoding.com> (Torque)
  * @author     Byron Foster <byron_foster@yahoo.com> (Torque)
  * @author     Bernd Goldschmidt <bgoldschmidt@rapidsoft.de>
- * @version    $Revision: 718 $
+ * @version    $Revision: 773 $
  * @package    propel.engine.database.model
  */
 class Column extends XMLElement {
@@ -86,7 +86,7 @@ class Column extends XMLElement {
 	private $nodeKeySep;
 	private $isNestedSetLeftKey = false;
 	private $isNestedSetRightKey = false;
-	private $isNestedSetScopeKey = false;
+	private $isTreeScopeKey = false;
 	private $isUnique = false;
 	private $isAutoIncrement = false;
 	private $isLazyLoad = false;
@@ -202,7 +202,7 @@ class Column extends XMLElement {
 
 			$this->isNestedSetLeftKey = $this->booleanValue($this->getAttribute("nestedSetLeftKey"));
 			$this->isNestedSetRightKey = $this->booleanValue($this->getAttribute("nestedSetRightKey"));
-			$this->isNestedSetScopeKey = $this->booleanValue($this->getAttribute("nestedSetScopeKey"));
+			$this->isTreeScopeKey = $this->booleanValue($this->getAttribute("treeScopeKey"));
 
 			$this->isNotNull = ($this->booleanValue($this->getAttribute("required"), false) || $this->isPrimaryKey); // primary keys are required
 
@@ -611,19 +611,19 @@ class Column extends XMLElement {
 	}
 
 	/**
-	 * Set if the column is the nested set scope key of a tree
+	 * Set if the column is the scope key of a tree
 	 */
-	public function setNestedSetScopeKey($nssk)
+	public function setTreeScopeKey($tsk)
 	{
-		$this->isNestedSetScopeKey = (boolean) $nssk;
+		$this->isTreeScopeKey = (boolean) $tsk;
 	}
 
 	/**
-	 * Return true if the column is a nested set scope key of a tree
+	 * Return true if the column is a scope key of a tree
 	 */
-	public function isNestedSetScopeKey()
+	public function isTreeScopeKey()
 	{
-		return $this->isNestedSetScopeKey;
+		return $this->isTreeScopeKey;
 	}
 
 	/**

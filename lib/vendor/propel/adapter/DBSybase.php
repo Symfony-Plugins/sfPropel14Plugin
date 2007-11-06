@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: DBSybase.php 521 2007-01-05 13:29:36Z heltem $
+ *  $Id: DBSybase.php 771 2007-11-05 21:37:05Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -29,7 +29,7 @@
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Jeff Brekke <ekkerbj@netscape.net> (Torque)
- * @version    $Revision: 521 $
+ * @version    $Revision: 771 $
  * @package    propel.adapter
  */
 class DBSybase extends DBAdapter {
@@ -98,5 +98,13 @@ class DBSybase extends DBAdapter {
 	public function quoteIdentifier($text)
 	{
 		return '[' . $text . ']';
+	}
+	
+	/**
+	 * @see        DBAdapter::random()
+	 */
+	public function random($seed = null)
+	{
+		return 'rand('.((int) $seed).')';
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5NodePeerBuilder.php 712 2007-10-24 04:59:30Z gamr $
+ *  $Id: PHP5NodePeerBuilder.php 770 2007-11-05 21:00:11Z david $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -438,7 +438,7 @@ abstract class ".$this->getClassname()." {
 
 		\$npath = $nodePeerClassname::NPATH_COLNAME;
 		//the following dot isn`t mean`t a nodeKeySeperator
-		\$setcol = substr(\$npath, strpos(\$npath, '.')+1);
+		\$setcol = substr(\$npath, strrpos(\$npath, '.')+1);
 		\$setcollen = $nodePeerClassname::NPATH_LEN;
 		\$db = Propel::getDb($peerClassname::DATABASE_NAME);
 

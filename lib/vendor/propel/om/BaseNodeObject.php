@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: BaseNodeObject.php 735 2007-11-03 12:00:37Z heltem $
+ *  $Id: BaseNodeObject.php 773 2007-11-06 12:55:51Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -24,7 +24,7 @@
  * business objects within the system to handle Node object.
  *
  * @author     Heltem <heltme@o2php.com> (Propel)
- * @version    $Revision: 735 $
+ * @version    $Revision: 773 $
  * @package    propel.om
  */
 interface BaseNodeObject extends IteratorAggregate {
@@ -114,7 +114,7 @@ interface BaseNodeObject extends IteratorAggregate {
 	 * @param      object $node	Propel object for node to compare to
 	 * @return     bool
 	 */
-	public function isEqualTo(BaseNodeObject $node = null);
+	public function isEqualTo(BaseNodeObject $node);
 
 	/**
 	 * Tests if object has an ancestor
@@ -188,39 +188,39 @@ interface BaseNodeObject extends IteratorAggregate {
 	public function retrieveNextSibling(PropelPDO $con = null);
 
 	/**
-	 * Inserts as first child of destination node $dest
+	 * Inserts as first child of destination node $parent
 	 *
-	 * @param      object $dest	Propel object for destination node
+	 * @param      object $parent	Propel object for given destination node
 	 * @param      PropelPDO $con	Connection to use.
-	 * @return     object		Inserted propel object for model
+	 * @return     void
 	 */
-	public function insertAsFirstChildOf(BaseNodeObject $dest = null, PropelPDO $con = null);
+	public function insertAsFirstChildOf(BaseNodeObject $parent, PropelPDO $con = null);
 
 	/**
-	 * Inserts as last child of destination node $dest
+	 * Inserts as last child of destination node $parent
 	 *
-	 * @param      object $dest	Propel object for destination node
+	 * @param      object $parent	Propel object for given destination node
 	 * @param      PropelPDO $con	Connection to use.
-	 * @return     object		Inserted propel object for model
+	 * @return     void
 	 */
-	public function insertAsLastChildOf(BaseNodeObject $dest = null, PropelPDO $con = null);
+	public function insertAsLastChildOf(BaseNodeObject $parent, PropelPDO $con = null);
 
 	/**
-	 * Inserts $node as previous sibling to destination node $dest
+	 * Inserts node as previous sibling to destination node $dest
 	 *
-	 * @param      object $dest	Propel object for destination node
+	 * @param      object $dest	Propel object for given destination node
 	 * @param      PropelPDO $con	Connection to use.
-	 * @return     object		Inserted propel object for model
+	 * @return     void
 	 */
-	public function insertAsPrevSiblingOf(BaseNodeObject $dest = null, PropelPDO $con = null);
+	public function insertAsPrevSiblingOf(BaseNodeObject $dest, PropelPDO $con = null);
 
 	/**
-	 * Inserts $node as next sibling to destination node $dest
+	 * Inserts node as next sibling to destination node $dest
 	 *
-	 * @param      object $dest	Propel object for destination node
+	 * @param      object $dest	Propel object for given destination node
 	 * @param      PropelPDO $con	Connection to use.
-	 * @return     object		Inserted propel object for model
+	 * @return     void
 	 */
-	public function insertAsNextSiblingOf(BaseNodeObject $dest = null, PropelPDO $con = null);
+	public function insertAsNextSiblingOf(BaseNodeObject $dest, PropelPDO $con = null);
 
 } // BaseNodeObject
