@@ -1,12 +1,12 @@
 <?php
 
 /*
- * This file is part of the symfony package.
- * (c) 2004-2006 Fabien Potencier <fabien.potencier@symfony-project.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+* This file is part of the symfony package.
+* (c) 2004-2006 Fabien Potencier <fabien.potencier@symfony-project.com>
+*
+* For the full copyright and license information, please view the LICENSE
+* file that was distributed with this source code.
+*/
 
 /**
  * A symfony database driver for Propel, derived from the native Creole driver.
@@ -50,6 +50,16 @@ class sfPropelDatabase extends sfDatabase
     }
 
     Propel::setConfiguration(self::$config);
+
+    if($this->getParameter('pooling', false))
+    {
+      Propel::enableInstancePooling();
+    }
+    else
+    {
+      Propel::disableInstancePooling();
+    }
+
     Propel::initialize();
   }
 
@@ -60,13 +70,13 @@ class sfPropelDatabase extends sfDatabase
 
   public function addConfig()
   {
-  	if ($dsn = $this->getParameter('dsn'))
-  	{
-  	  $params = array();
+    if ($dsn = $this->getParameter('dsn'))
+    {
+      $params = array();
 
-  		// check for non-pdo dsn - to be backwards compatable
-  		if (false !== strpos($dsn, '//'))
-  		{
+      // check for non-pdo dsn - to be backwards compatable
+      if (false !== strpos($dsn, '//'))
+      {
         // derive pdo dsn (etc) from old style dsn
         $params = $this->parseOldDsn($dsn);
 
@@ -86,20 +96,20 @@ class sfPropelDatabase extends sfDatabase
           $this->setParameter($option, $params[$option]);
         }
       }
-  	}
+    }
 
     self::$config['propel']['datasources'][$this->getParameter('datasource')] =
-      array(
-        'adapter'      => $this->getParameter('phptype'),
-        'connection'   =>
-          array(
-            'dsn'        => $this->getParameter('dsn'),
-            'user'       => $this->getParameter('username'),
-            'password'   => $this->getParameter('password'),
-            'encoding'   => $this->getParameter('encoding'),
-            'persistent' => $this->getParameter('persistent'),
-          )
-      );
+    array(
+    'adapter'      => $this->getParameter('phptype'),
+    'connection'   =>
+    array(
+    'dsn'        => $this->getParameter('dsn'),
+    'user'       => $this->getParameter('username'),
+    'password'   => $this->getParameter('password'),
+    'encoding'   => $this->getParameter('encoding'),
+    'persistent' => $this->getParameter('persistent'),
+    )
+    );
   }
 
   /**
@@ -123,26 +133,26 @@ class sfPropelDatabase extends sfDatabase
   {
     if (is_array($dsn))
     {
-        return $dsn;
+      return $dsn;
     }
 
     $parsed = array(
-        'phptype'  => null,
-        'username' => null,
-        'password' => null,
-        'protocol' => null,
-        'hostspec' => null,
-        'port'     => null,
-        'socket'   => null,
-        'database' => null
+    'phptype'  => null,
+    'username' => null,
+    'password' => null,
+    'protocol' => null,
+    'hostspec' => null,
+    'port'     => null,
+    'socket'   => null,
+    'database' => null
     );
 
     $info = parse_url($dsn);
 
     if (count($info) === 1)
     { // if there's only one element in result, then it must be the phptype
-        $parsed['phptype'] = array_pop($info);
-        return $parsed;
+      $parsed['phptype'] = array_pop($info);
+      return $parsed;
     }
 
     // some values can be copied directly
@@ -162,17 +172,17 @@ class sfPropelDatabase extends sfDatabase
       }
       else
       {
-          $parsed['hostspec'] = substr($host,$pluspos+1);
+        $parsed['hostspec'] = substr($host,$pluspos+1);
       }
     }
     else
     {
-        $parsed['hostspec'] = $host;
+      $parsed['hostspec'] = $host;
     }
 
     if (isset($info['path']))
     {
-        $parsed['database'] = substr($info['path'], 1); // remove first char, which is '/'
+      $parsed['database'] = substr($info['path'], 1); // remove first char, which is '/'
     }
 
     if (isset($info['query']))
@@ -215,8 +225,8 @@ class sfPropelDatabase extends sfDatabase
    */
   public function connect ()
   {
-  	Propel::setConfiguration(self::$config);
-  	$this->connection = Propel::getConnection();
+    Propel::setConfiguration(self::$config);
+    $this->connection = Propel::getConnection();
   }
 
   /**
