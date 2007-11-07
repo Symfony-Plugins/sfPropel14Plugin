@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: PHPUnitTestRunner.php 189 2007-05-08 19:07:42Z mrook $
+ * $Id: PHPUnitTestRunner.php 276 2007-10-31 08:37:18Z mrook $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -27,7 +27,7 @@ require_once 'phing/system/util/Timer.php';
  * Simple Testrunner for PHPUnit2/3 that runs all tests of a testsuite.
  *
  * @author Michiel Rook <michiel.rook@gmail.com>
- * @version $Id: PHPUnitTestRunner.php 189 2007-05-08 19:07:42Z mrook $
+ * @version $Id: PHPUnitTestRunner.php 276 2007-10-31 08:37:18Z mrook $
  * @package phing.tasks.ext.phpunit
  * @since 2.1.0
  */
@@ -46,10 +46,15 @@ class PHPUnitTestRunner
 	
 	private $project = NULL;
 
-	function __construct($suite, Project $project)
+	private $groups = array();
+	private $excludeGroups = array();
+
+	function __construct($suite, Project $project, $groups = array(), $excludeGroups = array())
 	{
 		$this->suite = $suite;
 		$this->project = $project;
+		$this->groups = $groups;
+		$this->excludeGroups = $excludeGroups;
 		$this->retCode = self::SUCCESS;
 	}
 	
@@ -88,7 +93,7 @@ class PHPUnitTestRunner
 			$res->addListener($formatter);
 		}
 
-		$this->suite->run($res);
+		$this->suite->run($res, false, $this->groups, $this->excludeGroups);
 		
 		if ($this->codecoverage)
 		{
@@ -112,7 +117,7 @@ class PHPUnitTestRunner
 			$this->retCode = self::ERRORS;
 		}
 
-		else if ($res->failureCount() != 0 || $res->notImplementedCount() != 0)
+		else if ($res->failureCount() != 0 || $res->notImplementedCount() != 0 || $res->skippedCount() != 0)
 		{
 			$this->retCode = self::FAILURES;
 		}

@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: PHPUnitTask.php 236 2007-09-10 14:24:59Z mrook $
+ * $Id: PHPUnitTask.php 275 2007-10-31 08:01:03Z mrook $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -28,7 +28,7 @@ require_once 'phing/util/LogWriter.php';
  * Runs PHPUnit2/3 tests.
  *
  * @author Michiel Rook <michiel.rook@gmail.com>
- * @version $Id: PHPUnitTask.php 236 2007-09-10 14:24:59Z mrook $
+ * @version $Id: PHPUnitTask.php 275 2007-10-31 08:01:03Z mrook $
  * @package phing.tasks.ext.phpunit
  * @see BatchTest
  * @since 2.1.0
@@ -44,6 +44,8 @@ class PHPUnitTask extends Task
 	private $printsummary = false;
 	private $testfailed = false;
 	private $codecoverage = false;
+	private $groups = array();
+	private $excludeGroups = array();
 
 	/**
 	 * Initialize Task.
@@ -78,6 +80,10 @@ class PHPUnitTask extends Task
 		if (version_compare($version, "3.0.0") >= 0)
 		{
 			PHPUnitUtil::$installedVersion = 3;
+			if (version_compare($version, "3.2.0") >= 0)
+			{
+				PHPUnitUtil::$installedMinorVersion = 2;
+			}
 		}
 		else
 		{
@@ -153,6 +159,36 @@ class PHPUnitTask extends Task
 		$this->codecoverage = $codecoverage;
 	}
 
+	function setGroups($groups)
+	{
+		if (PHPUnitUtil::$installedVersion < 3 || (PHPUnitUtil::$installedVersion == 3 && PHPUnitUtil::$installedMinorVersion < 2))
+		{
+			$this->log("The 'groups' attribute is only available with PHPUnit 3.2.0 or newer", Project::MSG_WARN);
+		}
+		$token = ' ,;';
+		$this->groups = array();
+		$tok = strtok($groups, $token);
+		while ($tok !== false) {
+			$this->groups[] = $tok;
+			$tok = strtok($token);
+		}
+	}
+
+	function setExcludeGroups($excludeGroups)
+	{
+		if (PHPUnitUtil::$installedVersion < 3 || (PHPUnitUtil::$installedVersion == 3 && PHPUnitUtil::$installedMinorVersion < 2))
+		{
+			$this->log("The 'excludeGroups' attribute is only available with PHPUnit 3.2.0 or newer", Project::MSG_WARN);
+		}
+		$token = ' ,;';
+		$this->excludeGroups = array();
+		$tok = strtok($groups, $token);
+		while ($tok !== false) {
+			$this->excludeGroups[] = $tok;
+			$tok = strtok($token);
+		}
+	}
+
 	/**
 	 * Add a new formatter to all tests of this task.
 	 *
@@ -212,7 +248,14 @@ class PHPUnitTask extends Task
 			
 			if (is_subclass_of($test, 'PHPUnit_Framework_TestSuite') || is_subclass_of($test, 'PHPUnit2_Framework_TestSuite'))
 			{
-				$suite = $test;
+				if (is_object($test))
+				{
+					$suite = $test;
+				}
+				else
+				{
+					$suite = new $test();
+				}
 			}
 			else
 			{
@@ -248,7 +291,7 @@ class PHPUnitTask extends Task
 	 */
 	private function execute($suite)
 	{
-		$runner = new PHPUnitTestRunner($suite, $this->project);
+		$runner = new PHPUnitTestRunner($suite, $this->project, $this->groups, $this->excludeGroups);
 		
 		$runner->setCodecoverage($this->codecoverage);
 

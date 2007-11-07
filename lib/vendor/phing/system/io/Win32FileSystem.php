@@ -471,7 +471,7 @@ class Win32FileSystem extends FileSystem {
         @closedir($dir);
         return $vv;
     }
-
+    
 }
 
 ?>

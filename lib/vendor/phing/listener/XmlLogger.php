@@ -145,7 +145,7 @@ class XmlLogger implements BuildLogger {
 		$this->buildElement->setAttribute(XmlLogger::TIME_ATTR, DefaultLogger::formatTime($elapsedTime));
 		
 		if ($event->getException() != null) {
-			$this->buildElement->setAttribute(XmlLogger::ERROR_ATTR, $event->getException()->toString());
+			$this->buildElement->setAttribute(XmlLogger::ERROR_ATTR, $event->getException()->getMessage());
 			$errText = $this->doc->createCDATASection($event->getException()->getTraceAsString());
 			$stacktrace = $this->doc->createElement(XmlLogger::STACKTRACE_TAG);
 			$stacktrace->appendChild($errText);

@@ -32,11 +32,10 @@ include_once 'phing/filters/ChainableReader.php';
  *
  * @author    <a href="mailto:yl@seasonfive.com">Yannick Lecaillez</a>
  * @author    hans lellelid, hans@velum.net
- * @version   $Revision: 1.6 $ $Date: 2006-09-14 13:19:08 -0700 (Thu, 14 Sep 2006) $
+ * @version   $Revision: 1.6 $ $Date: 2007-10-16 23:06:28 +0200 (Tue, 16 Oct 2007) $
  * @access    public
  * @see       FilterReader
  * @package   phing.filters
- * @todo -c use new PHP functions to perform this instead of regex.
  */
 class StripPhpComments extends BaseFilterReader implements ChainableReader {
     /**
@@ -171,7 +170,7 @@ class StripPhpComments extends BaseFilterReader implements ChainableReader {
     }
 
     /**
-     * Creates a new StripJavaComments using the passed in
+     * Creates a new StripPhpComments using the passed in
      * Reader for instantiation.
      * 
      * @param reader A Reader object providing the underlying stream.
