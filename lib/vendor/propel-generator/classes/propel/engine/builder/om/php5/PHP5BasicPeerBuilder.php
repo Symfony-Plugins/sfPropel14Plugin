@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5BasicPeerBuilder.php 747 2007-11-03 16:32:21Z hans $
+ *  $Id: PHP5BasicPeerBuilder.php 778 2007-11-06 16:38:24Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -674,7 +674,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 	public static function removeInstanceFromPool(\$value)
 	{";
 		$script .= "
-		if (Propel::isInstancePoolingEnabled()) {";
+		if (Propel::isInstancePoolingEnabled() && \$value !== null) {";
 		$pk = $table->getPrimaryKey();
 
 		$script .= "
