@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: GeneratedPeerTest.php 778 2007-11-06 16:38:24Z hans $
+ *  $Id: GeneratedPeerTest.php 784 2007-11-08 10:15:50Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -422,7 +422,7 @@ class GeneratedPeerTest extends BookstoreTestBase {
 		$this->assertType('integer', BookPeer::doCountJoinAll($c), "Expected doCountJoinAll() to return an integer.");
 		$this->assertType('integer', BookPeer::doCountJoinAuthor($c), "Expected doCountJoinAuthor() to return an integer.");
 	}
-	
+
 	/**
 	 * Test passing null values to removeInstanceFromPool().
 	 */
@@ -435,5 +435,5 @@ class GeneratedPeerTest extends BookstoreTestBase {
 			$this->fail("Expected to get no exception when removing an instance from the pool.");
 		}
 	}
-	
+
 }

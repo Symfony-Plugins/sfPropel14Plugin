@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: DBMSSQL.php 772 2007-11-05 23:37:57Z hans $
+ *  $Id: DBMSSQL.php 784 2007-11-08 10:15:50Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -25,7 +25,7 @@
  * simply extends the adaptor for Sybase.
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
- * @version    $Revision: 772 $
+ * @version    $Revision: 784 $
  * @package    propel.adapter
  */
 class DBMSSQL extends DBSybase {
@@ -37,14 +37,14 @@ class DBMSSQL extends DBSybase {
 	public function applyLimit(&$sql, $offset, $limit)
 	{
 		throw new PropelException("applyLimit() not yet implemented for MSSQL");
-		
+
 		/*
 		 * TODO - rewrite the incoming SQL to make it look like the SQL below.
 		 * See http://propel.phpdb.org/trac/ticket/453 for the original article link.
-		 * 
+		 *
 		 * SELECT * FROM (
 		 * 	SELECT TOP x * FROM (
-		 * 		SELECT TOP y fields 
+		 * 		SELECT TOP y fields
 		 * 		FROM table
 		 * 		WHERE conditions
 		 * 		ORDER BY table.field ASC) as foo

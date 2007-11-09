@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: GeneratedObjectTest.php 780 2007-11-06 20:41:55Z hans $
+ *  $Id: GeneratedObjectTest.php 797 2007-11-09 19:21:21Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -69,7 +69,7 @@ class GeneratedObjectTest extends BookstoreTestBase {
 		$r = new Review();
 		$this->assertEquals('2001-01-01', $r->getReviewDate('Y-m-d'));
 
-		$this->assertFalse($r->isModified());
+		$this->assertFalse($r->isModified(), "expected isModified() to be falseb");
 
 		$acct = new BookstoreEmployeeAccount();
 		$this->assertEquals(true, $acct->getEnabled());
@@ -87,7 +87,7 @@ class GeneratedObjectTest extends BookstoreTestBase {
 	public function testDefaultExpresions()
 	{
 		if (Propel::getDb(BookstoreEmployeePeer::DATABASE_NAME) instanceof DBSqlite) {
-			$this->fail("Cannot test default expressions with SQLite");
+			$this->markTestSkipped("Cannot test default expressions with SQLite");
 		}
 
 		$employee = new BookstoreEmployee();
@@ -108,6 +108,10 @@ class GeneratedObjectTest extends BookstoreTestBase {
 
 		$now = new DateTime("now");
 		$this->assertEquals($now->format("Y-m-d"), $acct->getCreated("Y-m-d"));
+
+		$acct->setCreated($now);
+		$this->assertEquals($now->format("Y-m-d"), $acct->getCreated("Y-m-d"));
+
 	}
 
 	/**
@@ -150,17 +154,29 @@ class GeneratedObjectTest extends BookstoreTestBase {
 			print "Caught expected PropelException: " . $x->__toString();
 		}
 	}
-	
+
+	/**
+	 * Test setting TIMESTAMP columns w/ unix int timestamp.
+	 */
+	public function testTemporalValues_Unix()
+	{
+		$store = new Bookstore();
+		$store->setStoreName("test");
+		$store->setStoreOpenTime(strtotime('12:55'));
+		$store->save();
+		$this->assertEquals('12:55', $store->getStoreOpenTime(null)->format('H:i'));
+	}
+
 	/**
 	 * Test setting TIME columns.
 	 */
-	public function testTimeSetting()
+	public function testTemporalValues_TimeSetting()
 	{
 		$store = new Bookstore();
 		$store->setStoreName("test");
 		$store->setStoreOpenTime("12:55");
 		$store->save();
-		
+
 		$store = new Bookstore();
 		$store->setStoreName("test2");
 		$store->setStoreOpenTime(new DateTime("12:55"));
@@ -170,7 +186,7 @@ class GeneratedObjectTest extends BookstoreTestBase {
 	/**
 	 * Test setting TIME columns.
 	 */
-	public function testDateSetting()
+	public function testTemporalValues_DateSetting()
 	{
 		$r = new Review();
 		$r->setBook(BookPeer::doSelectOne(new Criteria()));
@@ -179,7 +195,7 @@ class GeneratedObjectTest extends BookstoreTestBase {
 		$r->setRecommended(false);
 		$r->save();
 	}
-	
+
 	/**
 	 * Testing creating & saving new object & instance pool.
 	 */
@@ -222,7 +238,7 @@ class GeneratedObjectTest extends BookstoreTestBase {
 		// now change values behind the scenes
 		$con = Propel::getConnection(BookstoreEmployeeAccountPeer::DATABASE_NAME);
 		$con->exec("UPDATE " . BookPeer::TABLE_NAME . " SET "
-						. " publisher_id = " . $pub2->getId()
+		. " publisher_id = " . $pub2->getId()
 		. " WHERE id = " . $book->getId());
 
 
@@ -235,7 +251,7 @@ class GeneratedObjectTest extends BookstoreTestBase {
 		// Now let's set it back and also verify that reload() works ...
 
 		$con->exec("UPDATE " . BookPeer::TABLE_NAME . " SET "
-						. " publisher_id = " . $pub1->getId()
+		. " publisher_id = " . $pub1->getId()
 		. " WHERE id = " . $book->getId());
 
 		$book->reload();
@@ -431,7 +447,7 @@ class GeneratedObjectTest extends BookstoreTestBase {
 		$this->assertType('boolean', $r2->getRecommended(), "Expected getRecommended() to return a boolean.");
 		$this->assertType('Book', $r2->getBook(), "Expected getBook() to return a Book.");
 		$this->assertType('float', $r2->getBook()->getPrice(), "Expected Book->getPrice() to return a float.");
-		$this->assertType('PropelDateTime', $r2->getReviewDate(null), "Expected Book->getReviewDate() to return a DateTime.");
+		$this->assertType('DateTime', $r2->getReviewDate(null), "Expected Book->getReviewDate() to return a DateTime.");
 
 	}
 
@@ -575,6 +591,11 @@ class GeneratedObjectTest extends BookstoreTestBase {
 
 		$acct->setPassword("bar");
 		$this->assertFalse($acct->hasOnlyDefaultValues(), "Expected BookstoreEmployeeAccount to have at one non-default value after setting one value to non-default.");
+
+		// Test a default date/time value
+		$r = new Review();
+		$r->setReviewDate(new DateTime("now"));
+		$this->assertFalse($r->hasOnlyDefaultValues());
 	}
 
 	/**
@@ -740,16 +761,16 @@ class GeneratedObjectTest extends BookstoreTestBase {
 		$sale->setPublisher(null);
 		$this->assertEquals(null, $sale->getPublisherId(), "Expected BookstoreSale object to have reset to NULL publisher ID.");
 	}
-	
+
 	public function testCountRefFk()
 	{
 		$book = new Book();
 		$book->setTitle("Test Book");
 		$book->setISBN("TT-EE-SS-TT");
-		
+
 		$num = 5;
-		
-		for($i=2; $i < $num + 2; $i++) {
+
+		for ($i=2; $i < $num + 2; $i++) {
 			$r = new Review();
 			$r->setReviewedBy('Hans ' . $num);
 			$dt = new DateTime("now");
@@ -758,30 +779,60 @@ class GeneratedObjectTest extends BookstoreTestBase {
 			$r->setRecommended(($i % 2) == 0);
 			$book->addReview($r);
 		}
-		
+
 		$this->assertEquals($num, $book->countReviews(), "Expected countReviews to return $num");
 		$this->assertEquals($num, count($book->getReviews()), "Expected getReviews to return $num reviews");
-		
+
 		$book->save();
-		
+
 		BookPeer::clearInstancePool();
 		ReviewPeer::clearInstancePool();
-		
+
 		$book = BookPeer::retrieveByPK($book->getId());
 		$this->assertEquals($num, $book->countReviews(), "Expected countReviews() to return $num (after save)");
 		$this->assertEquals($num, count($book->getReviews()), "Expected getReviews() to return $num (after save)");
-		
+
 		// Now set different criteria and expect different results
 		$c = new Criteria();
 		$c->add(ReviewPeer::RECOMMENDED, false);
 		$this->assertEquals(floor($num/2), $book->countReviews($c), "Expected " . floor($num/2) . " results from countReviews(recomm=false)");
-		
+
 		// Change Criteria, run again -- expect different.
 		$c = new Criteria();
 		$c->add(ReviewPeer::RECOMMENDED, true);
 		$this->assertEquals(ceil($num/2), count($book->getReviews($c)), "Expected " . ceil($num/2) . " results from getReviews(recomm=true)");
-		
+
 		$this->assertEquals($num, $book->countReviews(), "Expected countReviews to return $num with new empty Criteria");
+	}
+
+	/**
+	 * Test copyInto method.
+	 */
+	public function testCopyInto_Deep()
+	{
+		// Test a "normal" object
+		$c = new Criteria();
+		$c->add(BookPeer::TITLE, 'Harry%', Criteria::LIKE);
+
+		$book = BookPeer::doSelectOne($c);
+		$reviews = $book->getReviews();
+
+		$b2 = $book->copy(true);
+		$this->assertType('Book', $b2);
+		$this->assertNull($b2->getId());
+
+		$r2 = $b2->getReviews();
+
+		$this->assertEquals(count($reviews), count($r2));
+
+		// Test a one-to-one object
+		$emp = BookstoreEmployeePeer::doSelectOne(new Criteria());
+		$e2 = $emp->copy(true);
+
+		$this->assertType('BookstoreEmployee', $e2);
+		$this->assertNull($e2->getId());
+
+		$this->assertEquals($emp->getBookstoreEmployeeAccount()->getLogin(), $e2->getBookstoreEmployeeAccount()->getLogin());
 	}
 
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5ComplexObjectBuilder.php 780 2007-11-06 20:41:55Z hans $
+ *  $Id: PHP5ComplexObjectBuilder.php 797 2007-11-09 19:21:21Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -53,7 +53,7 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 
 		foreach ($table->getReferrers() as $refFK) {
 			// if ($refFK->getTable()->getName() != $table->getName()) {
-				$this->addRefFKAttributes($script, $refFK);
+			$this->addRefFKAttributes($script, $refFK);
 			// }
 		}
 
@@ -361,7 +361,7 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 	 * Declares an association between this object and a $className object.
 	 *
 	 * @param      $className \$v
-	 * @return     void
+	 * @return     ".$this->getObjectClassname()." The current object (for fluent API support)
 	 * @throws     PropelException
 	 */
 	public function set".$this->getFKPhpNameAffix($fk, $plural = false)."($className \$v = null)
@@ -379,28 +379,35 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 		}
 ";
 
-			} /* foreach local col */
+		} /* foreach local col */
 
 		$script .= "
 		\$this->$varName = \$v;
 ";
-		// Now, we must check to see whether this foreign key represents a one-to-one
-		// relationship with the foreign object.
-		// If the foreign key is also the local primary key, then this is a one-to-one relationship
+
+		// Now add bi-directional relationship binding, taking into account whether this is
+		// a one-to-one relationship.
 
 		if ($fk->isLocalPrimaryKey()) {
-
 			$script .= "
-		// This foreign key represents a one-to-one relationship, since it is also the primary key,
-		// therefore, we will bind the relationship bi-directionally.
+		// Add binding for other direction of this 1:1 relationship.
 		if (\$v !== null) {
 			\$v->set".$this->getRefFKPhpNameAffix($fk, $plural = false)."(\$this);
 		}
 ";
-		} // if fk->isLocalPrimaryKey
+		} else {
+			$script .= "
+		// Add binding for other direction of this n:n relationship.
+		// If this object has already been added to the $className object, it will not be re-added.
+		if (\$v !== null) {
+			\$v->add".$this->getRefFKPhpNameAffix($fk, $plural = false)."(\$this);
+		}
+";
+
+		}
 
 		$script .= "
-
+		return \$this;
 	}
 ";
 	}
@@ -512,7 +519,7 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 	 * overridden in <code>".$table->getPhpName()."</code>.";
 		}
 		$script .= "
-	 * @return     void
+	 * @return     ".$this->getObjectClassname()." The current object (for fluent API support)
 	 * @throws     PropelException
 	 */
 	public function set".$methodAffix."Key(\$key)
@@ -538,6 +545,7 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 ";
 		}
 		$script .= "
+		return \$this;
 	}
 ";
 	} // addFKByKeyMutator()
@@ -588,7 +596,7 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 			$relCol2 = $this->getFKPhpNameAffix($fk2, $plural = false);
 
 			if ( $this->getRelatedBySuffix($refFK) != "" &&
-							($this->getRelatedBySuffix($refFK) == $this->getRelatedBySuffix($fk2))) {
+			($this->getRelatedBySuffix($refFK) == $this->getRelatedBySuffix($fk2))) {
 				$doJoinGet = false;
 			}
 
@@ -609,7 +617,7 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 	public function get".$relCol."Join".$relCol2."(\$criteria = null, \$con = null)
 	{
 		";
-		$script .= "
+				$script .= "
 		if (\$criteria === null) {
 			\$criteria = new Criteria();
 		}
@@ -785,9 +793,13 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 	 */
 	public function add".$this->getRefFKPhpNameAffix($refFK, $plural = false)."($className \$l)
 	{
-		\$this->$collName = (array) \$this->$collName;
-		array_push(\$this->$collName, \$l);
-		\$l->set".$this->getFKPhpNameAffix($refFK, $plural = false)."(\$this);
+		if (\$this->$collName === null) {
+			\$this->$collName = array();
+		}
+		if (!in_array(\$l, \$this->$collName, true)) { // only add it if the **same** object is not already associated
+			array_push(\$this->$collName, \$l);
+			\$l->set".$this->getFKPhpNameAffix($refFK, $plural = false)."(\$this);
+		}
 	}
 ";
 	} // addRefererAdd
@@ -819,20 +831,20 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 	public function count$relCol(Criteria \$criteria = null, \$distinct = false, PropelPDO \$con = null)
 	{
 		";
-		
+
 		$script .= "
 		if (\$criteria === null) {
 			\$criteria = new Criteria();
 		} else {
 			\$criteria = clone \$criteria;
 		}
-		
+
 		if (\$distinct) {
-			\$criteria->setDistinct();				
+			\$criteria->setDistinct();
 		}
-		
+
 		\$count = null;
-		
+
 		if (\$this->$collName === null) {
 			if (\$this->isNew()) {
 				\$count = 0;
@@ -869,7 +881,7 @@ class PHP5ComplexObjectBuilder extends PHP5BasicObjectBuilder {
 				\$criteria->add(".$fkPeerBuilder->getColumnConstant($colFK).", \$this->get".$localColumn->getPhpName()."());
 ";
 		} // foreach ($fk->getForeignColumns()
-$script .= "
+		$script .= "
 				if (!isset(\$this->$lastCriteriaName) || !\$this->".$lastCriteriaName."->equals(\$criteria)) {
 					\$count = ".$fkPeerBuilder->getPeerClassname()."::doCount(\$criteria, \$con);
 				} else {
@@ -962,8 +974,8 @@ $script .= "
 
 				\$criteria->add(".$fkPeerBuilder->getColumnConstant($colFK).", \$this->get".$localColumn->getPhpName()."());
 ";
-	} // foreach ($fk->getForeignColumns()
-$script .= "
+		} // foreach ($fk->getForeignColumns()
+		$script .= "
 				".$fkPeerBuilder->getPeerClassname()."::addSelectColumns(\$criteria);
 				if (!isset(\$this->$lastCriteriaName) || !\$this->".$lastCriteriaName."->equals(\$criteria)) {
 					\$this->$collName = ".$fkPeerBuilder->getPeerClassname()."::doSelect(\$criteria, \$con);
@@ -1053,6 +1065,7 @@ $script .= "
 	 * Sets a single $className object as related to this object by a one-to-one relationship.
 	 *
 	 * @param      $className \$l $className
+	 * @return     ".$this->getObjectClassname()." The current object (for fluent API support)
 	 * @throws     PropelException
 	 */
 	public function set".$this->getRefFKPhpNameAffix($refFK, $plural = false)."($className \$v)
@@ -1063,6 +1076,8 @@ $script .= "
 		if (\$v->get".$this->getFKPhpNameAffix($refFK, $plural = false)."() === null) {
 			\$v->set".$this->getFKPhpNameAffix($refFK, $plural = false)."(\$this);
 		}
+
+		return \$this;
 	}
 ";
 	} // addPKRefFKSet
@@ -1134,7 +1149,7 @@ $script .= "
 		expects to be passed a Criteria object that contains columns (which tell BasePeer
 		which table is being updated)
 		if ($table->hasAutoIncrementPrimaryKey()) {
-			$script .= " || \$this->isNew()";
+		$script .= " || \$this->isNew()";
 		}
 		*/
 
@@ -1533,13 +1548,26 @@ $script .= "
 				//HL: commenting out self-referrential check below
 				//		it seems to work as expected and is probably desireable to have those referrers from same table deep-copied.
 				//if ( $fk->getTable()->getName() != $table->getName() ) {
-				$script .= "
-			foreach (\$this->get".$this->getRefFKPhpNameAffix($fk, true)."() as \$relObj) {
-				if (\$relObj !== \$this) {  // ensure that we don't try to copy a reference to ourselves
-				\$copyObj->add".$this->getRefFKPhpNameAffix($fk)."(\$relObj->copy(\$deepCopy));
-			}
+
+				if ($fk->isLocalPrimaryKey()) {
+
+					$afx = $this->getRefFKPhpNameAffix($fk, $plural = false);
+					$script .= "
+			\$relObj = \$this->get$afx();
+			if (\$relObj) {
+				\$copyObj->set$afx(\$relObj->copy(\$deepCopy));
 			}
 ";
+				} else {
+
+					$script .= "
+			foreach (\$this->get".$this->getRefFKPhpNameAffix($fk, true)."() as \$relObj) {
+				if (\$relObj !== \$this) {  // ensure that we don't try to copy a reference to ourselves
+					\$copyObj->add".$this->getRefFKPhpNameAffix($fk)."(\$relObj->copy(\$deepCopy));
+				}
+			}
+";
+				}
 				// HL: commenting out close of self-referential check
 				// } /* if tblFK != table */
 			} /* foreach */

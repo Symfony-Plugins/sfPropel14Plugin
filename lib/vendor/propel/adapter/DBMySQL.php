@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: DBMySQL.php 771 2007-11-05 21:37:05Z hans $
+ *  $Id: DBMySQL.php 784 2007-11-08 10:15:50Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -27,7 +27,7 @@
  * @author     Jon S. Stevens <jon@clearink.com> (Torque)
  * @author     Brett McLaughlin <bmclaugh@algx.net> (Torque)
  * @author     Daniel Rall <dlr@finemaltcoding.com> (Torque)
- * @version    $Revision: 771 $
+ * @version    $Revision: 784 $
  * @package    propel.adapter
  */
 class DBMySQL extends DBAdapter {
@@ -159,7 +159,7 @@ class DBMySQL extends DBAdapter {
 			$sql .= " LIMIT " . $offset . ", 18446744073709551615";
 		}
 	}
-	
+
 	/**
 	 * @see        DBAdapter::random()
 	 */

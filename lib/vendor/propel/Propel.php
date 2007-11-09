@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Propel.php 718 2007-10-26 01:31:34Z heltem $
+ *  $Id: Propel.php 797 2007-11-09 19:21:21Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -37,7 +37,7 @@ require 'propel/util/PropelPDO.php';
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
  * @author     Henning P. Schmiedehausen <hps@intermeta.de> (Torque)
  * @author     Kurt Schrader <kschrader@karmalab.org> (Torque)
- * @version    $Revision: 718 $
+ * @version    $Revision: 797 $
  * @package    propel
  */
 class Propel
@@ -163,14 +163,14 @@ class Propel
 		'ValidatorMap' => 'propel/map/ValidatorMap.php',
 
 		'BaseObject' => 'propel/om/BaseObject.php',
-		'BaseNodeObject' => 'propel/om/BaseNodeObject.php',
+		'NodeObject' => 'propel/om/NodeObject.php',
 		'Persistent' => 'propel/om/Persistent.php',
 		'PreOrderNodeIterator' => 'propel/om/PreOrderNodeIterator.php',
 		'NestedSetPreOrderNodeIterator' => 'propel/om/NestedSetPreOrderNodeIterator.php',
 		'NestedSetRecursiveIterator' => 'propel/om/NestedSetRecursiveIterator.php',
 
 		'BasePeer' => 'propel/util/BasePeer.php',
-		'BaseNodePeer' => 'propel/util/BaseNodePeer.php',
+		'NodePeer' => 'propel/util/NodePeer.php',
 		'Criteria' => 'propel/util/Criteria.php',
 		'PeerInfo' => 'propel/util/PeerInfo.php',
 		'PropelColumnTypes' => 'propel/util/PropelColumnTypes.php',

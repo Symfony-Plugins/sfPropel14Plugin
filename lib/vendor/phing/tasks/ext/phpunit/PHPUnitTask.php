@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: PHPUnitTask.php 275 2007-10-31 08:01:03Z mrook $
+ * $Id: PHPUnitTask.php 306 2007-11-08 20:47:11Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -28,7 +28,7 @@ require_once 'phing/util/LogWriter.php';
  * Runs PHPUnit2/3 tests.
  *
  * @author Michiel Rook <michiel.rook@gmail.com>
- * @version $Id: PHPUnitTask.php 275 2007-10-31 08:01:03Z mrook $
+ * @version $Id: PHPUnitTask.php 306 2007-11-08 20:47:11Z hans $
  * @package phing.tasks.ext.phpunit
  * @see BatchTest
  * @since 2.1.0
@@ -105,7 +105,9 @@ class PHPUnitTask extends Task
 			require_once 'PHPUnit/Util/Filter.php';
 			
 			// point PHPUnit_MAIN_METHOD define to non-existing method
-			define('PHPUnit_MAIN_METHOD', 'PHPUnitTask::undefined');
+			if (!defined('PHPUnit_MAIN_METHOD')) {
+				define('PHPUnit_MAIN_METHOD', 'PHPUnitTask::undefined');
+			}
 			
 			PHPUnit_Util_Filter::addFileToFilter('PHPUnitTask.php', 'PHING');
 			PHPUnit_Util_Filter::addFileToFilter('PHPUnitTestRunner.php', 'PHING');
