@@ -1,6 +1,6 @@
 <?php
 
-require_once 'propel/engine/builder/om/php5/PHP5ComplexObjectBuilder.php';
+require_once 'propel/engine/builder/om/php5/PHP5ObjectBuilder.php';
 
 /*
  * This file is part of the symfony package.
@@ -16,7 +16,7 @@ require_once 'propel/engine/builder/om/php5/PHP5ComplexObjectBuilder.php';
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @version    SVN: $Id$
  */
-class SfObjectBuilder extends PHP5ComplexObjectBuilder
+class SfObjectBuilder extends PHP5ObjectBuilder
 {
   public function build()
   {
@@ -24,7 +24,7 @@ class SfObjectBuilder extends PHP5ComplexObjectBuilder
     {
       return sfToolkit::stripComments(parent::build());
     }
-    
+
     return parent::build();
   }
 

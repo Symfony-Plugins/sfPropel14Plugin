@@ -1,6 +1,6 @@
 <?php
 
-require_once 'propel/engine/builder/om/php5/PHP5ComplexPeerBuilder.php';
+require_once 'propel/engine/builder/om/php5/PHP5PeerBuilder.php';
 
 /*
  * This file is part of the symfony package.
@@ -16,7 +16,7 @@ require_once 'propel/engine/builder/om/php5/PHP5ComplexPeerBuilder.php';
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @version    SVN: $Id$
  */
-class SfPeerBuilder extends PHP5ComplexPeerBuilder
+class SfPeerBuilder extends PHP5PeerBuilder
 {
   public function build()
   {
@@ -267,7 +267,7 @@ class SfPeerBuilder extends PHP5ComplexPeerBuilder
 
     $script .= $tmp;
   }
-  
+
   protected function addDoSelectJoinAllExcept(&$script)
   {
     $tmp = '';
