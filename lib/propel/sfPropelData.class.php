@@ -397,7 +397,7 @@ class sfPropelData extends sfData
     // save to file(s)
     if ($sameFile)
     {
-      file_put_contents($directory_or_file, Spyc::YAMLDump($dumpData));
+      file_put_contents($directory_or_file, sfYaml::dump($dumpData));
     }
     else
     {
@@ -453,24 +453,30 @@ class sfPropelData extends sfData
 
     return $classes;
   }
-  
+
   protected function fixOrderingOfForeignKeyDataInSameTable($resultsSets, $tableName, $column, $in = null)
   {
-    $rs = $this->con->executeQuery(sprintf('SELECT * FROM %s WHERE %s %s',
-      constant($tableName.'Peer::TABLE_NAME'),
-      strtolower($column->getColumnName()),
-      is_null($in) ? 'IS NULL' : 'IN ('.$in.')'
-    ));
+    $stmt = $this->con->prepare('SELECT * FROM :table WHERE :column :where');
+    $stmt->bindValue(':table', constant($tableName.'Peer::TABLE_NAME'));
+    $stmt->bindValue(':column', strtolower($column->getColumnName()));
+    $stmt->bindValue(':where', is_null($in) ? 'IS NULL' : 'IN ('.$in.')');
+
+    $rs = $stmt->execute();
+
+    $first = null;
     $in = array();
-    while ($rs->next())
+    while ($row = $stmt->fetch())
     {
-      $in[] = "'".$rs->get(strtolower($column->getRelatedColumnName()))."'";
+      if(is_null($first))
+      {
+        $first = $row;
+      }
+      $in[] = "'".$row[strtolower($column->getRelatedColumnName())]."'";
     }
 
     if ($in = implode(', ', $in))
     {
-      $rs->seek(0);
-      $resultsSets[] = $rs;
+      $resultsSets[] = $first;
       $resultsSets = $this->fixOrderingOfForeignKeyDataInSameTable($resultsSets, $tableName, $column, $in);
     }
 
