@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: GeneratedPeerTest.php 784 2007-11-08 10:15:50Z heltem $
+ *  $Id: GeneratedPeerTest.php 804 2007-11-14 00:52:29Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -303,6 +303,37 @@ class GeneratedPeerTest extends BookstoreTestBase {
 		$this->assertEquals(count($books), count($joinBooks), "Expected to find same number of rows in doSelectJoin*() call as doSelect() call.");
 
 		$this->assertTrue($joinSize > $size, "Expected a serialized join object to be larger than a non-join object.");
+	}
+	
+	/**
+	 * Test the doSelectJoin*() methods when the related object is NULL.
+	 */
+	public function testDoSelectJoin_NullFk()
+	{
+		$b1 = new Book();
+		$b1->setTitle("Test NULLFK 1");
+		$b1->setISBN("NULLFK-1");
+		$b1->save();
+		
+		$b2 = new Book();
+		$b2->setTitle("Test NULLFK 2");
+		$b2->setISBN("NULLFK-2");
+		$b2->setAuthor(new Author());
+		$b2->getAuthor()->setFirstName("Hans")->setLastName("L");
+		$b2->save();
+		
+		BookPeer::clearInstancePool();
+		AuthorPeer::clearInstancePool();
+		
+		$c = new Criteria();
+		$c->add(BookPeer::ISBN, 'NULLFK-%', Criteria::LIKE);
+		$c->addAscendingOrderByColumn(BookPeer::ISBN);
+		
+		$matches = BookPeer::doSelectJoinAuthor($c);
+		$this->assertEquals(2, count($matches), "Expected 2 matches back from new books; got back " . count($matches));
+		
+		$this->assertNull($matches[0]->getAuthor(), "Expected first book author to be null");
+		$this->assertType('Author', $matches[1]->getAuthor(), "Expected valid Author object for second book.");
 	}
 
 	public function testObjectInstances()
