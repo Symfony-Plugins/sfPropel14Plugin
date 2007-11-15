@@ -11,7 +11,7 @@
 require_once(dirname(__FILE__).'/../../../../../../test/bootstrap/unit.php');
 set_include_path(sfConfig::get('sf_symfony_lib_dir').'/plugins/sfPropelPlugin/lib/vendor'.PATH_SEPARATOR.get_include_path());
 
-$t = new lime_test(2, new lime_output_color());
+$t = new lime_test(1, new lime_output_color());
 
 $p = new sfPropelDatabase();
 
