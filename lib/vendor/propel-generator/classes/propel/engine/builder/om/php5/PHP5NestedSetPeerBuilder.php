@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5NestedSetPeerBuilder.php 797 2007-11-09 19:21:21Z heltem $
+ *  $Id: PHP5NestedSetPeerBuilder.php 808 2007-11-15 10:24:57Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -383,6 +383,9 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 
 		// Update database nodes
 		self::shiftRLValues(\$node->getLeftValue(), 2, \$con, \$sidv);
+
+		// Update \$parent nodes properties recursively
+		self::shiftRParent(\$sibling->retrieveParent(), 2, \$con);
 	}
 ";
 	}
@@ -417,6 +420,9 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 
 		// Update database nodes
 		self::shiftRLValues(\$node->getLeftValue(), 2, \$con, \$sidv);
+
+		// Update \$parent nodes properties recursively
+		self::shiftRParent(\$sibling->retrieveParent(), 2, \$con);
 	}
 ";
 	}
@@ -427,7 +433,7 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 		$peerClassname = $this->getStubPeerBuilder()->getClassname();
 		$script .= "
 	/**
-	 * Inserts node as parent of given node.
+	 * Inserts \$parent as parent of given node.
 	 *
 	 * @param      $objectClassname \$parent	Propel object for given parent node
 	 * @param      $objectClassname \$node	Propel object for given destination node
@@ -455,7 +461,10 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 		\$parent->setParentNode(\$previous_parent);
 		\$node->setParentNode(\$parent);
 
-		\$node->save();
+		\$node->save(\$con);
+
+		// Update \$parent nodes properties recursively
+		self::shiftRParent(\$previous_parent, 2, \$con);
 	}
 ";
 	}
@@ -1393,6 +1402,7 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 			self::shiftRParent(\$parent, \$delta, \$con);
 		}
 		\$node->setRightValue(\$node->getRightValue() + \$delta);
+		\$node->save(\$con);
 	}
 ";
 	}
