@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: BookstoreDataPopulator.php 612 2007-03-27 09:39:00Z heltem $
+ *  $Id: BookstoreDataPopulator.php 812 2007-11-18 15:19:54Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -245,7 +245,6 @@ class BookstoreDataPopulator {
 	}
 
 	public static function depopulate() {
-
 		AuthorPeer::doDeleteAll();
 		BookPeer::doDeleteAll();
 		PublisherPeer::doDeleteAll();
@@ -254,6 +253,10 @@ class BookstoreDataPopulator {
 		BookClubListPeer::doDeleteAll();
 		BookstoreEmployeePeer::doDeleteAll();
 		BookstoreEmployeeAccountPeer::doDeleteAll();
+		CustomerPeer::doDeleteAll();
+		ContestPeer::doDeleteAll();
+		BookstoreContestPeer::doDeleteAll();
+		BookstoreContestEntryPeer::doDeleteAll();
 		BookstorePeer::doDeleteAll();
 	}
 

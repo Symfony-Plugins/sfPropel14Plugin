@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5ObjectBuilder.php 805 2007-11-15 00:05:30Z heltem $
+ *  $Id: PHP5ObjectBuilder.php 816 2007-11-18 23:29:44Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -416,14 +416,25 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 
 		$defaultfmt = null;
 
-		// these default values are based on the Creole defaults
-		// the date and time default formats are locale-sensitive
+		// Default date/time formatter strings are specified in build.properties
 		if ($col->getType() === PropelTypes::DATE) {
 			$defaultfmt = $this->getBuildProperty('defaultDateFormat');
 		} elseif ($col->getType() === PropelTypes::TIME) {
 			$defaultfmt = $this->getBuildProperty('defaultTimeFormat');
 		} elseif ($col->getType() === PropelTypes::TIMESTAMP) {
 			$defaultfmt = $this->getBuildProperty('defaultTimeStampFormat');
+		}
+
+		$handleMysqlDate = false;
+		if ($this->getPlatform() instanceof MysqlPlatform) {
+			if ($col->getType() === PropelTypes::TIMESTAMP) {
+				$handleMysqlDate = true;
+				$mysqlInvalidDateString = '0000-00-00 00:00:00';
+			} elseif ($col->getType() === PropelTypes::DATE) {
+				$handleMysqlDate = true;
+				$mysqlInvalidDateString = '0000-00-00';
+			}
+			// 00:00:00 is a valid time, so no need to check for that.
 		}
 
 		// if the default format property was an empty string, then we'll set it
@@ -445,10 +456,10 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 	 *							If format is NULL, then the raw ".($useDateTime ? 'DateTime object' : 'unix timestamp integer')." will be returned.";
 		if ($useDateTime) {
 			$script .= "
-	 * @return     mixed Formatted date/time value as string or DateTime object (if format is NULL).";
+	 * @return     mixed Formatted date/time value as string or DateTime object (if format is NULL), NULL if column is NULL" .($handleMysqlDate ? ', and 0 if column value is ' . $mysqlInvalidDateString : '');
 		} else {
 			$script .= "
-	 * @return     mixed Formatted date/time value as string or (integer) unix timestamp (if format is NULL).";
+	 * @return     mixed Formatted date/time value as string or (integer) unix timestamp (if format is NULL), NULL if column is NULL".($handleMysqlDate ? ', and 0 if column value is ' . $mysqlInvalidDateString : '');
 		}
 		$script .= "
 	 * @throws     PropelException - if unable to parse/validate the date/time value.
@@ -470,14 +481,35 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 			return null;
 		}
 
+";
+		if ($handleMysqlDate) {
+			$script .= "
+		if (\$this->$clo === '$mysqlInvalidDateString') {
+			\$dt = new DateTime('@0', new DateTimeZone('UTC'));
+			// We have to explicitly specify and then change the time zone because of a
+			// DateTime bug: http://bugs.php.net/bug.php?id=43003
+			\$dt->setTimeZone(new DateTimeZone(date_default_timezone_get()));
+		} else {
+			try {
+				\$dt = new DateTime(\$this->$clo);
+			} catch (Exception \$x) {
+				throw new PropelException(\"Internally stored date/time/timestamp value could not be converted to DateTime: \" . var_export(\$this->$clo, true), \$x);
+			}
+		}
+";
+		} else {
+			$script .= "
+
 		try {
 			\$dt = new DateTime(\$this->$clo);
 		} catch (Exception \$x) {
 			throw new PropelException(\"Internally stored date/time/timestamp value could not be converted to DateTime: \" . var_export(\$this->$clo, true), \$x);
 		}
-
-		if (\$format === null) {
 ";
+		} // if handleMyqlDate
+
+		$script .= "
+		if (\$format === null) {";
 		if ($useDateTime) {
 			$script .= "
 			// Because propel.useDateTimeClass is TRUE, we return a DateTime object.
@@ -655,16 +687,19 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 
 		if ($col->isForeignKey()) {
 
-			$tblFK = $table->getDatabase()->getTable($col->getRelatedTableName());
-			$colFK = $tblFK->getColumn($col->getRelatedColumnName());
+			foreach ($col->getForeignKeys() as $fk) {
 
-			$varName = $this->getFKVarName($col->getForeignKey());
+				$tblFK =  $table->getDatabase()->getTable($fk->getForeignTableName());
+				$colFK = $tblFK->getColumn($fk->getMappedForeignColumn($col->getName()));
 
-			$script .= "
+				$varName = $this->getFKVarName($fk);
+
+				$script .= "
 		if (\$this->$varName !== null && \$this->".$varName."->get".$colFK->getPhpName()."() !== \$v) {
 			\$this->$varName = null;
 		}
 ";
+			} // foreach fk
 		} /* if col is foreign key */
 
 		foreach ($col->getReferrers() as $refFK) {
@@ -673,20 +708,22 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 
 			if ( $tblFK->getName() != $table->getName() ) {
 
-				$tblFK = $table->getDatabase()->getTable($col->getRelatedTableName());
-				$colFK = $tblFK->getColumn($col->getRelatedColumnName());
+				foreach ($col->getForeignKeys() as $fk) {
 
-				if ($refFK->isLocalPrimaryKey()) {
-					$varName = $this->getPKRefFKVarName($refFK);
-					$script .= "
+					$tblFK = $table->getDatabase()->getTable($fk->getForeignTableName());
+					$colFK = $tblFK->getColumn($fk->getMappedForeignColumn($col->getName()));
+
+					if ($refFK->isLocalPrimaryKey()) {
+						$varName = $this->getPKRefFKVarName($refFK);
+						$script .= "
 		// update associated ".$tblFK->getPhpName()."
 		if (\$this->$varName !== null) {
 			\$this->{$varName}->set".$colFK->getPhpName()."(\$v);
 		}
 ";
-				} else {
-					$collName = $this->getRefFKCollVarName($refFK);
-					$script .= "
+					} else {
+						$collName = $this->getRefFKCollVarName($refFK);
+						$script .= "
 
 		// update associated ".$tblFK->getPhpName()."
 		if (\$this->$collName !== null) {
@@ -695,8 +732,8 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 			  }
 		  }
 ";
-				} // if (isLocalPrimaryKey
-
+					} // if (isLocalPrimaryKey
+				} // foreach col->getPrimaryKeys()
 			} // if tablFk != table
 
 		} // foreach
@@ -777,7 +814,10 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 			// validate it.
 			try {
 				if (is_numeric(\$v)) { // if it's a unix timestamp
-					\$dt = new DateTime('@'.\$v);
+					\$dt = new DateTime('@'.\$v, new DateTimeZone('UTC'));
+					// We have to explicitly specify and then change the time zone because of a
+					// DateTime bug: http://bugs.php.net/bug.php?id=43003
+					\$dt->setTimeZone(new DateTimeZone(date_default_timezone_get()));
 				} else {
 					\$dt = new DateTime(\$v);
 				}
@@ -1663,7 +1703,8 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 				throw $e;
 			}
 
-			if ($column->isMultipleFK() || $fk->getForeignTableName() == $fk->getTable()->getName()) {
+			if ( count($column->getTable()->getForeignKeysReferencingTable($fk->getForeignTableName())) > 1
+			|| $fk->getForeignTableName() == $fk->getTable()->getName()) {
 				// if there are seeral foreign keys that point to the same table
 				// then we need to generate methods like getAuthorRelatedByColName()
 				// instead of just getAuthor().  Currently we are doing the same
@@ -1993,22 +2034,6 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 
 		$lastTable = "";
 		foreach ($tblFK->getForeignKeys() as $fk2) {
-
-			// Add join methods if the fk2 table is not this table or
-			// the fk2 table references this table multiple times.
-
-			$doJoinGet = true;
-
-			if ( $fk2->getForeignTableName() == $table->getName() ) {
-				$doJoinGet = false;
-			}
-
-			foreach ($fk2->getLocalColumns() as $columnName) {
-				$column = $tblFK->getColumn($columnName);
-				if ($column->isMultipleFK()) {
-					$doJoinGet = true;
-				}
-			}
 
 			$tblFK2 = $this->getForeignTable($fk2);
 			$doJoinGet = !$tblFK2->isForReferenceOnly();
@@ -2867,17 +2892,18 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 			$clo=strtolower($col->getName());
 
 			if ($col->isForeignKey()) {
+				foreach ($col->getForeignKeys() as $fk) {
 
-				$tblFK = $table->getDatabase()->getTable($col->getRelatedTableName());
-				$colFK = $tblFK->getColumn($col->getRelatedColumnName());
+					$tblFK = $table->getDatabase()->getTable($fk->getForeignTableName());
+					$colFK = $tblFK->getColumn($fk->getMappedForeignColumn($col->getName()));
+					$varName = $this->getFKVarName($fk);
 
-				$varName = $this->getFKVarName($col->getForeignKey());
-
-				$script .= "
+					$script .= "
 		if (\$this->".$varName." !== null && \$this->$clo !== \$this->".$varName."->get".$colFK->getPhpName()."()) {
 			\$this->$varName = null;
 		}
 	";
+				} // foraech
 			} /* if col is foreign key */
 
 		} // foreach

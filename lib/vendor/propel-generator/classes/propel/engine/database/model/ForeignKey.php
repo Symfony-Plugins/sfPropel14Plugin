@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: ForeignKey.php 521 2007-01-05 13:29:36Z heltem $
+ *  $Id: ForeignKey.php 816 2007-11-18 23:29:44Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -27,7 +27,7 @@ require_once 'propel/engine/database/model/XMLElement.php';
  * @author     Hans Lellelid <hans@xmpl.org>
  * @author     Fedor <fedor.karpelevitch@home.com>
  * @author     Daniel Rall <dlr@finemaltcoding.com>
- * @version    $Revision: 521 $
+ * @version    $Revision: 816 $
  * @package    propel.engine.database.model
  */
 class ForeignKey extends XMLElement {
@@ -260,8 +260,8 @@ class ForeignKey extends XMLElement {
 	}
 
 	/**
-	 * Return an array of local column names.
-	 * @return     array string[]
+	 * Return an array of local column objects.
+	 * @return     array Column[]
 	 */
 	public function getLocalColumns()
 	{
@@ -282,8 +282,34 @@ class ForeignKey extends XMLElement {
 	}
 
 	/**
-	 * Return an array of foreign column names.
-	 * @return     array string[]
+	 * Get the foreign column mapped to specified local column.
+	 * @return     string Column name.
+	 */
+	public function getMappedForeignColumn($local)
+	{
+		$m = $this->getLocalForeignMapping();
+		if (isset($m[$local])) {
+			return $m[$local];
+		}
+		return null;
+	}
+
+	/**
+	 * Get the local column mapped to specified foreign column.
+	 * @return     string Column name.
+	 */
+	public function getMappedLocalColumn($foreign)
+	{
+		$m = $this->getForeignLocalMapping();
+		if (isset($m[$foreign])) {
+			return $m[$foreign];
+		}
+		return null;
+	}
+
+	/**
+	 * Return an array of foreign column objects.
+	 * @return     array Column[]
 	 */
 	public function getForeignColumns()
 	{

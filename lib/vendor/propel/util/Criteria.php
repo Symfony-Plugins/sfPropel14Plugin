@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Criteria.php 809 2007-11-16 00:13:50Z hans $
+ *  $Id: Criteria.php 816 2007-11-18 23:29:44Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -32,7 +32,7 @@
  * @author     Eric Dobbs <eric@dobbse.net> (Torque)
  * @author     Henning P. Schmiedehausen <hps@intermeta.de> (Torque)
  * @author     Sam Joseph <sam@neurogrid.com> (Torque)
- * @version    $Revision: 809 $
+ * @version    $Revision: 816 $
  * @package    propel.util
  */
 class Criteria implements IteratorAggregate {
@@ -324,7 +324,7 @@ class Criteria implements IteratorAggregate {
 	}
 
 	/**
-	 * Whether the sql command specified by this criteria must be wrapped 
+	 * Whether the sql command specified by this criteria must be wrapped
 	 * in a transaction.
 	 *
 	 * @return     boolean
@@ -689,7 +689,7 @@ class Criteria implements IteratorAggregate {
 	/**
 	 * Set offset.
 	 *
-	 * @param      int $offset An int with the value for offset.  (Note this values is 
+	 * @param      int $offset An int with the value for offset.  (Note this values is
 	 * 							cast to a 32bit integer and may result in truncatation)
 	 * @return     Criteria Modified Criteria object (for fluent API)
 	 */

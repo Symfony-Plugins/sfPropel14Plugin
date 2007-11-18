@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5MapBuilderBuilder.php 710 2007-10-18 16:39:15Z hans $
+ *  $Id: PHP5MapBuilderBuilder.php 816 2007-11-18 23:29:44Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -248,9 +248,11 @@ class ".$this->getClassname()." implements MapBuilder {
 			}
 			if ($col->isPrimaryKey()) {
 				if ($col->isForeignKey()) {
-					$script .= "
-		\$tMap->addForeignPrimaryKey('$cup', '$cfc', '".$col->getType()."' , '".$col->getRelatedTableName()."', '".strtoupper($col->getRelatedColumnName())."', ".($col->isNotNull() ? 'true' : 'false').", ".$size.");
+					foreach ($col->getForeignKeys() as $fk) {
+						$script .= "
+		\$tMap->addForeignPrimaryKey('$cup', '$cfc', '".$col->getType()."' , '".$fk->getForeignTableName()."', '".strtoupper($fk->getMappedForeignColumn($col->getName()))."', ".($col->isNotNull() ? 'true' : 'false').", ".$size.");
 ";
+					}
 				} else {
 					$script .= "
 		\$tMap->addPrimaryKey('$cup', '$cfc', '".$col->getType()."', ".var_export($col->isNotNull(), true).", ".$size.");
@@ -258,9 +260,11 @@ class ".$this->getClassname()." implements MapBuilder {
 				}
 			} else {
 				if ($col->isForeignKey()) {
-					$script .= "
-		\$tMap->addForeignKey('$cup', '$cfc', '".$col->getType()."', '".$col->getRelatedTableName()."', '".strtoupper($col->getRelatedColumnName())."', ".($col->isNotNull() ? 'true' : 'false').", ".$size.");
+					foreach ($col->getForeignKeys() as $fk) {
+						$script .= "
+		\$tMap->addForeignKey('$cup', '$cfc', '".$col->getType()."', '".$fk->getForeignTableName()."', '".strtoupper($fk->getMappedForeignColumn($col->getName()))."', ".($col->isNotNull() ? 'true' : 'false').", ".$size.");
 ";
+					}
 			} else {
 					$script .= "
 		\$tMap->addColumn('$cup', '$cfc', '".$col->getType()."', ".var_export($col->isNotNull(), true).", ".$size.");

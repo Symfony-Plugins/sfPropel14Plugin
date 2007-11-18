@@ -9,7 +9,7 @@ include_once 'propel/util/BasePeer.php';
  *
  * @author     <a href="mailto:celkins@scardini.com">Christopher Elkins</a>
  * @author     <a href="mailto:sam@neurogrid.com">Sam Joseph</a>
- * @version    $Id: CriteriaTest.php 718 2007-10-26 01:31:34Z heltem $
+ * @version    $Id: CriteriaTest.php 816 2007-11-18 23:29:44Z heltem $
  */
 class CriteriaTest extends BaseTestCase {
 
@@ -23,6 +23,7 @@ class CriteriaTest extends BaseTestCase {
 	{
 		parent::setUp();
 		$this->c = new Criteria();
+		Propel::setDB(null, new DBSQLite());
 	}
 
 	/**
@@ -216,25 +217,33 @@ class CriteriaTest extends BaseTestCase {
 	 */
 	public function testCriterionIgnoreCase()
 	{
-		$myCriteria = new Criteria();
+		$adapters = array(new DBMySQL(), new DBPostgres());
+		$expectedIgnore = array("UPPER(TABLE.COLUMN) LIKE UPPER(?)", "TABLE.COLUMN ILIKE ?");
 
-		$myCriterion = $myCriteria->getNewCriterion(
-				"TABLE.COLUMN", "FoObAr", Criteria::LIKE);
-		$sb = "";
-		$params=array();
-		$myCriterion->appendPsTo($sb, $params);
-		$expected = "TABLE.COLUMN LIKE ?";
+		$i =0;
+		foreach ($adapters as $adapter) {
 
-		$this->assertEquals($expected, $sb);
+			Propel::setDB(null, $adapter);
+			$myCriteria = new Criteria();
 
-		$ignoreCriterion = $myCriterion->setIgnoreCase(true);
+			$myCriterion = $myCriteria->getNewCriterion(
+					"TABLE.COLUMN", "FoObAr", Criteria::LIKE);
+			$sb = "";
+			$params=array();
+			$myCriterion->appendPsTo($sb, $params);
+			$expected = "TABLE.COLUMN LIKE ?";
 
-		$sb = "";
-		$params=array();
-		$ignoreCriterion->appendPsTo($sb, $params);
-		$expected = "UPPER(TABLE.COLUMN) LIKE UPPER(?)";
-		$this->assertEquals($expected, $sb);
+			$this->assertEquals($expected, $sb);
 
+			$ignoreCriterion = $myCriterion->setIgnoreCase(true);
+
+			$sb = "";
+			$params=array();
+			$ignoreCriterion->appendPsTo($sb, $params);
+			// $expected = "UPPER(TABLE.COLUMN) LIKE UPPER(?)";
+			$this->assertEquals($expectedIgnore[$i], $sb);
+			$i++;
+		}
 	}
 
 	/**
@@ -523,8 +532,8 @@ class CriteriaTest extends BaseTestCase {
 
 		$result = BasePeer::createSelectSql($c, $params=array());
 
-		print $result . "\n";
-
+		print "Actual:   " . $result . "\n---\n";
+		print "Expected: " . $expect . "\n";
 
 		$this->assertEquals($expect, $result);
 	}

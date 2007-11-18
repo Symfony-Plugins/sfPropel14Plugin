@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PropelGraphvizTask.php 521 2007-01-05 13:29:36Z heltem $
+ *  $Id: PropelGraphvizTask.php 812 2007-11-18 15:19:54Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -27,7 +27,7 @@ include_once 'propel/engine/database/model/AppData.php';
  * A task to generate Graphviz dot files from Propel datamodel.
  *
  * @author     Mark Kimsal
- * @version    $Revision: 521 $
+ * @version    $Revision: 812 $
  * @package    propel.phing
  */
 class PropelGraphvizTask extends AbstractPropelDataModelTask {
@@ -127,7 +127,7 @@ class PropelGraphvizTask extends AbstractPropelDataModelTask {
 
 					foreach ($tbl->getColumns() as $col) {
 						$dotSyntax .= $col->getName() . ' (' . $col->getType()  . ')';
-						if ($col->getForeignKey() != null ) {
+						if (count($col->getForeignKeys()) > 0) {
 							$dotSyntax .= ' [FK]';
 						} elseif ($col->isPrimaryKey()) {
 							$dotSyntax .= ' [PK]';

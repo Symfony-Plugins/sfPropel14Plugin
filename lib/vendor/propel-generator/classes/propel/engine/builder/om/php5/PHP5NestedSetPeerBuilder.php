@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5NestedSetPeerBuilder.php 808 2007-11-15 10:24:57Z heltem $
+ *  $Id: PHP5NestedSetPeerBuilder.php 811 2007-11-18 14:48:05Z david $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -634,7 +634,7 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 	 */
 	public static function moveToPrevSiblingOf(NodeObject \$dest, NodeObject \$node, PropelPDO \$con = null)
 	{
-		if (\$parent->getScopeIdValue() != \$child->getScopeIdValue()) {
+		if (\$dest->getScopeIdValue() != \$node->getScopeIdValue()) {
 			throw new PropelException('Moving nodes across trees is not supported');
 		}
 		\$destLeft = \$dest->getLeftValue();
@@ -658,7 +658,7 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 	 */
 	public static function moveToNextSiblingOf(NodeObject \$dest, NodeObject \$node, PropelPDO \$con = null)
 	{
-		if (\$parent->getScopeIdValue() != \$child->getScopeIdValue()) {
+		if (\$dest->getScopeIdValue() != \$node->getScopeIdValue()) {
 			throw new PropelException('Moving nodes across trees is not supported');
 		}
 		\$destLeft = \$dest->getRightValue();

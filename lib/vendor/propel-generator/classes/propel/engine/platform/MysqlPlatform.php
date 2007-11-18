@@ -26,7 +26,7 @@ require_once 'propel/engine/platform/DefaultPlatform.php';
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
- * @version    $Revision: 731 $
+ * @version    $Revision: 816 $
  * @package    propel.engine.platform
  */
 class MysqlPlatform extends DefaultPlatform {
@@ -106,5 +106,14 @@ class MysqlPlatform extends DefaultPlatform {
 	public function quoteIdentifier($text)
 	{
 		return '`' . $text . '`';
+	}
+
+	/**
+	 * Gets the preferred timestamp formatter for setting date/time values.
+	 * @return     string
+	 */
+	public function getTimestampFormatter()
+	{
+		return 'Y-m-d H:i:s';
 	}
 }
