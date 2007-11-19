@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: BookstoreTestBase.php 816 2007-11-18 23:29:44Z heltem $
+ *  $Id: BookstoreTestBase.php 818 2007-11-19 01:13:05Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -30,7 +30,7 @@ abstract class BookstoreTestBase extends PHPUnit_Framework_TestCase {
 	/**
 	 * This is run before each unit test; it populates the database.
 	 */
-	public function setUp()
+	protected function setUp()
 	{
 		parent::setUp();
 		BookstoreDataPopulator::depopulate();
@@ -40,7 +40,7 @@ abstract class BookstoreTestBase extends PHPUnit_Framework_TestCase {
 	/**
 	 * This is run after each unit test.  It empties the database.
 	 */
-	public function tearDown()
+	protected function tearDown()
 	{
 
 		BookstoreDataPopulator::depopulate();
