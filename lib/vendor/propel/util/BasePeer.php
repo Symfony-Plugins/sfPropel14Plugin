@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: BasePeer.php 657 2007-06-20 17:25:02Z hans $
+ *  $Id: BasePeer.php 821 2007-11-20 12:47:17Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -34,7 +34,7 @@
  * @author     John D. McNally <jmcnally@collab.net> (Torque)
  * @author     Brett McLaughlin <bmclaugh@algx.net> (Torque)
  * @author     Stephen Haberman <stephenh@chase3000.com> (Torque)
- * @version    $Revision: 657 $
+ * @version    $Revision: 821 $
  * @package    propel.util
  */
 class BasePeer
@@ -759,55 +759,6 @@ class BasePeer
 				}
 			}
 		}
-/*
-				// Old Code.
-				$joins =& $criteria->getJoins();
-				if (!empty($joins)) {
-					for ($i=0, $joinSize=count($joins); $i < $joinSize; $i++) {
-						$join =& $joins[$i];
-						$join1 = $join->getLeftColumn();
-						$join2 = $join->getRightColumn();
-
-						$tableName = substr($join1, 0, strpos($join1, '.'));
-						$table = $criteria->getTableForAlias($tableName);
-						if ($table !== null) {
-							$fromClause[] = $table . ' ' . $tableName;
-						} else {
-							$fromClause[] = $tableName;
-						}
-
-						$dot = strpos($join2, '.');
-						$tableName = substr($join2, 0, $dot);
-						$table = $criteria->getTableForAlias($tableName);
-						if ($table !== null) {
-							$fromClause[] = $table . ' ' . $tableName;
-						} else {
-							$fromClause[] = $tableName;
-							$table = $tableName;
-						}
-						$ignoreCase = ($criteria->isIgnoreCase() && ($dbMap->getTable($table)->getColumn(substr($join2, $dot + 1))->getType() == "string"));
-						if ($ignoreCase) {
-							$whereClause[] = $db->ignoreCase($join1) . '=' . $db->ignoreCase($join2);
-						} else {
-							$whereClause[] = $join1 . '=' . $join2;
-						}
-					if ($join->getJoinType()) {
-							$leftTable = $fromClause[count($fromClause) - 2];
-							$rightTable = $fromClause[count($fromClause) - 1];
-							$onClause = $whereClause[count($whereClause) - 1];
-							unset($whereClause[count($whereClause) - 1]);
-							$fromClause [] = $leftTable . ' ' . $join->getJoinType() . ' ' . $rightTable . ' ON ' . $onClause;
-
-							// remove all references to joinTables made by selectColumns, criteriaColumns
-							for ($i = 0, $fromClauseSize=count($fromClause); $i < $fromClauseSize; $i++) {
-								if ($fromClause[$i] == $leftTable || $fromClause[$i] == $rightTable) {
-									unset($fromClause[$i]);
-								}
-							}
-						} // If join type
-					} // Join for loop
-				} // If Joins
-*/
 
 		// Add the GROUP BY columns
 		$groupByClause = $groupBy;
@@ -865,8 +816,8 @@ class BasePeer
 				}
 
 				$column = $tableName ? $dbMap->getTable($tableName)->getColumn($columnName) : null;
-
-				if ($column && $column->getType() == 'string') {
+				
+				if ($column && $column->isText()) {
 					$orderByClause[] = $db->ignoreCaseInOrderBy("$tableAlias.$columnAlias") . $direction;
 					$selectClause[] = $db->ignoreCaseInOrderBy("$tableAlias.$columnAlias");
 				}
