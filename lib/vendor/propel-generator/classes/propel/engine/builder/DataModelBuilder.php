@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: DataModelBuilder.php 602 2007-03-07 17:52:53Z hans $
+ *  $Id: DataModelBuilder.php 820 2007-11-20 02:49:05Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -75,7 +75,7 @@ abstract class DataModelBuilder {
 
 	/**
 	 * Imports and returns the classname of the builder class for specified 'type'.
-	 * @param      $type The "key" for class to load.
+	 * @param      string $type The "key" for class to load.
 	 * @return     string The unqualified classname.
 	 */
 	public static function getBuilderClass($type)

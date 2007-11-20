@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: OMBuilder.php 563 2007-02-01 09:45:55Z heltem $
+ *  $Id: OMBuilder.php 820 2007-11-20 02:49:05Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -111,7 +111,13 @@ abstract class OMBuilder extends DataModelBuilder {
 	 * @var        DataModelBuilder
 	 */
 	private $nestedSetPeerBuilder;
-
+	
+	/**
+	 * The Pluralizer class to use.
+	 * @var        Pluralizer
+	 */
+	private $pluralizer;
+	
 	/**
 	 * Returns new or existing Peer builder class for this table.
 	 * @return     DataModelBuilder
@@ -123,7 +129,20 @@ abstract class OMBuilder extends DataModelBuilder {
 		}
 		return $this->peerBuilder;
 	}
-
+	
+	/**
+	 * Returns new or existing Pluralizer class.
+	 * @return     Pluralizer
+	 */
+	public function getPluralizer()
+	{
+		if (!isset($this->pluralizer)) {
+			$classname = self::getBuilderClass('pluralizer');
+			$this->pluralizer = new $classname();
+		}
+		return $this->pluralizer;
+	}
+	
 	/**
 	 * Returns new or existing stub Peer builder class for this table.
 	 * @return     DataModelBuilder
