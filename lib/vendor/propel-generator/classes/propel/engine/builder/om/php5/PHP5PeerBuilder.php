@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5PeerBuilder.php 805 2007-11-15 00:05:30Z heltem $
+ *  $Id: PHP5PeerBuilder.php 830 2007-11-22 04:53:04Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -1214,30 +1214,27 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 			// primary key is composite; we therefore, expect
 			// the primary key passed to be an array of pkey
 			// values
-			if (count(\$values) == count(\$values, COUNT_RECURSIVE))
-			{
+			if (count(\$values) == count(\$values, COUNT_RECURSIVE)) {
 				// array is not multi-dimensional
 				\$values = array(\$values);
 			}
-			\$vals = array();
-			foreach (\$values as \$value)
-			{
+			
+			foreach (\$values as \$value) {
 ";
 			$i=0;
 			foreach ($table->getPrimaryKey() as $col) {
-				$script .= "
-				\$vals[$i][] = \$value[$i];";
+				if ($i == 0) {
+					$script .= "
+				\$criterion = \$criteria->getNewCriterion(".$this->getColumnConstant($col).", \$value[$i]);";
+				} else {
+					$script .= "
+				\$criterion->addAnd(\$criteria->getNewCriterion(".$this->getColumnConstant($col).", \$value[$i]));";
+				}
 				$i++;
 			}
 			$script .= "
-			}
-";
-			$i=0;
-			foreach ($table->getPrimaryKey() as $col) {
-				$script .= "
-			\$criteria->add(".$this->getColumnConstant($col).", \$vals[$i], Criteria::IN);";
-				$i++;
-			}
+				\$criteria->addOr(\$criterion);
+			}";
 		} /* if count(table->getPrimaryKeys()) */
 
 		$script .= "
@@ -1773,7 +1770,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 			foreach ($table->getForeignKeys() as $fk) {
 
 				$joinTable = $table->getDatabase()->getTable($fk->getForeignTableName());
-
+				
 				if (!$joinTable->isForReferenceOnly()) {
 
 					// FIXME - look into removing this next condition; it may not
@@ -1861,13 +1858,13 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 
 						$script .= "
 					\$cls = substr('.'.\$omClass, strrpos('.'.\$omClass, '.') + 1);
-				" . $this->buildObjectInstanceCreationCode('$obj2', '$cls') . "
+					" . $this->buildObjectInstanceCreationCode('$obj2', '$cls') . "
 					\$obj2->hydrate(\$row, \$startcol);
-				".$joinedTablePeerBuilder->getPeerClassname()."::addInstanceToPool(\$obj2, \$key2);
+					".$joinedTablePeerBuilder->getPeerClassname()."::addInstanceToPool(\$obj2, \$key2);
 				} // if obj2 already loaded
-
-				// Add the \$obj1 (".$this->getObjectClassname().") to the collection in \$obj2 (".$joinedTablePeerBuilder->getObjectClassname().")
-				\$obj2->add".$joinedTableObjectBuilder->getRefFKPhpNameAffix($fk, $plural = false)."(\$obj1);
+				
+				// Add the \$obj1 (".$this->getObjectClassname().") to \$obj2 (".$joinedTablePeerBuilder->getObjectClassname().")
+				\$obj2->".($fk->isLocalPrimaryKey() ? 'set' : 'add') . $joinedTableObjectBuilder->getRefFKPhpNameAffix($fk, $plural = false)."(\$obj1);
 
 			} // if joined row was not null
 
@@ -2006,7 +2003,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 
 				$script .= "
 		".$joinedTablePeerBuilder->getPeerClassname()."::addSelectColumns(\$c);
-		\$startcol$new_index = \$startcol$index + ".$joinedTablePeerBuilder->getPeerClassname()."::NUM_COLUMNS;
+		\$startcol$new_index = \$startcol$index + (".$joinedTablePeerBuilder->getPeerClassname()."::NUM_COLUMNS - ".$joinedTablePeerBuilder->getPeerClassname()."::NUM_LAZY_LOAD_COLUMNS);
 ";
 				$index = $new_index;
 
@@ -2107,7 +2104,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 				} // if obj$index loaded
 
 				// Add the \$obj1 (".$this->getObjectClassname().") to the collection in \$obj".$index." (".$joinedTablePeerBuilder->getObjectClassname().")
-				\$obj".$index."->add".$joinedTableObjectBuilder->getRefFKPhpNameAffix($fk, $plural = false)."(\$obj1);
+				\$obj".$index."->".($fk->isLocalPrimaryKey() ? 'set' : 'add') . $joinedTableObjectBuilder->getRefFKPhpNameAffix($fk, $plural = false)."(\$obj1);
 			} // if joined row not null
 ";
 
@@ -2258,7 +2255,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 						$new_index = $index + 1;
 						$script .= "
 		".$joinTablePeerBuilder->getPeerClassname()."::addSelectColumns(\$c);
-		\$startcol$new_index = \$startcol$index + ".$joinTablePeerBuilder->getPeerClassname()."::NUM_COLUMNS;
+		\$startcol$new_index = \$startcol$index + (".$joinTablePeerBuilder->getPeerClassname()."::NUM_COLUMNS - ".$joinTablePeerBuilder->getPeerClassname()."::NUM_LAZY_LOAD_COLUMNS);
 ";
 						$index = $new_index;
 					} // if joinClassName not excludeClassName
@@ -2361,7 +2358,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 				} // if \$obj$index already loaded
 
 				// Add the \$obj1 (".$this->getObjectClassname().") to the collection in \$obj".$index." (".$joinedTablePeerBuilder->getObjectClassname().")
-				\$obj".$index."->add".$joinedTableObjectBuilder->getRefFKPhpNameAffix($fk, $plural = false)."(\$obj1);
+				\$obj".$index."->".($fk->isLocalPrimaryKey() ? 'set' : 'add') . $joinedTableObjectBuilder->getRefFKPhpNameAffix($fk, $plural = false)."(\$obj1);
 
 			} // if joined row is not null
 ";

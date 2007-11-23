@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: BookstoreDataPopulator.php 812 2007-11-18 15:19:54Z hans $
+ *  $Id: BookstoreDataPopulator.php 830 2007-11-22 04:53:04Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -220,15 +220,18 @@ class BookstoreDataPopulator {
 		$bemp2->setName("Pieter");
 		$bemp2->setJobTitle("Clerk");
 		$bemp2->setSupervisor($bemp1);
-
 		$bemp2->save();
 
+		$role = new AcctAccessRole();
+		$role->setName("Admin");
+		
 		$bempacct = new BookstoreEmployeeAccount();
 		$bempacct->setBookstoreEmployee($bemp1);
+		$bempacct->setAcctAccessRole($role);
 		$bempacct->setLogin("john");
 		$bempacct->setPassword("johnp4ss");
 		$bempacct->save();
-
+		
 		// Add bookstores
 
 		$store = new Bookstore();

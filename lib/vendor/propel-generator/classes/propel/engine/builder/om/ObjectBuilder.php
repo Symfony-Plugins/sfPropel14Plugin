@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: ObjectBuilder.php 621 2007-04-23 09:42:26Z heltem $
+ *  $Id: ObjectBuilder.php 827 2007-11-22 03:37:57Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -31,6 +31,7 @@ require_once 'propel/engine/builder/om/OMBuilder.php';
  * methods.
  *
  * @author     Hans Lellelid <hans@xmpl.org>
+ * @package    propel.engine.builder.om
  */
 abstract class ObjectBuilder extends OMBuilder {
 

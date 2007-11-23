@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: GeneratedPeerTest.php 805 2007-11-15 00:05:30Z heltem $
+ *  $Id: GeneratedPeerTest.php 830 2007-11-22 04:53:04Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -465,6 +465,115 @@ class GeneratedPeerTest extends BookstoreTestBase {
 		} catch (Exception $x) {
 			$this->fail("Expected to get no exception when removing an instance from the pool.");
 		}
+	}
+	
+	/**
+	 * @see        testDoDeleteCompositePK()
+	 */
+	private function createBookWithId($id)
+	{
+		$con = Propel::getConnection(BookPeer::DATABASE_NAME);
+		$b = BookPeer::retrieveByPK($id);
+		if (!$b) {
+			$b = new Book();
+			$b->setTitle("Book$id")->setISBN("BookISBN$id")->save();
+			$b1Id = $b->getId();
+			$sql = "UPDATE " . BookPeer::TABLE_NAME . " SET id = ? WHERE id = ?";
+			$stmt = $con->prepare($sql);
+			$stmt->bindValue(1, $id);
+			$stmt->bindValue(2, $b1Id);
+			$stmt->execute();
+		}
+	}
+	
+	/**
+	 * @see        testDoDeleteCompositePK()
+	 */
+	private function createReaderWithId($id)
+	{
+		$con = Propel::getConnection(BookReaderPeer::DATABASE_NAME);
+		$r = BookReaderPeer::retrieveByPK($id);
+		if (!$r) {
+			$r = new BookReader();
+			$r->setName('Reader'.$id)->save();
+			$r1Id = $r->getId();
+			$sql = "UPDATE " . BookReaderPeer::TABLE_NAME . " SET id = ? WHERE id = ?";
+			$stmt = $con->prepare($sql);
+			$stmt->bindValue(1, $id);
+			$stmt->bindValue(2, $r1Id);
+			$stmt->execute();
+		}
+	}
+	
+	/**
+	 * @link       http://propel.phpdb.org/trac/ticket/519
+	 */
+	public function testDoDeleteCompositePK()
+	{
+		$con = Propel::getConnection(BookPeer::DATABASE_NAME);
+		
+		ReaderFavoritePeer::doDeleteAll();
+		// Create book and reader with ID 1
+		// Create book and reader with ID 2
+		
+		$this->createBookWithId(1);
+		$this->createBookWithId(2);
+		$this->createReaderWithId(1);
+		$this->createReaderWithId(2);
+		
+		for($i=1; $i <= 2; $i++) {
+			for($j=1; $j <= 2; $j++) {
+				$rf = new ReaderFavorite();
+				$rf->setBookId($i);
+				$rf->setReaderId($j);
+				$rf->save();
+			}
+		}
+
+		$this->assertEquals(4, ReaderFavoritePeer::doCount(new Criteria()));
+		
+		// Now delete 2 of those rows 
+		ReaderFavoritePeer::doDelete(array(array(1,1), array(2,2)));
+		
+		$this->assertEquals(2, ReaderFavoritePeer::doCount(new Criteria()));
+		
+		$this->assertNotNull(ReaderFavoritePeer::retrieveByPK(2,1));
+		$this->assertNotNull(ReaderFavoritePeer::retrieveByPK(1,2));
+		$this->assertNull(ReaderFavoritePeer::retrieveByPK(1,1));
+		$this->assertNull(ReaderFavoritePeer::retrieveByPK(2,2));
+	}
+	
+	
+	/**
+	 * Test hydration of joined rows that contain lazy load columns.
+	 * @link       http://propel.phpdb.org/trac/ticket/464
+	 */
+	public function testHydrationJoinLazyLoad()
+	{
+		BookstoreEmployeeAccountPeer::doDeleteAll();
+		BookstoreEmployeePeer::doDeleteAll();
+		AcctAccessRolePeer::doDeleteAll();
+
+		$bemp2 = new BookstoreEmployee();
+		$bemp2->setName("Pieter");
+		$bemp2->setJobTitle("Clerk");
+		$bemp2->save();
+		
+		$role = new AcctAccessRole();
+		$role->setName("Admin");
+		
+		$bempacct = new BookstoreEmployeeAccount();
+		$bempacct->setBookstoreEmployee($bemp2);
+		$bempacct->setAcctAccessRole($role);
+		$bempacct->setLogin("john");
+		$bempacct->setPassword("johnp4ss");
+		$bempacct->save();
+		
+		$c = new Criteria();
+		$results = BookstoreEmployeeAccountPeer::doSelectJoinAll($c);
+		$o = $results[0];
+		
+		$this->assertEquals('Admin', $o->getAcctAccessRole()->getName());
 	}
 
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PeerBuilder.php 521 2007-01-05 13:29:36Z heltem $
+ *  $Id: PeerBuilder.php 827 2007-11-22 03:37:57Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -31,6 +31,7 @@ require_once 'propel/engine/builder/om/OMBuilder.php';
  * methods.
  *
  * @author     Hans Lellelid <hans@xmpl.org>
+ * @package    propel.engine.builder.om
  */
 abstract class PeerBuilder extends OMBuilder {
 
