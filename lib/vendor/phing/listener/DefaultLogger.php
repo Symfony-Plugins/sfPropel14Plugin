@@ -19,7 +19,7 @@
  * <http://phing.info>.
  */
  
-require_once 'phing/BuildLogger.php';
+require_once 'phing/listener/StreamRequiredBuildLogger.php';
 include_once 'phing/BuildEvent.php';
 
 /**
@@ -30,11 +30,11 @@ include_once 'phing/BuildEvent.php';
  *
  *  @author    Andreas Aderhold <andi@binarycloud.com>
  *  @copyright � 2001,2002 THYRELL. All rights reserved
- *  @version   $Revision: 1.11 $ $Date: 2007-08-20 17:57:09 -0700 (Mon, 20 Aug 2007) $
+ *  @version   $Revision: 1.11 $ $Date: 2007-11-01 13:11:07 -0700 (Thu, 01 Nov 2007) $
  *  @see       BuildEvent
  *  @package   phing.listener
  */
-class DefaultLogger implements BuildLogger {
+class DefaultLogger implements StreamRequiredBuildLogger {
 
     /**
      *  Size of the left column in output. The default char width is 12.
