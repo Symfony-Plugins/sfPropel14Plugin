@@ -276,7 +276,6 @@ class sfPropelFormGenerator extends sfGenerator
       case PropelColumnTypes::SMALLINT:
       case PropelColumnTypes::TINYINT:
       case PropelColumnTypes::BIGINT:
-      case PropelColumnTypes::YEAR:
         $name = 'Integer';
         break;
       case PropelColumnTypes::DATE:
