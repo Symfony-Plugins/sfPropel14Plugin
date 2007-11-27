@@ -194,21 +194,21 @@ class sfPropelFormGenerator extends sfGenerator
    */
   public function getWidgetClassForColumn(ColumnMap $column)
   {
-    switch ($column->getCreoleType())
+    switch ($column->getType())
     {
-      case CreoleTypes::BOOLEAN:
+      case PropelColumnTypes::BOOLEAN:
         $name = 'InputCheckbox';
         break;
-      case CreoleTypes::LONGVARCHAR:
+      case PropelColumnTypes::LONGVARCHAR:
         $name = 'Textarea';
         break;
-      case CreoleTypes::DATE:
+      case PropelColumnTypes::DATE:
         $name = 'Date';
         break;
-      case CreoleTypes::TIME:
+      case PropelColumnTypes::TIME:
         $name = 'Time';
         break;
-      case CreoleTypes::TIMESTAMP:
+      case PropelColumnTypes::TIMESTAMP:
         $name = 'DateTime';
         break;
       default:
@@ -255,37 +255,37 @@ class sfPropelFormGenerator extends sfGenerator
    */
   public function getValidatorClassForColumn(ColumnMap $column)
   {
-    switch ($column->getCreoleType())
+    switch ($column->getType())
     {
-      case CreoleTypes::BOOLEAN:
+      case PropelColumnTypes::BOOLEAN:
         $name = 'Boolean';
         break;
-      case CreoleTypes::CHAR:
-      case CreoleTypes::VARCHAR:
-      case CreoleTypes::LONGVARCHAR:
+      case PropelColumnTypes::CHAR:
+      case PropelColumnTypes::VARCHAR:
+      case PropelColumnTypes::LONGVARCHAR:
         $name = 'String';
         break;
-      case CreoleTypes::DOUBLE:
-      case CreoleTypes::FLOAT:
-      case CreoleTypes::NUMERIC:
-      case CreoleTypes::DECIMAL:
-      case CreoleTypes::REAL:
+      case PropelColumnTypes::DOUBLE:
+      case PropelColumnTypes::FLOAT:
+      case PropelColumnTypes::NUMERIC:
+      case PropelColumnTypes::DECIMAL:
+      case PropelColumnTypes::REAL:
         $name = 'Number';
         break;
-      case CreoleTypes::INTEGER:
-      case CreoleTypes::SMALLINT:
-      case CreoleTypes::TINYINT:
-      case CreoleTypes::BIGINT:
-      case CreoleTypes::YEAR:
+      case PropelColumnTypes::INTEGER:
+      case PropelColumnTypes::SMALLINT:
+      case PropelColumnTypes::TINYINT:
+      case PropelColumnTypes::BIGINT:
+      case PropelColumnTypes::YEAR:
         $name = 'Integer';
         break;
-      case CreoleTypes::DATE:
+      case PropelColumnTypes::DATE:
         $name = 'Date';
         break;
-      case CreoleTypes::TIME:
+      case PropelColumnTypes::TIME:
         $name = 'Time';
         break;
-      case CreoleTypes::TIMESTAMP:
+      case PropelColumnTypes::TIMESTAMP:
         $name = 'DateTime';
         break;
       default:
@@ -313,9 +313,9 @@ class sfPropelFormGenerator extends sfGenerator
 
     switch ($column->getType())
     {
-      case CreoleTypes::CHAR:
-      case CreoleTypes::VARCHAR:
-      case CreoleTypes::LONGVARCHAR:
+      case PropelColumnTypes::CHAR:
+      case PropelColumnTypes::VARCHAR:
+      case PropelColumnTypes::LONGVARCHAR:
         if ($column->getSize())
         {
           $options[] = sprintf('\'max_length\' => %s', $column->getSize());
