@@ -20,12 +20,13 @@ class SfMapBuilderBuilder extends PHP5MapBuilderBuilder
 {
   public function build()
   {
+    $map = parent::build();
     if (!DataModelBuilder::getBuildProperty('builderAddComments'))
     {
-      return sfToolkit::stripComments(parent::build());
+      $map = sfToolkit::stripComments($map);
     }
 
-    return parent::build();
+    return $map;
   }
 
   protected function addIncludes(&$script)
@@ -48,6 +49,11 @@ class SfMapBuilderBuilder extends PHP5MapBuilderBuilder
     {
       $sizes[$col->getPhpName()] = !$col->getSize() ? 'null' : $col->getSize();
     }
+
+    // fix for handling varchars
     $script = preg_replace("/\\\$tMap\->addColumn\('([^']+)', '([^']+)', '([^']+)', PropelTypes\:\:VARCHAR, (false|true)\)/e", '"\\\$tMap->addColumn(\'$1\', \'$2\', \'$3\', PropelTypes::VARCHAR, $4, {$sizes[\'$2\']})"', $script);
+
+    // fix for handling decimals
+    $script = preg_replace("/\\\$tMap\->addColumn\('([^']+)', '([^']+)', '([^']+)', PropelTypes\:\:DECIMAL, (false|true), ([0-9]+),([0-9]+)\)/e", '"\\\$tMap->addColumn(\'$1\', \'$2\', \'$3\', PropelTypes::DECIMAL, $4, $5)"', $script);
   }
 }

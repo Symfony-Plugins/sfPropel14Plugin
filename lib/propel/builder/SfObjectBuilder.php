@@ -20,12 +20,18 @@ class SfObjectBuilder extends PHP5ObjectBuilder
 {
   public function build()
   {
+    $code = parent::build();
     if (!DataModelBuilder::getBuildProperty('builderAddComments'))
     {
-      return sfToolkit::stripComments(parent::build());
+      $code = sfToolkit::stripComments($code);
     }
 
-    return parent::build();
+    if (!DataModelBuilder::getBuildProperty('builderAddIncludes'))
+    {
+       $objectCode = preg_replace("/(include|require)_once\s*.*Base.*Peer\.php.*\s*/", "", $code);
+    }
+
+    return $code;
   }
 
   protected function addIncludes(&$script)
