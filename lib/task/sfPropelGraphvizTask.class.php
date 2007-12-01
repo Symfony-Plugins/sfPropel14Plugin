@@ -9,7 +9,7 @@
  */
 
 /**
- * Generates graphviz chart of current object model.
+ * Generates a graphviz chart of current object model.
  *
  * @package    symfony
  * @subpackage command
@@ -25,9 +25,10 @@ class sfPropelGraphvizTask extends sfPropelBaseTask
   {
     $this->namespace = 'propel';
     $this->name = 'graphviz';
-    $this->briefDescription = 'Generates graphviz chart of current object model.';
+    $this->briefDescription = 'Generates a graphviz chart of current object model';
     $this->detailedDescription = <<<EOF
-The [propel:graphviz|INFO] task creates DOT visualization for automatic graph drawing:
+The [propel:graphviz|INFO] task creates a graphviz DOT
+visualization for automatic graph drawing of object model:
 
   [./symfony propel:graphviz|INFO]
 EOF;
