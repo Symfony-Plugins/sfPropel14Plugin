@@ -28,7 +28,7 @@ class SfObjectBuilder extends PHP5ObjectBuilder
 
     if (!DataModelBuilder::getBuildProperty('builderAddIncludes'))
     {
-       $objectCode = preg_replace("/(include|require)_once\s*.*Base.*Peer\.php.*\s*/", "", $code);
+       $code = preg_replace("/(include|require)_once\s*.*Base.*Peer\.php.*\s*/", "", $code);
     }
 
     return $code;
