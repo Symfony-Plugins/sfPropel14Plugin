@@ -3,7 +3,7 @@
 /*
  * This file is part of the symfony package.
  * (c) 2004-2006 Fabien Potencier <fabien.potencier@symfony-project.com>
- * 
+ *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
@@ -59,7 +59,7 @@ EOF;
    */
   protected function execute($arguments = array(), $options = array())
   {
-    $properties = parse_ini_file(sfConfig::get('sf_config_dir').'/properties.ini', true);
+    $properties = parse_ini_file(sfConfig::get('sf_config_dir').DIRECTORY_SEPARATOR.'properties.ini', true);
 
     // generate module
     $tmpDir = sfConfig::get('sf_root_dir').DIRECTORY_SEPARATOR.'cache'.DIRECTORY_SEPARATOR.'tmp'.DIRECTORY_SEPARATOR.md5(uniqid(rand(), true));
@@ -67,13 +67,13 @@ EOF;
     $generatorManager = new sfGeneratorManager();
     $generatorManager->generate('sfPropelCrudGenerator', array('model_class' => $arguments['model'], 'moduleName' => $arguments['module'], 'theme' => $options['theme']));
 
-    $moduleDir = sfConfig::get('sf_root_dir').'/'.sfConfig::get('sf_apps_dir_name').'/'.$arguments['application'].'/'.sfConfig::get('sf_app_module_dir_name').'/'.$arguments['module'];
+    $moduleDir = sfConfig::get('sf_root_dir').DIRECTORY_SEPARATOR.sfConfig::get('sf_apps_dir_name').DIRECTORY_SEPARATOR.$arguments['application'].DIRECTORY_SEPARATOR.sfConfig::get('sf_app_module_dir_name').DIRECTORY_SEPARATOR.$arguments['module'];
 
     // copy our generated module
-    $this->filesystem->mirror($tmpDir.'/auto'.ucfirst($arguments['module']), $moduleDir, sfFinder::type('any'));
+    $this->filesystem->mirror($tmpDir.DIRECTORY_SEPARATOR.'auto'.ucfirst($arguments['module']), $moduleDir, sfFinder::type('any'));
 
     // change module name
-    $this->filesystem->replaceTokens($moduleDir.'/actions/actions.class.php', '', '', array('auto'.ucfirst($arguments['module']) => $arguments['module']));
+    $this->filesystem->replaceTokens($moduleDir.DIRECTORY_SEPARATOR.'actions'.DIRECTORY_SEPARATOR.'actions.class.php', '', '', array('auto'.ucfirst($arguments['module']) => $arguments['module']));
 
     $constants = array(
       'PROJECT_NAME' => isset($properties['symfony']['name']) ? $properties['symfony']['name'] : 'symfony',
@@ -87,11 +87,12 @@ EOF;
     $finder = sfFinder::type('file')->name('*.php', '*.yml');
     $this->filesystem->replaceTokens($finder->in($moduleDir), '##', '##', $constants);
 
+
     // create basic test
-    $this->filesystem->copy(sfConfig::get('sf_symfony_data_dir').'/skeleton/module/test/actionsTest.php', sfConfig::get('sf_root_dir').'/test/functional/'.$arguments['application'].'/'.$arguments['module'].'ActionsTest.php');
+    $this->filesystem->copy(sfConfig::get('sf_symfony_data_dir').DIRECTORY_SEPARATOR.'skeleton'.DIRECTORY_SEPARATOR.'module'.DIRECTORY_SEPARATOR.'test'.DIRECTORY_SEPARATOR.'actionsTest.php', sfConfig::get('sf_root_dir').DIRECTORY_SEPARATOR.'test'.DIRECTORY_SEPARATOR.'functional'.DIRECTORY_SEPARATOR.$arguments['application'].DIRECTORY_SEPARATOR.$arguments['module'].'ActionsTest.php');
 
     // customize test file
-    $this->filesystem->replaceTokens(sfConfig::get('sf_root_dir').'/test/functional/'.$arguments['application'].DIRECTORY_SEPARATOR.$arguments['module'].'ActionsTest.php', '##', '##', $constants);
+    $this->filesystem->replaceTokens(sfConfig::get('sf_root_dir').DIRECTORY_SEPARATOR.'test'.DIRECTORY_SEPARATOR.'functional'.DIRECTORY_SEPARATOR.$arguments['application'].DIRECTORY_SEPARATOR.$arguments['module'].'ActionsTest.php', '##', '##', $constants);
 
     // delete temp files
     $this->filesystem->remove(sfFinder::type('any')->in($tmpDir));

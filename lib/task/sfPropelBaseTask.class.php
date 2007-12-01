@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-require_once(dirname(__FILE__).'/../../config/config.php');
+require_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'config/config.php');
 require_once('phing/Phing.php');
 
 /**
@@ -33,10 +33,10 @@ abstract class sfPropelBaseTask extends sfBaseTask
     if (!self::$done)
     {
       $autoloader = sfSimpleAutoload::getInstance();
-      $autoloader->addDirectory(dirname(__FILE__).'/../vendor/creole');
-      $autoloader->addDirectory(dirname(__FILE__).'/../vendor/propel');
-      $autoloader->addDirectory(sfConfig::get('sf_root_dir').'/lib/model');
-      $autoloader->addDirectory(sfConfig::get('sf_root_dir').'/lib/form');
+      $autoloader->addDirectory(dirname(__FILE__).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'creole');
+      $autoloader->addDirectory(dirname(__FILE__).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'propel');
+      $autoloader->addDirectory(sfConfig::get('sf_root_dir').DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'model');
+      $autoloader->addDirectory(sfConfig::get('sf_root_dir').DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'form');
 
       self::$done = true;
     }
@@ -51,7 +51,7 @@ abstract class sfPropelBaseTask extends sfBaseTask
   {
     $finder = sfFinder::type('file')->name('*schema.xml');
 
-    $schemas = array_merge($finder->in('config'), $finder->in(glob(sfConfig::get('sf_root_dir').'/plugins/*/config')));
+    $schemas = array_merge($finder->in('config'), $finder->in(glob(sfConfig::get('sf_root_dir').DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'config')));
     if (self::CHECK_SCHEMA === $checkSchema && !count($schemas))
     {
       throw new sfCommandException('You must create a schema.xml file.');
@@ -85,7 +85,7 @@ abstract class sfPropelBaseTask extends sfBaseTask
   {
     $finder = sfFinder::type('file')->name('*schema.yml');
     $dirs = array('config');
-    if ($pluginDirs = glob(sfConfig::get('sf_root_dir').'/plugins/*/config'))
+    if ($pluginDirs = glob(sfConfig::get('sf_root_dir').DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'config'))
     {
       $dirs = array_merge($dirs, $pluginDirs);
     }
@@ -121,7 +121,7 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
   protected function copyXmlSchemaFromPlugins($prefix = '')
   {
-    $schemas = sfFinder::type('file')->name('*schema.xml')->in(glob(sfConfig::get('sf_root_dir').'/plugins/*/config'));
+    $schemas = sfFinder::type('file')->name('*schema.xml')->in(glob(sfConfig::get('sf_root_dir').DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'config'));
     foreach ($schemas as $schema)
     {
       // reset local prefix
@@ -168,7 +168,7 @@ abstract class sfPropelBaseTask extends sfBaseTask
     // Call phing targets
     if (false === strpos('propel-generator', get_include_path()))
     {
-      set_include_path(sfConfig::get('sf_symfony_lib_dir').'/plugins/sfPropelPlugin/lib/vendor/propel-generator/classes'.PATH_SEPARATOR.get_include_path()); 
+      set_include_path(sfConfig::get('sf_symfony_lib_dir').DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR.'sfPropelPlugin'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'propel-generator'.DIRECTORY_SEPARATOR.'classes'.PATH_SEPARATOR.get_include_path());
     }
     set_include_path(sfConfig::get('sf_root_dir').PATH_SEPARATOR.get_include_path());
 
@@ -178,7 +178,7 @@ abstract class sfPropelBaseTask extends sfBaseTask
     set_include_path(sfConfig::get('sf_symfony_lib_dir').PATH_SEPARATOR.get_include_path());
 
     $options = array(
-      'project.dir'       => sfConfig::get('sf_root_dir').'/config',
+      'project.dir'       => sfConfig::get('sf_root_dir').DIRECTORY_SEPARATOR.'config',
       'build.properties'  => 'propel.ini',
       'propel.output.dir' => sfConfig::get('sf_root_dir'),
     );
@@ -189,7 +189,7 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
     // Build file
     $args[] = '-f';
-    $args[] = realpath(sfConfig::get('sf_symfony_lib_dir').'/plugins/sfPropelPlugin/lib/vendor/propel-generator/build.xml');
+    $args[] = realpath(sfConfig::get('sf_symfony_lib_dir').DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR.'sfPropelPlugin'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'propel-generator'.DIRECTORY_SEPARATOR.'build.xml');
 /*
     if (is_null($this->commandApplication) || !$this->commandApplication->isVerbose())
     {

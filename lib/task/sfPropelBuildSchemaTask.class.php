@@ -3,7 +3,7 @@
 /*
  * This file is part of the symfony package.
  * (c) 2004-2006 Fabien Potencier <fabien.potencier@symfony-project.com>
- * 
+ *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
@@ -53,11 +53,11 @@ EOF;
     $this->callPhing('creole', self::DO_NOT_CHECK_SCHEMA);
 
     // Fix database name
-    if (file_exists(sfConfig::get('sf_config_dir').'/schema.xml'))
+    if (file_exists(sfConfig::get('sf_config_dir').DIRECTORY_SEPARATOR.'schema.xml'))
     {
-      $schema = file_get_contents(sfConfig::get('sf_config_dir').'/schema.xml');
+      $schema = file_get_contents(sfConfig::get('sf_config_dir').DIRECTORY_SEPARATOR.'schema.xml');
       $schema = preg_replace('/<database\s+name="[^"]+"/s', '<database name="propel"', $schema);
-      file_put_contents(sfConfig::get('sf_config_dir').'/schema.xml', $schema);
+      file_put_contents(sfConfig::get('sf_config_dir').DIRECTORY_SEPARATOR.'schema.xml', $schema);
     }
 
     if (!isset($options['xml']))
