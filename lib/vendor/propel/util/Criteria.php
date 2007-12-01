@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Criteria.php 816 2007-11-18 23:29:44Z heltem $
+ *  $Id: Criteria.php 839 2007-12-01 10:11:40Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -32,7 +32,7 @@
  * @author     Eric Dobbs <eric@dobbse.net> (Torque)
  * @author     Henning P. Schmiedehausen <hps@intermeta.de> (Torque)
  * @author     Sam Joseph <sam@neurogrid.com> (Torque)
- * @version    $Revision: 816 $
+ * @version    $Revision: 839 $
  * @package    propel.util
  */
 class Criteria implements IteratorAggregate {
@@ -72,6 +72,9 @@ class Criteria implements IteratorAggregate {
 
 	/** Comparison type. */
 	const CUSTOM = "CUSTOM";
+	
+	/** Comparison type for update */
+	const CUSTOM_EQUAL = "CUSTOM_EQUAL";
 
 	/** Comparison type. */
 	const DISTINCT = "DISTINCT ";

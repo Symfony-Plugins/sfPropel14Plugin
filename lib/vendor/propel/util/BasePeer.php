@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: BasePeer.php 837 2007-11-30 16:46:39Z heltem $
+ *  $Id: BasePeer.php 839 2007-12-01 10:11:40Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -35,7 +35,7 @@
  * @author     John D. McNally <jmcnally@collab.net> (Torque)
  * @author     Brett McLaughlin <bmclaugh@algx.net> (Torque)
  * @author     Stephen Haberman <stephenh@chase3000.com> (Torque)
- * @version    $Revision: 837 $
+ * @version    $Revision: 839 $
  * @package    propel.util
  */
 class BasePeer
@@ -360,7 +360,7 @@ class BasePeer
 					if ($db->useQuoteIdentifier()) {
 						$updateColumnName = $db->quoteIdentifier($updateColumnName);
 					}
-					if($updateValues->getComparison($col) != Criteria::CUSTOM)
+					if($updateValues->getComparison($col) != Criteria::CUSTOM_EQUAL)
 					{
 						$sql .= $updateColumnName . " = ?, ";
 					}

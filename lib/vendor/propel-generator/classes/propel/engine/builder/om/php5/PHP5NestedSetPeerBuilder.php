@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5NestedSetPeerBuilder.php 838 2007-11-30 16:49:10Z heltem $
+ *  $Id: PHP5NestedSetPeerBuilder.php 839 2007-12-01 10:11:40Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -1467,7 +1467,7 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 
 		\$valuesCriteria = new Criteria();
 		\$param = array('raw' => \$leftUpdateCol . \" + ?\", 'value' => \$delta);
-		\$criterion = \$valuesCriteria->getNewCriterion(self::LEFT_COL, \$param, Criteria::CUSTOM);
+		\$criterion = \$valuesCriteria->getNewCriterion(self::LEFT_COL, \$param, Criteria::CUSTOM_EQUAL);
 		if (self::SCOPE_COL) {
 			\$criterion->addAnd(\$valuesCriteria->getNewCriterion(self::SCOPE_COL, \$scopeId, Criteria::EQUAL));
 		}
@@ -1481,7 +1481,7 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 
 		\$valuesCriteria = new Criteria();
 		\$param = array('raw' => \$rightUpdateCol . \" + ?\", 'value' => \$delta);
-		\$criterion = \$valuesCriteria->getNewCriterion(self::RIGHT_COL, \$param, Criteria::CUSTOM);
+		\$criterion = \$valuesCriteria->getNewCriterion(self::RIGHT_COL, \$param, Criteria::CUSTOM_EQUAL);
 		if (self::SCOPE_COL) {
 			\$criterion->addAnd(\$valuesCriteria->getNewCriterion(self::SCOPE_COL, \$scopeId, Criteria::EQUAL));
 		}
