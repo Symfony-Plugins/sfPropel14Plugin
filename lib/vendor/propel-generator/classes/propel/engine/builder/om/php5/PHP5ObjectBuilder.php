@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5ObjectBuilder.php 820 2007-11-20 02:49:05Z hans $
+ *  $Id: PHP5ObjectBuilder.php 835 2007-11-30 16:21:22Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -83,10 +83,9 @@ class PHP5ObjectBuilder extends ObjectBuilder {
 				try {
 					if ($this->getPlatform() instanceof MysqlPlatform &&
 					($val === '0000-00-00 00:00:00' || $val === '0000-00-00')) {
-						$defDt = new DateTime('@0', new DateTimeZone('UTC'));
-						$defDt->setTimeZone(new DateTimeZone(date_default_timezone_get()));
-						// We have to explicitly specify and then change the time zone because of a 
-						// DateTime bug: http://bugs.php.net/bug.php?id=43003
+						// while technically this is not a default value of NULL,
+						// this seems to be closest in meaning.
+						$defDt = null;
 					} else {
 						$defDt = new DateTime($val);
 					}
@@ -493,10 +492,9 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 		if ($handleMysqlDate) {
 			$script .= "
 		if (\$this->$clo === '$mysqlInvalidDateString') {
-			\$dt = new DateTime('@0', new DateTimeZone('UTC'));
-			// We have to explicitly specify and then change the time zone because of a
-			// DateTime bug: http://bugs.php.net/bug.php?id=43003
-			\$dt->setTimeZone(new DateTimeZone(date_default_timezone_get()));
+			// while technically this is not a default value of NULL,
+			// this seems to be closest in meaning.
+			return null;
 		} else {
 			try {
 				\$dt = new DateTime(\$this->$clo);
@@ -1103,17 +1101,23 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 	 * You can specify the key type of the array by passing one of the class
 	 * type constants.
 	 *
-	 * @param      string \$keyType One of the class type constants BasePeer::TYPE_PHPNAME, BasePeer::TYPE_STUDLYPHPNAME
-	 *                        BasePeer::TYPE_COLNAME, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_NUM
+	 * @param      string \$keyType (optional) One of the class type constants BasePeer::TYPE_PHPNAME, BasePeer::TYPE_STUDLYPHPNAME
+	 *                        BasePeer::TYPE_COLNAME, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_NUM. Defaults to BasePeer::TYPE_PHPNAME.
+	 * @param      boolean \$includeLazyLoadColumns (optional) Whether to include lazy loaded columns.  Defaults to TRUE.
 	 * @return     an associative array containing the field names (as keys) and field values
 	 */
-	public function toArray(\$keyType = BasePeer::TYPE_PHPNAME)
+	public function toArray(\$keyType = BasePeer::TYPE_PHPNAME, \$includeLazyLoadColumns = true)
 	{
 		\$keys = ".$this->getPeerClassname()."::getFieldNames(\$keyType);
 		\$result = array(";
 		foreach ($this->getTable()->getColumns() as $num => $col) {
-			$script .= "
+			if ($col->isLazyLoad()) {
+				 $script .= "
+			\$keys[$num] => (\$includeLazyLoadColumns) ? \$this->get".$col->getPhpName()."() : null,";
+			} else {
+				$script .= "
 			\$keys[$num] => \$this->get".$col->getPhpName()."(),";
+			}
 		}
 		$script .= "
 		);

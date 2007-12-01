@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: GeneratedObjectTest.php 797 2007-11-09 19:21:21Z heltem $
+ *  $Id: GeneratedObjectTest.php 835 2007-11-30 16:21:22Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -834,5 +834,34 @@ class GeneratedObjectTest extends BookstoreTestBase {
 
 		$this->assertEquals($emp->getBookstoreEmployeeAccount()->getLogin(), $e2->getBookstoreEmployeeAccount()->getLogin());
 	}
-
+	
+	/**
+	 * Test the toArray() method with new lazyLoad param.
+	 * @see http://propel.phpdb.org/trac/ticket/527
+	 */
+	public function testToArrayLazyLoad()
+	{
+		$c = new Criteria();
+		$c->add(MediaPeer::COVER_IMAGE, null, Criteria::NOT_EQUAL);
+		$c->add(MediaPeer::EXCERPT, null, Criteria::NOT_EQUAL);
+		
+		$m = MediaPeer::doSelectOne($c);
+		if ($m === null) {
+			$this->fail("Test requires at least one media row w/ cover_image and excerpt NOT NULL");
+		}
+		
+		$arr1 = $m->toArray(BasePeer::TYPE_COLNAME);
+		$this->assertNotNull($arr1[MediaPeer::COVER_IMAGE]);
+		$this->assertType('resource', $arr1[MediaPeer::COVER_IMAGE]);
+		
+		$arr2 = $m->toArray(BasePeer::TYPE_COLNAME, false);
+		$this->assertNull($arr2[MediaPeer::COVER_IMAGE]);
+		$this->assertNull($arr2[MediaPeer::EXCERPT]);
+		
+		$diffKeys = array_keys(array_diff($arr1, $arr2));
+		
+		$expectedDiff = array(MediaPeer::COVER_IMAGE, MediaPeer::EXCERPT);
+		
+		$this->assertEquals($expectedDiff, $diffKeys);
+	}
 }
