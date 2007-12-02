@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5MapBuilderBuilder.php 816 2007-11-18 23:29:44Z heltem $
+ *  $Id: PHP5MapBuilderBuilder.php 844 2007-12-02 17:57:36Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -231,9 +231,9 @@ class ".$this->getClassname()." implements MapBuilder {
 			$script .= "
 		\$tMap->setPrimaryKeyMethodInfo('".$this->getSequenceName()."');
 ";
-		} elseif ($table->getIdMethod() == "native" && ($platform->getNativeIdMethod() == Platform::SEQUENCE)) {
+		} elseif ($table->getIdMethod() == "native" && ($platform->getNativeIdMethod() == Platform::SERIAL)) {
 			$script .= "
-		\$tMap->setPrimaryKeyMethodInfo('".$table->getName()."');
+		\$tMap->setPrimaryKeyMethodInfo('".$this->getSerialName()."');
 ";
 		}
 

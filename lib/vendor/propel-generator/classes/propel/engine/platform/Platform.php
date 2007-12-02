@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Platform.php 784 2007-11-08 10:15:50Z heltem $
+ *  $Id: Platform.php 844 2007-12-02 17:57:36Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -24,17 +24,26 @@
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
- * @version    $Revision: 784 $
+ * @version    $Revision: 844 $
  * @package    propel.engine.platform
  */
 interface Platform {
 
-	/** constant for native id method */
+	/**
+	 * Constant for auto-increment id method.
+	 */
 	const IDENTITY = "identity";
 
-	/** constant for native id method */
+	/**
+	 * Constant for sequence id method.
+	 */
 	const SEQUENCE = "sequence";
-
+	
+	/**
+	 * Constant for serial id method (postgresql).
+	 */
+	const SERIAL = "serial";
+	
 	/**
 	 * Sets a database connection to use (for quoting, etc.).
 	 * @param      PDO $con The database connection to use in this Platform class.

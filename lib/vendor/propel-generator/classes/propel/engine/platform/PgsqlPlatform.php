@@ -26,7 +26,7 @@ require_once 'propel/engine/platform/DefaultPlatform.php';
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
- * @version    $Revision: 718 $
+ * @version    $Revision: 844 $
  * @package    propel.engine.platform
  */
 class PgsqlPlatform extends DefaultPlatform {
@@ -56,7 +56,7 @@ class PgsqlPlatform extends DefaultPlatform {
 	 */
 	public function getNativeIdMethod()
 	{
-		return Platform::SEQUENCE;
+		return Platform::SERIAL;
 	}
 
 	/**

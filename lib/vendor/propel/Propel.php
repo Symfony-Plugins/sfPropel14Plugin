@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Propel.php 821 2007-11-20 12:47:17Z hans $
+ *  $Id: Propel.php 842 2007-12-02 16:28:20Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -37,7 +37,7 @@ require 'propel/util/PropelPDO.php';
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
  * @author     Henning P. Schmiedehausen <hps@intermeta.de> (Torque)
  * @author     Kurt Schrader <kschrader@karmalab.org> (Torque)
- * @version    $Revision: 821 $
+ * @version    $Revision: 842 $
  * @package    propel
  */
 class Propel
@@ -406,12 +406,12 @@ class Propel
 
 		return self::$dbMaps[$name];
 	}
-	
+
 	/**
 	 * Sets the database map object to use for specified datasource.
 	 *
 	 * @param      string $name The datasource name.
-	 * @param      DatabaseMap $map The database map object to use for specified datasource. 
+	 * @param      DatabaseMap $map The database map object to use for specified datasource.
 	 */
 	public static function setDatabaseMap($name, DatabaseMap $map)
 	{
@@ -496,7 +496,7 @@ class Propel
 	 * Sets the connection to use for specified datasource.
 	 *
 	 * @param      string $name The datasource name.
-	 * @param      PropelPDO $con The PDO connection object to use for specified datasource. 
+	 * @param      PropelPDO $con The PDO connection object to use for specified datasource.
 	 */
 	public static function setConnection($name, PropelPDO $con)
 	{

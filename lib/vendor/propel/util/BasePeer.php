@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: BasePeer.php 839 2007-12-01 10:11:40Z heltem $
+ *  $Id: BasePeer.php 842 2007-12-02 16:28:20Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -35,7 +35,7 @@
  * @author     John D. McNally <jmcnally@collab.net> (Torque)
  * @author     Brett McLaughlin <bmclaugh@algx.net> (Torque)
  * @author     Stephen Haberman <stephenh@chase3000.com> (Torque)
- * @version    $Revision: 839 $
+ * @version    $Revision: 842 $
  * @package    propel.util
  */
 class BasePeer
@@ -360,14 +360,14 @@ class BasePeer
 					if ($db->useQuoteIdentifier()) {
 						$updateColumnName = $db->quoteIdentifier($updateColumnName);
 					}
-					if($updateValues->getComparison($col) != Criteria::CUSTOM_EQUAL)
+					if ($updateValues->getComparison($col) != Criteria::CUSTOM_EQUAL)
 					{
 						$sql .= $updateColumnName . " = ?, ";
 					}
 					else
 					{
 						$param = $updateValues->get($col);
-						if(is_array($param))
+						if (is_array($param))
 						{
 							$raw = $param['raw'];
 							$val = $param['value'];
@@ -830,7 +830,7 @@ class BasePeer
 				}
 
 				$column = $tableName ? $dbMap->getTable($tableName)->getColumn($columnName) : null;
-				
+
 				if ($column && $column->isText()) {
 					$orderByClause[] = $db->ignoreCaseInOrderBy("$tableAlias.$columnAlias") . $direction;
 					$selectClause[] = $db->ignoreCaseInOrderBy("$tableAlias.$columnAlias");

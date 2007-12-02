@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: Table.php 819 2007-11-19 01:27:29Z hans $
+ *  $Id: Table.php 842 2007-12-02 16:28:20Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -40,7 +40,7 @@ include_once 'propel/engine/database/model/Validator.php';
  * @author     John McNally <jmcnally@collab.net> (Torque)
  * @author     Daniel Rall <dlr@collab.net> (Torque)
  * @author     Byron Foster <byron_foster@yahoo.com> (Torque)
- * @version    $Revision: 819 $
+ * @version    $Revision: 842 $
  * @package    propel.engine.database.model
  */
 class Table extends XMLElement implements IDMethod {
@@ -143,11 +143,11 @@ class Table extends XMLElement implements IDMethod {
 		if ($this->heavyIndexing) {
 			$this->doHeavyIndexing();
 		}
-		
+
 		// If there is no PK, then throw an error.  Propel 1.3 requires primary keys.
 		$pk = $this->getPrimaryKey();
 		if (empty($pk)) {
-			throw new EngineException("Table '".$this->getName()."' does not have a primary key defined.  Propel requires all tables to have a primary key.");	
+			throw new EngineException("Table '".$this->getName()."' does not have a primary key defined.  Propel requires all tables to have a primary key.");
 		}
 
 		// Name any indices which are missing a name using the

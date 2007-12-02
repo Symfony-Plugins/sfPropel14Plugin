@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5PeerBuilder.php 830 2007-11-22 04:53:04Z hans $
+ *  $Id: PHP5PeerBuilder.php 842 2007-12-02 16:28:20Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -1218,7 +1218,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 				// array is not multi-dimensional
 				\$values = array(\$values);
 			}
-			
+
 			foreach (\$values as \$value) {
 ";
 			$i=0;
@@ -1770,7 +1770,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 			foreach ($table->getForeignKeys() as $fk) {
 
 				$joinTable = $table->getDatabase()->getTable($fk->getForeignTableName());
-				
+
 				if (!$joinTable->isForReferenceOnly()) {
 
 					// FIXME - look into removing this next condition; it may not
@@ -1862,7 +1862,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 					\$obj2->hydrate(\$row, \$startcol);
 					".$joinedTablePeerBuilder->getPeerClassname()."::addInstanceToPool(\$obj2, \$key2);
 				} // if obj2 already loaded
-				
+
 				// Add the \$obj1 (".$this->getObjectClassname().") to \$obj2 (".$joinedTablePeerBuilder->getObjectClassname().")
 				\$obj2->".($fk->isLocalPrimaryKey() ? 'set' : 'add') . $joinedTableObjectBuilder->getRefFKPhpNameAffix($fk, $plural = false)."(\$obj1);
 

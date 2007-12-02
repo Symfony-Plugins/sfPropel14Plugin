@@ -26,7 +26,7 @@ require_once 'propel/engine/platform/DefaultPlatform.php';
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
- * @version    $Revision: 816 $
+ * @version    $Revision: 842 $
  * @package    propel.engine.platform
  */
 class MysqlPlatform extends DefaultPlatform {
@@ -45,6 +45,7 @@ class MysqlPlatform extends DefaultPlatform {
 		$this->setSchemaDomainMapping(new Domain(PropelTypes::LONGVARBINARY, "LONGBLOB"));
 		$this->setSchemaDomainMapping(new Domain(PropelTypes::BLOB, "LONGBLOB"));
 		$this->setSchemaDomainMapping(new Domain(PropelTypes::CLOB, "LONGTEXT"));
+		$this->setSchemaDomainMapping(new Domain(PropelTypes::TIMESTAMP, "DATETIME"));
 	}
 
 	/**

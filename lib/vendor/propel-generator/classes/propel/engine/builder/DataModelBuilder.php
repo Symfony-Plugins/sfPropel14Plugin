@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: DataModelBuilder.php 820 2007-11-20 02:49:05Z hans $
+ *  $Id: DataModelBuilder.php 844 2007-12-02 17:57:36Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -276,5 +276,23 @@ abstract class DataModelBuilder {
 			}
 		}
 		return $result;
+	}
+	
+	/**
+	* A Name to use for the serials (dependant sequence in PostgreSQL)
+	*/
+	public function getSerialName()
+	{
+		$table = $this->getTable();
+
+		if ($table->getIdMethod() != IDMethod::NATIVE || !$table->hasAutoIncrementPrimaryKey()) {
+			return null;
+		}
+		foreach ($table->getPrimaryKey() as $col) {
+			if ($col->isAutoIncrement()) {
+				return $table->getName() . '_' . $col->getName() . '_seq';
+			}
+		}
+		return null;
 	}
 }

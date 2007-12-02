@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id$
+ *  $Id: DefaultEnglishPluralizer.php 842 2007-12-02 16:28:20Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -25,7 +25,7 @@ require_once 'propel/engine/builder/util/Pluralizer.php';
  * The default Enlglish pluralizer class.
  *
  * @author     Hans Lellelid <hans@xmpl.org>
- * @version    $Revision$
+ * @version    $Revision: 842 $
  * @package    propel.engine.generator
  */
 class DefaultEnglishPluralizer implements Pluralizer {
@@ -39,5 +39,5 @@ class DefaultEnglishPluralizer implements Pluralizer {
 	{
 		return $root . 's';
 	}
-	
+
 }
