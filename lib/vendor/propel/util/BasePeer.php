@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: BasePeer.php 842 2007-12-02 16:28:20Z heltem $
+ *  $Id: BasePeer.php 847 2007-12-02 21:34:59Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -35,7 +35,7 @@
  * @author     John D. McNally <jmcnally@collab.net> (Torque)
  * @author     Brett McLaughlin <bmclaugh@algx.net> (Torque)
  * @author     Stephen Haberman <stephenh@chase3000.com> (Torque)
- * @version    $Revision: 842 $
+ * @version    $Revision: 847 $
  * @package    propel.util
  */
 class BasePeer
@@ -367,18 +367,27 @@ class BasePeer
 					else
 					{
 						$param = $updateValues->get($col);
-						if (is_array($param))
+						$sql .= $updateColumnName . " = ";
+						if(is_array($param))
 						{
-							$raw = $param['raw'];
-							$val = $param['value'];
-							$updateValues->put($col, $val);
+							if(isset($param['raw']))
+							{
+								$sql .= $param['raw'] . ", ";
+							}
+							else
+							{
+								$sql .= "?, ";
+							}
+							if(isset($param['value']))
+							{
+								$updateValues->put($col, $param['value']);
+							}
 						}
 						else
 						{
-							$raw = $param;
 							$updateValues->remove($col);
+							$sql .= $param . ", ";
 						}
-						$sql .= $updateColumnName . " = " . $raw . ", ";
 					}
 				}
 
