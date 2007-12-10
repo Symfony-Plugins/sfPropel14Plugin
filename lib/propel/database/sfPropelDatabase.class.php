@@ -88,7 +88,7 @@ class sfPropelDatabase extends sfDatabase
         $params = $this->parseDsn($dsn);
       }
 
-      $options = array('dsn', 'username', 'password', 'encoding', 'persistent');
+      $options = array('dsn', 'phptype', 'hostspec', 'database', 'username', 'password', 'port', 'protocol');
       foreach ($options as $option)
       {
         if (!$this->getParameter($option) && isset($params[$option]))
@@ -96,6 +96,7 @@ class sfPropelDatabase extends sfDatabase
           $this->setParameter($option, $params[$option]);
         }
       }
+
     }
 
     self::$config['propel']['datasources'][$this->getParameter('datasource')] =
