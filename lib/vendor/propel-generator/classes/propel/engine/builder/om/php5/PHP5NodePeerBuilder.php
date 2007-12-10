@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5NodePeerBuilder.php 770 2007-11-05 21:00:11Z david $
+ *  $Id: PHP5NodePeerBuilder.php 851 2007-12-05 02:21:29Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -51,7 +51,7 @@ class PHP5NodePeerBuilder extends PeerBuilder {
 	 */
 	public function getUnprefixedClassname()
 	{
-		return $this->getBuildProperty('basePrefix') . $this->getStubNodePeerBuilder()->getClassname();
+		return $this->getBuildProperty('basePrefix') . $this->getStubNodePeerBuilder()->getUnprefixedClassname();
 	}
 
 	/**

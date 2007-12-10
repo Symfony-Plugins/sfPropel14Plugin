@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5NestedSetPeerBuilder.php 846 2007-12-02 20:09:07Z heltem $
+ *  $Id: PHP5NestedSetPeerBuilder.php 851 2007-12-05 02:21:29Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -51,7 +51,7 @@ class PHP5NestedSetPeerBuilder extends PeerBuilder {
 	 */
 	public function getUnprefixedClassname()
 	{
-		return $this->getBuildProperty('basePrefix') . $this->getStubObjectBuilder()->getClassname() . 'NestedSetPeer';
+		return $this->getBuildProperty('basePrefix') . $this->getStubObjectBuilder()->getUnprefixedClassname() . 'NestedSetPeer';
 	}
 
 	/**
