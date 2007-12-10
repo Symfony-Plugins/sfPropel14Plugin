@@ -18,7 +18,7 @@
  */
 class sfPropelDataRetriever
 {
-  static public function retrieveObjects($class, $peerMethod = null)
+  static public function retrieveObjects($class, $peerMethod = null, $criteria = null)
   {
     if (!$classPath = sfAutoload::getInstance()->getClassPath($class.'Peer'))
     {
@@ -39,7 +39,7 @@ class sfPropelDataRetriever
       throw new sfException(sprintf('Peer method "%s" not found for class "%s"', $peerMethod, $classPeer));
     }
 
-    $objects = call_user_func(array($classPeer, $peerMethod), new Criteria());
+    $objects = call_user_func(array($classPeer, $peerMethod), is_null($criteria) ? new Criteria() : $criteria);
 
     return $objects;
   }
