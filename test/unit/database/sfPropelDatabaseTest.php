@@ -26,6 +26,7 @@ $configuration = array(
           'password'   => 'bar',
           'encoding'   => 'utf8',
           'persistent' => true,
+          'socket'     => null,
         ),
       ),
       'default' => 'propel',
