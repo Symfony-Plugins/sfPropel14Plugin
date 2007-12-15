@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: BookstoreDataPopulator.php 843 2007-12-02 17:10:53Z hans $
+ *  $Id: BookstoreDataPopulator.php 857 2007-12-13 14:59:59Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -60,7 +60,7 @@ class BookstoreDataPopulator {
 		$rowling->setFirstName("J.K.");
 		$rowling->setLastName("Rowling");
 		// no save()
-		
+
 		$stephenson = new Author();
 		$stephenson->setFirstName("Neal");
 		$stephenson->setLastName("Stephenson");

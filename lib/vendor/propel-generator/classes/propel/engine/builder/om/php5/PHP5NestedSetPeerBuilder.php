@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5NestedSetPeerBuilder.php 854 2007-12-11 13:09:13Z heltem $
+ *  $Id: PHP5NestedSetPeerBuilder.php 865 2007-12-13 23:04:49Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -170,7 +170,8 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 		$this->addHydrateChildren($script);
 
 		$this->addShiftRParent($script);
-		$this->addupdateDBNode($script);
+		$this->addUpdateLoadedNode($script);
+		$this->addUpdateDBNode($script);
 
 		$this->addShiftRLValues($script);
 		$this->addShiftRLRange($script);
@@ -310,8 +311,8 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 		// Update database nodes
 		self::shiftRLValues(\$child->getLeftValue(), 2, \$con, \$sidv);
 
-		// Update \$parent nodes properties recursively
-		self::shiftRParent(\$parent, 2, \$con);
+		// Update all loaded nodes
+		self::updateLoadedNode(\$parent, 2, \$con);
 	}
 ";
 	}
@@ -347,8 +348,8 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 		// Update database nodes
 		self::shiftRLValues(\$child->getLeftValue(), 2, \$con, \$sidv);
 
-		// Update \$parent nodes properties recursively
-		self::shiftRParent(\$parent, 2, \$con);
+		// Update all loaded nodes
+		self::updateLoadedNode(\$parent, 2, \$con);
 	}
 ";
 	}
@@ -384,8 +385,8 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 		// Update database nodes
 		self::shiftRLValues(\$node->getLeftValue(), 2, \$con, \$sidv);
 
-		// Update \$parent nodes properties recursively
-		self::shiftRParent(\$sibling->retrieveParent(), 2, \$con);
+		// Update all loaded nodes
+		self::updateLoadedNode(\$sibling->retrieveParent(), 2, \$con);
 	}
 ";
 	}
@@ -421,8 +422,8 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 		// Update database nodes
 		self::shiftRLValues(\$node->getLeftValue(), 2, \$con, \$sidv);
 
-		// Update \$parent nodes properties recursively
-		self::shiftRParent(\$sibling->retrieveParent(), 2, \$con);
+		// Update all loaded nodes
+		self::updateLoadedNode(\$sibling->retrieveParent(), 2, \$con);
 	}
 ";
 	}
@@ -463,8 +464,8 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 
 		\$node->save(\$con);
 
-		// Update \$parent nodes properties recursively
-		self::shiftRParent(\$previous_parent, 2, \$con);
+		// Update all loaded nodes
+		self::updateLoadedNode(\$previous_parent, 2, \$con);
 	}
 ";
 	}
@@ -1382,6 +1383,10 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 ";
 	}
 
+	/**
+	 * TODO : Fix this broken in-memory nodes updater
+	 * Don't trust it
+	 */
 	protected function addShiftRParent(&$script)
 	{
 		$objectClassname = $this->getStubObjectBuilder()->getClassname();
@@ -1407,16 +1412,68 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 ";
 	}
 
-	protected function addupdateDBNode(&$script)
+	protected function addUpdateLoadedNode(&$script)
+	{
+		$objectClassname = $this->getStubObjectBuilder()->getClassname();
+		$peerClassname = $this->getStubPeerBuilder()->getClassname();
+		$table = $this->getTable();
+
+		$script .= "
+	/**
+	 * Reload all already loaded nodes to sync them with updated db
+	 *
+	 * @param      $objectClassname \$node	Propel object for parent node
+	 * @param      int \$delta	Value to be shifted by, can be negative
+	 * @param      PropelPDO \$con		Connection to use.
+	 */
+	protected static function updateLoadedNode(NodeObject \$node, \$delta, PropelPDO \$con = null)
+	{
+		if (Propel::isInstancePoolingEnabled())
+		{
+			\$keys = array();
+			foreach(self::\$instances as \$obj)
+			{
+				\$keys[] = \$obj->getPrimaryKey();
+			}
+
+			if(!empty(\$keys))
+			{
+				// We don't need to alter the object instance pool; we're just modifying this instance
+				// already in the pool.
+
+				\$criteria = new Criteria(self::DATABASE_NAME);
+";
+			foreach ($table->getColumns() as $col) {
+				if ($col->isPrimaryKey()) {
+					$script .= "
+				\$criteria->add(".$this->getColumnConstant($col).", \$keys, Criteria::IN);
+";
+					break;
+				} /* if col is prim key */
+			} /* foreach */
+			$script .= "
+				$peerClassname::populateObjects($peerClassname::doSelectStmt(\$criteria, \$con));
+			}
+		}
+		else
+		{
+			// FIX: Do a refresh for all in-memory nodes with a real tree traversal
+			self::shiftRParent(\$node, \$delta, \$con);
+		}
+	}
+";
+	}
+
+	protected function addUpdateDBNode(&$script)
 	{
 		$objectClassname = $this->getStubObjectBuilder()->getClassname();
 		$script .= "
 	/**
-	 * Move \$node and its children to location \$dest and updates rest of tree
+	 * Move \$node and its children to location \$destLeft and updates rest of tree
 	 *
 	 * @param      $objectClassname \$node Propel object for node to update
+	 * @param      int	\$destLeft Destination left value
 	 * @param      PropelPDO \$con		Connection to use.
-	 * @param      int	 Destination left value
 	 */
 	protected static function updateDBNode(NodeObject \$node, \$destLeft, PropelPDO \$con = null)
 	{
@@ -1537,8 +1594,8 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 
 		// Shift left column values
 		\$whereCriteria = new Criteria();
-		\$criterion = \$whereCriteria->getNewCriterion(\$leftUpdateCol, \$first, Criteria::GREATER_EQUAL);
-		\$criterion->addAnd(\$whereCriteria->getNewCriterion(\$leftUpdateCol, \$last, Criteria::LESS_EQUAL));
+		\$criterion = \$whereCriteria->getNewCriterion(self::LEFT_COL, \$first, Criteria::GREATER_EQUAL);
+		\$criterion->addAnd(\$whereCriteria->getNewCriterion(self::LEFT_COL, \$last, Criteria::LESS_EQUAL));
 		if (self::SCOPE_COL) {
 			\$criterion->addAnd(\$whereCriteria->getNewCriterion(self::SCOPE_COL, \$scopeId, Criteria::EQUAL));
 		}
@@ -1554,8 +1611,8 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 
 		// Shift right column values
 		\$whereCriteria = new Criteria();
-		\$criterion = \$whereCriteria->getNewCriterion(\$rightUpdateCol, \$first, Criteria::GREATER_EQUAL);
-		\$criterion->addAnd(\$whereCriteria->getNewCriterion(\$rightUpdateCol, \$last, Criteria::LESS_EQUAL));
+		\$criterion = \$whereCriteria->getNewCriterion(self::RIGHT_COL, \$first, Criteria::GREATER_EQUAL);
+		\$criterion->addAnd(\$whereCriteria->getNewCriterion(self::RIGHT_COL, \$last, Criteria::LESS_EQUAL));
 		if (self::SCOPE_COL) {
 			\$criterion->addAnd(\$whereCriteria->getNewCriterion(self::SCOPE_COL, \$scopeId, Criteria::EQUAL));
 		}
@@ -1563,7 +1620,7 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 
 		\$valuesCriteria = new Criteria();
 		\$valuesCriteria->add(
-			self::LEFT_COL,
+			self::RIGHT_COL,
 			array('raw' => \$rightUpdateCol . ' + ?', 'value' => \$delta),
 			Criteria::CUSTOM_EQUAL);
 

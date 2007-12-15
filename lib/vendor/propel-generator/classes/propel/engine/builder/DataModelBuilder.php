@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: DataModelBuilder.php 844 2007-12-02 17:57:36Z hans $
+ *  $Id: DataModelBuilder.php 857 2007-12-13 14:59:59Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -277,7 +277,7 @@ abstract class DataModelBuilder {
 		}
 		return $result;
 	}
-	
+
 	/**
 	* A Name to use for the serials (dependant sequence in PostgreSQL)
 	*/

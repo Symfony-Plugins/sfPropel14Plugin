@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5ObjectBuilder.php 848 2007-12-03 20:25:53Z hans $
+ *  $Id: PHP5ObjectBuilder.php 857 2007-12-13 14:59:59Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -2225,8 +2225,8 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 		$script .= "
 	/**
 	 * Clears out the $collName collection (array).
-	 * 
-	 * This does not modify the database; however, it will remove any associated objects, causing 
+	 *
+	 * This does not modify the database; however, it will remove any associated objects, causing
 	 * them to be refetched by subsequent calls to accessor method.
 	 *
 	 * @return     void

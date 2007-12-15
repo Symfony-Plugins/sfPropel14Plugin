@@ -9,7 +9,7 @@ include_once 'propel/util/BasePeer.php';
  *
  * @author     <a href="mailto:celkins@scardini.com">Christopher Elkins</a>
  * @author     <a href="mailto:sam@neurogrid.com">Sam Joseph</a>
- * @version    $Id: CriteriaTest.php 849 2007-12-04 00:23:56Z hans $
+ * @version    $Id: CriteriaTest.php 857 2007-12-13 14:59:59Z heltem $
  */
 class CriteriaTest extends BaseTestCase {
 
@@ -543,7 +543,7 @@ class CriteriaTest extends BaseTestCase {
 
 		$this->assertEquals($expect, $result);
 	}
-	
+
 	/**
 	 * Test the Criteria::CUSTOM behavior.
 	 */
@@ -552,9 +552,9 @@ class CriteriaTest extends BaseTestCase {
 		$c = new Criteria();
 		$c->addSelectColumn('A.COL');
 		$c->add('A.COL', 'date_part(\'YYYY\', A.COL) = \'2007\'', Criteria::CUSTOM);
-		
+
 		$expected = "SELECT A.COL FROM A WHERE date_part('YYYY', A.COL) = '2007'";
-		
+
 		$result = BasePeer::createSelectSql($c, $params=array());
 		$this->assertEquals($expected, $result);
 	}

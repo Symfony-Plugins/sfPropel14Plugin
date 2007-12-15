@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: XmlToData.php 521 2007-01-05 13:29:36Z heltem $
+ *  $Id: XmlToData.php 861 2007-12-13 17:42:50Z gamr $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -31,7 +31,7 @@ require_once 'phing/parser/AbstractHandler.php';
  * @author     Jason van Zyl <jvanzyl@apache.org> (Torque)
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
  * @author     Fedor Karpelevitch <fedor.karpelevitch@home.com> (Torque)
- * @version    $Revision: 521 $
+ * @version    $Revision: 861 $
  * @package    propel.engine.database.transform
  */
 class XmlToData extends AbstractHandler {
@@ -40,6 +40,7 @@ class XmlToData extends AbstractHandler {
 	private $data;
 
 	private $encoding;
+	private $callback;
 
 	public $parser;
 
@@ -62,8 +63,11 @@ class XmlToData extends AbstractHandler {
 	/**
 	 *
 	 */
-	public function parseFile($xmlFile)
+	public function parseFile($xmlFile,$callback=null)
 	{
+		if ( $callback ) {
+			$this->callback = $callback;
+		}
 		try {
 
 			$this->data = array();
@@ -112,7 +116,13 @@ class XmlToData extends AbstractHandler {
 					$col = $table->getColumnByPhpName($name);
 					$this->columnValues[] = new ColumnValue($col, iconv('utf-8',$this->encoding, $value));
 				}
-				$this->data[] = new DataRow($table, $this->columnValues);
+				$data = new DataRow($table, $this->columnValues);
+				if ( $this->callback ) {
+					call_user_func($this->callback,$data);
+					$data = null;
+				} else {
+					$this->data[] = $data;
+				}
 			}
 		} catch (Exception $e) {
 			print $e;
