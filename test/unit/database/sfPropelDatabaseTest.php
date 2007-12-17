@@ -26,7 +26,7 @@ $configuration = array(
           'password'   => 'bar',
           'encoding'   => 'utf8',
           'persistent' => true,
-          'socket'     => null,
+          'socket'     => null
         ),
       ),
       'default' => 'propel',
@@ -40,7 +40,7 @@ $parametersTests = array(
     'username'   => 'foo',
     'password'   => 'bar',
     'encoding'   => 'utf8',
-    'persistent' => true,
+    'persistent' => true
   )
 );
 

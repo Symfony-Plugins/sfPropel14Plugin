@@ -88,7 +88,7 @@ class sfPropelDatabase extends sfDatabase
         $params = $this->parseDsn($dsn);
       }
 
-      $options = array('dsn', 'phptype', 'hostspec', 'database', 'username', 'password', 'port', 'protocol');
+      $options = array('dsn', 'phptype', 'hostspec', 'database', 'username', 'password', 'port', 'protocol', 'socket');
       foreach ($options as $option)
       {
         if (!$this->getParameter($option) && isset($params[$option]))
@@ -104,11 +104,12 @@ class sfPropelDatabase extends sfDatabase
     'adapter'      => $this->getParameter('phptype'),
     'connection'   =>
     array(
-    'dsn'        => $this->getParameter('dsn'),
-    'user'       => $this->getParameter('username'),
-    'password'   => $this->getParameter('password'),
-    'encoding'   => $this->getParameter('encoding'),
-    'persistent' => $this->getParameter('persistent'),
+    'dsn'          => $this->getParameter('dsn'),
+    'user'         => $this->getParameter('username'),
+    'password'     => $this->getParameter('password'),
+    'encoding'     => $this->getParameter('encoding'),
+    'persistent'   => $this->getParameter('persistent'),
+    'socket'       => $this->getParameter('socket'),
     )
     );
   }
