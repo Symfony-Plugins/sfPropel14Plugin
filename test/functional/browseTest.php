@@ -20,7 +20,7 @@ $b = new sfTestBrowser();
 // check symfony throws an exception if model class does not exist
 $b->
   get('/error')->
-  isStatusCode(200)->
+  isStatusCode(500)->
   isRequestParameter('module', 'error')->
   isRequestParameter('action', 'index')->
   throwsException('sfInitializationException', '/Unable to scaffold unexistant model/')
