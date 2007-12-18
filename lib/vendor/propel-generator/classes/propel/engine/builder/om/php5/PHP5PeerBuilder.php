@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5PeerBuilder.php 842 2007-12-02 16:28:20Z heltem $
+ *  $Id: PHP5PeerBuilder.php 869 2007-12-18 03:11:31Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -82,10 +82,16 @@ class PHP5PeerBuilder extends PeerBuilder {
  * $now
  *";
 		}
+
+		$extendingPeerClass = '';
+		if ($this->basePeerClassname !== 'BasePeer') {
+			$extendingPeerClass = ' extends ' . $this->basePeerClassname;
+		}
+
 		$script .= "
  * @package    ".$this->getPackage()."
  */
-abstract class ".$this->getClassname()." {
+abstract class ".$this->getClassname(). $extendingPeerClass . " {
 ";
 	}
 
