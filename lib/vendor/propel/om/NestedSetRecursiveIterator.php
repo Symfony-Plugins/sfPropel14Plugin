@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: NestedSetRecursiveIterator.php 542 2007-01-15 23:36:37Z heltem $
+ *  $Id: NestedSetRecursiveIterator.php 875 2007-12-19 11:10:15Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -24,7 +24,7 @@
  * Pre-order node iterator for Node objects.
  *
  * @author     Heltem <heltem@o2php.com>
- * @version    $Revision: 542 $
+ * @version    $Revision: 875 $
  * @package    propel.om
  */
 class NestedSetRecursiveIterator implements RecursiveIterator

@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5ObjectBuilder.php 857 2007-12-13 14:59:59Z heltem $
+ *  $Id: PHP5ObjectBuilder.php 871 2007-12-19 01:50:21Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -2047,7 +2047,8 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 	{
 		$table = $this->getTable();
 		$tblFK = $refFK->getTable();
-
+		
+		$peerClassname = $this->getStubPeerBuilder()->getClassname();
 		$relCol = $this->getRefFKPhpNameAffix($refFK, $plural=true);
 		$collName = $this->getRefFKCollVarName($refFK);
 		$lastCriteriaName = $this->getRefFKLastCriteriaVarName($refFK);
@@ -2092,7 +2093,7 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 		";
 				$script .= "
 		if (\$criteria === null) {
-			\$criteria = new Criteria();
+			\$criteria = new Criteria($peerClassname::DATABASE_NAME);
 		}
 		elseif (\$criteria instanceof Criteria)
 		{
@@ -2282,7 +2283,9 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 	{
 		$table = $this->getTable();
 		$tblFK = $refFK->getTable();
-
+	
+		$peerClassname = $this->getStubPeerBuilder()->getClassname();
+		
 		$fkPeerBuilder = OMBuilder::getNewPeerBuilder($refFK->getTable());
 		$relCol = $this->getRefFKPhpNameAffix($refFK, $plural = true);
 
@@ -2304,7 +2307,7 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 
 		$script .= "
 		if (\$criteria === null) {
-			\$criteria = new Criteria();
+			\$criteria = new Criteria($peerClassname::DATABASE_NAME);
 		} else {
 			\$criteria = clone \$criteria;
 		}
@@ -2375,7 +2378,8 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 	{
 		$table = $this->getTable();
 		$tblFK = $refFK->getTable();
-
+		
+		$peerClassname = $this->getStubPeerBuilder()->getClassname();
 		$fkPeerBuilder = OMBuilder::getNewPeerBuilder($refFK->getTable());
 		$relCol = $this->getRefFKPhpNameAffix($refFK, $plural = true);
 
@@ -2401,7 +2405,7 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 		";
 		$script .= "
 		if (\$criteria === null) {
-			\$criteria = new Criteria();
+			\$criteria = new Criteria($peerClassname::DATABASE_NAME);
 		}
 		elseif (\$criteria instanceof Criteria)
 		{

@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: BookstoreDataPopulator.php 857 2007-12-13 14:59:59Z heltem $
+ *  $Id: BookstoreDataPopulator.php 887 2007-12-19 22:33:34Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -194,20 +194,25 @@ class BookstoreDataPopulator {
 
 	public static function depopulate()
 	{
+		AcctAccessRolePeer::doDeleteAll();
 		AuthorPeer::doDeleteAll();
-		BookPeer::doDeleteAll();
-		PublisherPeer::doDeleteAll();
-		ReviewPeer::doDeleteAll();
-		MediaPeer::doDeleteAll();
-		BookClubListPeer::doDeleteAll();
-		BookstoreEmployeePeer::doDeleteAll();
-		BookstoreEmployeeAccountPeer::doDeleteAll();
-		CustomerPeer::doDeleteAll();
-		ContestPeer::doDeleteAll();
+		BookstorePeer::doDeleteAll();
 		BookstoreContestPeer::doDeleteAll();
 		BookstoreContestEntryPeer::doDeleteAll();
-		BookstorePeer::doDeleteAll();
-		BookCategoryPeer::doDeleteAll();
+		BookstoreEmployeePeer::doDeleteAll();
+		BookstoreEmployeeAccountPeer::doDeleteAll();
+		BookstoreSalePeer::doDeleteAll();
+		BookClubListPeer::doDeleteAll();
+		BookOpinionPeer::doDeleteAll();
+		BookReaderPeer::doDeleteAll();
+		BookListRelPeer::doDeleteAll();
+		BookPeer::doDeleteAll();
+		ContestPeer::doDeleteAll();
+		CustomerPeer::doDeleteAll();
+		MediaPeer::doDeleteAll();
+		PublisherPeer::doDeleteAll();
+		ReaderFavoritePeer::doDeleteAll();
+		ReviewPeer::doDeleteAll();
 	}
 
 }

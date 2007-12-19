@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id$
+ *  $Id: ColumnDefaultValue.php 875 2007-12-19 11:10:15Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -23,7 +23,7 @@
  * A class for holding a column default value.
  *
  * @author     Hans Lellelid <hans@xmpl.org>
- * @version    $Revision: 521 $
+ * @version    $Revision: 875 $
  * @package    propel.engine.database.model
  */
 class ColumnDefaultValue {

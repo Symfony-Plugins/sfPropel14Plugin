@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5PeerBuilder.php 869 2007-12-18 03:11:31Z hans $
+ *  $Id: PHP5PeerBuilder.php 891 2007-12-19 23:09:57Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -1136,11 +1136,11 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 			\$con->beginTransaction();
 			";
 		if ($this->isDeleteCascadeEmulationNeeded()) {
-			$script .="\$affectedRows += ".$this->getPeerClassname()."::doOnDeleteCascade(new Criteria(), \$con);
+			$script .="\$affectedRows += ".$this->getPeerClassname()."::doOnDeleteCascade(new Criteria(".$this->getPeerClassname()."::DATABASE_NAME), \$con);
 			";
 		}
 		if ($this->isDeleteSetNullEmulationNeeded()) {
-			$script .= $this->getPeerClassname() . "::doOnDeleteSetNull(new Criteria(), \$con);
+			$script .= $this->getPeerClassname() . "::doOnDeleteSetNull(new Criteria(".$this->getPeerClassname() . "::DATABASE_NAME), \$con);
 			";
 		}
 		$script .= "\$affectedRows += BasePeer::doDeleteAll(".$this->getPeerClassname()."::TABLE_NAME, \$con);
@@ -1368,7 +1368,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 					$script .= "
 
 			// delete related $fkClassName objects
-			\$c = new Criteria();
+			\$c = new Criteria(".$joinedTablePeerBuilder->getPeerClassname()."::DATABASE_NAME);
 			";
 					for ($x=0,$xlen=count($columnNamesF); $x < $xlen; $x++) {
 						$columnFK = $tblFK->getColumn($columnNamesF[$x]);
@@ -1606,7 +1606,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 		if (empty(\$pks)) {
 			\$objs = array();
 		} else {
-			\$criteria = new Criteria();";
+			\$criteria = new Criteria(".$this->getPeerClassname()."::DATABASE_NAME);";
 		if (count($table->getPrimaryKey()) == 1) {
 			$k1 = $table->getPrimaryKey();
 			$script .= "
@@ -1668,9 +1668,9 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 		} /* foreach */
 		$script .= ", PropelPDO \$con = null) {
 		if (\$con === null) {
-			\$con = Propel::getConnection(self::DATABASE_NAME);
+			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME);
 		}
-		\$criteria = new Criteria();";
+		\$criteria = new Criteria(".$this->getPeerClassname()."::DATABASE_NAME);";
 		foreach ($table->getPrimaryKey() as $col) {
 			$clo = strtolower($col->getName());
 			$script .= "
