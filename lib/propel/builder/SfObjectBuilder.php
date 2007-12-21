@@ -20,18 +20,19 @@ class SfObjectBuilder extends PHP5ObjectBuilder
 {
   public function build()
   {
-    $code = parent::build();
+    $objectCode = parent::build();
     if (!DataModelBuilder::getBuildProperty('builderAddComments'))
     {
-      $code = sfToolkit::stripComments($code);
+      $objectCode = sfToolkit::stripComments($objectCode);
     }
 
-    if (!DataModelBuilder::getBuildProperty('builderAddIncludes'))
+    if(!DataModelBuilder::getBuildProperty('builderAddIncludes'))
     {
-       $code = preg_replace("/(include|require)_once\s*.*Base.*Peer\.php.*\s*/", "", $code);
+       // remove all inline includes: object classes include the peers
+      $objectCode = preg_replace("/include_once\s*.*Base.*Peer\.php.*\s*/", "", $objectCode);
     }
 
-    return $code;
+    return $objectCode;
   }
 
   protected function addIncludes(&$script)

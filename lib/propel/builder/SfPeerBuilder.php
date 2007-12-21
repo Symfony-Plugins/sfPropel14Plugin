@@ -20,18 +20,20 @@ class SfPeerBuilder extends PHP5PeerBuilder
 {
   public function build()
   {
-    $code = parent::build();
+    $peerCode = parent::build();
     if (!DataModelBuilder::getBuildProperty('builderAddComments'))
     {
-      $code = sfToolkit::stripComments($code);
+      $peerCode =  sfToolkit::stripComments($peerCode);
     }
 
     if (!DataModelBuilder::getBuildProperty('builderAddIncludes'))
     {
-       $code = preg_replace("/(include|require)_once\s*.*Base.*Peer\.php.*\s*/", "", $code);
+      // remove all inline includes: peer class include inline the mapbuilder classes
+      $peerCode = preg_replace("/(include|require)_once\s*.*Base.*Peer\.php.*\s*/", "", $peerCode);
+      $peerCode = preg_replace("/(include|require)_once\s*.*MapBuilder\.php.*\s*/", "", $peerCode);
     }
 
-    return $code;
+    return $peerCode;
   }
 
   protected function addIncludes(&$script)
