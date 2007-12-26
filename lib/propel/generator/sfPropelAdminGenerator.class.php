@@ -14,7 +14,7 @@
  * This class generates an admin module with propel.
  *
  * @package    symfony
- * @subpackage generator
+ * @subpackage propel
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @version    SVN: $Id$
  */

@@ -12,7 +12,7 @@
  * sfGenerator is the abstract base class for all generators.
  *
  * @package    symfony
- * @subpackage database
+ * @subpackage propel
  * @author     Olivier Verdier <Olivier.Verdier@gmail.com>
  * @version    SVN: $Id $
  */

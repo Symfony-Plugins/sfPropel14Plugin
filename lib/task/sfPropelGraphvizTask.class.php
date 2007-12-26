@@ -12,7 +12,7 @@
  * Generates a graphviz chart of current object model.
  *
  * @package    symfony
- * @subpackage command
+ * @subpackage propel
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @version    SVN: $Id: sfPropelGraphvizTask.class.php 5506 2007-10-14 10:28:15Z dwhittle $
  */

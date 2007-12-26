@@ -45,7 +45,7 @@ set_include_path(get_include_path().PATH_SEPARATOR.dirname(__FILE__).'/../../ven
  * # <b>username</b>       - [none]   - The database username.
  *
  * @package    symfony
- * @subpackage database
+ * @subpackage creole
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @author     Sean Kerr <skerr@mojavi.org>
  * @version    SVN: $Id: sfCreoleDatabase.class.php 5214 2007-09-21 09:18:32Z fabien $

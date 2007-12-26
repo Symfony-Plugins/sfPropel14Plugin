@@ -24,7 +24,7 @@
  *                                                exists in the database.
  *
  * @package    symfony
- * @subpackage validator
+ * @subpackage propel
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @author     Fédéric Coelho <frederic.coelho@symfony-project.com>
  * @version    SVN: $Id$

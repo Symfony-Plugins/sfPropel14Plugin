@@ -9,9 +9,10 @@
  */
 
 /**
+ * Utilities for managing many to many relationships in propel.
  *
  * @package    symfony
- * @subpackage util
+ * @subpackage propel
  * @author     Nick Lane <nick.lane@internode.on.net>
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @version    SVN: $Id$

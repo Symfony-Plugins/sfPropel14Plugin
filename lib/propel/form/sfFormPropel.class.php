@@ -3,16 +3,9 @@
 /*
  * This file is part of the symfony package.
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
- * 
+ *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- */
-
-/**
- * @package    symfony
- * @subpackage propel
- * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
- * @version    SVN: $Id$
  */
 
 /**
@@ -168,7 +161,7 @@ abstract class sfFormPropel extends sfForm
 
     try
     {
-      $con->begin();
+      $con->beginTransaction();
 
       $this->doSave($con);
 
@@ -176,7 +169,7 @@ abstract class sfFormPropel extends sfForm
     }
     catch (Exception $e)
     {
-      $con->rollback();
+      $con->rollBack();
 
       throw $e;
     }

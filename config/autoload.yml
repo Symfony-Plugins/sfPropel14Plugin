@@ -8,7 +8,7 @@ autoload:
   propel_class:
     name:           propel class
     files:
-      Propel:       %SF_SYMFONY_LIB_DIR%/plugins/sfPropelPlugin/lib/propel/sfPropelAutoload.php
+      Propel:       %SF_SYMFONY_LIB_DIR%/plugins/sfPropelPlugin/lib/propel/addon/sfPropelAutoload.php
 
   propel_addon:
     name:           propel addon

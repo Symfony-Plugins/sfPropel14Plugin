@@ -12,7 +12,7 @@
  * Loads data from fixtures directory.
  *
  * @package    symfony
- * @subpackage command
+ * @subpackage propel
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @version    SVN: $Id$
  */

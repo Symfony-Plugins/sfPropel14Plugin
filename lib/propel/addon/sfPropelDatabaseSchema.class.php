@@ -9,9 +9,10 @@
  */
 
 /**
+ * Manages propel database schemas as YAML and XML.
  *
  * @package    symfony
- * @subpackage addon
+ * @subpackage propel
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @author     François Zaninotto <francois.zaninotto@symfony-project.com>
  * @version    SVN: $Id$
@@ -179,7 +180,7 @@ class sfPropelDatabaseSchema
           // set id and culture columns for i18n table
           $this->setIfNotSet($this->database[$i18n_table], 'id', array(
             'type'             => 'integer',
-            'required'         => true, 
+            'required'         => true,
             'primaryKey'       => true,
             'foreignTable'     => $main_table,
             'foreignReference' => 'id',
@@ -206,7 +207,7 @@ class sfPropelDatabaseSchema
     foreach ($this->getTables() as $table => $columns)
     {
       $has_primary_key = false;
-      
+
       foreach ($columns as $column => $attributes)
       {
         if ($attributes == null)
@@ -229,7 +230,7 @@ class sfPropelDatabaseSchema
             );
             $has_primary_key = true;
           }
-          
+
           $pos = strpos($column, '_id');
           if ($pos > 0 && $pos == strlen($column) - 3)
           {
@@ -376,7 +377,7 @@ class sfPropelDatabaseSchema
 
     // conventions for sequence name attributes
     // required for databases using sequences for auto-increment columns (e.g. PostgreSQL or Oracle)
-    if (is_array($column) && isset($column['sequence'])) 
+    if (is_array($column) && isset($column['sequence']))
     {
       $attributes_string .= "    <id-method-parameter value=\"$column[sequence]\" />\n";
     }
@@ -558,7 +559,7 @@ class sfPropelDatabaseSchema
       $this->removeEmptyKey($database[$table_name], '_uniques');
     }
     $this->database = $database;
-    
+
     $this->fixXML();
   }
 
@@ -625,7 +626,7 @@ class sfPropelDatabaseSchema
             // remove complex index
             unset($this->database[$table]['_indexes'][$index]);
           }
-          
+
           $this->removeEmptyKey($this->database[$table], '_indexes');
         }
       }

@@ -9,18 +9,11 @@
  */
 
 /**
- * @package    symfony
- * @subpackage addon
- * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
- * @version    SVN: $Id$
- */
-
-/**
- *
- * sfPropelPager class.
+ * This class is the Propel implementation of sfPager.  It interacts with the propel record set and
+ * manages criteria.
  *
  * @package    symfony
- * @subpackage addon
+ * @subpackage propel
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @version    SVN: $Id$
  */

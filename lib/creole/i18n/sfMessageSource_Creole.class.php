@@ -12,10 +12,10 @@
  * The latest version of PRADO can be obtained from:
  * {@link http://prado.sourceforge.net/}
  *
+ * @package    symfony
+ * @subpackage creole
  * @author     Wei Zhuo <weizhuo[at]gmail[dot]com>
  * @version    $Id: sfMessageSource_Creole.class.php 4887 2007-08-22 17:21:41Z fabien $
- * @package    symfony
- * @subpackage i18n
  */
 
 /*

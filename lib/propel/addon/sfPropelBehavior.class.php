@@ -9,8 +9,10 @@
  */
 
 /**
+ * Manages behaviors for propel. Implements hooks for propel objects.
+ *
  * @package    symfony
- * @subpackage addon
+ * @subpackage propel
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @version    SVN: $Id$
  */

@@ -12,7 +12,7 @@
  * Creates a schema.xml from an existing database.
  *
  * @package    symfony
- * @subpackage command
+ * @subpackage propel
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @version    SVN: $Id$
  */

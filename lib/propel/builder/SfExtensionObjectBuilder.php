@@ -12,7 +12,7 @@ require_once 'propel/engine/builder/om/php5/PHP5ExtensionObjectBuilder.php';
 
 /**
  * @package    symfony
- * @subpackage addon
+ * @subpackage propel
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @version    SVN: $Id$
  */
@@ -43,7 +43,7 @@ class SfExtensionObjectBuilder extends PHP5ExtensionObjectBuilder
  * $tableDesc
  *
  * @package ".$this->getPackage()."
- */ 
+ */
 class ".$this->getClassname()." extends $baseClassname
 {";
   }
@@ -51,7 +51,7 @@ class ".$this->getClassname()." extends $baseClassname
   /**
    * Closes class.
    * @param string &$script The script will be modified in this method.
-   */ 
+   */
   protected function addClassClose(&$script)
   {
     $script .= "

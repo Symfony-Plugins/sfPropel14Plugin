@@ -18,7 +18,7 @@
  * <b>parameters:</b> see sfDatabaseSessionStorage
  *
  * @package    symfony
- * @subpackage storage
+ * @subpackage creole
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @author     Sean Kerr <skerr@mojavi.org>
  * @author     Veikko Mäkinen <mail@veikkomakinen.com>

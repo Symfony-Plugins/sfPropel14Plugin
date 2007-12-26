@@ -1,18 +1,16 @@
 <?php
 
 /**
- * symfony logging adapter for propel
+ * symfony logging adapter for propel 1.3
  *
- * @package    propel
- * @subpackage logger
+ * @package    symfony
+ * @subpackage log
  * @author     Dustin Whittle <dustin.whittle@symfony-project.com>
  * @version    $Id:$
  */
-class sfPropelLogger implements BasicLogger {
+class sfPropelLogger implements BasicLogger
+{
 
-	/**
-	 * Instance of logger
-	 */
 	private $dispatcher = null;
 
 	/**
@@ -108,12 +106,12 @@ class sfPropelLogger implements BasicLogger {
 	 * @param mixed $message the message to log.
 	 * @param int $severity The numeric severity. Defaults to null so that no assumptions are made about the logging backend.
 	 */
-	public function log($message, $severity = null)
+	public function log($message, $severity = sfLogger::DEBUG)
 	{
     // get a backtrace to pass class, function, file, & line to logger
 		// $trace = debug_backtrace();
 		// sprintf('%s->%s on line %s in file %s', $trace[2]['class'], $trace[2]['function'], $trace[1]['file'], $trace[1]['line']);
 
-    $this->dispatcher->notify(new sfEvent($this, 'application.log', array($message, 'priority' => (is_null($severity)) ? sfLogger::DEBUG : $severity)));
+    $this->dispatcher->notify(new sfEvent($this, 'application.log', array($message, 'priority' => $severity)));
 	}
 }

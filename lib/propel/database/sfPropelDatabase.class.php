@@ -21,8 +21,7 @@
  *                                       via sfPropelAutoload.
  *
  * @package    symfony
- * @subpackage database
- *
+ * @subpackage propel
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @version    SVN: $Id$
  */

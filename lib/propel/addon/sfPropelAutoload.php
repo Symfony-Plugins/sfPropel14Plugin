@@ -1,7 +1,5 @@
 <?php
 
-require_once 'propel/engine/builder/om/php5/PHP5MultiExtendObjectBuilder.php';
-
 /*
  * This file is part of the symfony package.
  * (c) 2004-2006 Fabien Potencier <fabien.potencier@symfony-project.com>
@@ -11,20 +9,14 @@ require_once 'propel/engine/builder/om/php5/PHP5MultiExtendObjectBuilder.php';
  */
 
 /**
+ * Autoloading and initialization for propel.
+ *
  * @package    symfony
  * @subpackage propel
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @version    SVN: $Id$
  */
-class SfMultiExtendObjectBuilder extends PHP5MultiExtendObjectBuilder
-{
-  protected function addIncludes(&$script)
-  {
-    if (!DataModelBuilder::getBuildProperty('builderAddIncludes'))
-    {
-      return;
-    }
 
-    parent::addIncludes($script);
-  }
-}
+require_once('propel/Propel.php');
+
+sfPropel::initialize(sfContext::getInstance()->getEventDispatcher());
