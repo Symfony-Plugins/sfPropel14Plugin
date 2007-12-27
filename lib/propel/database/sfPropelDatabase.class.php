@@ -83,7 +83,7 @@ class sfPropelDatabase extends sfPDODatabase
   {
     Propel::setConfiguration(self::$config);
 
-    $this->log(sprintf("Connecting to datasource '%s' with dsn: %s", $this->getParameter('datasource'), var_export(self::$config['propel']['datasources'][$this->getParameter('datasource')]['connection']['dsn'], true)));
+    $this->log(sprintf("Connecting to database '%s' with dsn: %s", $this->getParameter('datasource'), var_export(self::$config['propel']['datasources'][$this->getParameter('datasource')]['connection']['dsn'], true)));
 
     $this->connection = Propel::getConnection();
   }
@@ -199,7 +199,7 @@ class sfPropelDatabase extends sfPDODatabase
    */
   public function shutdown ()
   {
-    $this->log(sprintf("Disconnected from datasource '%s'", $this->getParameter('datasource')));
+    $this->log(sprintf("Disconnected from database '%s'", $this->getParameter('datasource')));
 
     if ($this->connection !== null)
     {

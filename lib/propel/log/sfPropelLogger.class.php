@@ -122,6 +122,6 @@ class sfPropelLogger implements BasicLogger
 
 		$message = stripos('SELECT', $message) ? 'executeQuery: '.$message : 'executeUpdate: '.$message;
 
-    $this->dispatcher->notify(new sfEvent($this, 'application.log', array('{Propel} '.$message, 'priority' => $severity)));
+    $this->dispatcher->notify(new sfEvent($this, 'application.log', array($message, 'priority' => $severity)));
 	}
 }
