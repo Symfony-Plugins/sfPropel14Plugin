@@ -25,10 +25,21 @@
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @version    SVN: $Id$
  */
-class sfPropelDatabase extends sfDatabase
+class sfPropelDatabase extends sfPDODatabase
 {
-  static protected $config = array();
+  /**
+   * Datasource configurations
+   */
+  protected static $config = array();
 
+  /**
+   * Initializes sfPropelDatabase by loading configuration and initializing Propel
+   *
+   * @param array $parameters The datasource parameters
+   * @param string $name The datasource name
+   *
+   * @return void
+   */
   public function initialize($parameters = null, $name = 'propel')
   {
     parent::initialize($parameters);
@@ -62,11 +73,36 @@ class sfPropelDatabase extends sfDatabase
     Propel::initialize();
   }
 
+  /**
+   * Connect to the database.
+   * Stores the PDO connection in $connection
+   *
+   * @return void
+   */
+  public function connect()
+  {
+    Propel::setConfiguration(self::$config);
+
+    $this->log(sprintf("Connecting to datasource '%s' with dsn: %s", $this->getParameter('datasource'), var_export(self::$config['propel']['datasources'][$this->getParameter('datasource')]['connection']['dsn'], true)));
+
+    $this->connection = Propel::getConnection();
+  }
+
+  /**
+   * Sets the default configuration
+   *
+   * @return void
+   */
   public function setDefaultConfig()
   {
     self::$config['propel']['datasources']['default'] = $this->getParameter('datasource');
   }
 
+  /**
+   * Adds configuration for current datasource
+   *
+   * @return void
+   */
   public function addConfig()
   {
     if ($dsn = $this->getParameter('dsn'))
@@ -76,6 +112,11 @@ class sfPropelDatabase extends sfDatabase
       // check for non-pdo dsn - to be backwards compatable
       if (false !== strpos($dsn, '//'))
       {
+        if (!sfConfig::get('sf_compat_10'))
+        {
+          throw new sfConfigurationException('You must set "compat_10" to true if you want to use creole style dsn.');
+        }
+
         // derive pdo dsn (etc) from old style dsn
         $params = Creole::parseDSN($dsn);;
 
@@ -114,21 +155,32 @@ class sfPropelDatabase extends sfDatabase
   }
 
   /**
-   * parse the new styled dsn, really i only want to grab the 'phptype' out
+   * Parses PDO style DSN
    *
    * @param string $dsn
-   * @return array
+   * @return array the parsed dsn
    */
   private function parseDsn($dsn)
   {
     return array('phptype' => substr($dsn, 0, strpos($dsn, ':')));
   }
 
+  /**
+   * Returns the current databsae configuration
+   *
+   * @return array
+   */
   public static function getConfiguration()
   {
     return self::$config;
   }
 
+  /**
+   * Sets database configuration parameter
+   *
+   * @param string $key
+   * @param mixed $value
+   */
   public function setConnectionParameter($key, $value)
   {
     if ($key == 'host')
@@ -141,25 +193,14 @@ class sfPropelDatabase extends sfDatabase
   }
 
   /**
-   * Connect to the database.
-   * Stores the PDO connection in $connection
-   *
-   */
-  public function connect ()
-  {
-    Propel::setConfiguration(self::$config);
-    $this->connection = Propel::getConnection();
-  }
-
-  /**
    * Execute the shutdown procedure.
    *
    * @return void
-   *
-   * @throws <b>sfDatabaseException</b> If an error occurs while shutting down this database.
    */
   public function shutdown ()
   {
+    $this->log(sprintf("Disconnected from datasource '%s'", $this->getParameter('datasource')));
+
     if ($this->connection !== null)
     {
       @$this->connection = null;

@@ -1,7 +1,15 @@
 <?php
 
+/*
+* This file is part of the symfony package.
+* (c) 2004-2006 Fabien Potencier <fabien.potencier@symfony-project.com>
+*
+* For the full copyright and license information, please view the LICENSE
+* file that was distributed with this source code.
+*/
+
 /**
- * symfony logging adapter for propel 1.3
+ * A symfony logging adapter for Propel
  *
  * @package    symfony
  * @subpackage log
@@ -112,6 +120,8 @@ class sfPropelLogger implements BasicLogger
 		// $trace = debug_backtrace();
 		// sprintf('%s->%s on line %s in file %s', $trace[2]['class'], $trace[2]['function'], $trace[1]['file'], $trace[1]['line']);
 
-    $this->dispatcher->notify(new sfEvent($this, 'application.log', array($message, 'priority' => $severity)));
+		$message = stripos('SELECT', $message) ? 'executeQuery: '.$message : 'executeUpdate: '.$message;
+
+    $this->dispatcher->notify(new sfEvent($this, 'application.log', array('{Propel} '.$message, 'priority' => $severity)));
 	}
 }
