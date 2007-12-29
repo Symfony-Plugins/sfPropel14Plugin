@@ -71,6 +71,7 @@ class sfPropelDatabase extends sfPDODatabase
     }
 
     Propel::initialize();
+
   }
 
   /**
@@ -81,8 +82,6 @@ class sfPropelDatabase extends sfPDODatabase
    */
   public function connect()
   {
-    Propel::setConfiguration(self::$config);
-
     $this->log(sprintf("Connecting to database '%s' with dsn: %s", $this->getParameter('datasource'), var_export(self::$config['propel']['datasources'][$this->getParameter('datasource')]['connection']['dsn'], true)));
 
     $this->connection = Propel::getConnection();
