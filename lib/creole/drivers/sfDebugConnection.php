@@ -23,7 +23,7 @@
  *
  * @package    symfony
  * @subpackage creole
- * @author Michael Sims
+ * @author     Michael Sims
  * @version    SVN: $Id: sfCreoleDatabase.class.php 5214 2007-09-21 09:18:32Z fabien $
  */
 class sfDebugConnection implements Connection

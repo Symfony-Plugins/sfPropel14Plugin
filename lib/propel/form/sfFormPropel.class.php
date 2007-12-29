@@ -9,10 +9,8 @@
  */
 
 /**
- * sfFormPropel is the base class for forms based on Propel objects.
- *
  * @package    symfony
- * @subpackage propel
+ * @subpackage form
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @version    SVN: $Id$
  */
