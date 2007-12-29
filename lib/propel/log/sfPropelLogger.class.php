@@ -116,12 +116,6 @@ class sfPropelLogger implements BasicLogger
 	 */
 	public function log($message, $severity = sfLogger::DEBUG)
 	{
-    // get a backtrace to pass class, function, file, & line to logger
-		// $trace = debug_backtrace();
-		// sprintf('%s->%s on line %s in file %s', $trace[2]['class'], $trace[2]['function'], $trace[1]['file'], $trace[1]['line']);
-
-		$message = stripos('SELECT', $message) ? 'executeQuery: '.$message : 'executeUpdate: '.$message;
-
     $this->dispatcher->notify(new sfEvent($this, 'application.log', array($message, 'priority' => $severity)));
 	}
 }
