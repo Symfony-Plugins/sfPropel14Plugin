@@ -3,7 +3,7 @@
 /*
  * This file is part of the symfony package.
  * (c) 2004-2006 Fabien Potencier <fabien.potencier@symfony-project.com>
- * 
+ *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
@@ -159,7 +159,7 @@ $b->
   checkResponseElement('body form#sf_admin_edit_form select[name="article[category_id]"][id="article_category_id"]', true)->
   checkResponseElement('body form#sf_admin_edit_form select[name="article[category_id]"][id="article_category_id"] option[value="1"]', '1')->
   checkResponseElement('body form#sf_admin_edit_form select[name="article[category_id]"][id="article_category_id"] option[value="2"]', '2')->
-  checkResponseElement('body form#sf_admin_edit_form input[name="article[created_at]"][id="article_created_at"][value*="-"]')->
+  checkResponseElement('body form#sf_admin_edit_form input[name="article[created_at]"][id="article_created_at"][value]')->
 
   // buttons
   checkResponseElement('body input[class="sf_admin_action_list"][onclick*="/article/list"]', true)->
