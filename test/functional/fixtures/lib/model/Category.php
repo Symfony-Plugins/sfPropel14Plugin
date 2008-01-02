@@ -3,10 +3,10 @@
 /**
  * Subclass for representing a row from the 'category' table.
  *
- * 
+ *
  *
  * @package lib.model
- */ 
+ */
 class Category extends BaseCategory
 {
 	/**
@@ -20,4 +20,8 @@ class Category extends BaseCategory
 		parent::__construct();
 	}
 
+  public function __toString()
+  {
+    return $this->getName();
+  }
 }

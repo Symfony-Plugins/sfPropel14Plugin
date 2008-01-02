@@ -3,10 +3,10 @@
 /**
  * Subclass for representing a row from the 'book' table.
  *
- * 
+ *
  *
  * @package lib.model
- */ 
+ */
 class Book extends BaseBook
 {
 	/**
@@ -20,4 +20,8 @@ class Book extends BaseBook
 		parent::__construct();
 	}
 
+  public function __toString()
+  {
+    return $this->getName();
+  }
 }

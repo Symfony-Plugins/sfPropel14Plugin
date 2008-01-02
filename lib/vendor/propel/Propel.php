@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Propel.php 858 2007-12-13 15:04:14Z heltem $
+ *  $Id: Propel.php 902 2008-01-02 09:49:16Z abeggchr $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -37,7 +37,7 @@ require 'propel/util/PropelPDO.php';
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
  * @author     Henning P. Schmiedehausen <hps@intermeta.de> (Torque)
  * @author     Kurt Schrader <kschrader@karmalab.org> (Torque)
- * @version    $Revision: 858 $
+ * @version    $Revision: 902 $
  * @package    propel
  */
 class Propel
@@ -481,13 +481,12 @@ class Propel
 	 *
 	 * @param      string[] connection paramters
 	 * @param      name
-	 * @param      boolean Initialize a PropelPDO (true, default) or a plain PDO (false)
 	 *
 	 * @return     object A database connection of the given class (PDO, PropelPDO, SlavePropelPDO)
 	 *
 	 * @throws     PropelException - if lower-level exception caught when trying to connect.
 	 */
-	public static function initConnection($conparams, $name, $class)
+	public static function initConnection($conparams, $name)
 	{
 
 		$dsn = $conparams['dsn'];

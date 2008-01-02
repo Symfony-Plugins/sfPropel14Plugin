@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: PropelPDO.php 857 2007-12-13 14:59:59Z heltem $
+ *  $Id: PropelPDO.php 903 2008-01-02 10:03:51Z abeggchr $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -191,7 +191,7 @@ class PropelPDO extends PDO {
 		Propel::log($sql, Propel::LOG_DEBUG);
 		if ($this->isForSlave($sql)) {
 			if ($slave = $this->getSlave()) {
-				$slave->exec($sql);
+				return $slave->exec($sql);
 			}
 		}
 		return parent::exec($sql);
