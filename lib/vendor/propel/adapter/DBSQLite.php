@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: DBSQLite.php 563 2007-02-01 09:45:55Z heltem $
+ *  $Id: DBSQLite.php 901 2008-01-02 01:40:59Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -24,10 +24,22 @@
  * This is used in order to connect to a SQLite database.
  *
  * @author     Hans Lellelid <hans@xmpl.org>
- * @version    $Revision: 563 $
+ * @version    $Revision: 901 $
  * @package    propel.adapter
  */
 class DBSQLite extends DBAdapter {
+	
+	/**
+	 * For SQLite this method has no effect, since SQLite doesn't support specifying a character
+	 * set (or, another way to look at it, it doesn't require a single character set per DB).
+	 *  
+	 * @param      PDO   A PDO connection instance.
+	 * @param      string The charset encoding.
+	 * @throws     PropelException If the specified charset doesn't match sqlite_libencoding()
+	 */
+	public function setCharset(PDO $con, $charset)
+	{
+	}
 
 	/**
 	 * This method is used to ignore case.

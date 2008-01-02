@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: GeneratedPeerTest.php 842 2007-12-02 16:28:20Z heltem $
+ *  $Id: GeneratedPeerTest.php 899 2008-01-02 00:32:04Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -40,8 +40,8 @@ class GeneratedPeerTest extends BookstoreTestBase {
 	/**
 	 * Test ability to delete multiple rows via single Criteria object.
 	 */
-	public function t3estDoDelete_MultiTable() {
-
+	public function testDoDelete_MultiTable() {
+		
 		$selc = new Criteria();
 		$selc->add(BookPeer::TITLE, "Harry Potter and the Order of the Phoenix");
 		$hp = BookPeer::doSelectOne($selc);

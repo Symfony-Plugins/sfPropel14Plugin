@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: DBAdapter.php 563 2007-02-01 09:45:55Z heltem $
+ *  $Id: DBAdapter.php 900 2008-01-02 01:33:26Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -38,7 +38,7 @@
  * @author     Jon S. Stevens <jon@latchkey.com> (Torque)
  * @author     Brett McLaughlin <bmclaugh@algx.net> (Torque)
  * @author     Daniel Rall <dlr@finemaltcoding.com> (Torque)
- * @version    $Revision: 563 $
+ * @version    $Revision: 900 $
  * @package    propel.adapter
  */
 abstract class DBAdapter {
@@ -84,23 +84,45 @@ abstract class DBAdapter {
 	/**
 	 * This method is called after a connection was created to run necessary
 	 * post-initialization queries or code.
+	 * 
+	 * If a charset was specified, this will be set before any other queries
+	 * are executed.
 	 *
 	 * This base method runs queries specified using the "query" setting.
 	 *
 	 * @param      PDO   A PDO connection instance.
 	 * @param      array An array of settings.
+	 * @see        setCharset()
 	 */
 	public function initConnection(PDO $con, array $settings)
 	{
+		if (isset($settings['charset']['value'])) {
+			$this->setCharset($con, $settings['charset']['value']);
+		}
 		if (isset($settings['queries']) && is_array($settings['queries'])) {
 			foreach ($settings['queries'] as $queries) {
 				foreach ((array)$queries as $query) {
-					$con->query($query);
+					$con->exec($query);
 				}
 			}
 		}
 	}
 
+	/**
+	 * Sets the character encoding using SQL standard SET NAMES statement.
+	 * 
+	 * This method is invoked from the default initConnection() method and must 
+	 * be overridden for an RDMBS which does _not_ support this SQL standard.
+	 *
+	 * @param      PDO   A PDO connection instance.
+	 * @param      string The charset encoding.
+	 * @see        initConnection()
+	 */
+	public function setCharset(PDO $con, $charset)
+	{
+		$con->exec("SET NAMES '" . $charset . "'");
+	}
+	
 	/**
 	 * This method is used to ignore case.
 	 *

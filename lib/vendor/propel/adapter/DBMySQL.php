@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: DBMySQL.php 784 2007-11-08 10:15:50Z heltem $
+ *  $Id: DBMySQL.php 898 2008-01-02 00:18:44Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -27,26 +27,11 @@
  * @author     Jon S. Stevens <jon@clearink.com> (Torque)
  * @author     Brett McLaughlin <bmclaugh@algx.net> (Torque)
  * @author     Daniel Rall <dlr@finemaltcoding.com> (Torque)
- * @version    $Revision: 784 $
+ * @version    $Revision: 898 $
  * @package    propel.adapter
  */
 class DBMySQL extends DBAdapter {
-
-	/**
-	 * This method is called after a connection was created to run necessary
-	 * post-initialization queries or code.
-	 *
-	 * @param      PDO   A PDO connection instance.
-	 * @param      array An array of settings.
-	 */
-	public function initConnection(PDO $con, array $settings)
-	{
-		if (isset($settings['charset']['value'])) {
-			$con->query('SET NAMES "' . $settings['charset']['value'] . '"');
-		}
-		parent::initConnection($con, $settings);
-	}
-
+	
 	/**
 	 * This method is used to ignore case.
 	 *

@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: DBNone.php 521 2007-01-05 13:29:36Z heltem $
+ *  $Id: DBNone.php 898 2008-01-02 00:18:44Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -21,21 +21,20 @@
  */
 
 /**
- * This DatabaseHandler is used when you do not have a database
- * installed.
+ * This adapter  is used when you do not have a database installed.
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Jon S. Stevens <jon@clearink.com> (Torque)
  * @author     Brett McLaughlin <bmclaugh@algx.net> (Torque)
- * @version    $Revision: 521 $
+ * @version    $Revision: 898 $
  * @package    propel.adapter
  */
 class DBNone extends DBAdapter {
 
 	/**
-	 * @see        DBAdapter::init()
+	 * @see        DBAdapter::initConnection()
 	 */
-	public function init($url, $username, $password)
+	public function initConnection(PDO $con, array $settings)
 	{
 	}
 
