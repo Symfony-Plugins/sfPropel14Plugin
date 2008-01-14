@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5NodeBuilder.php 712 2007-10-24 04:59:30Z gamr $
+ *  $Id: PHP5NodeBuilder.php 905 2008-01-09 04:12:34Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -663,7 +663,7 @@ abstract class ".$this->getClassname()." implements IteratorAggregate {
 			throw new PropelException('Invalid beforeNode.');
 
 		if (\$con === null)
-			\$con = Propel::getConnection($peerClassname::DATABASE_NAME);
+			\$con = Propel::getConnection($peerClassname::DATABASE_NAME, Propel::CONNECTION_WRITE);
 
 		try {
 

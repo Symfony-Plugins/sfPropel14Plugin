@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5ObjectBuilder.php 871 2007-12-19 01:50:21Z hans $
+ *  $Id: PHP5ObjectBuilder.php 920 2008-01-13 22:26:02Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -206,6 +206,7 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 
 		$this->addFKMethods($script);
 		$this->addRefFKMethods($script);
+		$this->addClearAllReferences($script);
 	}
 
 	/**
@@ -604,8 +605,9 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 		\$c->addSelectColumn(".$this->getColumnConstant($col).");
 		try {
 			\$stmt = ".$this->getPeerClassname()."::doSelectStmt(\$c, \$con);
-			\$row = \$stmt->fetch(PDO::FETCH_NUM);";
-
+			\$row = \$stmt->fetch(PDO::FETCH_NUM);
+			\$stmt->closeCursor();";
+			
 		$clo = strtolower($col->getName());
 		if ($col->isLobType() && !$platform->hasStreamBlobImpl()) {
 			$script .= "
@@ -1289,7 +1291,7 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 		}
 
 		if (\$con === null) {
-			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME);
+			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
 
 		try {
@@ -1334,7 +1336,7 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 		}
 
 		if (\$con === null) {
-			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME);
+			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_READ);
 		}
 
 		// We don't need to alter the object instance pool; we're just modifying this instance
@@ -1342,6 +1344,7 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 
 		\$stmt = ".$this->getPeerClassname()."::doSelectStmt(\$this->buildPkeyCriteria(), \$con);
 		\$row = \$stmt->fetch(PDO::FETCH_NUM);
+		\$stmt->closeCursor();
 		if (!\$row) {
 			throw new PropelException('Cannot find matching row in the database to reload object values.');
 		}
@@ -2569,30 +2572,42 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 	protected function addDoSave(&$script)
 	{
 		$table = $this->getTable();
-
+		
+		$reloadOnUpdate = $table->isReloadOnUpdate();
+		$reloadOnInsert = $table->isReloadOnInsert();
+		
 		$script .= "
 	/**
-	 * Stores the object in the database.
+	 * Performs the work of inserting or updating the row in the database.
 	 *
 	 * If the object is new, it inserts it; otherwise an update is performed.
 	 * All related objects are also updated in this method.
 	 *
-	 * @param      PropelPDO \$con
+	 * @param      PropelPDO \$con";
+		if ($reloadOnUpdate || $reloadOnInsert) {
+			$script .= "
+	 * @param      boolean \$skipReload Whether to skip the reload for this object from database.";
+		}
+		$script .= "
 	 * @return     int The number of rows affected by this insert/update and any referring fk objects' save() operations.
 	 * @throws     PropelException
 	 * @see        save()
 	 */
-	protected function doSave(PropelPDO \$con)
+	protected function doSave(PropelPDO \$con".($reloadOnUpdate || $reloadOnInsert ? ", \$skipReload = false" : "").")
 	{
 		\$affectedRows = 0; // initialize var to track total num of affected rows
 		if (!\$this->alreadyInSave) {
 			\$this->alreadyInSave = true;
 ";
+		if ($reloadOnInsert || $reloadOnUpdate) {
+			$script .= "
+			\$reloadObject = false;
+";
+		}
 
 		if (count($table->getForeignKeys())) {
 
 			$script .= "
-
 			// We call the save method on the following object(s) if they
 			// were passed to this object by their coresponding set
 			// method.  This object relates to these object(s) by a
@@ -2629,7 +2644,14 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 
 		$script .= ") {
 				if (\$this->isNew()) {
-					\$pk = ".$this->getPeerClassname()."::doInsert(\$this, \$con);
+					\$pk = ".$this->getPeerClassname()."::doInsert(\$this, \$con);";
+		if ($reloadOnInsert) {
+			$script .= "
+					if (!\$skipReload) {
+						\$reloadObject = true;
+					}";
+		}
+		$script .= "
 					\$affectedRows += 1; // we are assuming that there is only 1 row per doInsert() which
 										 // should always be true here (even though technically
 										 // BasePeer::doInsert() can insert multiple rows).
@@ -2649,7 +2671,14 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 
 		$script .= "
 					\$this->setNew(false);
-				} else {
+				} else {";
+		if ($reloadOnUpdate) {
+			$script .= "
+					if (!\$skipReload) {
+						\$reloadObject = true;
+					}";
+		}
+		$script .= "
 					\$affectedRows += ".$this->getPeerClassname()."::doUpdate(\$this, \$con);
 				}
 				\$this->resetModified(); // [HL] After being saved an object is no longer 'modified'
@@ -2683,6 +2712,15 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 		} /* foreach getReferrers() */
 		$script .= "
 			\$this->alreadyInSave = false;
+";
+		if ($reloadOnInsert || $reloadOnUpdate) {
+			$script .= "
+			if (\$reloadObject) {
+				\$this->reload(\$con);
+			}
+";
+		}
+		$script .= "
 		}
 		return \$affectedRows;
 	} // doSave()
@@ -2712,30 +2750,57 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 	 */
 	protected function addSave(&$script)
 	{
+		$table = $this->getTable();
+		$reloadOnUpdate = $table->isReloadOnUpdate();
+		$reloadOnInsert = $table->isReloadOnInsert();
+		
 		$script .= "
 	/**
-	 * Stores the object in the database.  If the object is new,
-	 * it inserts it; otherwise an update is performed.  This method
-	 * wraps the doSave() worker method in a transaction.
+	 * Persists this object to the database.
+	 * 
+	 * If the object is new, it inserts it; otherwise an update is performed.
+	 * All modified related objects will also be persisted in the doSave() 
+	 * method.  This method wraps all precipitate database operations in a 
+	 * single transaction.";
+		if ($reloadOnUpdate) {
+			$script .= "
+	 * 
+	 * Since this table was configured to reload rows on update, the object will
+	 * be reloaded from the database if an UPDATE operation is performed (unless 
+	 * the \$skipReload parameter is TRUE).";
+		}
+		if ($reloadOnInsert) {
+			$script .= "
+	 * 
+	 * Since this table was configured to reload rows on insert, the object will
+	 * be reloaded from the database if an INSERT operation is performed (unless 
+	 * the \$skipReload parameter is TRUE).";
+		}
+		$script .= "
 	 *
-	 * @param      PropelPDO \$con
+	 * @param      PropelPDO \$con";
+		if ($reloadOnUpdate || $reloadOnInsert) {
+			$script .= "
+	 * @param      boolean \$skipReload Whether to skip the reload for this object from database.";
+		}
+		$script .= "	 
 	 * @return     int The number of rows affected by this insert/update and any referring fk objects' save() operations.
 	 * @throws     PropelException
 	 * @see        doSave()
 	 */
-	public function save(PropelPDO \$con = null)
+	public function save(PropelPDO \$con = null".($reloadOnUpdate || $reloadOnInsert ? ", \$skipReload = false" : "").")
 	{
 		if (\$this->isDeleted()) {
 			throw new PropelException(\"You cannot save an object that has been deleted.\");
 		}
 
 		if (\$con === null) {
-			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME);
+			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
 
 		try {
 			\$con->beginTransaction();
-			\$affectedRows = \$this->doSave(\$con);
+			\$affectedRows = \$this->doSave(\$con".($reloadOnUpdate || $reloadOnInsert ? ", \$skipReload" : "").");
 			\$con->commit();
 			".$this->getPeerClassname()."::addInstanceToPool(\$this);
 			return \$affectedRows;
@@ -3071,6 +3136,57 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 ";
 	} // addCopyInto()
 
-
+	
+	/**
+	 * Adds clearAllReferencers() method which resets all the collections of referencing
+	 * fk objects.
+	 * @param      string &$script The script will be modified in this method.
+	 */
+	protected function addClearAllReferences(&$script)
+	{
+		$table = $this->getTable();
+		$script .= "
+	/**
+	 * Resets all collections of referencing foreign keys.
+	 * 
+	 * This method is a user-space workaround for PHP's inability to garbage collect objects
+	 * with circular references.  This is currently necessary when using Propel in certain
+	 * daemon or large-volumne/high-memory operations.
+	 * 
+	 * @param      boolean \$deep Whether to also clear the references on all associated objects. 
+	 */
+	public function clearAllReferences(\$deep = false)
+	{
+		if (\$deep) {";
+		$vars = array();
+		foreach ($this->getTable()->getReferrers() as $refFK) {
+			if ($refFK->isLocalPrimaryKey()) {
+				$varName = $this->getPKRefFKVarName($refFK);
+				$vars[] = $varName;
+				$script .= "
+			\$this->{$varName}->clearAllReferences(\$deep);";
+			} else {
+				$varName = $this->getRefFKCollVarName($refFK);
+				$vars[] = $varName;
+				$script .= "
+			foreach(\$this->$varName as \$o) {
+				\$o->clearAllReferences(\$deep);
+			}";
+			}
+		}
+		
+		$script .= "
+		} // if (\$deep)
+";
+		
+		foreach($vars as $varName) {
+			$script .= "
+		\$this->$varName = null;";
+		}
+		
+		$script .= "
+	}
+";
+	}
 
 } // PHP5ObjectBuilder

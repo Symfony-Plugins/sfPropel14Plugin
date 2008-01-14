@@ -9,21 +9,35 @@ include_once 'propel/util/BasePeer.php';
  *
  * @author     <a href="mailto:celkins@scardini.com">Christopher Elkins</a>
  * @author     <a href="mailto:sam@neurogrid.com">Sam Joseph</a>
- * @version    $Id: CriteriaTest.php 857 2007-12-13 14:59:59Z heltem $
+ * @version    $Id: CriteriaTest.php 911 2008-01-11 15:08:46Z hans $
  */
 class CriteriaTest extends BaseTestCase {
 
-	/** The criteria to use in the test. */
-	private $c;
-
 	/**
-	 * Initializes the criteria.
+	 * The criteria to use in the test.
+	 * @var        Criteria
 	 */
-	public function setUp()
+	private $c;
+	
+	/**
+	 * DB adapter saved for later.
+	 *
+	 * @var        DBAdapter
+	 */
+	private $savedAdapter;
+	
+	protected function setUp()
 	{
 		parent::setUp();
 		$this->c = new Criteria();
+		$this->savedAdapter = Propel::getDB(null);
 		Propel::setDB(null, new DBSQLite());
+	}
+	
+	protected function tearDown()
+	{
+		Propel::setDB(null, $this->savedAdapter);
+		parent::tearDown();
 	}
 
 	/**

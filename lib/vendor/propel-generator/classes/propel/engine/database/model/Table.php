@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: Table.php 842 2007-12-02 16:28:20Z heltem $
+ *  $Id: Table.php 908 2008-01-10 15:48:59Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -40,7 +40,7 @@ include_once 'propel/engine/database/model/Validator.php';
  * @author     John McNally <jmcnally@collab.net> (Torque)
  * @author     Daniel Rall <dlr@collab.net> (Torque)
  * @author     Byron Foster <byron_foster@yahoo.com> (Torque)
- * @version    $Revision: 842 $
+ * @version    $Revision: 908 $
  * @package    propel.engine.database.model
  */
 class Table extends XMLElement implements IDMethod {
@@ -79,7 +79,9 @@ class Table extends XMLElement implements IDMethod {
 	private $heavyIndexing;
 	private $forReferenceOnly;
 	private $treeMode;
-
+	private $reloadOnInsert;
+	private $reloadOnUpdate;
+	
 	/**
 	 * Constructs a table object with a name
 	 *
@@ -126,6 +128,9 @@ class Table extends XMLElement implements IDMethod {
 		$this->description = $this->getAttribute("description");
 		$this->enterface = $this->getAttribute("interface"); // sic ('interface' is reserved word)
 		$this->treeMode = $this->getAttribute("treeMode");
+		
+		$this->reloadOnInsert = $this->booleanValue($this->getAttribute("reloadOnInsert"));
+		$this->reloadOnUpdate = $this->booleanValue($this->getAttribute("reloadOnUpdate"));
 	}
 
 	/**
@@ -670,6 +675,24 @@ class Table extends XMLElement implements IDMethod {
 	{
 		$this->skipSql = $v;
 	}
+	
+	/**
+	 * Whether to force object to reload on INSERT.
+	 * @return     boolean
+	 */
+	public function isReloadOnInsert()
+	{
+		return $this->reloadOnInsert;
+	}
+	
+	/**
+	 * Whether to force object to reload on UPDATE.
+	 * @return     boolean
+	 */
+	public function isReloadOnUpdate()
+	{
+		return $this->reloadOnUpdate;
+	}
 
 	/**
 	 * PhpName of om object this entry references.
@@ -995,7 +1018,19 @@ class Table extends XMLElement implements IDMethod {
 					. $this->treeMode
 					. '"';
 		}
-
+		
+		if ($this->reloadOnInsert) {
+			$result .= " reloadOnInsert=\""
+					. ($this->reloadOnInsert ? "true" : "false")
+					. '"';
+		}
+		
+		if ($this->reloadOnUpdate) {
+			$result .= " reloadOnUpdate=\""
+					. ($this->reloadOnUpdate ? "true" : "false")
+					. '"';
+		}
+		
 		if ($this->forReferenceOnly) {
 			$result .= " forReferenceOnly=\""
 				  . ($this->forReferenceOnly ? "true" : "false")

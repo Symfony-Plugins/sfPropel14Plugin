@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5PeerBuilder.php 891 2007-12-19 23:09:57Z heltem $
+ *  $Id: PHP5PeerBuilder.php 917 2008-01-12 19:32:24Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -518,11 +518,12 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 
 		\$stmt = ".$this->getPeerClassname()."::doSelectStmt(\$criteria, \$con);
 		if (\$row = \$stmt->fetch(PDO::FETCH_NUM)) {
-			return (int) \$row[0];
+			\$count = (int) \$row[0];
 		} else {
-			// no rows returned; we infer that means 0 matches.
-			return 0;
+			\$count = 0; // no rows returned; we infer that means 0 matches.
 		}
+		\$stmt->closeCursor();
+		return \$count;
 	}";
 	}
 
@@ -600,7 +601,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 	public static function doSelectStmt(Criteria \$criteria, PropelPDO \$con = null)
 	{
 		if (\$con === null) {
-			\$con = Propel::getConnection(self::DATABASE_NAME);
+			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_READ);
 		}
 
 		if (!\$criteria->getSelectColumns()) {
@@ -854,7 +855,9 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 		while (\$row = \$stmt->fetch(PDO::FETCH_NUM)) {
 			\$key = ".$this->getPeerClassname()."::getPrimaryKeyHashFromRow(\$row, 0);
 			if (null !== (\$obj = ".$this->getPeerClassname()."::getInstanceFromPool(\$key))) {
-				\$obj->hydrate(\$row, 0, true); // rehydrate
+				// We no longer rehydrate the object, since this can cause data loss.
+				// See http://propel.phpdb.org/trac/ticket/509
+				// \$obj->hydrate(\$row, 0, true); // rehydrate
 				\$results[] = \$obj;
 			} else {
 		";
@@ -877,6 +880,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 		$script .= "
 			} // if key exists
 		}
+		\$stmt->closeCursor();
 		return \$results;
 	}";
 	}
@@ -1021,7 +1025,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 	public static function doInsert(\$values, PropelPDO \$con = null)
 	{
 		if (\$con === null) {
-			\$con = Propel::getConnection(self::DATABASE_NAME);
+			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
 
 		if (\$values instanceof Criteria) {
@@ -1080,7 +1084,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 	public static function doUpdate(\$values, PropelPDO \$con = null)
 	{
 		if (\$con === null) {
-			\$con = Propel::getConnection(self::DATABASE_NAME);
+			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
 
 		\$selectCriteria = new Criteria(self::DATABASE_NAME);
@@ -1127,7 +1131,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 	public static function doDeleteAll(\$con = null)
 	{
 		if (\$con === null) {
-			\$con = Propel::getConnection(self::DATABASE_NAME);
+			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
 		\$affectedRows = 0; // initialize var to track total num of affected rows
 		try {
@@ -1176,7 +1180,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 	 public static function doDelete(\$values, PropelPDO \$con = null)
 	 {
 		if (\$con === null) {
-			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME);
+			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_READ);
 		}
 
 		if (\$values instanceof Criteria) {
@@ -1549,7 +1553,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 	public static function ".$this->getRetrieveMethodName()."(\$pk, PropelPDO \$con = null)
 	{
 		if (\$con === null) {
-			\$con = Propel::getConnection(self::DATABASE_NAME);
+			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_READ);
 		}
 
 		\$criteria = new Criteria(".$this->getPeerClassname()."::DATABASE_NAME);
@@ -1599,7 +1603,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 	public static function ".$this->getRetrieveMethodName()."s(\$pks, PropelPDO \$con = null)
 	{
 		if (\$con === null) {
-			\$con = Propel::getConnection(self::DATABASE_NAME);
+			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_READ);
 		}
 
 		\$objs = null;
@@ -1668,7 +1672,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 		} /* foreach */
 		$script .= ", PropelPDO \$con = null) {
 		if (\$con === null) {
-			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME);
+			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_READ);
 		}
 		\$criteria = new Criteria(".$this->getPeerClassname()."::DATABASE_NAME);";
 		foreach ($table->getPrimaryKey() as $col) {
@@ -1828,7 +1832,9 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 		while (\$row = \$stmt->fetch(PDO::FETCH_NUM)) {
 			\$key1 = ".$this->getPeerClassname()."::getPrimaryKeyHashFromRow(\$row, 0);
 			if (null !== (\$obj1 = ".$this->getPeerClassname()."::getInstanceFromPool(\$key1))) {
-				\$obj1->hydrate(\$row, 0, true); // rehydrate
+				// We no longer rehydrate the object, since this can cause data loss.
+				// See http://propel.phpdb.org/trac/ticket/509
+				// \$obj1->hydrate(\$row, 0, true); // rehydrate
 			} else {
 ";
 						if ($table->getChildrenColumn()) {
@@ -1876,6 +1882,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 
 			\$results[] = \$obj1;
 		}
+		\$stmt->closeCursor();
 		return \$results;
 	}
 ";
@@ -1952,11 +1959,12 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 						$script .= "
 		\$stmt = ".$this->getPeerClassname()."::doSelectStmt(\$criteria, \$con);
 		if (\$row = \$stmt->fetch(PDO::FETCH_NUM)) {
-			return (int) \$row[0];
+			\$count = (int) \$row[0];
 		} else {
-			// no rows returned; we infer that means 0 matches.
-			return 0;
+			\$count = 0; // no rows returned; we infer that means 0 matches.
 		}
+		\$stmt->closeCursor();
+		return \$count;
 	}
 ";
 					} // if fk table name != this table name
@@ -2041,7 +2049,9 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 		while (\$row = \$stmt->fetch(PDO::FETCH_NUM)) {
 			\$key1 = ".$this->getPeerClassname()."::getPrimaryKeyHashFromRow(\$row, 0);
 			if (null !== (\$obj1 = ".$this->getPeerClassname()."::getInstanceFromPool(\$key1))) {
-				\$obj1->hydrate(\$row, 0, true); // rehydrate
+				// We no longer rehydrate the object, since this can cause data loss.
+				// See http://propel.phpdb.org/trac/ticket/509
+				// \$obj1->hydrate(\$row, 0, true); // rehydrate
 			} else {";
 
 		if ($table->getChildrenColumn()) {
@@ -2110,7 +2120,9 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 				} // if obj$index loaded
 
 				// Add the \$obj1 (".$this->getObjectClassname().") to the collection in \$obj".$index." (".$joinedTablePeerBuilder->getObjectClassname().")
-				\$obj".$index."->".($fk->isLocalPrimaryKey() ? 'set' : 'add') . $joinedTableObjectBuilder->getRefFKPhpNameAffix($fk, $plural = false)."(\$obj1);
+				".($fk->isLocalPrimaryKey() ? 
+				"\$obj1->set".$joinedTablePeerBuilder->getObjectClassname()."(\$obj".$index.");" : 
+				"\$obj".$index."->add".$joinedTableObjectBuilder->getRefFKPhpNameAffix($fk, $plural = false)."(\$obj1);")." 
 			} // if joined row not null
 ";
 
@@ -2120,6 +2132,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 		$script .= "
 			\$results[] = \$obj1;
 		}
+		\$stmt->closeCursor();
 		return \$results;
 	}
 ";
@@ -2186,11 +2199,12 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 		$script .= "
 		\$stmt = ".$this->getPeerClassname()."::doSelectStmt(\$criteria, \$con);
 		if (\$row = \$stmt->fetch(PDO::FETCH_NUM)) {
-			return (int) \$row[0];
-		} else {
-			// no rows returned; we infer that means 0 matches.
-			return 0;
+			\$count = (int) \$row[0];
+		} else {			
+			\$count = 0; // no rows returned; we infer that means 0 matches.
 		}
+		\$stmt->closeCursor();
+		return \$count;
 	}
 ";
 	} // end addDoCountJoinAll()
@@ -2296,7 +2310,9 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 		while (\$row = \$stmt->fetch(PDO::FETCH_NUM)) {
 			\$key1 = ".$this->getPeerClassname()."::getPrimaryKeyHashFromRow(\$row, 0);
 			if (null !== (".$this->getPeerClassname()."::getInstanceFromPool(\$key1))) {
-				\$obj1->hydrate(\$row, 0, true); // rehydrate
+				// We no longer rehydrate the object, since this can cause data loss.
+				// See http://propel.phpdb.org/trac/ticket/509
+				// \$obj1->hydrate(\$row, 0, true); // rehydrate
 			} else {";
 			if ($table->getChildrenColumn()) {
 				$script .= "
@@ -2374,6 +2390,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 			$script .= "
 			\$results[] = \$obj1;
 		}
+		\$stmt->closeCursor();
 		return \$results;
 	}
 ";
@@ -2456,11 +2473,12 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 			$script .= "
 		\$stmt = ".$this->getPeerClassname()."::doSelectStmt(\$criteria, \$con);
 		if (\$row = \$stmt->fetch(PDO::FETCH_NUM)) {
-			return (int) \$row[0];
+			\$count = (int) \$row[0];
 		} else {
-			// no rows returned; we infer that means 0 matches.
-			return 0;
+			\$count = 0; // no rows returned; we infer that means 0 matches.
 		}
+		\$stmt->closeCursor();
+		return \$count;
 	}
 ";
 		} // foreach fk

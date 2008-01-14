@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: BasePeerTest.php 842 2007-12-02 16:28:20Z heltem $
+ *  $Id: BasePeerTest.php 910 2008-01-11 15:07:02Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -54,7 +54,7 @@ class BasePeerTest extends BookstoreTestBase {
 				$this->markTestSkipped();
 			}
 			$stmt = BookPeer::doSelectStmt( $c );
-		} catch (Exception $x) {
+		} catch (PropelException $x) {
 			$this->fail("Paring of nested functions failed: " . $x->getMessage());
 		}
 	}

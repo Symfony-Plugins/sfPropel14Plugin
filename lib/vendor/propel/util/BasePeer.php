@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: BasePeer.php 857 2007-12-13 14:59:59Z heltem $
+ *  $Id: BasePeer.php 919 2008-01-13 21:12:24Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -35,7 +35,7 @@
  * @author     John D. McNally <jmcnally@collab.net> (Torque)
  * @author     Brett McLaughlin <bmclaugh@algx.net> (Torque)
  * @author     Stephen Haberman <stephenh@chase3000.com> (Torque)
- * @version    $Revision: 857 $
+ * @version    $Revision: 919 $
  * @package    propel.util
  */
 class BasePeer
@@ -272,7 +272,7 @@ class BasePeer
 			$qualifiedCols = $criteria->keys(); // we need table.column cols when populating values
 			$columns = array(); // but just 'column' cols for the SQL
 			foreach ($qualifiedCols as $qualifiedCol) {
-				$columns[] = substr($qualifiedCol, strpos($qualifiedCol, '.') + 1);
+				$columns[] = substr($qualifiedCol, strrpos($qualifiedCol, '.') + 1);
 			}
 
 			// add identifiers
@@ -355,7 +355,7 @@ class BasePeer
 
 				$sql = "UPDATE " . $tableName . " SET ";
 				foreach ($updateTablesColumns[$tableName] as $col) {
-					$updateColumnName = substr($col, strpos($col, '.') + 1);
+					$updateColumnName = substr($col, strrpos($col, '.') + 1);
 					// add identifiers for the actual database?
 					if ($db->useQuoteIdentifier()) {
 						$updateColumnName = $db->quoteIdentifier($updateColumnName);
@@ -430,7 +430,7 @@ class BasePeer
 		$db = Propel::getDB($criteria->getDbName());
 
 		if ($con === null) {
-			$con = Propel::getConnection($criteria->getDbName());
+			$con = Propel::getConnection($criteria->getDbName(), Propel::CONNECTION_READ);
 		}
 
 		$stmt = null;
@@ -520,13 +520,7 @@ class BasePeer
 					// get written to database.
 					rewind($value);
 				}
-
-				if ($type == PropelColumnTypes::BLOB || $type == PropelColumnTypes::CLOB ) {
-					Propel::log("Binding [LOB value] at position $i w/ Propel type $type and PDO type $pdoType", Propel::LOG_DEBUG);
-				} else {
-					Propel::log("Binding " . var_export($value, true) . " at position $i w/ Propel type $type and PDO type $pdoType", Propel::LOG_DEBUG);
-				}
-
+				
 				$stmt->bindValue($i++, $value, $pdoType);
 			}
 		} // foreach
@@ -647,8 +641,8 @@ class BasePeer
 
 			$selectClause[] = $columnName; // the full column name: e.g. MAX(books.price)
 
-			$parenPos = strpos($columnName, '(');
-			$dotPos = strpos($columnName, '.');
+			$parenPos = strrpos($columnName, '(');
+			$dotPos = strrpos($columnName, '.', ($parenPos !== false ? $parenPos : 0));
 
 			// [HL] I think we really only want to worry about adding stuff to
 			// the fromClause if this function has a TABLE.COLUMN in it at all.
@@ -807,7 +801,7 @@ class BasePeer
 
 				// Split orderByColumn (i.e. "table.column DESC")
 
-				$dotPos = strpos($orderByColumn, '.');
+				$dotPos = strrpos($orderByColumn, '.'); 
 
 				if ($dotPos !== false) {
 					$tableName = substr($orderByColumn, 0, $dotPos);

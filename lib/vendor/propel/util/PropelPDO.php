@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: PropelPDO.php 903 2008-01-02 10:03:51Z abeggchr $
+ *  $Id: PropelPDO.php 912 2008-01-11 16:13:57Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -21,7 +21,7 @@
 
 
 /**
- * PDO connection subclass that provides some enhanced functionality needed by Propel.
+ * PDO connection subclass that provides the basic fixes to PDO that are required by Propel.
  *
  * This class was designed to work around the limitation in PDO where attempting to begin
  * a transaction when one has already been begun will trigger a PDOException.  Propel
@@ -46,24 +46,14 @@ class PropelPDO extends PDO {
 	 * @var        int
 	 */
 	protected $nestedTransactionCount = 0;
-
+	
 	/**
-	 * Array of slave connections
+	 * Cache of prepared statements (PDOStatement) keyed by md5 of SQL.
 	 *
-	 * keys: param, name, con (only after initialisation)
+	 * @var        array [md5(sql) => PDOStatement]
 	 */
-	protected $slaves = array();
-
-	/**
-	 *  A single slave connection
-	 */
-	protected $slave = null;
-
-	/**
-	 *  Use only the master connection
-	 */
-	protected $useMasterConnection = false;
-
+	protected $preparedStatements = array();
+	
 	/**
 	 * Gets the current transaction depth.
 	 * @return     int
@@ -122,7 +112,7 @@ class PropelPDO extends PDO {
 		$this->incrementNestedTransactionCount();
 		return $return;
 	}
-
+    
 	/**
 	 * Overrides PDO::commit() to only commit the transaction if we are in the outermost
 	 * transaction nesting level.
@@ -156,132 +146,32 @@ class PropelPDO extends PDO {
 		}
 		return $return;
 	}
-
+	
 	/**
-	 * Overrides PDO::prepare() to add logging and split r/w queries
+     * Overrides PDO::prepare() to add query caching support.
+     * .
+     * @param  string $sql
+     * @param  array
+     * @return PDOStatement
+     */
+    public function prepare($sql, $driver_options = array())
+    {
+		$key = md5($sql);
+		if(!isset($this->preparedStatements[$key])) {
+			$stmt = parent::prepare($sql, $driver_options);
+			$this->preparedStatements[$key] = $stmt;
+			return $stmt;
+		} else {
+			return $this->preparedStatements[$key];
+		}
+	}
+	
+	/**
+	 * Clears any stored prepared statements for this connection.
 	 */
-	public function prepare($sql, $driver_options = array())
+	public function clearStatementCache()
 	{
-		Propel::log($sql, Propel::LOG_DEBUG);
-		if ($this->isForSlave($sql)) {
-			if ($slave = $this->getSlave()) {
-				return $slave->prepare($sql, $driver_options);
-			}
-		}
-		return parent::prepare($sql, $driver_options);
+		$this->preparedStatements = array();
 	}
 
-	/**
-	 * Overrides PDO::query() to add logging and split r/w queries
-	 */
-	public function query($sql, $fetch = null, $input3=null, $input4=null) {
-		Propel::log($sql, Propel::LOG_DEBUG);
-		if ($this->isForSlave($sql)) {
-			if ($slave = $this->getSlave()) {
-				return $slave->query($sql, $fetch, $input3, $input4);
-			}
-		}
-		return parent::query($sql, $fetch, $input3, $input4);
-	}
-
-	/**
-	 * Overrides PDO::exec() to add logging and split r/w queries
-	 */
-	public function exec($sql) {
-		Propel::log($sql, Propel::LOG_DEBUG);
-		if ($this->isForSlave($sql)) {
-			if ($slave = $this->getSlave()) {
-				return $slave->exec($sql);
-			}
-		}
-		return parent::exec($sql);
-	}
-
-	/**
-	 * Adds the configuration for a slave connection
-	 *
-	 * @param      array slave param from config
-	 * @param      string name of the connection
-	 * @return     void
-	 */
-	public function addSlave($slaveparam, $name) {
-		$newIndex = count($this->slaves);
-		$this->slaves[$newIndex]['param'] = $slaveparam;
-		$this->slaves[$newIndex]['name'] = $name;
-	}
-
-	/**
-	 * Gets one of the slave connections for read only access
-	 *
-	 * @return     SlavePDO or false if there are no slaves
-	 */
-	private function getSlave() {
-
-		if (isset($this->slave)) return $this->slave;		// slave already initialised
-		if (count($this->slaves) == 0) return false;	// return the plain PDO object to avoid endless loops
-
-		$random = mt_rand(0, count($this->slaves)-1);
-		if (isset($this->slaves[$random]['con'])) {
-			$this->slave = $this->slaves[$random]['con'];
-		}
-		else {
-			$this->slaves[$random]['con'] = Propel::initConnection($this->slaves[$random]['param'], $this->slaves[$random]['name'], Propel::CLASS_SLAVE_PDO);
-			$this->slave = $this->slaves[$random]['con'];
-		}
-		return $this->slave;
-	}
-
-	/**
-	 * Checks if a sql query should be handled by the slave connection
-	 *
-	 * @return     boolean
-	 */
-	private function isForSlave($sql) {
-
-		// return false if the use of the master connection is forced
-		if ($this->useMasterConnection) return false;
-
-		// return false if a transaction is open
-		$opcount = $this->getNestedTransactionCount();
-		if ($opcount > 0) return false;
-
-		// check if sql is read only
-		return $this->isReadOnly($sql);
-	}
-
-	/**
-	 * Checks if a sql query is read only (e.g. starts with "select")
-	 *
-	 * @return     boolean
-	 */
-	public static function isReadOnly($sql) {
-
-		// analyse sql
-		$result = stripos($sql, "SELECT");
-		if ($result === false) {
-			// no select found
-			return false;
-		}
-		else if ($result == 0) {
-			// sql starts with select
-			return true;
-		}
-		else {
-			// select is somewhere else in string
-			return false;
-		}
-	}
-
-	/**
-	 * Forces the use of the master connection only
-	 *
-	 * @param      boolean use master connection only
-	 * @return     void
-	 */
-	public function setUseMasterConnection($useMasterConnection) {
-		if (is_bool($useMasterConnection)) {
-			$this->useMasterConnection = $useMasterConnection;
-		}
-		else throw new PropelException("Parameter of setUseMasterConnection must be boolean");
-	}
 }
