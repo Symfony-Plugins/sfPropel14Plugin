@@ -18,7 +18,7 @@ class BaseAuthorForm extends BaseFormPropel
 
     $this->setValidators(array(
       'id'   => new sfValidatorInteger(array('required' => false)),
-      'name' => new sfValidatorString(array('required' => false)),
+      'name' => new sfValidatorString(array('max_length' => 255, 'required' => false)),
     ));
 
     $this->widgetSchema->setNameFormat('author[%s]');

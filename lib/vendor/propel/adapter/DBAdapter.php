@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: DBAdapter.php 900 2008-01-02 01:33:26Z hans $
+ *  $Id: DBAdapter.php 922 2008-01-14 20:29:24Z ron $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -38,7 +38,7 @@
  * @author     Jon S. Stevens <jon@latchkey.com> (Torque)
  * @author     Brett McLaughlin <bmclaugh@algx.net> (Torque)
  * @author     Daniel Rall <dlr@finemaltcoding.com> (Torque)
- * @version    $Revision: 900 $
+ * @version    $Revision: 922 $
  * @package    propel.adapter
  */
 abstract class DBAdapter {
@@ -201,6 +201,15 @@ abstract class DBAdapter {
 	public function quoteIdentifier($text)
 	{
 		return '"' . $text . '"';
+	}
+
+	/**
+	 * Quotes a database table which could have space seperating it from an alias, both should be identified seperately
+	 * @param      string $table The table name to quo
+	 * @return     string The quoted table name
+	 **/
+	public function quoteIdentifierTable($table) {
+		return implode(" ", array_map(array($this, "quoteIdentifier"), explode(" ", $table) ) );
 	}
 
 	/**

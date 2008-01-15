@@ -4,60 +4,60 @@
 abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 
 
-	
+
 	protected static $peer;
 
-	
+
 	protected $author_id;
 
-	
+
 	protected $article_id;
 
-	
+
 	protected $id;
 
-	
+
 	protected $aAuthor;
 
-	
+
 	protected $aArticle;
 
-	
+
 	protected $alreadyInSave = false;
 
-	
+
 	protected $alreadyInValidation = false;
 
-	
+
 	public function __construct()
 	{
 		$this->applyDefaultValues();
 	}
 
-	
+
 	public function applyDefaultValues()
 	{
 	}
 
-	
+
 	public function getAuthorId()
 	{
 		return $this->author_id;
 	}
 
-	
+
 	public function getArticleId()
 	{
 		return $this->article_id;
 	}
 
-	
+
 	public function getId()
 	{
 		return $this->id;
 	}
 
-	
+
 	public function setAuthorId($v)
 	{
 		if ($v !== null) {
@@ -74,8 +74,9 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 		}
 
 		return $this;
-	} 
-	
+	}
+
+
 	public function setArticleId($v)
 	{
 		if ($v !== null) {
@@ -92,8 +93,9 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 		}
 
 		return $this;
-	} 
-	
+	}
+
+
 	public function setId($v)
 	{
 		if ($v !== null) {
@@ -106,17 +108,21 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 		}
 
 		return $this;
-	} 
-	
+	}
+
+
 	public function hasOnlyDefaultValues()
 	{
-						if (array_diff($this->modifiedColumns, array())) {
+
+			if (array_diff($this->modifiedColumns, array())) {
 				return false;
 			}
 
-				return true;
-	} 
-	
+
+		return true;
+	}
+
+
 	public function hydrate($row, $startcol = 0, $rehydrate = false)
 	{
 		try {
@@ -132,26 +138,29 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 				$this->ensureConsistency();
 			}
 
-						return $startcol + 3; 
+
+			return $startcol + 3;
+
 		} catch (Exception $e) {
 			throw new PropelException("Error populating AuthorArticle object", $e);
 		}
 	}
 
-	
+
 	public function ensureConsistency()
 	{
 
 		if ($this->aAuthor !== null && $this->author_id !== $this->aAuthor->getId()) {
 			$this->aAuthor = null;
 		}
-	
+
 		if ($this->aArticle !== null && $this->article_id !== $this->aArticle->getId()) {
 			$this->aArticle = null;
 		}
-	
-	} 
-	
+
+	}
+
+
 	public function reload($deep = false, PropelPDO $con = null)
 	{
 		if ($this->isDeleted()) {
@@ -163,22 +172,27 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 		}
 
 		if ($con === null) {
-			$con = Propel::getConnection(AuthorArticlePeer::DATABASE_NAME);
+			$con = Propel::getConnection(AuthorArticlePeer::DATABASE_NAME, Propel::CONNECTION_READ);
 		}
 
-				
+
+
+
 		$stmt = AuthorArticlePeer::doSelectStmt($this->buildPkeyCriteria(), $con);
 		$row = $stmt->fetch(PDO::FETCH_NUM);
+		$stmt->closeCursor();
 		if (!$row) {
 			throw new PropelException('Cannot find matching row in the database to reload object values.');
 		}
-		$this->hydrate($row, 0, true); 
-		if ($deep) {  
+		$this->hydrate($row, 0, true);
+
+		if ($deep) {
 			$this->aAuthor = null;
 			$this->aArticle = null;
-		} 	}
+		}
+	}
 
-	
+
 	public function delete(PropelPDO $con = null)
 	{
 		if ($this->isDeleted()) {
@@ -186,7 +200,7 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 		}
 
 		if ($con === null) {
-			$con = Propel::getConnection(AuthorArticlePeer::DATABASE_NAME);
+			$con = Propel::getConnection(AuthorArticlePeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
 
 		try {
@@ -200,7 +214,7 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 		}
 	}
 
-	
+
 	public function save(PropelPDO $con = null)
 	{
 		if ($this->isDeleted()) {
@@ -208,7 +222,7 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 		}
 
 		if ($con === null) {
-			$con = Propel::getConnection(AuthorArticlePeer::DATABASE_NAME);
+			$con = Propel::getConnection(AuthorArticlePeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
 
 		try {
@@ -223,14 +237,18 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 		}
 	}
 
-	
+
 	protected function doSave(PropelPDO $con)
 	{
-		$affectedRows = 0; 		if (!$this->alreadyInSave) {
+		$affectedRows = 0;
+		if (!$this->alreadyInSave) {
 			$this->alreadyInSave = true;
 
 
-												
+
+
+
+
 			if ($this->aAuthor !== null) {
 				if ($this->aAuthor->isModified() || $this->aAuthor->isNew()) {
 					$affectedRows += $this->aAuthor->save($con);
@@ -246,31 +264,39 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 			}
 
 
-						if ($this->isModified()) {
+
+			if ($this->isModified()) {
 				if ($this->isNew()) {
 					$pk = AuthorArticlePeer::doInsert($this, $con);
-					$affectedRows += 1; 										 										 
-					$this->setId($pk);  
+					$affectedRows += 1;
+
+
+
+					$this->setId($pk);
+
 					$this->setNew(false);
 				} else {
 					$affectedRows += AuthorArticlePeer::doUpdate($this, $con);
 				}
-				$this->resetModified(); 			}
+				$this->resetModified();
+			}
 
 			$this->alreadyInSave = false;
+
 		}
 		return $affectedRows;
-	} 
-	
+	}
+
+
 	protected $validationFailures = array();
 
-	
+
 	public function getValidationFailures()
 	{
 		return $this->validationFailures;
 	}
 
-	
+
 	public function validate($columns = null)
 	{
 		$res = $this->doValidate($columns);
@@ -283,7 +309,7 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 		}
 	}
 
-	
+
 	protected function doValidate($columns = null)
 	{
 		if (!$this->alreadyInValidation) {
@@ -293,7 +319,11 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 			$failureMap = array();
 
 
-												
+
+
+
+
+
 			if ($this->aAuthor !== null) {
 				if (!$this->aAuthor->validate($columns)) {
 					$failureMap = array_merge($failureMap, $this->aAuthor->getValidationFailures());
@@ -319,14 +349,14 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 		return (!empty($failureMap) ? $failureMap : true);
 	}
 
-	
+
 	public function getByName($name, $type = BasePeer::TYPE_PHPNAME)
 	{
 		$pos = AuthorArticlePeer::translateFieldName($name, $type, BasePeer::TYPE_NUM);
 		return $this->getByPosition($pos);
 	}
 
-	
+
 	public function getByPosition($pos)
 	{
 		switch($pos) {
@@ -342,10 +372,11 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 			default:
 				return null;
 				break;
-		} 	}
+		}
+	}
 
-	
-	public function toArray($keyType = BasePeer::TYPE_PHPNAME)
+
+	public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true)
 	{
 		$keys = AuthorArticlePeer::getFieldNames($keyType);
 		$result = array(
@@ -356,14 +387,14 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 		return $result;
 	}
 
-	
+
 	public function setByName($name, $value, $type = BasePeer::TYPE_PHPNAME)
 	{
 		$pos = AuthorArticlePeer::translateFieldName($name, $type, BasePeer::TYPE_NUM);
 		return $this->setByPosition($pos, $value);
 	}
 
-	
+
 	public function setByPosition($pos, $value)
 	{
 		switch($pos) {
@@ -376,9 +407,10 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 			case 2:
 				$this->setId($value);
 				break;
-		} 	}
+		}
+	}
 
-	
+
 	public function fromArray($arr, $keyType = BasePeer::TYPE_PHPNAME)
 	{
 		$keys = AuthorArticlePeer::getFieldNames($keyType);
@@ -388,7 +420,7 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 		if (array_key_exists($keys[2], $arr)) $this->setId($arr[$keys[2]]);
 	}
 
-	
+
 	public function buildCriteria()
 	{
 		$criteria = new Criteria(AuthorArticlePeer::DATABASE_NAME);
@@ -400,7 +432,7 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 		return $criteria;
 	}
 
-	
+
 	public function buildPkeyCriteria()
 	{
 		$criteria = new Criteria(AuthorArticlePeer::DATABASE_NAME);
@@ -410,19 +442,19 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 		return $criteria;
 	}
 
-	
+
 	public function getPrimaryKey()
 	{
 		return $this->getId();
 	}
 
-	
+
 	public function setPrimaryKey($key)
 	{
 		$this->setId($key);
 	}
 
-	
+
 	public function copyInto($copyObj, $deepCopy = false)
 	{
 
@@ -433,19 +465,21 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 
 		$copyObj->setNew(true);
 
-		$copyObj->setId(NULL); 
+		$copyObj->setId(NULL);
+
 	}
 
-	
+
 	public function copy($deepCopy = false)
 	{
-				$clazz = get_class($this);
+
+		$clazz = get_class($this);
 		$copyObj = new $clazz();
 		$this->copyInto($copyObj, $deepCopy);
 		return $copyObj;
 	}
 
-	
+
 	public function getPeer()
 	{
 		if (self::$peer === null) {
@@ -454,7 +488,7 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 		return self::$peer;
 	}
 
-	
+
 	public function setAuthor(Author $v = null)
 	{
 		if ($v === null) {
@@ -465,7 +499,9 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 
 		$this->aAuthor = $v;
 
-						if ($v !== null) {
+
+
+		if ($v !== null) {
 			$v->addAuthorArticle($this);
 		}
 
@@ -473,17 +509,17 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 	}
 
 
-	
+
 	public function getAuthor(PropelPDO $con = null)
 	{
 		if ($this->aAuthor === null && ($this->author_id !== null)) {
 			$this->aAuthor = AuthorPeer::retrieveByPK($this->author_id, $con);
-			
+
 		}
 		return $this->aAuthor;
 	}
 
-	
+
 	public function setArticle(Article $v = null)
 	{
 		if ($v === null) {
@@ -494,7 +530,9 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 
 		$this->aArticle = $v;
 
-						if ($v !== null) {
+
+
+		if ($v !== null) {
 			$v->addAuthorArticle($this);
 		}
 
@@ -502,14 +540,21 @@ abstract class BaseAuthorArticle extends BaseObject  implements Persistent {
 	}
 
 
-	
+
 	public function getArticle(PropelPDO $con = null)
 	{
 		if ($this->aArticle === null && ($this->article_id !== null)) {
 			$this->aArticle = ArticlePeer::retrieveByPK($this->article_id, $con);
-			
+
 		}
 		return $this->aArticle;
 	}
 
-} 
+
+	public function clearAllReferences($deep = false)
+	{
+		if ($deep) {
+		}
+	}
+
+}

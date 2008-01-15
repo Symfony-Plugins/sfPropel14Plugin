@@ -23,7 +23,7 @@ class SfMapBuilderBuilder extends PHP5MapBuilderBuilder
     $code = parent::build();
     if (!DataModelBuilder::getBuildProperty('builderAddComments'))
     {
-      $code = sfToolkit::stripComments($map);
+      $code = sfToolkit::stripComments($code);
     }
 
     return $code;

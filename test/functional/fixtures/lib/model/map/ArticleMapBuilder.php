@@ -35,7 +35,7 @@ class ArticleMapBuilder implements MapBuilder {
 
 		$tMap->addPrimaryKey('ID', 'Id', 'INTEGER', true, null);
 
-		$tMap->addColumn('TITLE', 'Title', 'VARCHAR', false, 255);
+		$tMap->addColumn('TITLE', 'Title', 'VARCHAR', true, 255);
 
 		$tMap->addColumn('BODY', 'Body', 'LONGVARCHAR', false, null);
 

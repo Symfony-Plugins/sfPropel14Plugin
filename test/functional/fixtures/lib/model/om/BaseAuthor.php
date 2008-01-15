@@ -4,51 +4,51 @@
 abstract class BaseAuthor extends BaseObject  implements Persistent {
 
 
-	
+
 	protected static $peer;
 
-	
+
 	protected $id;
 
-	
+
 	protected $name;
 
-	
+
 	protected $collAuthorArticles;
 
-	
+
 	private $lastAuthorArticleCriteria = null;
 
-	
+
 	protected $alreadyInSave = false;
 
-	
+
 	protected $alreadyInValidation = false;
 
-	
+
 	public function __construct()
 	{
 		$this->applyDefaultValues();
 	}
 
-	
+
 	public function applyDefaultValues()
 	{
 	}
 
-	
+
 	public function getId()
 	{
 		return $this->id;
 	}
 
-	
+
 	public function getName()
 	{
 		return $this->name;
 	}
 
-	
+
 	public function setId($v)
 	{
 		if ($v !== null) {
@@ -61,8 +61,9 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 		}
 
 		return $this;
-	} 
-	
+	}
+
+
 	public function setName($v)
 	{
 		if ($v !== null) {
@@ -75,17 +76,21 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 		}
 
 		return $this;
-	} 
-	
+	}
+
+
 	public function hasOnlyDefaultValues()
 	{
-						if (array_diff($this->modifiedColumns, array())) {
+
+			if (array_diff($this->modifiedColumns, array())) {
 				return false;
 			}
 
-				return true;
-	} 
-	
+
+		return true;
+	}
+
+
 	public function hydrate($row, $startcol = 0, $rehydrate = false)
 	{
 		try {
@@ -100,18 +105,21 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 				$this->ensureConsistency();
 			}
 
-						return $startcol + 2; 
+
+			return $startcol + 2;
+
 		} catch (Exception $e) {
 			throw new PropelException("Error populating Author object", $e);
 		}
 	}
 
-	
+
 	public function ensureConsistency()
 	{
 
-	} 
-	
+	}
+
+
 	public function reload($deep = false, PropelPDO $con = null)
 	{
 		if ($this->isDeleted()) {
@@ -123,23 +131,28 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 		}
 
 		if ($con === null) {
-			$con = Propel::getConnection(AuthorPeer::DATABASE_NAME);
+			$con = Propel::getConnection(AuthorPeer::DATABASE_NAME, Propel::CONNECTION_READ);
 		}
 
-				
+
+
+
 		$stmt = AuthorPeer::doSelectStmt($this->buildPkeyCriteria(), $con);
 		$row = $stmt->fetch(PDO::FETCH_NUM);
+		$stmt->closeCursor();
 		if (!$row) {
 			throw new PropelException('Cannot find matching row in the database to reload object values.');
 		}
-		$this->hydrate($row, 0, true); 
-		if ($deep) {  
+		$this->hydrate($row, 0, true);
+
+		if ($deep) {
 			$this->collAuthorArticles = null;
 			$this->lastAuthorArticleCriteria = null;
 
-		} 	}
+		}
+	}
 
-	
+
 	public function delete(PropelPDO $con = null)
 	{
 		if ($this->isDeleted()) {
@@ -147,7 +160,7 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 		}
 
 		if ($con === null) {
-			$con = Propel::getConnection(AuthorPeer::DATABASE_NAME);
+			$con = Propel::getConnection(AuthorPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
 
 		try {
@@ -161,7 +174,7 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 		}
 	}
 
-	
+
 	public function save(PropelPDO $con = null)
 	{
 		if ($this->isDeleted()) {
@@ -169,7 +182,7 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 		}
 
 		if ($con === null) {
-			$con = Propel::getConnection(AuthorPeer::DATABASE_NAME);
+			$con = Propel::getConnection(AuthorPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
 
 		try {
@@ -184,23 +197,30 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 		}
 	}
 
-	
+
 	protected function doSave(PropelPDO $con)
 	{
-		$affectedRows = 0; 		if (!$this->alreadyInSave) {
+		$affectedRows = 0;
+		if (!$this->alreadyInSave) {
 			$this->alreadyInSave = true;
 
 
-						if ($this->isModified()) {
+
+			if ($this->isModified()) {
 				if ($this->isNew()) {
 					$pk = AuthorPeer::doInsert($this, $con);
-					$affectedRows += 1; 										 										 
-					$this->setId($pk);  
+					$affectedRows += 1;
+
+
+
+					$this->setId($pk);
+
 					$this->setNew(false);
 				} else {
 					$affectedRows += AuthorPeer::doUpdate($this, $con);
 				}
-				$this->resetModified(); 			}
+				$this->resetModified();
+			}
 
 			if ($this->collAuthorArticles !== null) {
 				foreach ($this->collAuthorArticles as $referrerFK) {
@@ -211,19 +231,21 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 			}
 
 			$this->alreadyInSave = false;
+
 		}
 		return $affectedRows;
-	} 
-	
+	}
+
+
 	protected $validationFailures = array();
 
-	
+
 	public function getValidationFailures()
 	{
 		return $this->validationFailures;
 	}
 
-	
+
 	public function validate($columns = null)
 	{
 		$res = $this->doValidate($columns);
@@ -236,7 +258,7 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 		}
 	}
 
-	
+
 	protected function doValidate($columns = null)
 	{
 		if (!$this->alreadyInValidation) {
@@ -266,14 +288,14 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 		return (!empty($failureMap) ? $failureMap : true);
 	}
 
-	
+
 	public function getByName($name, $type = BasePeer::TYPE_PHPNAME)
 	{
 		$pos = AuthorPeer::translateFieldName($name, $type, BasePeer::TYPE_NUM);
 		return $this->getByPosition($pos);
 	}
 
-	
+
 	public function getByPosition($pos)
 	{
 		switch($pos) {
@@ -286,10 +308,11 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 			default:
 				return null;
 				break;
-		} 	}
+		}
+	}
 
-	
-	public function toArray($keyType = BasePeer::TYPE_PHPNAME)
+
+	public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true)
 	{
 		$keys = AuthorPeer::getFieldNames($keyType);
 		$result = array(
@@ -299,14 +322,14 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 		return $result;
 	}
 
-	
+
 	public function setByName($name, $value, $type = BasePeer::TYPE_PHPNAME)
 	{
 		$pos = AuthorPeer::translateFieldName($name, $type, BasePeer::TYPE_NUM);
 		return $this->setByPosition($pos, $value);
 	}
 
-	
+
 	public function setByPosition($pos, $value)
 	{
 		switch($pos) {
@@ -316,9 +339,10 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 			case 1:
 				$this->setName($value);
 				break;
-		} 	}
+		}
+	}
 
-	
+
 	public function fromArray($arr, $keyType = BasePeer::TYPE_PHPNAME)
 	{
 		$keys = AuthorPeer::getFieldNames($keyType);
@@ -327,7 +351,7 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 		if (array_key_exists($keys[1], $arr)) $this->setName($arr[$keys[1]]);
 	}
 
-	
+
 	public function buildCriteria()
 	{
 		$criteria = new Criteria(AuthorPeer::DATABASE_NAME);
@@ -338,7 +362,7 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 		return $criteria;
 	}
 
-	
+
 	public function buildPkeyCriteria()
 	{
 		$criteria = new Criteria(AuthorPeer::DATABASE_NAME);
@@ -348,19 +372,19 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 		return $criteria;
 	}
 
-	
+
 	public function getPrimaryKey()
 	{
 		return $this->getId();
 	}
 
-	
+
 	public function setPrimaryKey($key)
 	{
 		$this->setId($key);
 	}
 
-	
+
 	public function copyInto($copyObj, $deepCopy = false)
 	{
 
@@ -368,30 +392,36 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 
 
 		if ($deepCopy) {
-									$copyObj->setNew(false);
+
+
+			$copyObj->setNew(false);
 
 			foreach ($this->getAuthorArticles() as $relObj) {
-				if ($relObj !== $this) {  					$copyObj->addAuthorArticle($relObj->copy($deepCopy));
+				if ($relObj !== $this) {
+					$copyObj->addAuthorArticle($relObj->copy($deepCopy));
 				}
 			}
 
-		} 
+		}
+
 
 		$copyObj->setNew(true);
 
-		$copyObj->setId(NULL); 
+		$copyObj->setId(NULL);
+
 	}
 
-	
+
 	public function copy($deepCopy = false)
 	{
-				$clazz = get_class($this);
+
+		$clazz = get_class($this);
 		$copyObj = new $clazz();
 		$this->copyInto($copyObj, $deepCopy);
 		return $copyObj;
 	}
 
-	
+
 	public function getPeer()
 	{
 		if (self::$peer === null) {
@@ -400,20 +430,18 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 		return self::$peer;
 	}
 
-	
-	public function initAuthorArticles()
+
+	public function clearAuthorArticles()
 	{
-		if ($this->collAuthorArticles === null) {
-			$this->collAuthorArticles = array();
-		}
+		$this->collAuthorArticles = null;
 	}
 
-	
+
 	public function getAuthorArticles($criteria = null, PropelPDO $con = null)
 	{
-		
+
 		if ($criteria === null) {
-			$criteria = new Criteria();
+			$criteria = new Criteria(AuthorPeer::DATABASE_NAME);
 		}
 		elseif ($criteria instanceof Criteria)
 		{
@@ -431,8 +459,12 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 				$this->collAuthorArticles = AuthorArticlePeer::doSelect($criteria, $con);
 			}
 		} else {
-						if (!$this->isNew()) {
-												
+
+			if (!$this->isNew()) {
+
+
+
+
 
 				$criteria->add(AuthorArticlePeer::AUTHOR_ID, $this->getId());
 
@@ -446,12 +478,12 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 		return $this->collAuthorArticles;
 	}
 
-	
+
 	public function countAuthorArticles(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
 	{
-		
+
 		if ($criteria === null) {
-			$criteria = new Criteria();
+			$criteria = new Criteria(AuthorPeer::DATABASE_NAME);
 		} else {
 			$criteria = clone $criteria;
 		}
@@ -472,8 +504,12 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 				$count = AuthorArticlePeer::doCount($criteria, $con);
 			}
 		} else {
-						if (!$this->isNew()) {
-												
+
+			if (!$this->isNew()) {
+
+
+
+
 
 				$criteria->add(AuthorArticlePeer::AUTHOR_ID, $this->getId());
 
@@ -490,24 +526,25 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 		return $count;
 	}
 
-	
+
 	public function addAuthorArticle(AuthorArticle $l)
 	{
 		if ($this->collAuthorArticles === null) {
 			$this->collAuthorArticles = array();
 		}
-		if (!in_array($l, $this->collAuthorArticles, true)) { 			array_push($this->collAuthorArticles, $l);
+		if (!in_array($l, $this->collAuthorArticles, true)) {
+			array_push($this->collAuthorArticles, $l);
 			$l->setAuthor($this);
 		}
 	}
 
 
-	
+
 	public function getAuthorArticlesJoinArticle($criteria = null, $con = null)
 	{
-		
+
 		if ($criteria === null) {
-			$criteria = new Criteria();
+			$criteria = new Criteria(AuthorPeer::DATABASE_NAME);
 		}
 		elseif ($criteria instanceof Criteria)
 		{
@@ -524,7 +561,10 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 				$this->collAuthorArticles = AuthorArticlePeer::doSelectJoinArticle($criteria, $con);
 			}
 		} else {
-									
+
+
+
+
 			$criteria->add(AuthorArticlePeer::AUTHOR_ID, $this->getId());
 
 			if (!isset($this->lastAuthorArticleCriteria) || !$this->lastAuthorArticleCriteria->equals($criteria)) {
@@ -536,4 +576,15 @@ abstract class BaseAuthor extends BaseObject  implements Persistent {
 		return $this->collAuthorArticles;
 	}
 
-} 
+
+	public function clearAllReferences($deep = false)
+	{
+		if ($deep) {
+			foreach($this->collAuthorArticles as $o) {
+				$o->clearAllReferences($deep);
+			}
+		}
+		$this->collAuthorArticles = null;
+	}
+
+}

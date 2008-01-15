@@ -12,14 +12,14 @@ class BaseAuthorArticleForm extends BaseFormPropel
   public function setup()
   {
     $this->setWidgets(array(
-      'author_id'  => new sfWidgetFormSelect(array('choices' => new sfCallable(array($this, 'getAuthorChoices')))),
-      'article_id' => new sfWidgetFormSelect(array('choices' => new sfCallable(array($this, 'getArticleChoices')))),
+      'author_id'  => new sfWidgetFormSelect(array('choices' => new sfCallable(array($this, 'getAuthorIdChoices')))),
+      'article_id' => new sfWidgetFormSelect(array('choices' => new sfCallable(array($this, 'getArticleIdChoices')))),
       'id'         => new sfWidgetFormInputHidden(),
     ));
 
     $this->setValidators(array(
-      'author_id'  => new sfValidatorChoice(array('choices' => new sfCallable(array($this, 'getAuthorIdentifierChoices')), 'required' => false)),
-      'article_id' => new sfValidatorChoice(array('choices' => new sfCallable(array($this, 'getArticleIdentifierChoices')), 'required' => false)),
+      'author_id'  => new sfValidatorChoice(array('choices' => new sfCallable(array($this, 'getAuthorIdIdentifierChoices')), 'required' => false)),
+      'article_id' => new sfValidatorChoice(array('choices' => new sfCallable(array($this, 'getArticleIdIdentifierChoices')), 'required' => false)),
       'id'         => new sfValidatorInteger(array('required' => false)),
     ));
 
@@ -36,41 +36,41 @@ class BaseAuthorArticleForm extends BaseFormPropel
   }
 
 
-  public function getAuthorIdentifierChoices()
+  public function getAuthorIdIdentifierChoices()
   {
-    return array_keys($this->getAuthorChoices());
+    return array_keys($this->getAuthorIdChoices());
   }
 
-  public function getAuthorChoices()
+  public function getAuthorIdChoices()
   {
-    if (!isset($this->AuthorChoices))
+    if (!isset($this->AuthorIdChoices))
     {
-      $this->AuthorChoices = array('' => '');
+      $this->AuthorIdChoices = array('' => '');
       foreach (AuthorPeer::doSelect(new Criteria(), $this->getConnection()) as $object)
       {
-        $this->AuthorChoices[$object->getId()] = $object->__toString();
+        $this->AuthorIdChoices[$object->getId()] = $object->__toString();
       }
     }
 
-    return $this->AuthorChoices;
+    return $this->AuthorIdChoices;
   }
-  public function getArticleIdentifierChoices()
+  public function getArticleIdIdentifierChoices()
   {
-    return array_keys($this->getArticleChoices());
+    return array_keys($this->getArticleIdChoices());
   }
 
-  public function getArticleChoices()
+  public function getArticleIdChoices()
   {
-    if (!isset($this->ArticleChoices))
+    if (!isset($this->ArticleIdChoices))
     {
-      $this->ArticleChoices = array('' => '');
+      $this->ArticleIdChoices = array('' => '');
       foreach (ArticlePeer::doSelect(new Criteria(), $this->getConnection()) as $object)
       {
-        $this->ArticleChoices[$object->getId()] = $object->__toString();
+        $this->ArticleIdChoices[$object->getId()] = $object->__toString();
       }
     }
 
-    return $this->ArticleChoices;
+    return $this->ArticleIdChoices;
   }
 
 }

@@ -3,35 +3,35 @@
 
 abstract class BaseCategoryPeer {
 
-	
+
 	const DATABASE_NAME = 'propel';
 
-	
+
 	const TABLE_NAME = 'category';
 
-	
+
 	const CLASS_DEFAULT = 'lib.model.Category';
 
-	
+
 	const NUM_COLUMNS = 2;
 
-	
+
 	const NUM_LAZY_LOAD_COLUMNS = 0;
 
 
-	
+
 	const ID = 'category.ID';
 
-	
+
 	const NAME = 'category.NAME';
 
-	
+
 	public static $instances = array();
 
-	
+
 	private static $mapBuilder = null;
 
-	
+
 	private static $fieldNames = array (
 		BasePeer::TYPE_PHPNAME => array ('Id', 'Name', ),
 		BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'name', ),
@@ -40,7 +40,7 @@ abstract class BaseCategoryPeer {
 		BasePeer::TYPE_NUM => array (0, 1, )
 	);
 
-	
+
 	private static $fieldKeys = array (
 		BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'Name' => 1, ),
 		BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'name' => 1, ),
@@ -49,7 +49,7 @@ abstract class BaseCategoryPeer {
 		BasePeer::TYPE_NUM => array (0, 1, )
 	);
 
-	
+
 	public static function getMapBuilder()
 	{
 		if (self::$mapBuilder === null) {
@@ -57,7 +57,7 @@ abstract class BaseCategoryPeer {
 		}
 		return self::$mapBuilder;
 	}
-	
+
 	static public function translateFieldName($name, $fromType, $toType)
 	{
 		$toNames = self::getFieldNames($toType);
@@ -68,7 +68,7 @@ abstract class BaseCategoryPeer {
 		return $toNames[$key];
 	}
 
-	
+
 
 	static public function getFieldNames($type = BasePeer::TYPE_PHPNAME)
 	{
@@ -78,13 +78,13 @@ abstract class BaseCategoryPeer {
 		return self::$fieldNames[$type];
 	}
 
-	
+
 	public static function alias($alias, $column)
 	{
 		return str_replace(CategoryPeer::TABLE_NAME.'.', $alias.'.', $column);
 	}
 
-	
+
 	public static function addSelectColumns(Criteria $criteria)
 	{
 
@@ -97,7 +97,7 @@ abstract class BaseCategoryPeer {
 	const COUNT = 'COUNT(category.ID)';
 	const COUNT_DISTINCT = 'COUNT(DISTINCT category.ID)';
 
-	
+
 	public static function doCount(Criteria $criteria, $distinct = false, PropelPDO $con = null)
 	{
 				$criteria = clone $criteria;
@@ -116,12 +116,13 @@ abstract class BaseCategoryPeer {
 
 		$stmt = CategoryPeer::doSelectStmt($criteria, $con);
 		if ($row = $stmt->fetch(PDO::FETCH_NUM)) {
-			return (int) $row[0];
+			$count = (int) $row[0];
 		} else {
-						return 0;
-		}
+			$count = 0; 		}
+		$stmt->closeCursor();
+		return $count;
 	}
-	
+
 	public static function doSelectOne(Criteria $criteria, PropelPDO $con = null)
 	{
 		$critcopy = clone $criteria;
@@ -132,16 +133,16 @@ abstract class BaseCategoryPeer {
 		}
 		return null;
 	}
-	
+
 	public static function doSelect(Criteria $criteria, PropelPDO $con = null)
 	{
 		return CategoryPeer::populateObjects(CategoryPeer::doSelectStmt($criteria, $con));
 	}
-	
+
 	public static function doSelectStmt(Criteria $criteria, PropelPDO $con = null)
 	{
 		if ($con === null) {
-			$con = Propel::getConnection(self::DATABASE_NAME);
+			$con = Propel::getConnection(CategoryPeer::DATABASE_NAME, Propel::CONNECTION_READ);
 		}
 
 		if (!$criteria->getSelectColumns()) {
@@ -153,7 +154,7 @@ abstract class BaseCategoryPeer {
 
 				return BasePeer::doSelect($criteria, $con);
 	}
-	
+
 	public static function addInstanceToPool(Category $obj, $key = null)
 	{
 		if (Propel::isInstancePoolingEnabled()) {
@@ -163,7 +164,7 @@ abstract class BaseCategoryPeer {
 		}
 	}
 
-	
+
 	public static function removeInstanceFromPool($value)
 	{
 		if (Propel::isInstancePoolingEnabled() && $value !== null) {
@@ -178,8 +179,8 @@ abstract class BaseCategoryPeer {
 
 			unset(self::$instances[$key]);
 		}
-	} 
-	
+	}
+
 	public static function getInstanceFromPool($key)
 	{
 		if (Propel::isInstancePoolingEnabled()) {
@@ -188,14 +189,14 @@ abstract class BaseCategoryPeer {
 			}
 		}
 		return null; 	}
-	
-	
+
+
 	public static function clearInstancePool()
 	{
 		self::$instances = array();
 	}
-	
-	
+
+
 	public static function getPrimaryKeyHashFromRow($row, $startcol = 0)
 	{
 				if ($row[$startcol + 0] === null) {
@@ -205,50 +206,51 @@ abstract class BaseCategoryPeer {
 		return (string) $row[$startcol + 0];
 	}
 
-	
+
 	public static function populateObjects(PDOStatement $stmt)
 	{
 		$results = array();
-	
+
 				$cls = CategoryPeer::getOMClass();
 		$cls = substr('.'.$cls, strrpos('.'.$cls, '.') + 1);
 				while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
 			$key = CategoryPeer::getPrimaryKeyHashFromRow($row, 0);
 			if (null !== ($obj = CategoryPeer::getInstanceFromPool($key))) {
-				$obj->hydrate($row, 0, true); 				$results[] = $obj;
+																$results[] = $obj;
 			} else {
-		
+
 				$obj = new $cls();
 				$obj->hydrate($row);
 				$results[] = $obj;
 				CategoryPeer::addInstanceToPool($obj, $key);
 			} 		}
+		$stmt->closeCursor();
 		return $results;
 	}
-	
+
 	public static function getTableMap()
 	{
 		return Propel::getDatabaseMap(self::DATABASE_NAME)->getTable(self::TABLE_NAME);
 	}
 
-	
+
 	public static function getOMClass()
 	{
 		return CategoryPeer::CLASS_DEFAULT;
 	}
 
-	
+
 	public static function doInsert($values, PropelPDO $con = null)
 	{
 		if ($con === null) {
-			$con = Propel::getConnection(self::DATABASE_NAME);
+			$con = Propel::getConnection(CategoryPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
 
 		if ($values instanceof Criteria) {
 			$criteria = clone $values; 		} else {
 			$criteria = $values->buildCriteria(); 		}
 
-		$criteria->remove(CategoryPeer::ID); 
+		$criteria->remove(CategoryPeer::ID);
 
 				$criteria->setDbName(self::DATABASE_NAME);
 
@@ -264,17 +266,17 @@ abstract class BaseCategoryPeer {
 		return $pk;
 	}
 
-	
+
 	public static function doUpdate($values, PropelPDO $con = null)
 	{
 		if ($con === null) {
-			$con = Propel::getConnection(self::DATABASE_NAME);
+			$con = Propel::getConnection(CategoryPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
 
 		$selectCriteria = new Criteria(self::DATABASE_NAME);
 
 		if ($values instanceof Criteria) {
-			$criteria = clone $values; 
+			$criteria = clone $values;
 			$comparison = $criteria->getComparison(CategoryPeer::ID);
 			$selectCriteria->add(CategoryPeer::ID, $criteria->remove(CategoryPeer::ID), $comparison);
 
@@ -285,11 +287,11 @@ abstract class BaseCategoryPeer {
 		return BasePeer::doUpdate($selectCriteria, $criteria, $con);
 	}
 
-	
+
 	public static function doDeleteAll($con = null)
 	{
 		if ($con === null) {
-			$con = Propel::getConnection(self::DATABASE_NAME);
+			$con = Propel::getConnection(CategoryPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
 		$affectedRows = 0; 		try {
 									$con->beginTransaction();
@@ -302,11 +304,11 @@ abstract class BaseCategoryPeer {
 		}
 	}
 
-	
+
 	 public static function doDelete($values, PropelPDO $con = null)
 	 {
 		if ($con === null) {
-			$con = Propel::getConnection(CategoryPeer::DATABASE_NAME);
+			$con = Propel::getConnection(CategoryPeer::DATABASE_NAME, Propel::CONNECTION_READ);
 		}
 
 		if ($values instanceof Criteria) {
@@ -317,7 +319,7 @@ abstract class BaseCategoryPeer {
 						CategoryPeer::removeInstanceFromPool($values);
 						$criteria = $values->buildPkeyCriteria();
 		} else {
-			
+
 						CategoryPeer::removeInstanceFromPool($values);
 
 			$criteria = new Criteria(self::DATABASE_NAME);
@@ -326,10 +328,10 @@ abstract class BaseCategoryPeer {
 
 				$criteria->setDbName(self::DATABASE_NAME);
 
-		$affectedRows = 0; 
+		$affectedRows = 0;
 		try {
 									$con->beginTransaction();
-			
+
 			$affectedRows += BasePeer::doDelete($criteria, $con);
 
 			$con->commit();
@@ -340,7 +342,7 @@ abstract class BaseCategoryPeer {
 		}
 	}
 
-	
+
 	public static function doValidate(Category $obj, $cols = null)
 	{
 		$columns = array();
@@ -375,11 +377,11 @@ abstract class BaseCategoryPeer {
     return $res;
 	}
 
-	
+
 	public static function retrieveByPK($pk, PropelPDO $con = null)
 	{
 		if ($con === null) {
-			$con = Propel::getConnection(self::DATABASE_NAME);
+			$con = Propel::getConnection(CategoryPeer::DATABASE_NAME, Propel::CONNECTION_READ);
 		}
 
 		$criteria = new Criteria(CategoryPeer::DATABASE_NAME);
@@ -392,25 +394,25 @@ abstract class BaseCategoryPeer {
 		return !empty($v) > 0 ? $v[0] : null;
 	}
 
-	
+
 	public static function retrieveByPKs($pks, PropelPDO $con = null)
 	{
 		if ($con === null) {
-			$con = Propel::getConnection(self::DATABASE_NAME);
+			$con = Propel::getConnection(CategoryPeer::DATABASE_NAME, Propel::CONNECTION_READ);
 		}
 
 		$objs = null;
 		if (empty($pks)) {
 			$objs = array();
 		} else {
-			$criteria = new Criteria();
+			$criteria = new Criteria(CategoryPeer::DATABASE_NAME);
 			$criteria->add(CategoryPeer::ID, $pks, Criteria::IN);
 			$objs = CategoryPeer::doSelect($criteria, $con);
 		}
 		return $objs;
 	}
 
-} 
+}
 
 Propel::getDatabaseMap(BaseCategoryPeer::DATABASE_NAME)->addTableBuilder(BaseCategoryPeer::TABLE_NAME, BaseCategoryPeer::getMapBuilder());
 
