@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5ObjectBuilder.php 924 2008-01-14 20:44:36Z ron $
+ *  $Id: PHP5ObjectBuilder.php 929 2008-01-18 15:17:50Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -2681,6 +2681,22 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 		$script .= "
 					\$affectedRows += ".$this->getPeerClassname()."::doUpdate(\$this, \$con);
 				}
+";
+		
+		// We need to rewind any LOB columns
+		foreach($table->getColumns() as $col) {
+			$clo = strtolower($col->getName());
+			if ($col->isLobType()) {
+				$script .= "
+				// Rewind the $clo LOB column, since PDO does not rewind after inserting value. 
+				if (\$this->$clo !== null && is_resource(\$this->$clo)) {
+					rewind(\$this->$clo);
+				}
+				";
+			}
+		}
+		
+		$script .= "
 				\$this->resetModified(); // [HL] After being saved an object is no longer 'modified'
 			}
 ";

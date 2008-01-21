@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Propel.php 909 2008-01-11 12:30:43Z hans $
+ *  $Id: Propel.php 930 2008-01-18 18:27:43Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -37,7 +37,7 @@ require 'propel/util/PropelPDO.php';
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
  * @author     Henning P. Schmiedehausen <hps@intermeta.de> (Torque)
  * @author     Kurt Schrader <kschrader@karmalab.org> (Torque)
- * @version    $Revision: 909 $
+ * @version    $Revision: 930 $
  * @package    propel
  */
 class Propel
@@ -749,7 +749,46 @@ class Propel
 		}
 		return false;
 	}
+	
+	/**
+	 * Include once a file specified in DOT notation and reutrn unqualified clasname.
+	 * 
+	 * Typically, Propel uses autoload is used to load classes and expects that all classes
+	 * referenced within Propel are included in Propel's autoload map.  This method is only 
+	 * called when a specific non-Propel classname was specified -- for example, the 
+	 * classname of a validator in the schema.xml.  This method will attempt to include that
+	 * class via autoload and then relative to a location on the include_path.
+	 *
+	 * @param string $class dot-path to clas (e.g. path.to.my.ClassName).
+	 * @return string unqualified classname
+	 */
+	public static function importClass($path) {
 
+		// extract classname
+		if (($pos = strrpos($path, '.')) === false) {
+			$class = $path;
+		} else {
+			$class = substr($path, $pos + 1);
+		}
+
+		// check if class exists, using autoloader to attempt to load it.
+		if (class_exists($class, $useAutoload=true)) {
+			return $class;
+		}
+
+		// turn to filesystem path
+		$path = strtr($path, '.', DIRECTORY_SEPARATOR) . '.php';
+
+		// include class
+		$ret = include_once($path);
+		if ($ret === false) {
+			throw new PropelException("Unable to import class: " . $class . " from " . $path);
+		}
+
+		// return qualified name
+		return $class;
+	}
+	
 	/**
 	 * Set your own class-name for Database-Mapping. Then
 	 * you can change the whole TableMap-Model, but keep its

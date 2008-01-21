@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: BasePeer.php 922 2008-01-14 20:29:24Z ron $
+ *  $Id: BasePeer.php 930 2008-01-18 18:27:43Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -35,7 +35,7 @@
  * @author     John D. McNally <jmcnally@collab.net> (Torque)
  * @author     Brett McLaughlin <bmclaugh@algx.net> (Torque)
  * @author     Stephen Haberman <stephenh@chase3000.com> (Torque)
- * @version    $Revision: 922 $
+ * @version    $Revision: 930 $
  * @package    propel.util
  */
 class BasePeer
@@ -908,7 +908,7 @@ class BasePeer
 		try {
 			$v = isset(self::$validatorMap[$classname]) ? self::$validatorMap[$classname] : null;
 			if ($v === null) {
-				$cls = substr('.'.$classname, strrpos('.'.$classname, '.') + 1);
+				$cls = Propel::importClass($classname);
 				$v = new $cls();
 				self::$validatorMap[$classname] = $v;
 			}

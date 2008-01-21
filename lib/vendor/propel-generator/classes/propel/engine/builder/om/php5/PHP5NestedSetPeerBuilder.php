@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5NestedSetPeerBuilder.php 905 2008-01-09 04:12:34Z hans $
+ *  $Id: PHP5NestedSetPeerBuilder.php 925 2008-01-17 09:28:22Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -1445,13 +1445,31 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 			foreach ($table->getColumns() as $col) {
 				if ($col->isPrimaryKey()) {
 					$script .= "
+				// TODO : Need to support the multiple field primary key
 				\$criteria->add(".$this->getColumnConstant($col).", \$keys, Criteria::IN);
 ";
 					break;
 				} /* if col is prim key */
 			} /* foreach */
 			$script .= "
-				$peerClassname::populateObjects($peerClassname::doSelectStmt(\$criteria, \$con));
+				\$stmt = $peerClassname::doSelectStmt(\$criteria, \$con);
+				while (\$row = \$stmt->fetch(PDO::FETCH_NUM)) {
+					\$key = $peerClassname::getPrimaryKeyHashFromRow(\$row, 0);
+					if (null !== (\$object = $peerClassname::getInstanceFromPool(\$key))) {";
+			$n = 0;
+			foreach ($this->getTable()->getColumns() as $col) {
+				if ($col->isNestedSetLeftKey()) {
+					$script .= "
+						\$object->setLeftValue(\$row[$n]);";
+				} else if ($col->isNestedSetRightKey()) {
+					$script .= "
+						\$object->setRightValue(\$row[$n]);";
+				}
+				$n++;
+			}
+			$script .= "
+					}
+				}
 			}
 		}
 		else

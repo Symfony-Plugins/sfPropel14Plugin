@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5PeerBuilder.php 917 2008-01-12 19:32:24Z hans $
+ *  $Id: PHP5PeerBuilder.php 927 2008-01-18 03:25:37Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -289,7 +289,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 	{
 		$script .= "
 	/**
-	 * Returns an array of of field names.
+	 * Returns an array of field names.
 	 *
 	 * @param      string \$type The type of fieldnames to return:
 	 *                      One of the class type constants BasePeer::TYPE_PHPNAME, BasePeer::TYPE_STUDLYPHPNAME
@@ -1039,7 +1039,9 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 			$cfc = $col->getPhpName();
 			if ($col->isPrimaryKey() && $col->isAutoIncrement() && $table->getIdMethod() != "none") {
 				$script .= "
-		\$criteria->remove(".$this->getColumnConstant($col)."); // remove pkey col since this table uses auto-increment
+		if(\$criteria->containsKey(".$this->getColumnConstant($col).")) {
+			throw new PropelException('Cannot insert a value for auto-increment primary key ('.".$this->getColumnConstant($col).".')');
+		}
 ";
 			}
 		}

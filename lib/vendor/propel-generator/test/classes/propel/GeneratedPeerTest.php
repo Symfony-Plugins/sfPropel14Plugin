@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: GeneratedPeerTest.php 899 2008-01-02 00:32:04Z hans $
+ *  $Id: GeneratedPeerTest.php 927 2008-01-18 03:25:37Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -219,7 +219,6 @@ class GeneratedPeerTest extends BookstoreTestBase {
 		$name = "A Sample Publisher - " . time();
 
 		$values = new Criteria();
-		$values->add(PublisherPeer::ID, 1);
 		$values->add(PublisherPeer::NAME, $name);
 		PublisherPeer::doInsert($values);
 
