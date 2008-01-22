@@ -15,24 +15,20 @@ $t = new lime_test(1, new lime_output_color());
 
 $p = new sfPropelDatabase();
 
-$configuration = array(
-  'propel' => array(
-    'datasources' => array(
-      'propel' => array(
-        'adapter' => 'mysql',
-        'connection' => array(
-          'dsn'        => 'mysql:dbname=testdb;host=localhost',
-          'user'       => 'foo',
-          'password'   => 'bar',
-          'encoding'   => 'utf8',
-          'persistent' => true,
-          'socket'     => null
-        ),
-      ),
-      'default' => 'propel',
-    ),
-  ),
-);
+$configuration = array ('propel' =>
+                 array('datasources' =>
+                  array('propel' =>
+                    array('adapter' => 'mysql',
+                      'connection' =>
+                      array('dsn' => 'mysql:dbname=testdb;host=localhost',
+                            'user' => 'foo',
+                            'password' => 'bar',
+                            'classname' => 'PropelPDO',
+                            'options' => array('ATTR_PERSISTENT' => true),
+                            'settings' => array('charset' => array('value' => 'utf8'),
+                          'queries' => array()))),
+                    'default' => 'propel',
+                  )));
 
 $parametersTests = array(
   array(
@@ -47,5 +43,5 @@ $parametersTests = array(
 foreach ($parametersTests as $parameters)
 {
   $p->initialize($parameters);
-  $t->is($p->getConfiguration(), $configuration);
+  $t->is($p->getConfiguration(), $configuration, 'initialize() - creates a valid propel configuration from parameters');
 }

@@ -71,7 +71,6 @@ class sfPropelDatabase extends sfPDODatabase
     }
 
     Propel::initialize();
-
   }
 
   /**
@@ -146,9 +145,9 @@ class sfPropelDatabase extends sfPDODatabase
     'dsn'          => $this->getParameter('dsn'),
     'user'         => $this->getParameter('username'),
     'password'     => $this->getParameter('password'),
-    'encoding'     => $this->getParameter('encoding'),
-    'persistent'   => $this->getParameter('persistent'),
-    'socket'       => $this->getParameter('socket'),
+    'classname'    => $this->getParameter('classname', 'PropelPDO'),
+    'options'      => array('ATTR_PERSISTENT' => $this->getParameter('persistent', true)),
+    'settings'     => array('charset' => array('value' => $this->getParameter('encoding', 'utf8')), 'queries' => $this->getParameter('queries', array()))
     )
     );
   }
