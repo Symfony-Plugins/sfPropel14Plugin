@@ -81,3 +81,33 @@ CREATE TABLE [author_article]
 
 -- SQLite does not support foreign keys; this is just for reference
 -- FOREIGN KEY ([article_id]) REFERENCES article ([id])
+
+-----------------------------------------------------------------------------
+-- product
+-----------------------------------------------------------------------------
+
+DROP TABLE [product];
+
+
+CREATE TABLE [product]
+(
+	[id] INTEGER  NOT NULL PRIMARY KEY,
+	[price] FLOAT
+);
+
+-----------------------------------------------------------------------------
+-- product_i18n
+-----------------------------------------------------------------------------
+
+DROP TABLE [product_i18n];
+
+
+CREATE TABLE [product_i18n]
+(
+	[id] INTEGER  NOT NULL,
+	[culture] VARCHAR(7)  NOT NULL,
+	[name] VARCHAR(50)
+);
+
+-- SQLite does not support foreign keys; this is just for reference
+-- FOREIGN KEY ([id]) REFERENCES product ([id])

@@ -141,6 +141,13 @@ abstract class BaseAuthorPeer {
 	
 	public static function doSelectStmt(Criteria $criteria, PropelPDO $con = null)
 	{
+
+    foreach (sfMixer::getCallables('BaseAuthorPeer:doSelectStmt:doSelectStmt') as $callable)
+    {
+      call_user_func($callable, 'BaseAuthorPeer', $criteria, $con);
+    }
+
+
 		if ($con === null) {
 			$con = Propel::getConnection(AuthorPeer::DATABASE_NAME, Propel::CONNECTION_READ);
 		}
@@ -203,7 +210,7 @@ abstract class BaseAuthorPeer {
 			return null;
 		}
 
-		return (string) $row[$startcol + 0];
+		return (int) $row[$startcol + 0];
 	}
 
 	
@@ -242,6 +249,17 @@ abstract class BaseAuthorPeer {
 	
 	public static function doInsert($values, PropelPDO $con = null)
 	{
+
+    foreach (sfMixer::getCallables('BaseAuthorPeer:doInsert:pre') as $callable)
+    {
+      $ret = call_user_func($callable, 'BaseAuthorPeer', $values, $con);
+      if (false !== $ret)
+      {
+        return $ret;
+      }
+    }
+
+
 		if ($con === null) {
 			$con = Propel::getConnection(AuthorPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
@@ -266,12 +284,29 @@ abstract class BaseAuthorPeer {
 			throw $e;
 		}
 
-		return $pk;
+		
+    foreach (sfMixer::getCallables('BaseAuthorPeer:doInsert:post') as $callable)
+    {
+      call_user_func($callable, 'BaseAuthorPeer', $values, $con, $pk);
+    }
+
+    return $pk;
 	}
 
 	
 	public static function doUpdate($values, PropelPDO $con = null)
 	{
+
+    foreach (sfMixer::getCallables('BaseAuthorPeer:doUpdate:pre') as $callable)
+    {
+      $ret = call_user_func($callable, 'BaseAuthorPeer', $values, $con);
+      if (false !== $ret)
+      {
+        return $ret;
+      }
+    }
+
+
 		if ($con === null) {
 			$con = Propel::getConnection(AuthorPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
@@ -287,8 +322,16 @@ abstract class BaseAuthorPeer {
 
 				$criteria->setDbName(self::DATABASE_NAME);
 
-		return BasePeer::doUpdate($selectCriteria, $criteria, $con);
-	}
+		$ret = BasePeer::doUpdate($selectCriteria, $criteria, $con);
+	
+
+    foreach (sfMixer::getCallables('BaseAuthorPeer:doUpdate:post') as $callable)
+    {
+      call_user_func($callable, 'BaseAuthorPeer', $values, $con, $ret);
+    }
+
+    return $ret;
+  }
 
 	
 	public static function doDeleteAll($con = null)
@@ -373,7 +416,9 @@ abstract class BaseAuthorPeer {
         $request = sfContext::getInstance()->getRequest();
         foreach ($res as $failed) {
             $col = AuthorPeer::translateFieldname($failed->getColumn(), BasePeer::TYPE_COLNAME, BasePeer::TYPE_PHPNAME);
-            $request->setError($col, $failed->getMessage());
+            if(sfConfig::get('sf_compat_10')) {
+               $request->setError($col, $failed->getMessage());
+            }
         }
     }
 

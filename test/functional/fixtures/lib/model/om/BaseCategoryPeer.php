@@ -141,6 +141,13 @@ abstract class BaseCategoryPeer {
 	
 	public static function doSelectStmt(Criteria $criteria, PropelPDO $con = null)
 	{
+
+    foreach (sfMixer::getCallables('BaseCategoryPeer:doSelectStmt:doSelectStmt') as $callable)
+    {
+      call_user_func($callable, 'BaseCategoryPeer', $criteria, $con);
+    }
+
+
 		if ($con === null) {
 			$con = Propel::getConnection(CategoryPeer::DATABASE_NAME, Propel::CONNECTION_READ);
 		}
@@ -203,7 +210,7 @@ abstract class BaseCategoryPeer {
 			return null;
 		}
 
-		return (string) $row[$startcol + 0];
+		return (int) $row[$startcol + 0];
 	}
 
 	
@@ -242,6 +249,17 @@ abstract class BaseCategoryPeer {
 	
 	public static function doInsert($values, PropelPDO $con = null)
 	{
+
+    foreach (sfMixer::getCallables('BaseCategoryPeer:doInsert:pre') as $callable)
+    {
+      $ret = call_user_func($callable, 'BaseCategoryPeer', $values, $con);
+      if (false !== $ret)
+      {
+        return $ret;
+      }
+    }
+
+
 		if ($con === null) {
 			$con = Propel::getConnection(CategoryPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
@@ -266,12 +284,29 @@ abstract class BaseCategoryPeer {
 			throw $e;
 		}
 
-		return $pk;
+		
+    foreach (sfMixer::getCallables('BaseCategoryPeer:doInsert:post') as $callable)
+    {
+      call_user_func($callable, 'BaseCategoryPeer', $values, $con, $pk);
+    }
+
+    return $pk;
 	}
 
 	
 	public static function doUpdate($values, PropelPDO $con = null)
 	{
+
+    foreach (sfMixer::getCallables('BaseCategoryPeer:doUpdate:pre') as $callable)
+    {
+      $ret = call_user_func($callable, 'BaseCategoryPeer', $values, $con);
+      if (false !== $ret)
+      {
+        return $ret;
+      }
+    }
+
+
 		if ($con === null) {
 			$con = Propel::getConnection(CategoryPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
@@ -287,8 +322,16 @@ abstract class BaseCategoryPeer {
 
 				$criteria->setDbName(self::DATABASE_NAME);
 
-		return BasePeer::doUpdate($selectCriteria, $criteria, $con);
-	}
+		$ret = BasePeer::doUpdate($selectCriteria, $criteria, $con);
+	
+
+    foreach (sfMixer::getCallables('BaseCategoryPeer:doUpdate:post') as $callable)
+    {
+      call_user_func($callable, 'BaseCategoryPeer', $values, $con, $ret);
+    }
+
+    return $ret;
+  }
 
 	
 	public static function doDeleteAll($con = null)
@@ -373,7 +416,9 @@ abstract class BaseCategoryPeer {
         $request = sfContext::getInstance()->getRequest();
         foreach ($res as $failed) {
             $col = CategoryPeer::translateFieldname($failed->getColumn(), BasePeer::TYPE_COLNAME, BasePeer::TYPE_PHPNAME);
-            $request->setError($col, $failed->getMessage());
+            if(sfConfig::get('sf_compat_10')) {
+               $request->setError($col, $failed->getMessage());
+            }
         }
     }
 

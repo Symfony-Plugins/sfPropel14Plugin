@@ -99,6 +99,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
       if ($tblFK->getName() == $table->getAttribute('i18nTable'))
       {
         $i18nClassName = $tblFK->getPhpName();
+
         // FIXME
         $i18nPeerClassName = $i18nClassName.'Peer';
 
@@ -130,7 +131,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
    * @throws PropelException Any exceptions caught during processing will be
    *     rethrown wrapped into a PropelException.
    */
-  public static function doSelectWithI18n(Criteria \$c, \$culture = null, \$con = null)
+  public static function doSelectWithI18n(Criteria \$c, \$culture = null, PropelPDO \$con = null)
   {
     if (\$culture === null)
     {
@@ -165,14 +166,14 @@ class SfPeerBuilder extends PHP5PeerBuilder
     \$c->addJoin(".$pk.", ".$i18nPk.");
     \$c->add(".$cultureColumnName.", \$culture);
 
-    \$rs = ".$this->basePeerClassname."::doSelect(\$c, \$con);
+    \$stmt = ".$this->basePeerClassname."::doSelectStmt(\$c, \$con);
     \$results = array();
 
-    while(\$rs->next()) {
+    while(\$row = \$stmt->fetch(PDO::FETCH_NUM)) {
 ";
             if ($table->getChildrenColumn()) {
               $script .= "
-      \$omClass = ".$this->getPeerClassname()."::getOMClass(\$rs, 1);
+      \$omClass = ".$this->getPeerClassname()."::getOMClass(\$row, 1);
 ";
             } else {
               $script .= "
@@ -182,12 +183,12 @@ class SfPeerBuilder extends PHP5PeerBuilder
             $script .= "
       \$cls = Propel::import(\$omClass);
       \$obj1 = new \$cls();
-      \$obj1->hydrate(\$rs);
+      \$obj1->hydrate(\$row);
       \$obj1->setCulture(\$culture);
 ";
 //            if ($i18nTable->getChildrenColumn()) {
               $script .= "
-      \$omClass = ".$i18nTablePeerBuilder->getPeerClassname()."::getOMClass(\$rs, \$startcol);
+      \$omClass = ".$i18nTablePeerBuilder->getPeerClassname()."::getOMClass(\$row, \$startcol);
 ";
 //            } else {
 //              $script .= "
@@ -198,7 +199,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
             $script .= "
       \$cls = Propel::import(\$omClass);
       \$obj2 = new \$cls();
-      \$obj2->hydrate(\$rs, \$startcol);
+      \$obj2->hydrate(\$row, \$startcol);
 
       \$obj1->set".$i18nClassName."ForCulture(\$obj2, \$culture);
       \$obj2->set".$className."(\$obj1);
@@ -215,34 +216,37 @@ class SfPeerBuilder extends PHP5PeerBuilder
       $tmp = '';
       parent::addDoValidate($tmp);
 
+      // fix setting validation errors for 1.1
       $script .= str_replace("return {$this->basePeerClassname}::doValidate(".$this->getPeerClassname()."::DATABASE_NAME, ".$this->getPeerClassname()."::TABLE_NAME, \$columns);\n",
         "\$res =  {$this->basePeerClassname}::doValidate(".$this->getPeerClassname()."::DATABASE_NAME, ".$this->getPeerClassname()."::TABLE_NAME, \$columns);\n".
         "    if (\$res !== true) {\n".
         "        \$request = sfContext::getInstance()->getRequest();\n".
         "        foreach (\$res as \$failed) {\n".
         "            \$col = ".$this->getPeerClassname()."::translateFieldname(\$failed->getColumn(), BasePeer::TYPE_COLNAME, BasePeer::TYPE_PHPNAME);\n".
-        "            \$request->setError(\$col, \$failed->getMessage());\n".
+        "            if(sfConfig::get('sf_compat_10')) {\n".
+        "               \$request->setError(\$col, \$failed->getMessage());\n".
+        "            }\n".
         "        }\n".
         "    }\n\n".
         "    return \$res;\n", $tmp);
   }
 
-  protected function addDoSelectRS(&$script)
+  protected function addDoSelectStmt(&$script)
   {
     $tmp = '';
-    parent::addDoSelectRS($tmp);
+    parent::addDoSelectStmt($tmp);
 
     if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
     {
       $mixer_script = "
 
-    foreach (sfMixer::getCallables('{$this->getClassname()}:doSelectRS:doSelectRS') as \$callable)
+    foreach (sfMixer::getCallables('{$this->getClassname()}:doSelectStmt:doSelectStmt') as \$callable)
     {
       call_user_func(\$callable, '{$this->getClassname()}', \$criteria, \$con);
     }
 
 ";
-      $tmp = preg_replace('/public static function doSelect(RS|Join.*)\(Criteria \$(c|criteria), \$con = null\)\n\s*{/', '\0'.$mixer_script, $tmp);
+      $tmp = preg_replace('/public static function doSelect(Stmt|Join.*)\(Criteria \$(c|criteria), PropelPDO \$con = null\)\n\s*{/', '\0'.$mixer_script, $tmp);
     }
 
     $script .= $tmp;
@@ -263,7 +267,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
     }
 
 ";
-      $tmp = preg_replace('/public static function doSelectJoin.*\(Criteria \$c, \$con = null\)\n\s*{/', '\0'.$mixer_script, $tmp);
+      $tmp = preg_replace('/public static function doSelectJoin.*\(Criteria \$c, PropelPDO \$con = null\)\n\s*{/', '\0'.$mixer_script, $tmp);
     }
 
     $script .= $tmp;
@@ -284,7 +288,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
     }
 
 ";
-      $tmp = preg_replace('/public static function doSelectJoinAll\(Criteria \$c, \$con = null\)\n\s*{/', '\0'.$mixer_script, $tmp);
+      $tmp = preg_replace('/public static function doSelectJoinAll\(Criteria \$c, PropelPDO \$con = null\)\n\s*{/', '\0'.$mixer_script, $tmp);
     }
 
     $script .= $tmp;
@@ -305,7 +309,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
     }
 
 ";
-      $tmp = preg_replace('/public static function doSelectJoinAllExcept.*\(Criteria \$c, \$con = null\)\n\s*{/', '\0'.$mixer_script, $tmp);
+      $tmp = preg_replace('/public static function doSelectJoinAllExcept.*\(Criteria \$c, PropelPDO \$con = null\)\n\s*{/', '\0'.$mixer_script, $tmp);
     }
 
     $script .= $tmp;
