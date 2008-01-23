@@ -3,56 +3,53 @@
 
 abstract class BaseAuthorArticlePeer {
 
-
+	
 	const DATABASE_NAME = 'propel';
 
-
+	
 	const TABLE_NAME = 'author_article';
 
-
+	
 	const CLASS_DEFAULT = 'lib.model.AuthorArticle';
 
+	
+	const NUM_COLUMNS = 2;
 
-	const NUM_COLUMNS = 3;
-
-
+	
 	const NUM_LAZY_LOAD_COLUMNS = 0;
 
 
-
+	
 	const AUTHOR_ID = 'author_article.AUTHOR_ID';
 
-
+	
 	const ARTICLE_ID = 'author_article.ARTICLE_ID';
 
-
-	const ID = 'author_article.ID';
-
-
+	
 	public static $instances = array();
 
-
+	
 	private static $mapBuilder = null;
 
-
+	
 	private static $fieldNames = array (
-		BasePeer::TYPE_PHPNAME => array ('AuthorId', 'ArticleId', 'Id', ),
-		BasePeer::TYPE_STUDLYPHPNAME => array ('authorId', 'articleId', 'id', ),
-		BasePeer::TYPE_COLNAME => array (self::AUTHOR_ID, self::ARTICLE_ID, self::ID, ),
-		BasePeer::TYPE_FIELDNAME => array ('author_id', 'article_id', 'id', ),
-		BasePeer::TYPE_NUM => array (0, 1, 2, )
+		BasePeer::TYPE_PHPNAME => array ('AuthorId', 'ArticleId', ),
+		BasePeer::TYPE_STUDLYPHPNAME => array ('authorId', 'articleId', ),
+		BasePeer::TYPE_COLNAME => array (self::AUTHOR_ID, self::ARTICLE_ID, ),
+		BasePeer::TYPE_FIELDNAME => array ('author_id', 'article_id', ),
+		BasePeer::TYPE_NUM => array (0, 1, )
 	);
 
-
+	
 	private static $fieldKeys = array (
-		BasePeer::TYPE_PHPNAME => array ('AuthorId' => 0, 'ArticleId' => 1, 'Id' => 2, ),
-		BasePeer::TYPE_STUDLYPHPNAME => array ('authorId' => 0, 'articleId' => 1, 'id' => 2, ),
-		BasePeer::TYPE_COLNAME => array (self::AUTHOR_ID => 0, self::ARTICLE_ID => 1, self::ID => 2, ),
-		BasePeer::TYPE_FIELDNAME => array ('author_id' => 0, 'article_id' => 1, 'id' => 2, ),
-		BasePeer::TYPE_NUM => array (0, 1, 2, )
+		BasePeer::TYPE_PHPNAME => array ('AuthorId' => 0, 'ArticleId' => 1, ),
+		BasePeer::TYPE_STUDLYPHPNAME => array ('authorId' => 0, 'articleId' => 1, ),
+		BasePeer::TYPE_COLNAME => array (self::AUTHOR_ID => 0, self::ARTICLE_ID => 1, ),
+		BasePeer::TYPE_FIELDNAME => array ('author_id' => 0, 'article_id' => 1, ),
+		BasePeer::TYPE_NUM => array (0, 1, )
 	);
 
-
+	
 	public static function getMapBuilder()
 	{
 		if (self::$mapBuilder === null) {
@@ -60,7 +57,7 @@ abstract class BaseAuthorArticlePeer {
 		}
 		return self::$mapBuilder;
 	}
-
+	
 	static public function translateFieldName($name, $fromType, $toType)
 	{
 		$toNames = self::getFieldNames($toType);
@@ -71,7 +68,7 @@ abstract class BaseAuthorArticlePeer {
 		return $toNames[$key];
 	}
 
-
+	
 
 	static public function getFieldNames($type = BasePeer::TYPE_PHPNAME)
 	{
@@ -81,13 +78,13 @@ abstract class BaseAuthorArticlePeer {
 		return self::$fieldNames[$type];
 	}
 
-
+	
 	public static function alias($alias, $column)
 	{
 		return str_replace(AuthorArticlePeer::TABLE_NAME.'.', $alias.'.', $column);
 	}
 
-
+	
 	public static function addSelectColumns(Criteria $criteria)
 	{
 
@@ -95,14 +92,12 @@ abstract class BaseAuthorArticlePeer {
 
 		$criteria->addSelectColumn(AuthorArticlePeer::ARTICLE_ID);
 
-		$criteria->addSelectColumn(AuthorArticlePeer::ID);
-
 	}
 
-	const COUNT = 'COUNT(author_article.ID)';
-	const COUNT_DISTINCT = 'COUNT(DISTINCT author_article.ID)';
+	const COUNT = 'COUNT(author_article.AUTHOR_ID)';
+	const COUNT_DISTINCT = 'COUNT(DISTINCT author_article.AUTHOR_ID)';
 
-
+	
 	public static function doCount(Criteria $criteria, $distinct = false, PropelPDO $con = null)
 	{
 				$criteria = clone $criteria;
@@ -127,7 +122,7 @@ abstract class BaseAuthorArticlePeer {
 		$stmt->closeCursor();
 		return $count;
 	}
-
+	
 	public static function doSelectOne(Criteria $criteria, PropelPDO $con = null)
 	{
 		$critcopy = clone $criteria;
@@ -138,12 +133,12 @@ abstract class BaseAuthorArticlePeer {
 		}
 		return null;
 	}
-
+	
 	public static function doSelect(Criteria $criteria, PropelPDO $con = null)
 	{
 		return AuthorArticlePeer::populateObjects(AuthorArticlePeer::doSelectStmt($criteria, $con));
 	}
-
+	
 	public static function doSelectStmt(Criteria $criteria, PropelPDO $con = null)
 	{
 		if ($con === null) {
@@ -159,23 +154,23 @@ abstract class BaseAuthorArticlePeer {
 
 				return BasePeer::doSelect($criteria, $con);
 	}
-
+	
 	public static function addInstanceToPool(AuthorArticle $obj, $key = null)
 	{
 		if (Propel::isInstancePoolingEnabled()) {
 			if ($key === null) {
-				$key = (string) $obj->getPrimaryKey();
+				$key = serialize($obj->getPrimaryKey());
 			} 			self::$instances[$key] = $obj;
 		}
 	}
 
-
+	
 	public static function removeInstanceFromPool($value)
 	{
 		if (Propel::isInstancePoolingEnabled() && $value !== null) {
 			if (is_object($value) && $value instanceof AuthorArticle) {
-				$key = (string) $value->getPrimaryKey();
-			} elseif (is_scalar($value)) {
+				$key = serialize($value->getPrimaryKey());
+			} elseif (is_array($value)) {
 								$key = serialize($value);
 			} else {
 				$e = new PropelException("Invalid value passed to removeInstanceFromPool().  Expected primary key or AuthorArticle object; got " . (is_object($value) ? get_class($value) . ' object.' : var_export($value,true)));
@@ -184,8 +179,8 @@ abstract class BaseAuthorArticlePeer {
 
 			unset(self::$instances[$key]);
 		}
-	}
-
+	} 
+	
 	public static function getInstanceFromPool($key)
 	{
 		if (Propel::isInstancePoolingEnabled()) {
@@ -194,28 +189,28 @@ abstract class BaseAuthorArticlePeer {
 			}
 		}
 		return null; 	}
-
-
+	
+	
 	public static function clearInstancePool()
 	{
 		self::$instances = array();
 	}
-
-
+	
+	
 	public static function getPrimaryKeyHashFromRow($row, $startcol = 0)
 	{
-				if ($row[$startcol + 2] === null) {
+				if ($row[$startcol + 0] === null && $row[$startcol + 1] === null) {
 			return null;
 		}
 
-		return (string) $row[$startcol + 2];
+		return serialize(array($row[$startcol + 0],$row[$startcol + 1]));
 	}
 
-
+	
 	public static function populateObjects(PDOStatement $stmt)
 	{
 		$results = array();
-
+	
 				$cls = AuthorArticlePeer::getOMClass();
 		$cls = substr('.'.$cls, strrpos('.'.$cls, '.') + 1);
 				while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
@@ -223,7 +218,7 @@ abstract class BaseAuthorArticlePeer {
 			if (null !== ($obj = AuthorArticlePeer::getInstanceFromPool($key))) {
 																$results[] = $obj;
 			} else {
-
+		
 				$obj = new $cls();
 				$obj->hydrate($row);
 				$results[] = $obj;
@@ -233,7 +228,7 @@ abstract class BaseAuthorArticlePeer {
 		return $results;
 	}
 
-
+	
 	public static function doCountJoinAuthor(Criteria $criteria, $distinct = false, PropelPDO $con = null)
 	{
 				$criteria = clone $criteria;
@@ -262,7 +257,7 @@ abstract class BaseAuthorArticlePeer {
 	}
 
 
-
+	
 	public static function doCountJoinArticle(Criteria $criteria, $distinct = false, PropelPDO $con = null)
 	{
 				$criteria = clone $criteria;
@@ -291,7 +286,7 @@ abstract class BaseAuthorArticlePeer {
 	}
 
 
-
+	
 	public static function doSelectJoinAuthor(Criteria $c, $con = null)
 	{
 		$c = clone $c;
@@ -319,7 +314,7 @@ abstract class BaseAuthorArticlePeer {
 				$obj1 = new $cls();
 				$obj1->hydrate($row);
 				AuthorArticlePeer::addInstanceToPool($obj1, $key1);
-			}
+			} 
 			$key2 = AuthorPeer::getPrimaryKeyHashFromRow($row, $startcol);
 			if ($key2 !== null) {
 				$obj2 = AuthorPeer::getInstanceFromPool($key2);
@@ -331,10 +326,10 @@ abstract class BaseAuthorArticlePeer {
 					$obj2 = new $cls();
 					$obj2->hydrate($row, $startcol);
 					AuthorPeer::addInstanceToPool($obj2, $key2);
-				}
+				} 
 								$obj2->addAuthorArticle($obj1);
 
-			}
+			} 
 			$results[] = $obj1;
 		}
 		$stmt->closeCursor();
@@ -342,7 +337,7 @@ abstract class BaseAuthorArticlePeer {
 	}
 
 
-
+	
 	public static function doSelectJoinArticle(Criteria $c, $con = null)
 	{
 		$c = clone $c;
@@ -370,7 +365,7 @@ abstract class BaseAuthorArticlePeer {
 				$obj1 = new $cls();
 				$obj1->hydrate($row);
 				AuthorArticlePeer::addInstanceToPool($obj1, $key1);
-			}
+			} 
 			$key2 = ArticlePeer::getPrimaryKeyHashFromRow($row, $startcol);
 			if ($key2 !== null) {
 				$obj2 = ArticlePeer::getInstanceFromPool($key2);
@@ -382,10 +377,10 @@ abstract class BaseAuthorArticlePeer {
 					$obj2 = new $cls();
 					$obj2->hydrate($row, $startcol);
 					ArticlePeer::addInstanceToPool($obj2, $key2);
-				}
+				} 
 								$obj2->addAuthorArticle($obj1);
 
-			}
+			} 
 			$results[] = $obj1;
 		}
 		$stmt->closeCursor();
@@ -393,7 +388,7 @@ abstract class BaseAuthorArticlePeer {
 	}
 
 
-
+	
 	public static function doCountJoinAll(Criteria $criteria, $distinct = false, PropelPDO $con = null)
 	{
 		$criteria = clone $criteria;
@@ -417,14 +412,14 @@ abstract class BaseAuthorArticlePeer {
 		$stmt = AuthorArticlePeer::doSelectStmt($criteria, $con);
 		if ($row = $stmt->fetch(PDO::FETCH_NUM)) {
 			$count = (int) $row[0];
-		} else {
+		} else {			
 			$count = 0; 		}
 		$stmt->closeCursor();
 		return $count;
 	}
 
 
-
+	
 	public static function doSelectJoinAll(Criteria $c, $con = null)
 	{
 		$c = clone $c;
@@ -459,8 +454,8 @@ abstract class BaseAuthorArticlePeer {
 				$obj1 = new $cls();
 				$obj1->hydrate($row);
 				AuthorArticlePeer::addInstanceToPool($obj1, $key1);
-			}
-
+			} 
+			
 			$key2 = AuthorPeer::getPrimaryKeyHashFromRow($row, $startcol2);
 			if ($key2 !== null) {
 				$obj2 = AuthorPeer::getInstanceFromPool($key2);
@@ -473,10 +468,10 @@ abstract class BaseAuthorArticlePeer {
 					$obj2 = new $cls();
 					$obj2->hydrate($row, $startcol2);
 					AuthorPeer::addInstanceToPool($obj2, $key2);
-				}
-								$obj2->addAuthorArticle($obj1);
-			}
-
+				} 
+								$obj2->addAuthorArticle($obj1); 
+			} 
+			
 			$key3 = ArticlePeer::getPrimaryKeyHashFromRow($row, $startcol3);
 			if ($key3 !== null) {
 				$obj3 = ArticlePeer::getInstanceFromPool($key3);
@@ -489,9 +484,9 @@ abstract class BaseAuthorArticlePeer {
 					$obj3 = new $cls();
 					$obj3->hydrate($row, $startcol3);
 					ArticlePeer::addInstanceToPool($obj3, $key3);
-				}
-								$obj3->addAuthorArticle($obj1);
-			}
+				} 
+								$obj3->addAuthorArticle($obj1); 
+			} 
 			$results[] = $obj1;
 		}
 		$stmt->closeCursor();
@@ -499,7 +494,7 @@ abstract class BaseAuthorArticlePeer {
 	}
 
 
-
+	
 	public static function doCountJoinAllExceptAuthor(Criteria $criteria, $distinct = false, PropelPDO $con = null)
 	{
 				$criteria = clone $criteria;
@@ -528,7 +523,7 @@ abstract class BaseAuthorArticlePeer {
 	}
 
 
-
+	
 	public static function doCountJoinAllExceptArticle(Criteria $criteria, $distinct = false, PropelPDO $con = null)
 	{
 				$criteria = clone $criteria;
@@ -557,7 +552,7 @@ abstract class BaseAuthorArticlePeer {
 	}
 
 
-
+	
 	public static function doSelectJoinAllExceptAuthor(Criteria $c, $con = null)
 	{
 		$c = clone $c;
@@ -588,13 +583,13 @@ abstract class BaseAuthorArticlePeer {
 				$obj1 = new $cls();
 				$obj1->hydrate($row);
 				AuthorArticlePeer::addInstanceToPool($obj1, $key1);
-			}
-
+			} 
+				
 				$key2 = ArticlePeer::getPrimaryKeyHashFromRow($row, $startcol2);
 				if ($key2 !== null) {
 					$obj2 = ArticlePeer::getInstanceFromPool($key2);
 					if (!$obj2) {
-
+	
 						$omClass = ArticlePeer::getOMClass();
 
 
@@ -602,10 +597,10 @@ abstract class BaseAuthorArticlePeer {
 					$obj2 = new $cls();
 					$obj2->hydrate($row, $startcol2);
 					ArticlePeer::addInstanceToPool($obj2, $key2);
-				}
+				} 
 								$obj2->addAuthorArticle($obj1);
 
-			}
+			} 
 			$results[] = $obj1;
 		}
 		$stmt->closeCursor();
@@ -613,7 +608,7 @@ abstract class BaseAuthorArticlePeer {
 	}
 
 
-
+	
 	public static function doSelectJoinAllExceptArticle(Criteria $c, $con = null)
 	{
 		$c = clone $c;
@@ -644,13 +639,13 @@ abstract class BaseAuthorArticlePeer {
 				$obj1 = new $cls();
 				$obj1->hydrate($row);
 				AuthorArticlePeer::addInstanceToPool($obj1, $key1);
-			}
-
+			} 
+				
 				$key2 = AuthorPeer::getPrimaryKeyHashFromRow($row, $startcol2);
 				if ($key2 !== null) {
 					$obj2 = AuthorPeer::getInstanceFromPool($key2);
 					if (!$obj2) {
-
+	
 						$omClass = AuthorPeer::getOMClass();
 
 
@@ -658,29 +653,29 @@ abstract class BaseAuthorArticlePeer {
 					$obj2 = new $cls();
 					$obj2->hydrate($row, $startcol2);
 					AuthorPeer::addInstanceToPool($obj2, $key2);
-				}
+				} 
 								$obj2->addAuthorArticle($obj1);
 
-			}
+			} 
 			$results[] = $obj1;
 		}
 		$stmt->closeCursor();
 		return $results;
 	}
 
-
+	
 	public static function getTableMap()
 	{
 		return Propel::getDatabaseMap(self::DATABASE_NAME)->getTable(self::TABLE_NAME);
 	}
 
-
+	
 	public static function getOMClass()
 	{
 		return AuthorArticlePeer::CLASS_DEFAULT;
 	}
 
-
+	
 	public static function doInsert($values, PropelPDO $con = null)
 	{
 		if ($con === null) {
@@ -691,7 +686,6 @@ abstract class BaseAuthorArticlePeer {
 			$criteria = clone $values; 		} else {
 			$criteria = $values->buildCriteria(); 		}
 
-		$criteria->remove(AuthorArticlePeer::ID);
 
 				$criteria->setDbName(self::DATABASE_NAME);
 
@@ -707,7 +701,7 @@ abstract class BaseAuthorArticlePeer {
 		return $pk;
 	}
 
-
+	
 	public static function doUpdate($values, PropelPDO $con = null)
 	{
 		if ($con === null) {
@@ -717,9 +711,12 @@ abstract class BaseAuthorArticlePeer {
 		$selectCriteria = new Criteria(self::DATABASE_NAME);
 
 		if ($values instanceof Criteria) {
-			$criteria = clone $values;
-			$comparison = $criteria->getComparison(AuthorArticlePeer::ID);
-			$selectCriteria->add(AuthorArticlePeer::ID, $criteria->remove(AuthorArticlePeer::ID), $comparison);
+			$criteria = clone $values; 
+			$comparison = $criteria->getComparison(AuthorArticlePeer::AUTHOR_ID);
+			$selectCriteria->add(AuthorArticlePeer::AUTHOR_ID, $criteria->remove(AuthorArticlePeer::AUTHOR_ID), $comparison);
+
+			$comparison = $criteria->getComparison(AuthorArticlePeer::ARTICLE_ID);
+			$selectCriteria->add(AuthorArticlePeer::ARTICLE_ID, $criteria->remove(AuthorArticlePeer::ARTICLE_ID), $comparison);
 
 		} else { 			$criteria = $values->buildCriteria(); 			$selectCriteria = $values->buildPkeyCriteria(); 		}
 
@@ -728,7 +725,7 @@ abstract class BaseAuthorArticlePeer {
 		return BasePeer::doUpdate($selectCriteria, $criteria, $con);
 	}
 
-
+	
 	public static function doDeleteAll($con = null)
 	{
 		if ($con === null) {
@@ -745,7 +742,7 @@ abstract class BaseAuthorArticlePeer {
 		}
 	}
 
-
+	
 	 public static function doDelete($values, PropelPDO $con = null)
 	 {
 		if ($con === null) {
@@ -760,19 +757,28 @@ abstract class BaseAuthorArticlePeer {
 						AuthorArticlePeer::removeInstanceFromPool($values);
 						$criteria = $values->buildPkeyCriteria();
 		} else {
-
+			
 						AuthorArticlePeer::removeInstanceFromPool($values);
 
 			$criteria = new Criteria(self::DATABASE_NAME);
-			$criteria->add(AuthorArticlePeer::ID, (array) $values, Criteria::IN);
+												if (count($values) == count($values, COUNT_RECURSIVE)) {
+								$values = array($values);
+			}
+
+			foreach ($values as $value) {
+
+				$criterion = $criteria->getNewCriterion(AuthorArticlePeer::AUTHOR_ID, $value[0]);
+				$criterion->addAnd($criteria->getNewCriterion(AuthorArticlePeer::ARTICLE_ID, $value[1]));
+				$criteria->addOr($criterion);
+			}
 		}
 
 				$criteria->setDbName(self::DATABASE_NAME);
 
-		$affectedRows = 0;
+		$affectedRows = 0; 
 		try {
 									$con->beginTransaction();
-
+			
 			$affectedRows += BasePeer::doDelete($criteria, $con);
 
 			$con->commit();
@@ -783,7 +789,7 @@ abstract class BaseAuthorArticlePeer {
 		}
 	}
 
-
+	
 	public static function doValidate(AuthorArticle $obj, $cols = null)
 	{
 		$columns = array();
@@ -818,42 +824,19 @@ abstract class BaseAuthorArticlePeer {
     return $res;
 	}
 
-
-	public static function retrieveByPK($pk, PropelPDO $con = null)
-	{
+	
+	public static function retrieveByPK( $author_id, $article_id, PropelPDO $con = null) {
 		if ($con === null) {
 			$con = Propel::getConnection(AuthorArticlePeer::DATABASE_NAME, Propel::CONNECTION_READ);
 		}
-
 		$criteria = new Criteria(AuthorArticlePeer::DATABASE_NAME);
-
-		$criteria->add(AuthorArticlePeer::ID, $pk);
-
-
+		$criteria->add(AuthorArticlePeer::AUTHOR_ID, $author_id);
+		$criteria->add(AuthorArticlePeer::ARTICLE_ID, $article_id);
 		$v = AuthorArticlePeer::doSelect($criteria, $con);
 
-		return !empty($v) > 0 ? $v[0] : null;
+		return !empty($v) ? $v[0] : null;
 	}
-
-
-	public static function retrieveByPKs($pks, PropelPDO $con = null)
-	{
-		if ($con === null) {
-			$con = Propel::getConnection(AuthorArticlePeer::DATABASE_NAME, Propel::CONNECTION_READ);
-		}
-
-		$objs = null;
-		if (empty($pks)) {
-			$objs = array();
-		} else {
-			$criteria = new Criteria(AuthorArticlePeer::DATABASE_NAME);
-			$criteria->add(AuthorArticlePeer::ID, $pks, Criteria::IN);
-			$objs = AuthorArticlePeer::doSelect($criteria, $con);
-		}
-		return $objs;
-	}
-
-}
+} 
 
 Propel::getDatabaseMap(BaseAuthorArticlePeer::DATABASE_NAME)->addTableBuilder(BaseAuthorArticlePeer::TABLE_NAME, BaseAuthorArticlePeer::getMapBuilder());
 

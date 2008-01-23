@@ -16,21 +16,23 @@ class BaseArticleForm extends BaseFormPropel
       'title'       => new sfWidgetFormInput(),
       'body'        => new sfWidgetFormTextarea(),
       'online'      => new sfWidgetFormInputCheckbox(),
-      'category_id' => new sfWidgetFormSelect(array('choices' => new sfCallable(array($this, 'getCategoryIdChoices')))),
+      'category_id' => new sfWidgetFormPropelSelect(array('model' => 'Category', 'add_empty' => false)),
       'created_at'  => new sfWidgetFormDateTime(),
       'end_date'    => new sfWidgetFormDateTime(),
-      'book_id'     => new sfWidgetFormSelect(array('choices' => new sfCallable(array($this, 'getBookIdChoices')))),
+      'book_id'     => new sfWidgetFormPropelSelect(array('model' => 'Book', 'add_empty' => true)),
+      'author_list' => new sfWidgetFormPropelSelectMany(array('model' => 'Author')),
     ));
 
     $this->setValidators(array(
-      'id'          => new sfValidatorInteger(array('required' => false)),
+      'id'          => new sfValidatorPropelChoice(array('model' => 'Article', 'column' => 'Id', 'required' => false)),
       'title'       => new sfValidatorString(array('max_length' => 255)),
       'body'        => new sfValidatorString(array('required' => false)),
       'online'      => new sfValidatorBoolean(array('required' => false)),
-      'category_id' => new sfValidatorChoice(array('choices' => new sfCallable(array($this, 'getCategoryIdIdentifierChoices')))),
+      'category_id' => new sfValidatorPropelChoice(array('model' => 'Category')),
       'created_at'  => new sfValidatorDateTime(array('required' => false)),
       'end_date'    => new sfValidatorDateTime(array('required' => false)),
-      'book_id'     => new sfValidatorChoice(array('choices' => new sfCallable(array($this, 'getBookIdIdentifierChoices')), 'required' => false)),
+      'book_id'     => new sfValidatorPropelChoice(array('model' => 'Book', 'required' => false)),
+      'author_list' => new sfValidatorPropelChoiceMany(array('model' => 'Author', 'required' => false)),
     ));
 
     $this->widgetSchema->setNameFormat('article[%s]');
@@ -46,41 +48,63 @@ class BaseArticleForm extends BaseFormPropel
   }
 
 
-  public function getCategoryIdIdentifierChoices()
+  public function updateDefaultsFromObject()
   {
-    return array_keys($this->getCategoryIdChoices());
-  }
+    parent::updateDefaultsFromObject();
 
-  public function getCategoryIdChoices()
-  {
-    if (!isset($this->CategoryIdChoices))
+    if (isset($this->widgetSchema['author_list']))
     {
-      $this->CategoryIdChoices = array();
-      foreach (CategoryPeer::doSelect(new Criteria(), $this->getConnection()) as $object)
+      $values = array();
+      foreach ($this->object->getAuthorArticles() as $obj)
       {
-        $this->CategoryIdChoices[$object->getId()] = $object->__toString();
+        $values[] = $obj->getAuthorId();
       }
+
+      $this->setDefault('author_list', $values);
     }
 
-    return $this->CategoryIdChoices;
-  }
-  public function getBookIdIdentifierChoices()
-  {
-    return array_keys($this->getBookIdChoices());
   }
 
-  public function getBookIdChoices()
+  protected function doSave($con = null)
   {
-    if (!isset($this->BookIdChoices))
+    parent::doSave($con);
+
+    $this->saveAuthorList($con);
+  }
+
+  public function saveAuthorList($con = null)
+  {
+    if (!$this->isValid())
     {
-      $this->BookIdChoices = array('' => '');
-      foreach (BookPeer::doSelect(new Criteria(), $this->getConnection()) as $object)
-      {
-        $this->BookIdChoices[$object->getId()] = $object->__toString();
-      }
+      throw $this->getErrorSchema();
     }
 
-    return $this->BookIdChoices;
+    if (!isset($this->widgetSchema['author_list']))
+    {
+      // somebody has unset this widget
+      return;
+    }
+
+    if (is_null($con))
+    {
+      $con = $this->getConnection();
+    }
+
+    $c = new Criteria();
+    $c->add(AuthorArticlePeer::ARTICLE_ID, $this->object->getPrimaryKey());
+    AuthorArticlePeer::doDelete($c, $con);
+
+    $values = $this->getValues();
+    if (is_array($values['author_list']))
+    {
+      foreach ($values['author_list'] as $value)
+      {
+        $obj = new AuthorArticle();
+        $obj->setArticleId($this->object->getPrimaryKey());
+        $obj->setAuthorId($value);
+        $obj->save();
+      }
+    }
   }
 
 }

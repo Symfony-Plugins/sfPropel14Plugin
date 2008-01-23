@@ -4,93 +4,93 @@
 abstract class BaseArticle extends BaseObject  implements Persistent {
 
 
-
+	
 	protected static $peer;
 
-
+	
 	protected $id;
 
-
+	
 	protected $title;
 
-
+	
 	protected $body;
 
-
+	
 	protected $online;
 
-
+	
 	protected $category_id;
 
-
+	
 	protected $created_at;
 
-
+	
 	protected $end_date;
 
-
+	
 	protected $book_id;
 
-
+	
 	protected $aCategory;
 
-
+	
 	protected $aBook;
 
-
+	
 	protected $collAuthorArticles;
 
-
+	
 	private $lastAuthorArticleCriteria = null;
 
-
+	
 	protected $alreadyInSave = false;
 
-
+	
 	protected $alreadyInValidation = false;
 
-
+	
 	public function __construct()
 	{
 		$this->applyDefaultValues();
 	}
 
-
+	
 	public function applyDefaultValues()
 	{
 	}
 
-
+	
 	public function getId()
 	{
 		return $this->id;
 	}
 
-
+	
 	public function getTitle()
 	{
 		return $this->title;
 	}
 
-
+	
 	public function getBody()
 	{
 		return $this->body;
 	}
 
-
+	
 	public function getOnline()
 	{
 		return $this->online;
 	}
 
-
+	
 	public function getCategoryId()
 	{
 		return $this->category_id;
 	}
 
-
+	
 	public function getCreatedAt($format = 'Y-m-d H:i:s')
 	{
 
@@ -107,8 +107,7 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		}
 
 		if ($format === null) {
-
-			return $dt;
+						return $dt;
 		} elseif (strpos($format, '%') !== false) {
 			return strftime($format, $dt->format('U'));
 		} else {
@@ -116,7 +115,7 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		}
 	}
 
-
+	
 	public function getEndDate($format = 'Y-m-d H:i:s')
 	{
 
@@ -133,8 +132,7 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		}
 
 		if ($format === null) {
-
-			return $dt;
+						return $dt;
 		} elseif (strpos($format, '%') !== false) {
 			return strftime($format, $dt->format('U'));
 		} else {
@@ -142,13 +140,13 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		}
 	}
 
-
+	
 	public function getBookId()
 	{
 		return $this->book_id;
 	}
 
-
+	
 	public function setId($v)
 	{
 		if ($v !== null) {
@@ -161,9 +159,8 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		}
 
 		return $this;
-	}
-
-
+	} 
+	
 	public function setTitle($v)
 	{
 		if ($v !== null) {
@@ -176,9 +173,8 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		}
 
 		return $this;
-	}
-
-
+	} 
+	
 	public function setBody($v)
 	{
 		if ($v !== null) {
@@ -191,9 +187,8 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		}
 
 		return $this;
-	}
-
-
+	} 
+	
 	public function setOnline($v)
 	{
 		if ($v !== null) {
@@ -206,9 +201,8 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		}
 
 		return $this;
-	}
-
-
+	} 
+	
 	public function setCategoryId($v)
 	{
 		if ($v !== null) {
@@ -225,9 +219,8 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		}
 
 		return $this;
-	}
-
-
+	} 
+	
 	public function setCreatedAt($v)
 	{
 		if ($v === null) {
@@ -235,14 +228,9 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		} elseif ($v instanceof DateTime) {
 			$dt = $v;
 		} else {
-
-
-			try {
-				if (is_numeric($v)) {
-					$dt = new DateTime('@'.$v, new DateTimeZone('UTC'));
-
-
-					$dt->setTimeZone(new DateTimeZone(date_default_timezone_get()));
+									try {
+				if (is_numeric($v)) { 					$dt = new DateTime('@'.$v, new DateTimeZone('UTC'));
+															$dt->setTimeZone(new DateTimeZone(date_default_timezone_get()));
 				} else {
 					$dt = new DateTime($v);
 				}
@@ -252,23 +240,19 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		}
 
 		if ( $this->created_at !== null || $dt !== null ) {
-
-
+			
 			$currNorm = ($this->created_at !== null && $tmpDt = new DateTime($this->created_at)) ? $tmpDt->format('Y-m-d\\TH:i:sO') : null;
 			$newNorm = ($dt !== null) ? $dt->format('Y-m-d\\TH:i:sO') : null;
 
-			if ( ($currNorm !== $newNorm)
-					)
+			if ( ($currNorm !== $newNorm) 					)
 			{
 				$this->created_at = ($dt ? $dt->format('Y-m-d\\TH:i:sO') : null);
 				$this->modifiedColumns[] = ArticlePeer::CREATED_AT;
 			}
-		}
-
+		} 
 		return $this;
-	}
-
-
+	} 
+	
 	public function setEndDate($v)
 	{
 		if ($v === null) {
@@ -276,14 +260,9 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		} elseif ($v instanceof DateTime) {
 			$dt = $v;
 		} else {
-
-
-			try {
-				if (is_numeric($v)) {
-					$dt = new DateTime('@'.$v, new DateTimeZone('UTC'));
-
-
-					$dt->setTimeZone(new DateTimeZone(date_default_timezone_get()));
+									try {
+				if (is_numeric($v)) { 					$dt = new DateTime('@'.$v, new DateTimeZone('UTC'));
+															$dt->setTimeZone(new DateTimeZone(date_default_timezone_get()));
 				} else {
 					$dt = new DateTime($v);
 				}
@@ -293,23 +272,19 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		}
 
 		if ( $this->end_date !== null || $dt !== null ) {
-
-
+			
 			$currNorm = ($this->end_date !== null && $tmpDt = new DateTime($this->end_date)) ? $tmpDt->format('Y-m-d\\TH:i:sO') : null;
 			$newNorm = ($dt !== null) ? $dt->format('Y-m-d\\TH:i:sO') : null;
 
-			if ( ($currNorm !== $newNorm)
-					)
+			if ( ($currNorm !== $newNorm) 					)
 			{
 				$this->end_date = ($dt ? $dt->format('Y-m-d\\TH:i:sO') : null);
 				$this->modifiedColumns[] = ArticlePeer::END_DATE;
 			}
-		}
-
+		} 
 		return $this;
-	}
-
-
+	} 
+	
 	public function setBookId($v)
 	{
 		if ($v !== null) {
@@ -326,21 +301,17 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		}
 
 		return $this;
-	}
-
-
+	} 
+	
 	public function hasOnlyDefaultValues()
 	{
-
-			if (array_diff($this->modifiedColumns, array())) {
+						if (array_diff($this->modifiedColumns, array())) {
 				return false;
 			}
 
-
-		return true;
-	}
-
-
+				return true;
+	} 
+	
 	public function hydrate($row, $startcol = 0, $rehydrate = false)
 	{
 		try {
@@ -361,29 +332,26 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 				$this->ensureConsistency();
 			}
 
-
-			return $startcol + 8;
-
+						return $startcol + 8; 
 		} catch (Exception $e) {
 			throw new PropelException("Error populating Article object", $e);
 		}
 	}
 
-
+	
 	public function ensureConsistency()
 	{
 
 		if ($this->aCategory !== null && $this->category_id !== $this->aCategory->getId()) {
 			$this->aCategory = null;
 		}
-
+	
 		if ($this->aBook !== null && $this->book_id !== $this->aBook->getId()) {
 			$this->aBook = null;
 		}
-
-	}
-
-
+	
+	} 
+	
 	public function reload($deep = false, PropelPDO $con = null)
 	{
 		if ($this->isDeleted()) {
@@ -398,27 +366,23 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 			$con = Propel::getConnection(ArticlePeer::DATABASE_NAME, Propel::CONNECTION_READ);
 		}
 
-
-
-
+				
 		$stmt = ArticlePeer::doSelectStmt($this->buildPkeyCriteria(), $con);
 		$row = $stmt->fetch(PDO::FETCH_NUM);
 		$stmt->closeCursor();
 		if (!$row) {
 			throw new PropelException('Cannot find matching row in the database to reload object values.');
 		}
-		$this->hydrate($row, 0, true);
-
-		if ($deep) {
+		$this->hydrate($row, 0, true); 
+		if ($deep) {  
 			$this->aCategory = null;
 			$this->aBook = null;
 			$this->collAuthorArticles = null;
 			$this->lastAuthorArticleCriteria = null;
 
-		}
-	}
+		} 	}
 
-
+	
 	public function delete(PropelPDO $con = null)
 	{
 		if ($this->isDeleted()) {
@@ -440,7 +404,7 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		}
 	}
 
-
+	
 	public function save(PropelPDO $con = null)
 	{
     if ($this->isNew() && !$this->isColumnModified(ArticlePeer::CREATED_AT))
@@ -468,18 +432,13 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		}
 	}
 
-
+	
 	protected function doSave(PropelPDO $con)
 	{
-		$affectedRows = 0;
-		if (!$this->alreadyInSave) {
+		$affectedRows = 0; 		if (!$this->alreadyInSave) {
 			$this->alreadyInSave = true;
 
-
-
-
-
-
+												
 			if ($this->aCategory !== null) {
 				if ($this->aCategory->isModified() || $this->aCategory->isNew()) {
 					$affectedRows += $this->aCategory->save($con);
@@ -495,22 +454,17 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 			}
 
 
-
-			if ($this->isModified()) {
+						if ($this->isModified()) {
 				if ($this->isNew()) {
 					$pk = ArticlePeer::doInsert($this, $con);
-					$affectedRows += 1;
-
-
-
-					$this->setId($pk);
-
+					$affectedRows += 1; 										 										 
+					$this->setId($pk);  
 					$this->setNew(false);
 				} else {
 					$affectedRows += ArticlePeer::doUpdate($this, $con);
 				}
-				$this->resetModified();
-			}
+
+				$this->resetModified(); 			}
 
 			if ($this->collAuthorArticles !== null) {
 				foreach ($this->collAuthorArticles as $referrerFK) {
@@ -524,18 +478,17 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 
 		}
 		return $affectedRows;
-	}
-
-
+	} 
+	
 	protected $validationFailures = array();
 
-
+	
 	public function getValidationFailures()
 	{
 		return $this->validationFailures;
 	}
 
-
+	
 	public function validate($columns = null)
 	{
 		$res = $this->doValidate($columns);
@@ -548,7 +501,7 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		}
 	}
 
-
+	
 	protected function doValidate($columns = null)
 	{
 		if (!$this->alreadyInValidation) {
@@ -558,11 +511,7 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 			$failureMap = array();
 
 
-
-
-
-
-
+												
 			if ($this->aCategory !== null) {
 				if (!$this->aCategory->validate($columns)) {
 					$failureMap = array_merge($failureMap, $this->aCategory->getValidationFailures());
@@ -596,14 +545,14 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		return (!empty($failureMap) ? $failureMap : true);
 	}
 
-
+	
 	public function getByName($name, $type = BasePeer::TYPE_PHPNAME)
 	{
 		$pos = ArticlePeer::translateFieldName($name, $type, BasePeer::TYPE_NUM);
 		return $this->getByPosition($pos);
 	}
 
-
+	
 	public function getByPosition($pos)
 	{
 		switch($pos) {
@@ -634,10 +583,9 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 			default:
 				return null;
 				break;
-		}
-	}
+		} 	}
 
-
+	
 	public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true)
 	{
 		$keys = ArticlePeer::getFieldNames($keyType);
@@ -654,14 +602,14 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		return $result;
 	}
 
-
+	
 	public function setByName($name, $value, $type = BasePeer::TYPE_PHPNAME)
 	{
 		$pos = ArticlePeer::translateFieldName($name, $type, BasePeer::TYPE_NUM);
 		return $this->setByPosition($pos, $value);
 	}
 
-
+	
 	public function setByPosition($pos, $value)
 	{
 		switch($pos) {
@@ -689,10 +637,9 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 			case 7:
 				$this->setBookId($value);
 				break;
-		}
-	}
+		} 	}
 
-
+	
 	public function fromArray($arr, $keyType = BasePeer::TYPE_PHPNAME)
 	{
 		$keys = ArticlePeer::getFieldNames($keyType);
@@ -707,7 +654,7 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		if (array_key_exists($keys[7], $arr)) $this->setBookId($arr[$keys[7]]);
 	}
 
-
+	
 	public function buildCriteria()
 	{
 		$criteria = new Criteria(ArticlePeer::DATABASE_NAME);
@@ -724,7 +671,7 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		return $criteria;
 	}
 
-
+	
 	public function buildPkeyCriteria()
 	{
 		$criteria = new Criteria(ArticlePeer::DATABASE_NAME);
@@ -734,19 +681,19 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		return $criteria;
 	}
 
-
+	
 	public function getPrimaryKey()
 	{
 		return $this->getId();
 	}
 
-
+	
 	public function setPrimaryKey($key)
 	{
 		$this->setId($key);
 	}
 
-
+	
 	public function copyInto($copyObj, $deepCopy = false)
 	{
 
@@ -766,36 +713,30 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 
 
 		if ($deepCopy) {
-
-
-			$copyObj->setNew(false);
+									$copyObj->setNew(false);
 
 			foreach ($this->getAuthorArticles() as $relObj) {
-				if ($relObj !== $this) {
-					$copyObj->addAuthorArticle($relObj->copy($deepCopy));
+				if ($relObj !== $this) {  					$copyObj->addAuthorArticle($relObj->copy($deepCopy));
 				}
 			}
 
-		}
-
+		} 
 
 		$copyObj->setNew(true);
 
-		$copyObj->setId(NULL);
-
+		$copyObj->setId(NULL); 
 	}
 
-
+	
 	public function copy($deepCopy = false)
 	{
-
-		$clazz = get_class($this);
+				$clazz = get_class($this);
 		$copyObj = new $clazz();
 		$this->copyInto($copyObj, $deepCopy);
 		return $copyObj;
 	}
 
-
+	
 	public function getPeer()
 	{
 		if (self::$peer === null) {
@@ -804,7 +745,7 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		return self::$peer;
 	}
 
-
+	
 	public function setCategory(Category $v = null)
 	{
 		if ($v === null) {
@@ -815,9 +756,7 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 
 		$this->aCategory = $v;
 
-
-
-		if ($v !== null) {
+						if ($v !== null) {
 			$v->addArticle($this);
 		}
 
@@ -825,17 +764,17 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 	}
 
 
-
+	
 	public function getCategory(PropelPDO $con = null)
 	{
 		if ($this->aCategory === null && ($this->category_id !== null)) {
 			$this->aCategory = CategoryPeer::retrieveByPK($this->category_id, $con);
-
+			
 		}
 		return $this->aCategory;
 	}
 
-
+	
 	public function setBook(Book $v = null)
 	{
 		if ($v === null) {
@@ -846,9 +785,7 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 
 		$this->aBook = $v;
 
-
-
-		if ($v !== null) {
+						if ($v !== null) {
 			$v->addArticle($this);
 		}
 
@@ -856,26 +793,25 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 	}
 
 
-
+	
 	public function getBook(PropelPDO $con = null)
 	{
 		if ($this->aBook === null && ($this->book_id !== null)) {
 			$this->aBook = BookPeer::retrieveByPK($this->book_id, $con);
-
+			
 		}
 		return $this->aBook;
 	}
 
-
+	
 	public function clearAuthorArticles()
 	{
-		$this->collAuthorArticles = null;
-	}
+		$this->collAuthorArticles = null; 	}
 
-
+	
 	public function getAuthorArticles($criteria = null, PropelPDO $con = null)
 	{
-
+		
 		if ($criteria === null) {
 			$criteria = new Criteria(ArticlePeer::DATABASE_NAME);
 		}
@@ -895,12 +831,8 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 				$this->collAuthorArticles = AuthorArticlePeer::doSelect($criteria, $con);
 			}
 		} else {
-
-			if (!$this->isNew()) {
-
-
-
-
+						if (!$this->isNew()) {
+												
 
 				$criteria->add(AuthorArticlePeer::ARTICLE_ID, $this->getId());
 
@@ -914,10 +846,10 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		return $this->collAuthorArticles;
 	}
 
-
+	
 	public function countAuthorArticles(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
 	{
-
+		
 		if ($criteria === null) {
 			$criteria = new Criteria(ArticlePeer::DATABASE_NAME);
 		} else {
@@ -940,12 +872,8 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 				$count = AuthorArticlePeer::doCount($criteria, $con);
 			}
 		} else {
-
-			if (!$this->isNew()) {
-
-
-
-
+						if (!$this->isNew()) {
+												
 
 				$criteria->add(AuthorArticlePeer::ARTICLE_ID, $this->getId());
 
@@ -962,23 +890,22 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		return $count;
 	}
 
-
+	
 	public function addAuthorArticle(AuthorArticle $l)
 	{
 		if ($this->collAuthorArticles === null) {
 			$this->collAuthorArticles = array();
 		}
-		if (!in_array($l, $this->collAuthorArticles, true)) {
-			array_push($this->collAuthorArticles, $l);
+		if (!in_array($l, $this->collAuthorArticles, true)) { 			array_push($this->collAuthorArticles, $l);
 			$l->setArticle($this);
 		}
 	}
 
 
-
+	
 	public function getAuthorArticlesJoinAuthor($criteria = null, $con = null)
 	{
-
+		
 		if ($criteria === null) {
 			$criteria = new Criteria(ArticlePeer::DATABASE_NAME);
 		}
@@ -997,10 +924,7 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 				$this->collAuthorArticles = AuthorArticlePeer::doSelectJoinAuthor($criteria, $con);
 			}
 		} else {
-
-
-
-
+									
 			$criteria->add(AuthorArticlePeer::ARTICLE_ID, $this->getId());
 
 			if (!isset($this->lastAuthorArticleCriteria) || !$this->lastAuthorArticleCriteria->equals($criteria)) {
@@ -1012,15 +936,15 @@ abstract class BaseArticle extends BaseObject  implements Persistent {
 		return $this->collAuthorArticles;
 	}
 
-
+	
 	public function clearAllReferences($deep = false)
 	{
 		if ($deep) {
 			foreach($this->collAuthorArticles as $o) {
 				$o->clearAllReferences($deep);
 			}
-		}
+		} 
 		$this->collAuthorArticles = null;
 	}
 
-}
+} 

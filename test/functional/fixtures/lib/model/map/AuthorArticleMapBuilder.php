@@ -31,13 +31,11 @@ class AuthorArticleMapBuilder implements MapBuilder {
 		$tMap->setPhpName('AuthorArticle');
 		$tMap->setClassname('AuthorArticle');
 
-		$tMap->setUseIdGenerator(true);
+		$tMap->setUseIdGenerator(false);
 
-		$tMap->addForeignKey('AUTHOR_ID', 'AuthorId', 'INTEGER', 'author', 'ID', false, null);
+		$tMap->addForeignPrimaryKey('AUTHOR_ID', 'AuthorId', 'INTEGER' , 'author', 'ID', true, null);
 
-		$tMap->addForeignKey('ARTICLE_ID', 'ArticleId', 'INTEGER', 'article', 'ID', false, null);
-
-		$tMap->addPrimaryKey('ID', 'Id', 'INTEGER', true, null);
+		$tMap->addForeignPrimaryKey('ARTICLE_ID', 'ArticleId', 'INTEGER' , 'article', 'ID', true, null);
 
 	} 
 } 
