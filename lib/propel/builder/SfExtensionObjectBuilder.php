@@ -42,7 +42,8 @@ class SfExtensionObjectBuilder extends PHP5ExtensionObjectBuilder
  *
  * $tableDesc
  *
- * @package ".$this->getPackage()."
+ * @package    ".$this->getPackage()."
+ * @subpackage model
  */
 class ".$this->getClassname()." extends $baseClassname
 {";

@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: ForeignKey.php 816 2007-11-18 23:29:44Z heltem $
+ *  $Id: ForeignKey.php 937 2008-01-23 03:47:00Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -27,7 +27,7 @@ require_once 'propel/engine/database/model/XMLElement.php';
  * @author     Hans Lellelid <hans@xmpl.org>
  * @author     Fedor <fedor.karpelevitch@home.com>
  * @author     Daniel Rall <dlr@finemaltcoding.com>
- * @version    $Revision: 816 $
+ * @version    $Revision: 937 $
  * @package    propel.engine.database.model
  */
 class ForeignKey extends XMLElement {
@@ -354,6 +354,32 @@ class ForeignKey extends XMLElement {
 		return (!array_diff($localPKCols, $localCols));
 	}
 
+	/**
+	 * Whether this foreign key is matched by an invertes foreign key (on foreign table).
+	 * 
+	 * This is to prevent duplicate columns being generated for a 1:1 relationship that is represented
+	 * by foreign keys on both tables.  I don't know if that's good practice ... but hell, why not
+	 * support it.
+	 *   
+	 * @param      ForeignKey $fk
+	 * @return     boolean
+	 * @link       http://propel.phpdb.org/trac/ticket/549
+	 */
+	public function isMatchedByInverseFK()
+	{
+		$foreignTable = $this->getForeignTable();
+		$map = $this->getForeignLocalMapping();
+		
+		foreach($foreignTable->getForeignKeys() as $refFK) {
+			$fkMap = $refFK->getLocalForeignMapping();
+			if ($map == $fkMap) { // compares keys and values, but doesn't care about order
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	/**
 	 * String representation of the foreign key. This is an xml representation.
 	 */

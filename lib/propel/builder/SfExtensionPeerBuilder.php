@@ -46,7 +46,8 @@ class SfExtensionPeerBuilder extends PHP5ExtensionPeerBuilder
  *
  * $tableDesc
  *
- * @package ".$this->getPackage()."
+ * @package    ".$this->getPackage()."
+ * @subpackage model
  */
 class ".$this->getClassname()." extends $baseClassname
 {";

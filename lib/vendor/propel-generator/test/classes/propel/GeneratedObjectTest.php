@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: GeneratedObjectTest.php 929 2008-01-18 15:17:50Z hans $
+ *  $Id: GeneratedObjectTest.php 935 2008-01-23 02:21:48Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -286,9 +286,11 @@ class GeneratedObjectTest extends BookstoreTestBase {
 	/**
 	 * Test setting invalid date/time.
 	 */
-	public function _disabled_testSetTemporalValue_Invalid()
+	public function testSetTemporalValue_Invalid()
 	{
-		// FIXME - Figure out why this doesn't work (doesn't throw Exception) in the Phing+PHPUnit context
+		$this->markTestSkipped();
+		// FIXME - Figure out why this doesn't work (causes a PHP ERROR instead of throwing Exception) in 
+		// the Phing+PHPUnit context
 		$r = new Review();
 		try {
 			$r->setReviewDate("Invalid Date");
@@ -406,6 +408,36 @@ class GeneratedObjectTest extends BookstoreTestBase {
 		$this->assertEquals($pub1->getId(), $book->getPublisherId(), "Expected book to have old publisher id (again).");
 		$this->assertSame($pub1, $book->getPublisher(), "Expected book to have old publisher object associated (again).");
 
+	}
+	
+	/**
+	 * Test the effect of typecast on primary key values and instance pool retrieval.
+	 */
+	public function testObjectInstancePoolTypecasting()
+	{
+		$reader = new BookReader();
+		$reader->setName("Tester");
+		$reader->save();
+		$readerId = $reader->getId();
+		
+		$book = new Book();
+		$book->setTitle("BookTest");
+		$book->setISBN("TEST");
+		$book->save();
+		$bookId = $book->getId();
+		
+		$opinion = new BookOpinion();
+		$opinion->setBookId((string)$bookId);
+		$opinion->setReaderId((string)$readerId);
+		$opinion->setRating("BAD!");
+		$opinion->setRecommendToFriend(false);
+		$opinion->save();
+		
+		
+		$opinion2 = BookOpinionPeer::retrieveByPK($bookId, $readerId);
+		
+		$this->assertSame($opinion, $opinion2, "Expected same object to be retrieved from differently type-casted primary key values.");
+		
 	}
 
 	/**
@@ -549,8 +581,6 @@ class GeneratedObjectTest extends BookstoreTestBase {
 
 	/**
 	 * Tests new one-to-one functionality.
-	 *
-	 * @todo       -cGeneratedObjectTest Add a test for one-to-one when implemented.
 	 */
 	public function testOneToOne()
 	{
