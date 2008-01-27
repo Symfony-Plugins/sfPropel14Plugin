@@ -228,6 +228,9 @@ class sfPhing extends Phing
   {
     self::getTimer()->stop();
 
-    throw new Exception(sprintf('Problem executing Phing task (%s).', $exitcode));
+    if($exitcode != 0)
+    {
+     throw new Exception(sprintf('Problem executing Phing task (%s).', $exitcode));
+    }
   }
 }
