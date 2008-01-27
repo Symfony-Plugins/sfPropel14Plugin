@@ -39,6 +39,7 @@ if (isset($fixtures))
   // update propel configuration paths
   $config = file_get_contents(sfConfig::get('sf_config_dir').DIRECTORY_SEPARATOR.'propel.ini');
   $propel = sfToolkit::replaceConstants($config);
+
   file_put_contents(sfConfig::get('sf_config_dir').DIRECTORY_SEPARATOR.'propel.ini', $propel);
 
   // build Propel om/map/sql/forms
@@ -46,7 +47,9 @@ if (isset($fixtures))
   if (false === $files || !count($files))
   {
     $task = new sfPropelBuildModelTask($dispatcher, $formatter);
+    ob_start();
     $task->run();
+    ob_end_clean();
   }
 
   $files = glob(sfConfig::get('sf_data_dir').'/sql/*.sql');
