@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5NestedSetPeerBuilder.php 934 2008-01-22 23:17:52Z heltem $
+ *  $Id: PHP5NestedSetPeerBuilder.php 940 2008-01-25 16:18:28Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -589,6 +589,9 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 		}
 		\$destLeft = \$parent->getLeftValue() + 1;
 		self::updateDBNode(\$child, \$destLeft, \$con);
+
+		// Update all loaded nodes
+		self::updateLoadedNode(\$parent, 2, \$con);
 	}
 ";
 	}
@@ -613,6 +616,9 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 		}
 		\$destLeft = \$parent->getRightValue();
 		self::updateDBNode(\$child, \$destLeft, \$con);
+
+		// Update all loaded nodes
+		self::updateLoadedNode(\$parent, 2, \$con);
 	}
 ";
 	}
@@ -637,6 +643,9 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 		}
 		\$destLeft = \$dest->getLeftValue();
 		self::updateDBNode(\$node, \$destLeft, \$con);
+
+		// Update all loaded nodes
+		self::updateLoadedNode(\$parent, 2, \$con);
 	}
 ";
 	}
@@ -662,6 +671,9 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 		\$destLeft = \$dest->getRightValue();
 		\$destLeft = \$destLeft + 1;
 		self::updateDBNode(\$node, \$destLeft, \$con);
+
+		// Update all loaded nodes
+		self::updateLoadedNode(\$parent, 2, \$con);
 	}
 ";
 	}

@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PeerBuilder.php 842 2007-12-02 16:28:20Z heltem $
+ *  $Id: PeerBuilder.php 939 2008-01-25 14:19:29Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -57,8 +57,7 @@ abstract class PeerBuilder extends OMBuilder {
 	protected function addSelectMethods(&$script)
 	{
 		$this->addAddSelectColumns($script);
-
-		$this->addCountConstants($script);
+		
 		$this->addDoCount($script);
 
 		// consider refactoring the doSelect stuff
