@@ -363,65 +363,67 @@ class sfPropelData extends sfData
       }
       else
       {
-        $resultsSets[] = $this->con->executeQuery('SELECT * FROM '.constant($tableName.'Peer::TABLE_NAME'));
+        $stmt = $this->con->query('SELECT * FROM '.constant($tableName.'Peer::TABLE_NAME'));
+        $resultsSets[] = $stmt->fetchAll();
       }
 
-      foreach ($resultsSets as $rs)
+      foreach ($resultsSets as $rows)
       {
-        if($rs->getRecordCount() > 0 && !isset($dumpData[$tableName])){
-          $dumpData[$tableName] = array();
-        }
-
-        while ($rs->next())
+        if(count($rows) > 0 && !isset($dumpData[$tableName]))
         {
-          $pk = $tableName;
-          $values = array();
-          $primaryKeys = array();
-          $foreignKeys = array();
+          $dumpData[$tableName] = array();
 
-          foreach ($tableMap->getColumns() as $column)
+          foreach ($rows as $row)
           {
-            $col = strtolower($column->getColumnName());
-            $isPrimaryKey = $column->isPrimaryKey();
+            $pk = $tableName;
+            $values = array();
+            $primaryKeys = array();
+            $foreignKeys = array();
 
-            if (is_null($rs->get($col)))
+            foreach ($tableMap->getColumns() as $column)
             {
-              continue;
-            }
+              $col = strtolower($column->getColumnName());
+              $isPrimaryKey = $column->isPrimaryKey();
 
-            if ($isPrimaryKey)
-            {
-              $value = $rs->get($col);
-              $pk .= '_'.$value;
-              $primaryKeys[$col] = $value;
-            }
+              if (is_null($row[$col]))
+              {
+                continue;
+              }
 
-            if ($column->isForeignKey())
-            {
-              $relatedTable = $this->dbMap->getTable($column->getRelatedTableName());
               if ($isPrimaryKey)
               {
-                $foreignKeys[$col] = $rs->get($col);
-                $primaryKeys[$col] = $relatedTable->getPhpName().'_'.$rs->get($col);
+                $value = $row[$col];
+                $pk .= '_'.$value;
+                $primaryKeys[$col] = $value;
               }
-              else
+
+              if ($column->isForeignKey())
               {
-                $values[$col] = $relatedTable->getPhpName().'_'.$rs->get($col);
+                $relatedTable = $this->dbMap->getTable($column->getRelatedTableName());
+                if ($isPrimaryKey)
+                {
+                  $foreignKeys[$col] = $row[$col];
+                  $primaryKeys[$col] = $relatedTable->getPhpName().'_'.$row[$col];
+                }
+                else
+                {
+                  $values[$col] = $relatedTable->getPhpName().'_'.$row[$col];
+                }
+              }
+              elseif (!$isPrimaryKey || ($isPrimaryKey && !$tableMap->isUseIdGenerator()))
+              {
+                // We did not want auto incremented primary keys
+                $values[$col] = $row[$col];
               }
             }
-            elseif (!$isPrimaryKey || ($isPrimaryKey && !$tableMap->isUseIdGenerator()))
+
+            if (count($primaryKeys) > 1 || (count($primaryKeys) > 0 && count($foreignKeys) > 0))
             {
-              // We did not want auto incremented primary keys
-              $values[$col] = $rs->get($col);
+              $values = array_merge($primaryKeys, $values);
             }
-          }
 
-          if (count($primaryKeys) > 1 || (count($primaryKeys) > 0 && count($foreignKeys) > 0))
-          {
-            $values = array_merge($primaryKeys, $values);
+            $dumpData[$tableName][$pk] = $values;
           }
-
-          $dumpData[$tableName][$pk] = $values;
         }
       }
     }
@@ -441,7 +443,7 @@ class sfPropelData extends sfData
           continue;
         }
 
-        file_put_contents(sprintf("%s/%03d-%s.yml", $directory_or_file, ++$i, $tableName), Spyc::YAMLDump(array($tableName => $dumpData[$tableName])));
+        file_put_contents(sprintf("%s/%03d-%s.yml", $directory_or_file, ++$i, $tableName), sfYaml::dump(array($tableName => $dumpData[$tableName])));
       }
     }
   }
@@ -493,16 +495,17 @@ class sfPropelData extends sfData
     $stmt->bindValue(':column', strtolower($column->getColumnName()));
     $stmt->bindValue(':where', is_null($in) ? 'IS NULL' : 'IN ('.$in.')');
 
-    $rs = $stmt->execute();
+    $stmt = $stmt->execute();
 
     $first = null;
     $in = array();
-    while ($row = $stmt->fetch())
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC))
     {
       if(is_null($first))
       {
         $first = $row;
       }
+
       $in[] = "'".$row[strtolower($column->getRelatedColumnName())]."'";
     }
 
