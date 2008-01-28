@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: Table.php 908 2008-01-10 15:48:59Z hans $
+ *  $Id: Table.php 942 2008-01-27 21:08:52Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -40,7 +40,7 @@ include_once 'propel/engine/database/model/Validator.php';
  * @author     John McNally <jmcnally@collab.net> (Torque)
  * @author     Daniel Rall <dlr@collab.net> (Torque)
  * @author     Byron Foster <byron_foster@yahoo.com> (Torque)
- * @version    $Revision: 908 $
+ * @version    $Revision: 942 $
  * @package    propel.engine.database.model
  */
 class Table extends XMLElement implements IDMethod {
@@ -789,6 +789,7 @@ class Table extends XMLElement implements IDMethod {
 
 	/**
 	 * Returns an Array containing all the columns in the table
+	 * @return array Column[]
 	 */
 	public function getColumns()
 	{
@@ -819,6 +820,7 @@ class Table extends XMLElement implements IDMethod {
 
 	/**
 	 * Returns an Array containing all the validators in the table
+	 * @return array Validator[]
 	 */
 	public function getValidators()
 	{
@@ -826,7 +828,8 @@ class Table extends XMLElement implements IDMethod {
 	}
 
 	/**
-	 * Returns an Array containing all the FKs in the table
+	 * Returns an Array containing all the FKs in the table.
+	 * @return array ForeignKey[]
 	 */
 	public function getForeignKeys()
 	{

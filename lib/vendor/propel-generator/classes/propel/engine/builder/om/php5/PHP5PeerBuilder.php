@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5PeerBuilder.php 939 2008-01-25 14:19:29Z hans $
+ *  $Id: PHP5PeerBuilder.php 942 2008-01-27 21:08:52Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -33,6 +33,35 @@ require_once 'propel/engine/builder/om/PeerBuilder.php';
  */
 class PHP5PeerBuilder extends PeerBuilder {
 
+	/**
+	 * Validates the current table to make sure that it won't 
+	 * result in generated code that will not parse.
+	 * 
+	 * This method may emit warnings for code which may cause problems
+	 * and will throw exceptions for errors that will definitely cause 
+	 * problems. 
+	 */
+	protected function validateModel()
+	{
+		parent::validateModel();
+		
+		$table = $this->getTable();
+		
+		// Check to see if any of the column constants are PHP reserved words.
+		$colConstants = array();
+		
+		foreach($table->getColumns() as $col) {
+			$colConstants[] = $this->getColumnName($col);
+		}
+		
+		$reservedConstants = array_map('strtoupper', ClassTools::getPhpReservedWords());
+		
+		$intersect = array_intersect($reservedConstants, $colConstants);
+		if (!empty($intersect)) {
+			throw new EngineException("One or more of your column names for [" . $table->getName() . "] table conflict with a PHP reserved word (" . implode(", ", $intersect) . ")");			
+		}
+	}
+	
 	/**
 	 * Returns the name of the current class being built.
 	 * @return     string

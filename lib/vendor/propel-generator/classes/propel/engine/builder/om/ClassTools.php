@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: ClassTools.php 521 2007-01-05 13:29:36Z heltem $
+ *  $Id: ClassTools.php 942 2008-01-27 21:08:52Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -24,7 +24,7 @@
   * Tools to support class & package inclusion and referencing.
   *
   * @author     Hans Lellelid <hans@xmpl.org>
-  * @version    $Revision: 521 $
+  * @version    $Revision: 942 $
   * @package    propel.engine.builder.om
   */
 class ClassTools {
@@ -103,5 +103,26 @@ class ClassTools {
 			$interface = "propel.om.Persistent";
 		}
 		return $interface;
+	}
+	
+	/**
+	 * Gets a list of PHP reserved words.
+	 *
+	 * @return array string[]
+	 */
+	public static function getPhpReservedWords()
+	{
+		return array(
+			'and', 'or', 'xor', 'exception', '__FILE__', '__LINE__',
+			'array', 'as', 'break', 'case', 'class', 'const', 'continue',
+			'declare', 'default', 'die', 'do', 'echo', 'else', 'elseif', 'empty',
+			'enddeclare', 'endfor', 'endforeach', 'endif', 'endswitch', 'endwhile',
+			'eval', 'exit', 'extends', 'for', 'foreach', 'function', 'global',
+			'if', 'include', 'include_once', 'isset', 'list', 'new', 'print', 'require',
+			'require_once', 'return', 'static', 'switch', 'unset', 'use', 'var', 'while',
+			'__FUNCTION__', '__CLASS__', '__METHOD__', 'final', 'php_user_filter', 'interface',
+			'implements', 'extends', 'public', 'protected', 'private', 'abstract', 'clone', 'try', 'catch',
+			'throw', 'this', 'namespace'
+		);
 	}
 }

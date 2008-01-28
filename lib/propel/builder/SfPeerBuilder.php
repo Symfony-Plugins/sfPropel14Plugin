@@ -113,7 +113,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
         $cultureColumnName = '';
         foreach ($tblFK->getColumns() as $col)
         {
-          if (("true" === strtolower($col->getAttribute('isCulture'))))
+          if (('true' == trim(strtolower($col->getAttribute('isCulture')))))
           {
             $culturePhpName = $col->getPhpName();
             $cultureColumnName = PeerBuilder::getColumnName($col, $i18nClassName);
@@ -159,21 +159,21 @@ class SfPeerBuilder extends PHP5PeerBuilder
     }
 
     ".$this->getPeerClassname()."::addSelectColumns(\$c);
-    \$startcol = (".$this->getPeerClassname()."::NUM_COLUMNS - ".$this->getPeerClassname()."::NUM_LAZY_LOAD_COLUMNS) + 1;
+    \$startcol = (".$this->getPeerClassname()."::NUM_COLUMNS - ".$this->getPeerClassname()."::NUM_LAZY_LOAD_COLUMNS);
 
     ".$i18nPeerClassName."::addSelectColumns(\$c);
 
     \$c->addJoin(".$pk.", ".$i18nPk.");
     \$c->add(".$cultureColumnName.", \$culture);
 
-    \$stmt = ".$this->basePeerClassname."::doSelectStmt(\$c, \$con);
+    \$stmt = ".$this->basePeerClassname."::doSelect(\$c, \$con);
     \$results = array();
 
     while(\$row = \$stmt->fetch(PDO::FETCH_NUM)) {
 ";
             if ($table->getChildrenColumn()) {
               $script .= "
-      \$omClass = ".$this->getPeerClassname()."::getOMClass(\$row, 1);
+      \$omClass = ".$this->getPeerClassname()."::getOMClass(\$row, \$startcol);
 ";
             } else {
               $script .= "
@@ -181,23 +181,23 @@ class SfPeerBuilder extends PHP5PeerBuilder
 ";
             }
             $script .= "
-      \$cls = Propel::import(\$omClass);
+      \$cls = Propel::importClass(\$omClass);
       \$obj1 = new \$cls();
       \$obj1->hydrate(\$row);
       \$obj1->setCulture(\$culture);
 ";
-//            if ($i18nTable->getChildrenColumn()) {
+            if ($i18nTable->getChildrenColumn()) {
               $script .= "
       \$omClass = ".$i18nTablePeerBuilder->getPeerClassname()."::getOMClass(\$row, \$startcol);
 ";
-//            } else {
-//              $script .= "
-//      \$omClass = ".$i18nTablePeerBuilder->getPeerClassname()."::getOMClass();
-//";
-//            }
+            } else {
+              $script .= "
+      \$omClass = ".$i18nTablePeerBuilder->getPeerClassname()."::getOMClass();
+";
+            }
 
             $script .= "
-      \$cls = Propel::import(\$omClass);
+      \$cls = Propel::importClass(\$omClass);
       \$obj2 = new \$cls();
       \$obj2->hydrate(\$row, \$startcol);
 
