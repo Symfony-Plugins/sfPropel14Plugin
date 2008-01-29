@@ -216,7 +216,7 @@ class sfPropelCrudGenerator extends sfAdminGenerator
 
     if ($column->isComponent())
     {
-      return "get_component('".$this->getModuleName()."', '".$column->getName()."', array('type' => 'list'))";
+      return "get_component('".$this->getModuleName()."', '".$column->getName()."', array('type' => 'filter', 'filters' => \$filters))";
     }
     else if ($column->isPartial())
     {
