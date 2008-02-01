@@ -32,11 +32,17 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
     if (!self::$done)
     {
+      $libDir = dirname(__FILE__).DIRECTORY_SEPARATOR.'..';
+
       $autoloader = sfSimpleAutoload::getInstance();
-      $autoloader->addDirectory(dirname(__FILE__).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'creole');
-      $autoloader->addDirectory(dirname(__FILE__).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'propel');
+      $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'creole');
+      $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'propel');
+      $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'creole');
+      $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'propel');
+      $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'task');
       $autoloader->addDirectory(sfConfig::get('sf_root_dir').DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'model');
       $autoloader->addDirectory(sfConfig::get('sf_root_dir').DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'form');
+      $autoloader->register();
 
       self::$done = true;
     }
