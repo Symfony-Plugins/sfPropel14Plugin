@@ -8,7 +8,10 @@
  * file that was distributed with this source code.
  */
 
+
 /**
+ * sfFormPropel is the base class for forms based on Propel objects.
+ *
  * @package    symfony
  * @subpackage form
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
@@ -25,11 +28,12 @@ abstract class sfFormPropel extends sfForm
    * Constructor.
    *
    * @param BaseObject A Propel object used to initialize default values
-   * @param string A CSRF secret (false to disable CSRF protection, null to use the global CSRF secret)
+   * @param array      An array of options
+   * @param string     A CSRF secret (false to disable CSRF protection, null to use the global CSRF secret)
    *
    * @see sfForm
    */
-  public function __construct(BaseObject $object = null, $CSRFSecret = null)
+  public function __construct(BaseObject $object = null, $options = array(), $CSRFSecret = null)
   {
     if (is_null($object))
     {
@@ -47,7 +51,7 @@ abstract class sfFormPropel extends sfForm
       $this->isNew = false;
     }
 
-    parent::__construct(array(), $CSRFSecret);
+    parent::__construct(array(), $options, $CSRFSecret);
 
     $this->updateDefaultsFromObject();
   }
@@ -167,7 +171,7 @@ abstract class sfFormPropel extends sfForm
     }
     catch (Exception $e)
     {
-      $con->rollBack();
+      $con->rollback();
 
       throw $e;
     }
