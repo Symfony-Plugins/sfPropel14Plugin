@@ -171,7 +171,7 @@ abstract class sfFormPropel extends sfForm
     }
     catch (Exception $e)
     {
-      $con->rollback();
+      $con->rollBack();
 
       throw $e;
     }
