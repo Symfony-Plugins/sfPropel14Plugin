@@ -197,6 +197,11 @@ abstract class sfPropelBaseTask extends sfBaseTask
     $args[] = '-f';
     $args[] = realpath(sfConfig::get('sf_symfony_lib_dir').DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR.'sfPropelPlugin'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'propel-generator'.DIRECTORY_SEPARATOR.'build.xml');
 
+    if (is_null($this->commandApplication) || !$this->commandApplication->isVerbose())
+    {
+      $args[] = '-q';
+    }
+
     // Logger
     if (DIRECTORY_SEPARATOR != '\\' && (function_exists('posix_isatty') && @posix_isatty(STDOUT)))
     {
