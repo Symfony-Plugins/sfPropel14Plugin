@@ -40,8 +40,8 @@ abstract class sfPropelBaseTask extends sfBaseTask
       $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'creole');
       $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'propel');
       $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'task');
-      $autoloader->addDirectory(sfConfig::get('sf_root_dir').DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'model');
-      $autoloader->addDirectory(sfConfig::get('sf_root_dir').DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'form');
+      $autoloader->addDirectory(sfConfig::get('sf_model_lib_dir'));
+      $autoloader->addDirectory(sfConfig::get('sf_lib_dir').DIRECTORY_SEPARATOR.'form');
       $autoloader->register();
 
       self::$done = true;
@@ -57,7 +57,7 @@ abstract class sfPropelBaseTask extends sfBaseTask
   {
     $finder = sfFinder::type('file')->name('*schema.xml');
 
-    $schemas = array_merge($finder->in('config'), $finder->in(glob(sfConfig::get('sf_root_dir').DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'config')));
+    $schemas = array_merge($finder->in('config'), $finder->in(glob(sfConfig::get('sf_plugins_dir').DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'config')));
     if (self::CHECK_SCHEMA === $checkSchema && !count($schemas))
     {
       throw new sfCommandException('You must create a schema.xml file.');
@@ -91,7 +91,7 @@ abstract class sfPropelBaseTask extends sfBaseTask
   {
     $finder = sfFinder::type('file')->name('*schema.yml');
     $dirs = array('config');
-    if ($pluginDirs = glob(sfConfig::get('sf_root_dir').DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'config'))
+    if ($pluginDirs = glob(sfConfig::get('sf_plugins_dir').DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'config'))
     {
       $dirs = array_merge($dirs, $pluginDirs);
     }
@@ -127,7 +127,7 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
   protected function copyXmlSchemaFromPlugins($prefix = '')
   {
-    $schemas = sfFinder::type('file')->name('*schema.xml')->in(glob(sfConfig::get('sf_root_dir').DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'config'));
+    $schemas = sfFinder::type('file')->name('*schema.xml')->in(glob(sfConfig::get('sf_plugins_dir').DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'config'));
     foreach ($schemas as $schema)
     {
       // reset local prefix
@@ -180,11 +180,11 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
     $args = array();
 
-    // Needed to include the right Propel builders
+    // needed to include the right Propel builders
     set_include_path(sfConfig::get('sf_symfony_lib_dir').PATH_SEPARATOR.get_include_path());
 
     $options = array(
-      'project.dir'       => sfConfig::get('sf_root_dir').DIRECTORY_SEPARATOR.'config',
+      'project.dir'       => sfConfig::get('sf_config_dir'),
       'build.properties'  => 'propel.ini',
       'propel.output.dir' => sfConfig::get('sf_root_dir'),
     );
