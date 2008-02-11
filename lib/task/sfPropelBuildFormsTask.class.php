@@ -61,7 +61,6 @@ EOF;
     $this->logSection('propel', 'generating form classes');
 
     $generatorManager = new sfGeneratorManager();
-
     $generatorManager->generate('sfPropelFormGenerator', array('connection' => $options['connection']));
   }
 }

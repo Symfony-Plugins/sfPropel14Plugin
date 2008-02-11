@@ -40,6 +40,9 @@ abstract class sfPropelBaseTask extends sfBaseTask
       $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'creole');
       $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'propel');
       $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'task');
+
+      $autoloader->setClassPath('Propel', $libDir.'/propel/addon/sfPropelAutoload.php');
+
       $autoloader->addDirectory(sfConfig::get('sf_model_lib_dir'));
       $autoloader->addDirectory(sfConfig::get('sf_lib_dir').DIRECTORY_SEPARATOR.'form');
       $autoloader->register();
@@ -102,28 +105,28 @@ abstract class sfPropelBaseTask extends sfBaseTask
     }
 
     $dbSchema = new sfPropelDatabaseSchema();
-    
+
     foreach ($schemas as $schema)
     {
       $schemaArray = sfYaml::load($schema);
-      
+
       if (!isset($schema_array['classes']))
       {
-        // Old schema syntax: we convert it 
+        // Old schema syntax: we convert it
         $schemaArray = $dbSchema->convertOldToNewYaml($schemaArray);
       }
 
       $customSchemaFilename = str_replace(array(sfConfig::get('sf_root_dir').DIRECTORY_SEPARATOR, 'plugins'.DIRECTORY_SEPARATOR, 'config'.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, 'schema.yml'), array('', '', '', '_', 'schema.custom.yml'), $schema);
       $customSchemas = sfFinder::type('file')->name($customSchemaFilename)->in($dirs);
-      
+
       foreach ($customSchemas as $customSchema)
       {
         $this->logSection('schema', sprintf('found custom schema %s', $customSchema));
-        
+
         $customSchemaArray = sfYaml::load($customSchema);
         if (!isset($customSchemaArray['classes']))
         {
-          // Old schema syntax: we convert it 
+          // Old schema syntax: we convert it
           $customSchemaArray = $dbSchema->convertOldToNewYaml($customSchemaArray);
         }
         $schemaArray = sfToolkit::arrayDeepMerge($schemaArray, $customSchemaArray);
