@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PropelSQLExec.php 521 2007-01-05 13:29:36Z heltem $
+ *  $Id: PropelSQLExec.php 952 2008-02-05 22:59:20Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -35,7 +35,7 @@ require_once 'phing/Task.php';
  * @author     Tim Stephenson <tim.stephenson@sybase.com> (Torque)
  * @author     Jason van Zyl <jvanzyl@apache.org> (Torque)
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
- * @version    $Revision: 521 $
+ * @version    $Revision: 952 $
  * @package    propel.phing
  */
 class PropelSQLExec extends Task {
@@ -353,7 +353,7 @@ class PropelSQLExec extends Task {
 			. ($this->userId ? " user: " . $this->userId . "\n" : "")
 			. ($this->password ? " password: " . $this->password . "\n" : "");
 
-			$this->log($buf, PROJECT_MSG_VERBOSE);
+			$this->log($buf, Project::MSG_VERBOSE);
 
 			// Set user + password to null if they are empty strings
 			if (!$this->userId) { $this->userId = null; }
@@ -370,7 +370,7 @@ class PropelSQLExec extends Task {
 
 			try {
 				if ($this->output !== null) {
-					$this->log("Opening PrintStream to output file " . $this->output->__toString(), PROJECT_MSG_VERBOSE);
+					$this->log("Opening PrintStream to output file " . $this->output->__toString(), Project::MSG_VERBOSE);
 					$out = new FileWriter($this->output);
 				}
 
@@ -378,7 +378,7 @@ class PropelSQLExec extends Task {
 				for ($i=0,$size=count($transactions); $i < $size; $i++) {
 					$transactions[$i]->runTransaction($out);
 					if (!$this->autocommit) {
-						$this->log("Commiting transaction", PROJECT_MSG_VERBOSE);
+						$this->log("Commiting transaction", Project::MSG_VERBOSE);
 						$this->conn->commit();
 					}
 				}
@@ -493,7 +493,7 @@ class PropelSQLExec extends Task {
 				if ($hasQuery || ($this->delimiterType == self::DELIM_ROW && $line == $this->delimiter)) {
 					// this assumes there is always a delimter on the end of the SQL statement.
 					$sql = StringHelper::substring($sql, 0, strlen($sql) - 1 - strlen($this->delimiter));
-					$this->log("SQL: " . $sql, PROJECT_MSG_VERBOSE);
+					$this->log("SQL: " . $sql, Project::MSG_VERBOSE);
 					$this->execSQL($sql, $out);
 					$sql = "";
 					$hasQuery = false;
@@ -530,17 +530,17 @@ class PropelSQLExec extends Task {
 
 			$stmt = $this->conn->prepare($sql);
 			$stmt->execute();
-			$this->log($stmt->rowCount() . " rows affected", PROJECT_MSG_VERBOSE);
+			$this->log($stmt->rowCount() . " rows affected", Project::MSG_VERBOSE);
 
 			if (!$this->autocommit) $this->conn->commit();
 
 			$this->goodSql++;
 		} catch (PDOException $e) {
-			$this->log("Failed to execute: " . $sql, PROJECT_MSG_ERR);
+			$this->log("Failed to execute: " . $sql, Project::MSG_ERR);
 			if ($this->onError != "continue") {
 				throw $e;
 			}
-			$this->log($e->getMessage(), PROJECT_MSG_ERR);
+			$this->log($e->getMessage(), Project::MSG_ERR);
 		}
 	}
 
@@ -559,7 +559,7 @@ class PropelSQLExec extends Task {
 
 			if ($rs !== null) {
 
-				$this->log("Processing new result set.", PROJECT_MSG_VERBOSE);
+				$this->log("Processing new result set.", Project::MSG_VERBOSE);
 
 				$line = "";
 
@@ -641,12 +641,12 @@ class PropelSQLExecTransaction {
 	public function runTransaction($out = null)
 	{
 		if (!empty($this->tSqlCommand)) {
-			$this->parent->log("Executing commands", PROJECT_MSG_INFO);
+			$this->parent->log("Executing commands", Project::MSG_INFO);
 			$this->parent->runStatements($this->tSqlCommand, $out);
 		}
 
 		if ($this->tSrcFile !== null) {
-			$this->parent->log("Executing file: " . $this->tSrcFile->getAbsolutePath(), PROJECT_MSG_INFO);
+			$this->parent->log("Executing file: " . $this->tSrcFile->getAbsolutePath(), Project::MSG_INFO);
 			$reader = new FileReader($this->tSrcFile);
 			$this->parent->runStatements($reader, $out);
 			$reader->close();

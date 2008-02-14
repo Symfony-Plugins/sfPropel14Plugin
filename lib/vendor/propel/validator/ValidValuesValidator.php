@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: ValidValuesValidator.php 521 2007-01-05 13:29:36Z heltem $
+ *  $Id: ValidValuesValidator.php 964 2008-02-10 20:42:38Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -31,7 +31,7 @@
  * </code>
  *
  * @author     Michael Aichler <aichler@mediacluster.de>
- * @version    $Revision: 521 $
+ * @version    $Revision: 964 $
  * @package    propel.validator
  */
 class ValidValuesValidator implements BasicValidator
@@ -39,6 +39,6 @@ class ValidValuesValidator implements BasicValidator
 
 	public function isValid (ValidatorMap $map, $str)
 	{
-		return in_array($str, explode("|", $map->getValue()));
+		return in_array($str, preg_split("/[|,]/", $map->getValue()));
 	}
 }

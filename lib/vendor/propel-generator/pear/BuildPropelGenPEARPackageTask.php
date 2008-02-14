@@ -27,7 +27,7 @@ include_once 'phing/tasks/ext/pearpackage/Fileset.php';
  *
  * @author     Hans Lellelid <hans@xmpl.org>
  * @package    phing.tasks.ext
- * @version    $Revision: 718 $
+ * @version    $Revision: 952 $
  */
 class BuildPropelGenPEARPackageTask extends MatchingTask {
 
@@ -71,9 +71,9 @@ class BuildPropelGenPEARPackageTask extends MatchingTask {
 			$options['packagefile'] = $f->getName();
 			// must end in trailing slash
 			$options['outputdirectory'] = $f->getParent() . DIRECTORY_SEPARATOR;
-			$this->log("Creating package file: " . $f->getPath(), PROJECT_MSG_INFO);
+			$this->log("Creating package file: " . $f->getPath(), Project::MSG_INFO);
 		} else {
-			$this->log("Creating [default] package.xml file in base directory.", PROJECT_MSG_INFO);
+			$this->log("Creating [default] package.xml file in base directory.", Project::MSG_INFO);
 		}
 
 		// add install exceptions

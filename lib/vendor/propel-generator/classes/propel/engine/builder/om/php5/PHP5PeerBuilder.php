@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5PeerBuilder.php 942 2008-01-27 21:08:52Z hans $
+ *  $Id: PHP5PeerBuilder.php 959 2008-02-07 23:06:48Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -169,7 +169,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 	 */
 	protected function addConstantsAndAttributes(&$script)
 	{
-		$tableName = DataModelBuilder::prefixTableName($this->getTable()->getName());
+		$tableName = $this->prefixTableName($this->getTable()->getName());
 		$dbName = $this->getDatabase()->getName();
 		$script .= "
 	/** the default database name for this class */
@@ -222,7 +222,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 
 			$script .= "
 	/** the column name for the ".strtoupper($col->getName()) ." field */
-	const ".$this->getColumnName($col) ." = '".DataModelBuilder::prefixTablename($this->getTable()->getName()).".".strtoupper($col->getName())."';
+	const ".$this->getColumnName($col) ." = '".$this->prefixTablename($this->getTable()->getName()).".".strtoupper($col->getName())."';
 ";
 		} // foreach
 	}
@@ -502,7 +502,12 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 	{
 		// we may modify criteria, so copy it first
 		\$criteria = clone \$criteria;
-			
+		
+		// We need to set the primary table name, since in the case that there are no WHERE columns
+		// it will be impossible for the BasePeer::createSelectSql() method to determine which
+		// tables go into the FROM clause.
+		\$criteria->setPrimaryTableName(".$this->getPeerClassname()."::TABLE_NAME);
+		
 		if (\$distinct && !in_array(Criteria::DISTINCT, \$criteria->getSelectModifiers())) {
 			\$criteria->setDistinct();
 		}
@@ -511,8 +516,8 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 			".$this->getPeerClassname()."::addSelectColumns(\$criteria);
 		}
 		
-		// Set the correct dbName
-		\$criteria->setDbName(self::DATABASE_NAME);
+		\$criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
+		\$criteria->setDbName(self::DATABASE_NAME); // Set the correct dbName
 		
 		if (\$con === null) {
 			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_READ);
@@ -619,7 +624,29 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 		return ".$this->basePeerClassname."::doSelect(\$criteria, \$con);
 	}";
 	}
-
+	
+	/**
+	 * Adds the PHP code to return a instance pool key for the passed-in primary key variable names.
+	 *
+	 * @param      array $pkphp An array of PHP var names / method calls representing complete pk.
+	 */
+	protected function getInstancePoolKeySnippet($pkphp)
+	{
+		$pkphp = (array) $pkphp; // make it an array if it is not.
+		$script = "";
+		if (count($pkphp) > 1) {			
+			$script .= "serialize(array(";
+			$i = 0;
+			foreach ($pkphp as $pkvar) {
+				$script .= ($i++ ? ', ' : '') . "(string) $pkvar";
+			}
+			$script .= "))";
+		} else {
+			$script .= "(string) " . $pkphp[0];
+		}
+		return $script;
+	}
+	
 	/**
 	 * Creates a convenience method to add objects to an instance pool.
 	 * @param      string &$script The script will be modified in this method.
@@ -644,14 +671,15 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 	{
 		if (Propel::isInstancePoolingEnabled()) {
 			if (\$key === null) {";
-		$pk = $this->getTable()->getPrimaryKey();
-		if (count($pk) > 1) {
-			$script .= "
-				\$key = serialize(\$obj->getPrimaryKey());";
-		} else {
-			$script .= "
-				\$key = (string) \$obj->getPrimaryKey();";
+		
+		$pks = $this->getTable()->getPrimaryKey();
+		
+		$php = array();
+		foreach ($pks as $pk) {
+			$php[] = '$obj->get' . $pk->getPhpName() . '()';
 		}
+		$script .= "
+				\$key = ".$this->getInstancePoolKeySnippet($php).";";
 		$script .= "
 			} // if key === null
 			self::\$instances[\$key] = \$obj;
@@ -682,29 +710,32 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 	{";
 		$script .= "
 		if (Propel::isInstancePoolingEnabled() && \$value !== null) {";
-		$pk = $table->getPrimaryKey();
+		$pks = $table->getPrimaryKey();
 
 		$script .= "
 			if (is_object(\$value) && \$value instanceof ".$this->getObjectClassname().") {";
-		if (count($pk) > 1) {
+		
+			$php = array();
+			foreach ($pks as $pk) {
+				$php[] = '$value->get' . $pk->getPhpName() . '()';
+			}
 			$script .= "
-				\$key = serialize(\$value->getPrimaryKey());";
-		} else {
-			$script .= "
-				\$key = (string) \$value->getPrimaryKey();";
-		}
-
+				\$key = ".$this->getInstancePoolKeySnippet($php).";";
+			
 		$script .= "
-			} elseif (".(count($pk) > 1 ? "is_array(\$value)" : "is_scalar(\$value)").") {
+			} elseif (".(count($pks) > 1 ? "is_array(\$value) && count(\$value) === " . count($pks) : "is_scalar(\$value)").") {
 				// assume we've been passed a primary key";
 
-		if ($pk > 1) {
-			$script .= "
-				\$key = serialize(\$value);";
+		if (count($pks) > 1) {
+			$php = array();
+			for($i=0; $i < count($pks); $i++) {
+				$php[] = "\$value[$i]";
+			}
 		} else {
-			$script .= "
-				\$key = (string) \$value;";
+			$php = '$value';
 		}
+		$script .= "
+				\$key = ".$this->getInstancePoolKeySnippet($php).";";
 		$script .= "
 			} else {
 				\$e = new PropelException(\"Invalid value passed to removeInstanceFromPool().  Expected primary key or ".$this->getObjectClassname()." object; got \" . (is_object(\$value) ? get_class(\$value) . ' object.' : var_export(\$value,true)));
@@ -800,11 +831,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 				if ($col->isPrimaryKey()) {
 					$part = "\$row[\$startcol + $n]"; 
 					$cond[] = $part . " === null";
-					if ($col->isPhpPrimitiveType()) {
-						$pk[] = "(".$col->getPhpType().") " . $part;
-					} else {
-						$pk[] = $part;
-					}
+					$pk[] = $part;
 				}
 				$n++;
 			}
@@ -815,17 +842,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 		if (".implode(' && ', $cond).") {
 			return null;
 		}
-";
-		// the general case is a single column
-		if (count($pk) == 1) {
-			$script .= "
-		return ".$pk[0].";";
-		} else {
-			$script .= "
-		return serialize(array(".implode(', ', $pk)."));";
-		}
-
-		$script .= "
+		return ".$this->getInstancePoolKeySnippet($pk).";
 	}
 ";
 	} // addGetPrimaryKeyHash
@@ -1217,8 +1234,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 		} else {
 			// it must be the primary key
 
-			// we can invalidate the cache for this single object
-			".$this->getPeerClassname()."::removeInstanceFromPool(\$values);
+			
 
 			\$criteria = new Criteria(self::DATABASE_NAME);";
 
@@ -1226,7 +1242,13 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 			$pkey = $table->getPrimaryKey();
 			$col = array_shift($pkey);
 			$script .= "
-			\$criteria->add(".$this->getColumnConstant($col).", (array) \$values, Criteria::IN);";
+			\$criteria->add(".$this->getColumnConstant($col).", (array) \$values, Criteria::IN);
+			
+			foreach((array) \$values as \$singleval) {
+				// we can invalidate the cache for this single object
+				".$this->getPeerClassname()."::removeInstanceFromPool(\$singleval);
+			}";
+			
 		} else {
 			$script .= "
 			// primary key is composite; we therefore, expect
@@ -1252,6 +1274,9 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 			}
 			$script .= "
 				\$criteria->addOr(\$criterion);
+				
+				// we can invalidate the cache for this single PK
+				".$this->getPeerClassname()."::removeInstanceFromPool(\$value);
 			}";
 		} /* if count(table->getPrimaryKeys()) */
 
@@ -1270,10 +1295,25 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 			";
 
 		if ($this->isDeleteCascadeEmulationNeeded()) {
-			$script .= "\$affectedRows += ".$this->getPeerClassname()."::doOnDeleteCascade(\$criteria, \$con);";
+			$script .= "\$affectedRows += ".$this->getPeerClassname()."::doOnDeleteCascade(\$criteria, \$con);
+			";
 		}
 		if ($this->isDeleteSetNullEmulationNeeded()) {
-			$script .= $this->getPeerClassname() . "::doOnDeleteSetNull(\$criteria, \$con);";
+			$script .= $this->getPeerClassname() . "::doOnDeleteSetNull(\$criteria, \$con);
+			";
+		}
+		
+		if ($this->isDeleteCascadeEmulationNeeded() || $this->isDeleteSetNullEmulationNeeded()) {
+			$script .= "
+				// Because this db requires some delete cascade/set null emulation, we have to 
+				// clear the cached instance *after* the emulation has happened (since
+				// instances get re-added by the select statement contained therein). 
+				if (\$values instanceof Criteria) {
+					".$this->getPeerClassname()."::clearInstancePool();
+				} else { // it's a PK or object
+					".$this->getPeerClassname()."::removeInstanceFromPool(\$values);
+				}
+			";
 		}
 
 		$script .= "
@@ -1287,7 +1327,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 			// actually be the table name of other table
 			$tblFK = $fk->getTable();
 
-			$joinedTablePeerBuilder = OMBuilder::getNewPeerBuilder($tblFK);
+			$joinedTablePeerBuilder = $this->getNewPeerBuilder($tblFK);
 			$tblFKPackage = $joinedTablePeerBuilder->getStubPeerBuilder()->getPackage();
 
 			if (!$tblFK->isForReferenceOnly()) {
@@ -1360,7 +1400,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 			// actually be the table name of other table
 			$tblFK = $fk->getTable();
 
-			$joinedTablePeerBuilder = OMBuilder::getNewPeerBuilder($tblFK);
+			$joinedTablePeerBuilder = $this->getNewPeerBuilder($tblFK);
 			$tblFKPackage = $joinedTablePeerBuilder->getStubPeerBuilder()->getPackage();
 
 			if (!$tblFK->isForReferenceOnly()) {
@@ -1442,7 +1482,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 			// $fk is the foreign key in the other table, so localTableName will
 			// actually be the table name of other table
 			$tblFK = $fk->getTable();
-			$refTablePeerBuilder = OMBuilder::getNewPeerBuilder($tblFK);
+			$refTablePeerBuilder = $this->getNewPeerBuilder($tblFK);
 
 			if (!$tblFK->isForReferenceOnly()) {
 				// we can't perform operations on tables that are
@@ -1550,31 +1590,33 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 	protected function addRetrieveByPK_SinglePK(&$script)
 	{
 		$table = $this->getTable();
+		$pks = $table->getPrimaryKey();
+		$col = $pks[0];
+		
 		$script .= "
 	/**
 	 * Retrieve a single object by pkey.
 	 *
-	 * @param      mixed \$pk the primary key.
+	 * @param      ".$col->getPhpType()." \$pk the primary key.
 	 * @param      PropelPDO \$con the connection to use
 	 * @return     " .$this->getObjectClassname(). "
 	 */
 	public static function ".$this->getRetrieveMethodName()."(\$pk, PropelPDO \$con = null)
 	{
+	
+		if (null !== (\$obj = ".$this->getPeerClassname()."::getInstanceFromPool(".$this->getInstancePoolKeySnippet('$pk')."))) {
+			return \$obj;
+		}
+
 		if (\$con === null) {
 			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_READ);
 		}
-
+		
 		\$criteria = new Criteria(".$this->getPeerClassname()."::DATABASE_NAME);
-";
-		$pkey = $table->getPrimaryKey();
-		$col = array_shift($pkey);
-		$script .= "
 		\$criteria->add(".$this->getColumnConstant($col).", \$pk);
-";
-		$script .= "
-
+		
 		\$v = ".$this->getPeerClassname()."::doSelect(\$criteria, \$con);
-
+		
 		return !empty(\$v) > 0 ? \$v[0] : null;
 	}
 ";
@@ -1632,7 +1674,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 		foreach ($table->getPrimaryKey() as $col) {
 			$clo = strtolower($col->getName());
 			$cptype = $col->getPhpType();
-			$script .= "@param $cptype $".$clo."
+			$script .= "@param      $cptype $".$clo."
 	   ";
 		}
 		$script .= "
@@ -1640,12 +1682,22 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 	 * @return     ".$this->getObjectClassname()."
 	 */
 	public static function ".$this->getRetrieveMethodName()."(";
-		$co = 0;
+		
+		$php = array();
 		foreach ($table->getPrimaryKey() as $col) {
 			$clo = strtolower($col->getName());
-			$script .= ($co++ ? "," : "") . " $".$clo;
+			$php[] = '$' . $clo;
 		} /* foreach */
+		
+		$script .= implode(', ', $php);
+		
 		$script .= ", PropelPDO \$con = null) {
+		\$key = ".$this->getInstancePoolKeySnippet($php).";"; 
+ 		$script .= "
+ 		if (null !== (\$obj = ".$this->getPeerClassname()."::getInstanceFromPool(\$key))) { 
+ 			return \$obj;
+		}
+		
 		if (\$con === null) {
 			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_READ);
 		}
@@ -1757,16 +1809,14 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 				$joinTable = $table->getDatabase()->getTable($fk->getForeignTableName());
 
 				if (!$joinTable->isForReferenceOnly()) {
-
-					// FIXME - look into removing this next condition; it may not
-					// be necessary:
-					// --- IT is necessary because there needs to be a system for
+					
+					// This condition is necessary because Propel lacks a system for
 					// aliasing the table if it is the same table.
 					if ( $fk->getForeignTableName() != $table->getName() ) {
 
-						$thisTableObjectBuilder = OMBuilder::getNewObjectBuilder($table);
-						$joinedTableObjectBuilder = OMBuilder::getNewObjectBuilder($joinTable);
-						$joinedTablePeerBuilder = OMBuilder::getNewPeerBuilder($joinTable);
+						$thisTableObjectBuilder = $this->getNewObjectBuilder($table);
+						$joinedTableObjectBuilder = $this->getNewObjectBuilder($joinTable);
+						$joinedTablePeerBuilder = $this->getNewPeerBuilder($joinTable);
 
 						$joinClassName = $joinedTableObjectBuilder->getObjectClassname();
 
@@ -1888,9 +1938,9 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 
 					if ( $fk->getForeignTableName() != $table->getName() ) {
 
-						$thisTableObjectBuilder = OMBuilder::getNewObjectBuilder($table);
-						$joinedTableObjectBuilder = OMBuilder::getNewObjectBuilder($joinTable);
-						$joinedTablePeerBuilder = OMBuilder::getNewPeerBuilder($joinTable);
+						$thisTableObjectBuilder = $this->getNewObjectBuilder($table);
+						$joinedTableObjectBuilder = $this->getNewObjectBuilder($joinTable);
+						$joinedTablePeerBuilder = $this->getNewPeerBuilder($joinTable);
 
 						$joinClassName = $joinedTableObjectBuilder->getObjectClassname();
 
@@ -1984,13 +2034,14 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 ";
 		$index = 2;
 		foreach ($table->getForeignKeys() as $fk) {
-			// want to cover this case, but the code is not there yet.
-			// FIXME: why "is the code not there yet" ?
+			
+			// Want to cover this case, but the code is not there yet.
+			// Propel lacks a system for aliasing tables of the same name.
 			if ( $fk->getForeignTableName() != $table->getName() ) {
 				$joinTable = $table->getDatabase()->getTable($fk->getForeignTableName());
 				$new_index = $index + 1;
 
-				$joinedTablePeerBuilder = OMBuilder::getNewPeerBuilder($joinTable);
+				$joinedTablePeerBuilder = $this->getNewPeerBuilder($joinTable);
 				$joinClassName = $joinedTablePeerBuilder->getObjectClassname();
 
 				$script .= "
@@ -2006,7 +2057,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 			// want to cover this case, but the code is not there yet.
 			if ( $fk->getForeignTableName() != $table->getName() ) {
 				$joinTable = $table->getDatabase()->getTable($fk->getForeignTableName());
-				$joinedTablePeerBuilder = OMBuilder::getNewPeerBuilder($joinTable);
+				$joinedTablePeerBuilder = $this->getNewPeerBuilder($joinTable);
 
 				$joinClassName = $joinedTablePeerBuilder->getObjectClassname();
 				$lfMap = $fk->getLocalForeignMapping();
@@ -2053,20 +2104,20 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 		$index = 1;
 		foreach ($table->getForeignKeys() as $fk ) {
 			// want to cover this case, but the code is not there yet.
-			// FIXME -- why not? -because we'd have to alias the tables in the JOIN
+			// Why not? -because we'd have to alias the tables in the JOIN
 			if ( $fk->getForeignTableName() != $table->getName() ) {
 				$joinTable = $table->getDatabase()->getTable($fk->getForeignTableName());
 
-				$thisTableObjectBuilder = OMBuilder::getNewObjectBuilder($table);
-				$joinedTableObjectBuilder = OMBuilder::getNewObjectBuilder($joinTable);
-				$joinedTablePeerBuilder = OMBuilder::getNewPeerBuilder($joinTable);
+				$thisTableObjectBuilder = $this->getNewObjectBuilder($table);
+				$joinedTableObjectBuilder = $this->getNewObjectBuilder($joinTable);
+				$joinedTablePeerBuilder = $this->getNewPeerBuilder($joinTable);
 
 
 				$joinClassName = $joinedTableObjectBuilder->getObjectClassname();
 				$interfaceName = $joinClassName;
 
 				if ($joinTable->getInterface()) {
-					$interfaceName = DataModelPeer::prefixClassname($joinTable->getInterface());
+					$interfaceName = $this->prefixClassname($joinTable->getInterface());
 				}
 
 				$index++;
@@ -2162,7 +2213,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 			// want to cover this case, but the code is not there yet.
 			if ( $fk->getForeignTableName() != $table->getName() ) {
 				$joinTable = $table->getDatabase()->getTable($fk->getForeignTableName());
-				$joinedTablePeerBuilder = OMBuilder::getNewPeerBuilder($joinTable);
+				$joinedTablePeerBuilder = $this->getNewPeerBuilder($joinTable);
 
 				$joinClassName = $joinedTablePeerBuilder->getObjectClassname();
 
@@ -2213,9 +2264,9 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 
 			$excludedTable = $table->getDatabase()->getTable($fk->getForeignTableName());
 
-			$thisTableObjectBuilder = OMBuilder::getNewObjectBuilder($table);
-			$excludedTableObjectBuilder = OMBuilder::getNewObjectBuilder($excludedTable);
-			$excludedTablePeerBuilder = OMBuilder::getNewPeerBuilder($excludedTable);
+			$thisTableObjectBuilder = $this->getNewObjectBuilder($table);
+			$excludedTableObjectBuilder = $this->getNewObjectBuilder($excludedTable);
+			$excludedTablePeerBuilder = $this->getNewPeerBuilder($excludedTable);
 
 			$excludedClassName = $excludedTableObjectBuilder->getObjectClassname();
 
@@ -2246,10 +2297,10 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 			$index = 2;
 			foreach ($table->getForeignKeys() as $subfk) {
 				// want to cover this case, but the code is not there yet.
-				// FIXME - why not?
+				// Why not? - because we would have to alias the tables in the join
 				if ( !($subfk->getForeignTableName() == $table->getName())) {
 					$joinTable = $table->getDatabase()->getTable($subfk->getForeignTableName());
-					$joinTablePeerBuilder = OMBuilder::getNewPeerBuilder($joinTable);
+					$joinTablePeerBuilder = $this->getNewPeerBuilder($joinTable);
 					$joinClassName = $joinTablePeerBuilder->getObjectClassname();
 
 					if ($joinClassName != $excludedClassName) {
@@ -2267,7 +2318,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 				// want to cover this case, but the code is not there yet.
 				if ( $subfk->getForeignTableName() != $table->getName() ) {
 					$joinTable = $table->getDatabase()->getTable($subfk->getForeignTableName());
-					$joinTablePeerBuilder = OMBuilder::getNewPeerBuilder($joinTable);
+					$joinTablePeerBuilder = $this->getNewPeerBuilder($joinTable);
 					$joinClassName = $joinTablePeerBuilder->getObjectClassname();
 
 					if ($joinClassName != $excludedClassName)
@@ -2320,14 +2371,14 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 
 		  	$joinTable = $table->getDatabase()->getTable($subfk->getForeignTableName());
 
-		  	$joinedTableObjectBuilder = OMBuilder::getNewObjectBuilder($joinTable);
-		  	$joinedTablePeerBuilder = OMBuilder::getNewPeerBuilder($joinTable);
+		  	$joinedTableObjectBuilder = $this->getNewObjectBuilder($joinTable);
+		  	$joinedTablePeerBuilder = $this->getNewPeerBuilder($joinTable);
 
 		  	$joinClassName = $joinedTableObjectBuilder->getObjectClassname();
 
 		  	$interfaceName = $joinClassName;
 		  	if ($joinTable->getInterface()) {
-		  		$interfaceName = DataModelBuilder::prefixClassname($joinTable->getInterface());
+		  		$interfaceName = $this->prefixClassname($joinTable->getInterface());
 		  	}
 
 		  	if ($joinClassName != $excludedClassName) {
@@ -2395,9 +2446,9 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 
 			$excludedTable = $table->getDatabase()->getTable($fk->getForeignTableName());
 
-			$thisTableObjectBuilder = OMBuilder::getNewObjectBuilder($table);
-			$excludedTableObjectBuilder = OMBuilder::getNewObjectBuilder($excludedTable);
-			$excludedTablePeerBuilder = OMBuilder::getNewPeerBuilder($excludedTable);
+			$thisTableObjectBuilder = $this->getNewObjectBuilder($table);
+			$excludedTableObjectBuilder = $this->getNewObjectBuilder($excludedTable);
+			$excludedTablePeerBuilder = $this->getNewPeerBuilder($excludedTable);
 
 			$excludedClassName = $excludedTableObjectBuilder->getObjectClassname();
 
@@ -2436,7 +2487,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 				// want to cover this case, but the code is not there yet.
 				if ( $subfk->getForeignTableName() != $table->getName() ) {
 					$joinTable = $table->getDatabase()->getTable($subfk->getForeignTableName());
-					$joinTablePeerBuilder = OMBuilder::getNewPeerBuilder($joinTable);
+					$joinTablePeerBuilder = $this->getNewPeerBuilder($joinTable);
 					$joinClassName = $joinTablePeerBuilder->getObjectClassname();
 
 					if ($joinClassName != $excludedClassName)

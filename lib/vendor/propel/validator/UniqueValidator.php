@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: UniqueValidator.php 521 2007-01-05 13:29:36Z heltem $
+ *  $Id: UniqueValidator.php 964 2008-02-10 20:42:38Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -31,7 +31,7 @@
  * </code>
  *
  * @author     Michael Aichler <aichler@mediacluster.de>
- * @version    $Revision: 521 $
+ * @version    $Revision: 964 $
  * @package    propel.validator
  */
 class UniqueValidator implements BasicValidator
@@ -42,23 +42,20 @@ class UniqueValidator implements BasicValidator
 	 */
 	public function isValid (ValidatorMap $map, $str)
 	{
-	  $column = $map->getColumn();
+		$column = $map->getColumn();
+		
+		$c = new Criteria();
+		$c->add($column->getFullyQualifiedName(), $str, Criteria::EQUAL);
+		
+		$isValid = false;
 
-	  $c = new Criteria();
-	  $c->add($column->getFullyQualifiedName(), $str, Criteria::EQUAL);
-
-	  $isValid = false;
-
-	  try {
-
-		  $table = $column->getTable()->getPhpName();
-		  $cmd = sprintf('$isValid = %sPeer::doCount($c) == 0;', $table);
-		  eval($cmd);
-
-	  } catch(PropelException $e) {
-		/* what to do here ? */
-	  }
-
-	  return $isValid;
+		$table = $column->getTable()->getPhpName();
+		
+		$clazz = $table . 'Peer';
+		$count = call_user_func(array($clazz, 'doCount'), $c);
+		
+		$isValid = ($count === 0);
+		
+		return $isValid;
 	}
 }

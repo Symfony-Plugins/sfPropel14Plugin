@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Domain.php 868 2007-12-18 02:22:13Z hans $
+ *  $Id: Domain.php 965 2008-02-11 03:11:24Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -26,7 +26,7 @@ require_once 'propel/engine/database/model/XMLElement.php';
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
- * @version    $Revision: 868 $
+ * @version    $Revision: 965 $
  * @package    propel.engine.database.model
  */
 class Domain extends XMLElement {
@@ -114,7 +114,7 @@ class Domain extends XMLElement {
 
 		//Name
 		$this->name = $this->getAttribute("name");
-		
+
 		// Default value
 		$defval = $this->getAttribute("defaultValue", $this->getAttribute("default"));
 		if ($defval !== null) {
@@ -122,7 +122,7 @@ class Domain extends XMLElement {
 		} elseif ($this->getAttribute("defaultExpr") !== null) {
 			$this->setDefaultValue(new ColumnDefaultValue($this->getAttribute("defaultExpr"), ColumnDefaultValue::TYPE_EXPR));
 		}
-		
+
 		$this->size = $this->getAttribute("size");
 		$this->scale = $this->getAttribute("scale");
 		$this->description = $this->getAttribute("description");
@@ -356,4 +356,57 @@ class Domain extends XMLElement {
 		}
 	}
 
+	/*
+	 * 	$schemaType = strtoupper($this->getAttribute("type"));
+		$this->copy($this->getDatabase()->getPlatform()->getDomainForType($schemaType));
+
+		//Name
+		$this->name = $this->getAttribute("name");
+
+		// Default value
+		$defval = $this->getAttribute("defaultValue", $this->getAttribute("default"));
+		if ($defval !== null) {
+		$this->setDefaultValue(new ColumnDefaultValue($defval, ColumnDefaultValue::TYPE_VALUE));
+		} elseif ($this->getAttribute("defaultExpr") !== null) {
+		$this->setDefaultValue(new ColumnDefaultValue($this->getAttribute("defaultExpr"), ColumnDefaultValue::TYPE_EXPR));
+		}
+
+		$this->size = $this->getAttribute("size");
+		$this->scale = $this->getAttribute("scale");
+		$this->description = $this->getAttribute("description");
+		*/
+
+	/**
+	 * @see        XMLElement::appendXml(DOMNode)
+	 */
+	public function appendXml(DOMNode $node)
+	{
+		$doc = ($node instanceof DOMDocument) ? $node : $node->ownerDocument;
+
+		$domainNode = $node->appendChild($doc->createElement('domain'));
+		$domainNode->setAttribute('type', $this->getType());
+		$domainNode->setAttribute('name', $this->getName());
+
+		$def = $this->getDefaultValue();
+		if ($def) {
+			if ($def->isExpression()) {
+				$domainNode->setAttribute('defaultExpr', $def->getValue());
+			} else {
+				$domainNode->setAttribute('defaultValue', $def->getValue());
+			}
+		}
+
+		if ($this->size) {
+			$domainNode->setAttribute('size', $this->size);
+		}
+
+		if ($this->scale) {
+			$domainNode->setAttribute('scale', $this->scale);
+		}
+
+		if ($this->description) {
+			$domainNode->setAttribute('description', $this->description);
+		}
+	}
+	
 }

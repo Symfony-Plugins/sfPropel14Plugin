@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Unique.php 521 2007-01-05 13:29:36Z heltem $
+ *  $Id: Unique.php 965 2008-02-11 03:11:24Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -31,17 +31,10 @@ include_once 'propel/engine/database/model/Index.php';
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Jason van Zyl <jvanzyl@apache.org> (Torque)
  * @author     Daniel Rall <dlr@collab.net> (Torque)
- * @version    $Revision: 521 $
+ * @version    $Revision: 965 $
  * @package    propel.engine.database.model
  */
 class Unique extends Index {
-
-	/**
-	 * Default constructor.
-	 */
-	public function __construct(Table $table, $indexColumns = array())
-	{
-	}
 
 	/**
 	 * Returns <code>true</code>.
@@ -52,18 +45,24 @@ class Unique extends Index {
 	}
 
 	/**
-	 * String representation of the index. This is an xml representation.
+	 * @see XMLElement::appendXml(DOMNode)
 	 */
-	public function toString()
+	public function appendXml(DOMNode $node)
 	{
-		$result = " <unique name=\"" . $this->getName() . "\">\n";
+		$doc = ($node instanceof DOMDocument) ? $node : $node->ownerDocument;
+
+		$uniqueNode = $node->appendChild($doc->createElement('unique'));
+		$uniqueNode->setAttribute('name', $this->getName());
 		$columns = $this->getColumns();
-		for ($i=0, $size=count($columns); $i < $size; $i++) {
-			$result .= "  <unique-column name=\""
-				. $columns[$i]
-				. "\"/>\n";
+		foreach($this->getColumns() as $colname) {
+			$uniqueColNode = $uniqueNode->appendChild($doc->createElement('unique-column'));
+			$uniqueColNode->setAttribute('name', $colname);
 		}
-		$result .= " </unique>\n";
-		return $result;
+
+		foreach($this->vendorInfos as $vi) {
+			$vi->appendXml($uniqueNode);
+		}
 	}
+
+
 }

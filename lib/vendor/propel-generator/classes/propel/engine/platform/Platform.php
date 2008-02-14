@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Platform.php 857 2007-12-13 14:59:59Z heltem $
+ *  $Id: Platform.php 949 2008-01-30 22:41:59Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -24,7 +24,7 @@
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
- * @version    $Revision: 857 $
+ * @version    $Revision: 949 $
  * @package    propel.engine.platform
  */
 interface Platform {
@@ -56,6 +56,20 @@ interface Platform {
 	 */
 	public function getConnection();
 
+	/**
+	 * Sets the GeneratorConfig which contains any generator build properties.
+	 *
+	 * @param      GeneratorConfig $config
+	 */
+	public function setGeneratorConfig(GeneratorConfig $config);
+	
+	/**
+	 * Gets the GeneratorConfig object.
+	 * 
+	 * @return     GeneratorConfig
+	 */
+	public function getGeneratorConfig();
+	
 	/**
 	 * Returns the short name of the database type that this platform represents.
 	 * For example MysqlPlatform->getDatabaseType() returns 'mysql'.

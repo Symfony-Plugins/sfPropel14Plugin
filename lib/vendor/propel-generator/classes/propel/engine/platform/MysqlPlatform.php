@@ -26,7 +26,7 @@ require_once 'propel/engine/platform/DefaultPlatform.php';
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
- * @version    $Revision: 842 $
+ * @version    $Revision: 949 $
  * @package    propel.engine.platform
  */
 class MysqlPlatform extends DefaultPlatform {
@@ -72,7 +72,7 @@ class MysqlPlatform extends DefaultPlatform {
 		$usingInnoDB = false;
 		if (class_exists('DataModelBuilder', false))
 		{
-			$usingInnoDB = strtolower(DataModelBuilder::getBuildProperty('mysqlTableType')) == 'innodb';
+			$usingInnoDB = strtolower($this->getBuildProperty('mysqlTableType')) == 'innodb';
 		}
 		return $usingInnoDB || false;
 	}

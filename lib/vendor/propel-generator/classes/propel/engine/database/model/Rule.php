@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Rule.php 521 2007-01-05 13:29:36Z heltem $
+ *  $Id: Rule.php 964 2008-02-10 20:42:38Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -26,7 +26,7 @@ require_once 'propel/engine/database/model/XMLElement.php';
  *
  * @author     Michael Aichler <aichler@mediacluster.de> (Propel)
  * @author     John McNally <jmcnally@collab.net> (Intake)
- * @version    $Revision: 521 $
+ * @version    $Revision: 964 $
  * @package    propel.engine.database.model
  */
 class Rule extends XMLElement {
@@ -176,28 +176,29 @@ class Rule extends XMLElement {
 	 */
 	public function getMessage()
 	{
-	  $message = str_replace('${value}', $this->getValue(), $this->message);
-	  return $message;
+		$message = str_replace('${value}', $this->getValue(), $this->message);
+		return $message;
 	}
 
 	/**
-	 * Create XML (string) representation of this object.
-	 * @return     string
+	 * @see XMLElement::appendXml(DOMNode)
 	 */
-	public function toString()
+	public function appendXml(DOMNode $node)
 	{
-	  $result = "<rule name=\"" . $this->getName() . "\" ";
+		$doc = ($node instanceof DOMDocument) ? $node : $node->ownerDocument;
+		
+		$ruleNode = $node->appendChild($doc->createElement('rule'));
+		$ruleNode->setAttribute('name', $this->getName());
 
-	  if ($this->getValue() !== null) {
-		$result .= "value=\"" . $this->getValue(). "\" ";
-	  }
-	  if ($this->getClass() !== null) {
-		  $result .= "class=\"".$this->getClass()."\" ";
-	  }
-	  $result .= "message=\"" . $this->getMessage() . "\" ";
-	  $result .= "/>\n";
-
-	  return $result;
+		if ($this->getValue() !== null) {
+			$ruleNode->setAttribute('value', $this->getValue());
+		}
+		
+		if ($this->classname !== null) {
+			$ruleNode->setAttribute('class', $this->getClass());
+		}
+		
+		$ruleNode->setAttribute('message', $this->getMessage());
 	}
 
 }

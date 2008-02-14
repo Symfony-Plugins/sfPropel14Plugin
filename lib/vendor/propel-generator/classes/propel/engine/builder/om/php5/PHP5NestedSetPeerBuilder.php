@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5NestedSetPeerBuilder.php 940 2008-01-25 16:18:28Z heltem $
+ *  $Id: PHP5NestedSetPeerBuilder.php 949 2008-01-30 22:41:59Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -200,15 +200,15 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 
 		foreach ($table->getColumns() as $col) {
 			if ($col->isNestedSetLeftKey()) {
-				$left_colname = DataModelBuilder::prefixTablename($tableName) . '.' . strtoupper($col->getName());
+				$left_colname = $this->prefixTablename($tableName) . '.' . strtoupper($col->getName());
 			}
 
 			if ($col->isNestedSetRightKey()) {
-				$right_colname = DataModelBuilder::prefixTablename($tableName) . '.' . strtoupper($col->getName());
+				$right_colname = $this->prefixTablename($tableName) . '.' . strtoupper($col->getName());
 			}
 
 			if ($col->isTreeScopeKey()) {
-				$scope_colname = DataModelBuilder::prefixTablename($tableName) . '.' . strtoupper($col->getName());
+				$scope_colname = $this->prefixTablename($tableName) . '.' . strtoupper($col->getName());
 			}
 
 			if (!empty($right_name) && !empty($left_colname) && !empty($scope_colname)) {

@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5MultiExtendObjectBuilder.php 521 2007-01-05 13:29:36Z heltem $
+ *  $Id: PHP5MultiExtendObjectBuilder.php 949 2008-01-30 22:41:59Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -109,7 +109,7 @@ class PHP5MultiExtendObjectBuilder extends ObjectBuilder {
 	 */
 	protected function getParentClassFilePath()
 	{
-		return $this->getFilePath($this->getParentClasspath());
+		return ClassTools::getFilePath($this->getParentClasspath());
 	}
 
 	/**

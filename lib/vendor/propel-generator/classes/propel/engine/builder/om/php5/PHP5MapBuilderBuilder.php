@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5MapBuilderBuilder.php 844 2007-12-02 17:57:36Z hans $
+ *  $Id: PHP5MapBuilderBuilder.php 951 2008-01-31 16:30:03Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -195,7 +195,8 @@ class ".$this->getClassname()." implements MapBuilder {
 
 		$table = $this->getTable();
 		$platform = $this->getPlatform();
-
+		$ddlBuilder = $this->getDDLBuilder();
+		
 		$script .= "
 	/**
 	 * The doBuild() method builds the DatabaseMap
@@ -227,13 +228,9 @@ class ".$this->getClassname()." implements MapBuilder {
 			$script .= "
 		\$tMap->setPrimaryKeyMethodInfo('".$imp->getValue()."');
 ";
-		} elseif ($table->getIdMethod() == "native" && ($platform->getNativeIdMethod() == Platform::SEQUENCE)) {
+		} elseif ($table->getIdMethod() == IDMethod::NATIVE && ($platform->getNativeIdMethod() == Platform::SEQUENCE || $platform->getNativeIdMethod() == Platform::SERIAL)) {
 			$script .= "
-		\$tMap->setPrimaryKeyMethodInfo('".$this->getSequenceName()."');
-";
-		} elseif ($table->getIdMethod() == "native" && ($platform->getNativeIdMethod() == Platform::SERIAL)) {
-			$script .= "
-		\$tMap->setPrimaryKeyMethodInfo('".$this->getSerialName()."');
+		\$tMap->setPrimaryKeyMethodInfo('".$this->prefixTablename($ddlBuilder->getSequenceName())."');
 ";
 		}
 

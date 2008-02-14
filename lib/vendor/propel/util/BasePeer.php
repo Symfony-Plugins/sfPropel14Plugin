@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: BasePeer.php 939 2008-01-25 14:19:29Z hans $
+ *  $Id: BasePeer.php 955 2008-02-06 01:28:32Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -35,7 +35,7 @@
  * @author     John D. McNally <jmcnally@collab.net> (Torque)
  * @author     Brett McLaughlin <bmclaugh@algx.net> (Torque)
  * @author     Stephen Haberman <stephenh@chase3000.com> (Torque)
- * @version    $Revision: 939 $
+ * @version    $Revision: 955 $
  * @package    propel.util
  */
 class BasePeer
@@ -438,7 +438,7 @@ class BasePeer
 		if ($criteria->isUseTransaction()) $con->beginTransaction();
 
 		try {
-			
+
 			$params = array();
 			$sql = self::createSelectSql($criteria, $params);
 
@@ -459,9 +459,10 @@ class BasePeer
 
 		return $stmt;
 	}
-	
+
 	/**
-	 * Executes a COUNT query using a sub-select created by createSelectSql() and returns the statement.
+	 * Executes a COUNT query using either a simple SQL rewrite or, for more complex queries, a
+	 * sub-select of the SQL created by createSelectSql() and returns the statement.
 	 *
 	 * @param      Criteria $criteria A Criteria.
 	 * @param      PropelPDO $con A PropelPDO connection to use.
@@ -482,16 +483,30 @@ class BasePeer
 
 		if ($criteria->isUseTransaction()) $con->beginTransaction();
 
+		$needsComplexCount = ($criteria->getGroupByColumns() || $criteria->getOffset()
+								|| $criteria->getLimit() || $criteria->getHaving() || in_array(Criteria::DISTINCT, $criteria->getSelectModifiers()));
+
 		try {
-			
+
 			$params = array();
-			$selectSql = self::createSelectSql($criteria, $params);
-			
-			$sql = 'SELECT COUNT(*) FROM (' . $selectSql . ') AS propelmatch4cnt';
+
+			if ($needsComplexCount) {
+				$selectSql = self::createSelectSql($criteria, $params);
+				$sql = 'SELECT COUNT(*) FROM (' . $selectSql . ') AS propelmatch4cnt';
+			} else {
+				// Replace SELECT columns with COUNT(*)
+				$columns = $criteria->getSelectColumns(); // assumes pk is idx
+
+				// $criteria->clearSelectColumns()->addSelectColumn('COUNT(*)');
+
+				// add count on primary key
+				$criteria->clearSelectColumns()->addSelectColumn('COUNT('.$columns[0].')');
+
+				$sql = self::createSelectSql($criteria, $params);
+			}
+
 			$stmt = $con->prepare($sql);
-
 			self::populateStmtValues($stmt, $params, $dbMap, $db);
-
 			$stmt->execute();
 
 			if ($criteria->isUseTransaction()) $con->commit();
@@ -505,7 +520,7 @@ class BasePeer
 
 		return $stmt;
 	}
-	
+
 	/**
 	 * Populates values in a prepared statement.
 	 *
@@ -518,7 +533,7 @@ class BasePeer
 	 * $sql = BasePeer::createSelectSql($criteria, $params);
 	 * BasePeer::populateStmtValues($stmt, $params, Propel::getDatabaseMap($critera->getDbName()), Propel::getDB($criteria->getDbName()));
 	 * </code>
-	 * 
+	 *
 	 * @param      PDOStatement $stmt
 	 * @param      array $params array('column' => ..., 'table' => ..., 'value' => ...)
 	 * @param      DatabaseMap $dbMap
@@ -893,6 +908,10 @@ class BasePeer
 					$orderByClause[] = $orderByColumn;
 				}
 			}
+		}
+
+		if (empty($fromClause) && $criteria->getPrimaryTableName()) {
+			$fromClause[] = $criteria->getPrimaryTableName();
 		}
 
 		// from / join tables quoten if it is necessary

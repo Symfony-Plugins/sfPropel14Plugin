@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PropelDataModelTemplateTask.php 521 2007-01-05 13:29:36Z heltem $
+ *  $Id: PropelDataModelTemplateTask.php 952 2008-02-05 22:59:20Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -34,7 +34,7 @@ include_once 'propel/engine/database/transform/XmlToAppData.php';
  *
  * @author     Hans Lellelid <hans@xmpl.org>
  * @package    propel.phing
- * @version    $Revision: 521 $
+ * @version    $Revision: 952 $
  */
 class PropelDataModelTemplateTask extends AbstractPropelDataModelTask {
 
@@ -172,17 +172,15 @@ class PropelDataModelTemplateTask extends AbstractPropelDataModelTask {
 	}
 
 	/**
-	 * Adds the propel.xxx properties to the passed Capsule context, changing names to just xxx.
-	 *
-	 * Also, move xxx.yyy properties to xxxYyy as PHP doesn't like the xxx.yyy syntax.
+	 * Adds the propel build properties to the passed Capsule context.
 	 *
 	 * @param      Capsule $context
-	 * @see        getPropelProperties()
+	 * @see        GeneratorConfig::getBuildProperties()
 	 */
 	public function populateContextProperties(Capsule $context)
 	{
-		foreach ($this->getPropelProperties() as $key => $propValue) {
-			$this->log('Adding property ${' . $key . '} to context', PROJECT_MSG_DEBUG);
+		foreach ($this->getGeneratorConfig()->getBuildProperties() as $key => $propValue) {
+			$this->log('Adding property ${' . $key . '} to context', Project::MSG_DEBUG);
 			$context->put($key, $propValue);
 		}
 	}

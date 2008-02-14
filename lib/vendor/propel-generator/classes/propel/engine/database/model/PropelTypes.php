@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: PropelTypes.php 657 2007-06-20 17:25:02Z hans $
+ *  $Id: PropelTypes.php 964 2008-02-10 20:42:38Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -23,7 +23,7 @@
  * A class that maps PropelTypes to PHP native types, PDO types (and Creole types).
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
- * @version    $Revision: 657 $
+ * @version    $Revision: 964 $
  * @package    propel.engine.database.model
  */
 class PropelTypes {
@@ -65,7 +65,11 @@ class PropelTypes {
 	private static $TEMPORAL_TYPES = array (
 						self::DATE, self::TIME, self::TIMESTAMP, self::BU_DATE, self::BU_TIMESTAMP
 					);
-
+	
+	private static $NUMERIC_TYPES = array (
+						self::SMALLINT, self::TINYINT, self::INTEGER, self::BIGINT, self::FLOAT, self::DOUBLE, self::NUMERIC, self::DECIMAL, self::REAL
+					);
+	
 	const CHAR_NATIVE_TYPE = "string";
 	const VARCHAR_NATIVE_TYPE = "string";
 	const LONGVARCHAR_NATIVE_TYPE = "string";
@@ -269,6 +273,17 @@ class PropelTypes {
 	public static function isTextType($type)
 	{
 		return in_array($type, self::$TEXT_TYPES);
+	}
+	
+	/**
+	 * Returns true if values for the type are numeric.
+	 *
+	 * @param      string $type The Propel type to check.
+	 * @return     boolean True if values for the type need to be quoted.
+	 */
+	public static function isNumericType($type)
+	{
+		return in_array($type, self::$NUMERIC_TYPES);
 	}
 
 	/**

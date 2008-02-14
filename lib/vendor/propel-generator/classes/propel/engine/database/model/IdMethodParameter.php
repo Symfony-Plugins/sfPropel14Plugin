@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: IdMethodParameter.php 521 2007-01-05 13:29:36Z heltem $
+ *  $Id: IdMethodParameter.php 949 2008-01-30 22:41:59Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -28,7 +28,7 @@ require_once 'propel/engine/database/model/XMLElement.php';
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     John McNally <jmcnally@collab.net> (Torque)
  * @author     Daniel Rall <dlr@collab.net> (Torque)
- * @version    $Revision: 521 $
+ * @version    $Revision: 949 $
  * @package    propel.engine.database.model
  */
 class IdMethodParameter extends XMLElement {
@@ -104,22 +104,16 @@ class IdMethodParameter extends XMLElement {
 	}
 
 	/**
-	 * XML representation of the foreign key.
+	 * @see XMLElement::appendXml(DOMNode)
 	 */
-	public function toString()
+	public function appendXml(DOMNode $node)
 	{
-		$result = " <id-method-parameter";
-
-		if ($this->getName() !== null) {
-			$result .= " name=\""
-				  . $this->getName()
-				  . '"';
+		$doc = ($node instanceof DOMDocument) ? $node : $node->ownerDocument;
+		
+		$paramNode = $node->appendChild($doc->createElement('id-method-parameter'));
+		if ($this->getName()) {
+			$paramNode->setAttribute('name', $this->getName());
 		}
-
-		$result .= " value=\""
-			  . $this->getValue()
-			  .  "\">\n";
-
-		return $result;
+		$paramNode->setAttribute('value', $this->getValue());
 	}
 }
