@@ -50,8 +50,8 @@ class SfObjectBuilder extends PHP5ObjectBuilder
       $relatedTable   = $this->getDatabase()->getTable($this->getTable()->getAttribute('i18nTable'));
 
       $script .= '
-require_once \''.$this->getFilePath($this->getStubObjectBuilder()->getPackage().'.'.$relatedTable->getPhpName().'Peer').'\';
-require_once \''.$this->getFilePath($this->getStubObjectBuilder()->getPackage().'.'.$relatedTable->getPhpName()).'\';
+require_once \''.ClassTools::getFilePath($this->getStubObjectBuilder()->getPackage().'.', $relatedTable->getPhpName().'Peer').'\';
+require_once \''.ClassTools::getFilePath($this->getStubObjectBuilder()->getPackage().'.', $relatedTable->getPhpName()).'\';
 ';
     }
   }
@@ -348,16 +348,16 @@ EOF;
     // update current script
     $script .= $tmp;
   }
-  
+
   protected function addClassClose(&$script)
   {
     parent::addClassClose($script);
-    
+
     $behaviors = $this->getTable()->getAttribute('behaviors');
     if($behaviors)
     {
       $behavior_file_name = 'Base'.$this->getTable()->getPhpName().'Behaviors';
-      $behavior_file_path = $this->getFilePath($this->getStubObjectBuilder()->getPackage().'.om.'.$behavior_file_name);
+      $behavior_file_path = ClassTools::getFilePath($this->getStubObjectBuilder()->getPackage().'.om.', $behavior_file_name);
       $script .= sprintf("\n\ninclude_once '%s';\n", $behavior_file_path);
     }
   }

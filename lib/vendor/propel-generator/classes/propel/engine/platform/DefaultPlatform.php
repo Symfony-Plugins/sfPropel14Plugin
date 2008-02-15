@@ -38,14 +38,14 @@ class DefaultPlatform implements Platform {
 	 * @var        array
 	 */
 	private $schemaDomainMap;
-	
+
 	/**
 	 * GeneratorConfig object holding build properties.
 	 *
 	 * @var        GeneratorConfig
 	 */
 	private $generatorConfig;
-	
+
 	/**
 	 * @var        PDO Database connection.
 	 */
@@ -69,7 +69,7 @@ class DefaultPlatform implements Platform {
 	{
 		$this->con = $con;
 	}
-	
+
 	/**
 	 * Sets the GeneratorConfig to use in the parsing.
 	 *
@@ -79,17 +79,17 @@ class DefaultPlatform implements Platform {
 	{
 		$this->generatorConfig = $config;
 	}
-	
+
 	/**
 	 * Gets the GeneratorConfig option.
-	 * 
+	 *
 	 * @return     GeneratorConfig
 	 */
 	public function getGeneratorConfig()
 	{
 		return $this->generatorConfig;
 	}
-	
+
 	/**
 	 * Gets a specific propel (renamed) property from the build.
 	 *
@@ -103,7 +103,7 @@ class DefaultPlatform implements Platform {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the database connection to use for this Platform class.
 	 * @return     PDO The database connection or NULL if none has been set.
@@ -112,7 +112,7 @@ class DefaultPlatform implements Platform {
 	{
 		return $this->con;
 	}
-	
+
 	/**
 	 * Initialize the type -> Domain mapping.
 	 */
@@ -122,9 +122,9 @@ class DefaultPlatform implements Platform {
 		foreach (PropelTypes::getPropelTypes() as $type) {
 			$this->schemaDomainMap[$type] = new Domain($type);
 		}
-		$this->schemaDomainMap[PropelTypes::BU_DATE] = new Domain("DATE");
-		$this->schemaDomainMap[PropelTypes::BU_TIMESTAMP] = new Domain("TIMESTAMP");
-		$this->schemaDomainMap[PropelTypes::BOOLEAN] = new Domain("INTEGER");
+		$this->schemaDomainMap[PropelTypes::BU_DATE] = new Domain(PropelTypes::BU_DATE, "DATE");
+		$this->schemaDomainMap[PropelTypes::BU_TIMESTAMP] = new Domain(PropelTypes::BU_TIMESTAMP, "TIMESTAMP");
+		$this->schemaDomainMap[PropelTypes::BOOLEAN] = new Domain(PropelTypes::BOOLEAN, "INTEGER");
 	}
 
 	protected function setSchemaDomainMapping(Domain $domain)

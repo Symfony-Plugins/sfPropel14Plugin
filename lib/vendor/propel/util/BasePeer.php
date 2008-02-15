@@ -494,15 +494,15 @@ class BasePeer
 				$selectSql = self::createSelectSql($criteria, $params);
 				$sql = 'SELECT COUNT(*) FROM (' . $selectSql . ') AS propelmatch4cnt';
 			} else {
-				// Replace SELECT columns with COUNT(*)
-				$columns = $criteria->getSelectColumns(); // assumes pk is idx
+        // Replace SELECT columns with COUNT(*)
+        $columns = $criteria->getSelectColumns(); // assumes pk is idx
 
-				// $criteria->clearSelectColumns()->addSelectColumn('COUNT(*)');
+        // $criteria->clearSelectColumns()->addSelectColumn('COUNT(*)');
 
-				// add count on primary key
-				$criteria->clearSelectColumns()->addSelectColumn('COUNT('.$columns[0].')');
+        // add count on primary key
+        $criteria->clearSelectColumns()->addSelectColumn('COUNT('.$columns[0].')');
 
-				$sql = self::createSelectSql($criteria, $params);
+        $sql = self::createSelectSql($criteria, $params);
 			}
 
 			$stmt = $con->prepare($sql);
