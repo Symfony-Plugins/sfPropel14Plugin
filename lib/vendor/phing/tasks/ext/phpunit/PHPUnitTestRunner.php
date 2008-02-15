@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: PHPUnitTestRunner.php 276 2007-10-31 08:37:18Z mrook $
+ * $Id: PHPUnitTestRunner.php 325 2007-12-20 15:44:58Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -27,7 +27,7 @@ require_once 'phing/system/util/Timer.php';
  * Simple Testrunner for PHPUnit2/3 that runs all tests of a testsuite.
  *
  * @author Michiel Rook <michiel.rook@gmail.com>
- * @version $Id: PHPUnitTestRunner.php 276 2007-10-31 08:37:18Z mrook $
+ * @version $Id: PHPUnitTestRunner.php 325 2007-12-20 15:44:58Z hans $
  * @package phing.tasks.ext.phpunit
  * @since 2.1.0
  */
@@ -36,6 +36,8 @@ class PHPUnitTestRunner
 	const SUCCESS = 0;
 	const FAILURES = 1;
 	const ERRORS = 2;
+	const INCOMPLETES = 3;
+	const SKIPPED = 4;
 
 	private $test = NULL;
 	private $suite = NULL;
@@ -116,10 +118,17 @@ class PHPUnitTestRunner
 		{
 			$this->retCode = self::ERRORS;
 		}
-
-		else if ($res->failureCount() != 0 || $res->notImplementedCount() != 0 || $res->skippedCount() != 0)
+		else if ($res->failureCount() != 0)
 		{
 			$this->retCode = self::FAILURES;
+		}
+		else if ($res->notImplementedCount() != 0)
+		{
+			$this->retCode = self::INCOMPLETES;
+		}
+		else if ($res->skippedCount() != 0)
+		{
+			$this->retCode = self::SKIPPED;
 		}
 	}
 
@@ -128,4 +137,4 @@ class PHPUnitTestRunner
 		return $this->retCode;
 	}
 }
-?>
+

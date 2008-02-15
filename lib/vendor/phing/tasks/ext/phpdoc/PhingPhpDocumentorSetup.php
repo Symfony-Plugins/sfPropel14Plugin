@@ -39,7 +39,7 @@ class PhingPhpDocumentorSetup extends phpDocumentor_setup {
 	 * @param string $configDir Directory in which to look for configuration files.
 	 */
 	public function __construct($configdir = null) {
-		global $_phpDocumentor_cvsphpfile_exts, $_phpDocumentor_setting;
+		global $_phpDocumentor_cvsphpfile_exts, $_phpDocumentor_setting, $_phpDocumentor_phpfile_exts;
 		
 		$this->setup = new Io();
 		$this->render = new phpDocumentor_IntermediateParser("Default Title");
@@ -47,11 +47,18 @@ class PhingPhpDocumentorSetup extends phpDocumentor_setup {
 		$GLOBALS['_phpDocumentor_install_dir'] = $configdir;
         $this->parseIni();
 		
+        // These redundant-looking lines seem to actually make a difference.
+        // See: http://phing.info/trac/ticket/150
+        $_phpDocumentor_phpfile_exts = $GLOBALS['_phpDocumentor_phpfile_exts'];
+		$_phpDocumentor_cvsphpfile_exts = $GLOBALS['_phpDocumentor_cvsphpfile_exts'];
+
 		if (tokenizer_ext) {
             $this->parse = new phpDocumentorTParser();
         } else {
             $this->parse = new Parser();
         }
+        
+        $this->setMemoryLimit();
 	}
 	
 	/**
@@ -172,5 +179,32 @@ class PhingPhpDocumentorSetup extends phpDocumentor_setup {
 		$_phpDocumentor_setting['quiet'] = true;
 		parent::setQuietMode();
 	}
-	
+
+    /**
+     * Control whether or not warnings will be shown for undocumented elements.
+     * Useful for identifying classes and methods that haven't yet been
+     * documented.
+     * 
+     * @param  bool  $bEnable 
+     */
+    public function setUndocumentedelements($bEnable) {
+        $this->render->setUndocumentedElementWarningsMode($bEnable);
+    }
+
+    /**
+     * custom tags, will be recognized and put in tags[] instead of
+     * unknowntags[]
+     *
+     * This method exists as a hack because the API exposed for this method in
+     * PhpDocumentor doesn't work correctly.
+	 * 
+     * Note that because we are setting a "private" GLOBAL(!!) config var with
+     * this value, this is subject to break if PhpDocumentor internals changes.
+     * 
+     * @param  string  $sCustomtags 
+     */
+    public function setCustomtags($sCustomtags) {
+        global $_phpDocumentor_setting;
+        $_phpDocumentor_setting['customtags'] = $sCustomtags;
+    }
 }

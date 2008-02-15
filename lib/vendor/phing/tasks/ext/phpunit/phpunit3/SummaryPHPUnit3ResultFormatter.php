@@ -33,7 +33,8 @@ class SummaryPHPUnit3ResultFormatter extends PHPUnit3ResultFormatter
 {
 	function endTestSuite(PHPUnit_Framework_TestSuite $suite)
 	{
-		$sb = "Tests run: " . $this->getRunCount();
+		$sb = "Test: " . $suite->getName();
+		$sb.= ", Run: " . $this->getRunCount();
 		$sb.= ", Failures: " . $this->getFailureCount();
 		$sb.= ", Errors: " . $this->getErrorCount();
 		$sb.= ", Incomplete: " . $this->getIncompleteCount();
@@ -54,4 +55,4 @@ class SummaryPHPUnit3ResultFormatter extends PHPUnit3ResultFormatter
 		return NULL;
 	}
 }
-?>
+

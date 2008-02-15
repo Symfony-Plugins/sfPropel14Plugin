@@ -29,7 +29,7 @@ include_once 'phing/types/Parameter.php';
  *
  * @author <a href="mailto:yl@seasonfive.com">Yannick Lecaillez</a>
  * @copyright © 2003 seasonfive. All rights reserved
- * @version   $Revision: 1.5 $ $Date: 2006-09-14 13:19:08 -0700 (Thu, 14 Sep 2006) $
+ * @version   $Revision: 1.5 $ $Date: 2007-12-20 07:44:58 -0800 (Thu, 20 Dec 2007) $
  * @access    public
  * @see       FilterReader
  * @package   phing.filters
@@ -66,4 +66,4 @@ class BaseParamFilterReader extends BaseFilterReader implements Parameterizable 
     }
 }
 
-?>
+

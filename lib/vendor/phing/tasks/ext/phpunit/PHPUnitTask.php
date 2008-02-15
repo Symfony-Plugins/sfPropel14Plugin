@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: PHPUnitTask.php 305 2007-11-08 20:46:51Z hans $
+ * $Id: PHPUnitTask.php 350 2008-02-06 15:06:57Z mrook $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -28,7 +28,7 @@ require_once 'phing/util/LogWriter.php';
  * Runs PHPUnit2/3 tests.
  *
  * @author Michiel Rook <michiel.rook@gmail.com>
- * @version $Id: PHPUnitTask.php 305 2007-11-08 20:46:51Z hans $
+ * @version $Id: PHPUnitTask.php 350 2008-02-06 15:06:57Z mrook $
  * @package phing.tasks.ext.phpunit
  * @see BatchTest
  * @since 2.1.0
@@ -39,8 +39,12 @@ class PHPUnitTask extends Task
 	private $formatters = array();
 	private $haltonerror = false;
 	private $haltonfailure = false;
-	private $failureproperty;
+	private $haltonincomplete = false;
+	private $haltonskipped = false;
 	private $errorproperty;
+	private $failureproperty;
+	private $incompleteproperty;
+	private $skippedproperty;
 	private $printsummary = false;
 	private $testfailed = false;
 	private $codecoverage = false;
@@ -102,6 +106,7 @@ class PHPUnitTask extends Task
 		 */
 		if (PHPUnitUtil::$installedVersion == 3)
 		{
+			require_once 'PHPUnit/Framework.php';
 			require_once 'PHPUnit/Util/Filter.php';
 			
 			// point PHPUnit_MAIN_METHOD define to non-existing method
@@ -119,6 +124,7 @@ class PHPUnitTask extends Task
 		}
 		else
 		{
+			require_once 'PHPUnit2/Framework.php';
 			require_once 'PHPUnit2/Util/Filter.php';
 			
 			PHPUnit2_Util_Filter::addFileToFilter('PHPUnitTask.php');
@@ -131,14 +137,24 @@ class PHPUnitTask extends Task
 		}
 	}
 	
+	function setErrorproperty($value)
+	{
+		$this->errorproperty = $value;
+	}
+	
 	function setFailureproperty($value)
 	{
 		$this->failureproperty = $value;
 	}
 	
-	function setErrorproperty($value)
+	function setIncompleteproperty($value)
 	{
-		$this->errorproperty = $value;
+		$this->incompleteproperty = $value;
+	}
+	
+	function setSkippedproperty($value)
+	{
+		$this->skippedproperty = $value;
 	}
 	
 	function setHaltonerror($value)
@@ -149,6 +165,16 @@ class PHPUnitTask extends Task
 	function setHaltonfailure($value)
 	{
 		$this->haltonfailure = $value;
+	}
+
+	function setHaltonincomplete($value)
+	{
+		$this->haltonincomplete = $value;
+	}
+
+	function setHaltonskipped($value)
+	{
+		$this->haltonskipped = $value;
 	}
 
 	function setPrintsummary($printsummary)
@@ -248,7 +274,7 @@ class PHPUnitTask extends Task
 		{
 			$suite = NULL;
 			
-			if (is_subclass_of($test, 'PHPUnit_Framework_TestSuite') || is_subclass_of($test, 'PHPUnit2_Framework_TestSuite'))
+			if ((PHPUnitUtil::$installedVersion == 3 && is_subclass_of($test, 'PHPUnit_Framework_TestSuite')) || (PHPUnitUtil::$installedVersion == 2 && is_subclass_of($test, 'PHPUnit2_Framework_TestSuite')))
 			{
 				if (is_object($test))
 				{
@@ -323,8 +349,23 @@ class PHPUnitTask extends Task
 			if ($this->haltonfailure) {
 				$this->testfailed = true;
 			}
+		} elseif ($retcode == PHPUnitTestRunner::INCOMPLETES) {
+			if ($this->incompleteproperty) {
+				$this->project->setNewProperty($this->incompleteproperty, true);
+			}
+			
+			if ($this->haltonincomplete) {
+				$this->testfailed = true;
+			}
+		} elseif ($retcode == PHPUnitTestRunner::SKIPPED) {
+			if ($this->skippedproperty) {
+				$this->project->setNewProperty($this->skippedproperty, true);
+			}
+			
+			if ($this->haltonskipped) {
+				$this->testfailed = true;
+			}
 		}
-		
 	}
 
 	private function getDefaultOutput()
@@ -346,4 +387,4 @@ class PHPUnitTask extends Task
 		return $batchtest;
 	}
 }
-?>
+

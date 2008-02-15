@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: PHPUnit2ResultFormatter.php 148 2007-02-13 11:15:53Z mrook $
+ * $Id: PHPUnit2ResultFormatter.php 325 2007-12-20 15:44:58Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -27,7 +27,7 @@ require_once 'phing/system/io/Writer.php';
  * This abstract class describes classes that format the results of a PHPUnit2 testrun.
  *
  * @author Michiel Rook <michiel.rook@gmail.com>
- * @version $Id: PHPUnit2ResultFormatter.php 148 2007-02-13 11:15:53Z mrook $
+ * @version $Id: PHPUnit2ResultFormatter.php 325 2007-12-20 15:44:58Z hans $
  * @package phing.tasks.ext.phpunit.phpunit2
  * @since 2.1.0
  */
@@ -155,4 +155,3 @@ abstract class PHPUnit2ResultFormatter implements PHPUnit2_Framework_TestListene
 		}
 	}
 }
-?>

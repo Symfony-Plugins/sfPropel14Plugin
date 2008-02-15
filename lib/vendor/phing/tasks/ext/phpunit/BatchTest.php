@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: BatchTest.php 219 2007-08-15 18:58:31Z mrook $
+ * $Id: BatchTest.php 350 2008-02-06 15:06:57Z mrook $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -26,7 +26,7 @@ require_once 'phing/types/FileSet.php';
  * all subclasses of PHPUnit(2)_Framework_TestCase / PHPUnit(2)_Framework_TestSuite.
  *
  * @author Michiel Rook <michiel.rook@gmail.com>
- * @version $Id: BatchTest.php 219 2007-08-15 18:58:31Z mrook $
+ * @version $Id: BatchTest.php 350 2008-02-06 15:06:57Z mrook $
  * @package phing.tasks.ext.phpunit
  * @since 2.1.0
  */
@@ -135,8 +135,10 @@ class BatchTest
 	 */
 	private function isTestCase($input)
 	{
-		return is_subclass_of($input, 'PHPUnit2_Framework_TestCase') || is_subclass_of($input, 'PHPUnit_Framework_TestCase')
-			|| is_subclass_of($input, 'PHPUnit2_Framework_TestSuite') || is_subclass_of($input, 'PHPUnit_Framework_TestSuite');
+		if (PHPUnitUtil::$installedVersion == 3)
+			return is_subclass_of($input, 'PHPUnit_Framework_TestCase') || is_subclass_of($input, 'PHPUnit_Framework_TestSuite');
+		else
+			return is_subclass_of($input, 'PHPUnit2_Framework_TestCase') || is_subclass_of($input, 'PHPUnit2_Framework_TestSuite');
 	}
 	
 	/**
@@ -166,6 +168,10 @@ class BatchTest
 		{
 			$definedClasses = PHPUnitUtil::getDefinedClasses($filename, $this->classpath);
 			
+			foreach($definedClasses as $definedClass) {
+				$this->project->log("(PHPUnit) Adding $definedClass (from $filename) to tests.", Project::MSG_DEBUG);
+			}
+			
 			$declaredClasses = array_merge($declaredClasses, $definedClasses);
 		}
 		
@@ -174,4 +180,3 @@ class BatchTest
 		return $elements;
 	}
 }
-?>
