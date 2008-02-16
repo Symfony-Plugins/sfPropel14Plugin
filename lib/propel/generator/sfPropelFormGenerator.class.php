@@ -59,9 +59,8 @@ class sfPropelFormGenerator extends sfGenerator
     $file = sfConfig::get('sf_lib_dir').DIRECTORY_SEPARATOR.'form'.DIRECTORY_SEPARATOR.'base'.DIRECTORY_SEPARATOR.'BaseFormPropel.class.php';
     if (!file_exists($file))
     {
-      if (!is_dir(sfConfig::get('sf_lib_dir').DIRECTORY_SEPARATOR.'form'))
+      if (!is_dir(sfConfig::get('sf_lib_dir').DIRECTORY_SEPARATOR.'form'.DIRECTORY_SEPARATOR.'base'))
       {
-        mkdir(sfConfig::get('sf_lib_dir').DIRECTORY_SEPARATOR.'form', 0777, true);
         mkdir(sfConfig::get('sf_lib_dir').DIRECTORY_SEPARATOR.'form'.DIRECTORY_SEPARATOR.'base', 0777, true);
       }
 
