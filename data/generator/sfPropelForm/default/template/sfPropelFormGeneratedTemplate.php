@@ -1,5 +1,7 @@
 [?php
 
+require_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'BaseFormPropel.class.php');
+
 /**
  * <?php echo $this->table->getPhpName() ?> form base class.
  *
