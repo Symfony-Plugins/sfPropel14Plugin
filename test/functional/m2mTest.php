@@ -3,7 +3,7 @@
 /*
  * This file is part of the symfony package.
  * (c) 2004-2006 Fabien Potencier <fabien.potencier@symfony-project.com>
- * 
+ *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
@@ -31,8 +31,7 @@ function launch_tests($b)
     // admin_double_list
     checkEditCustomization('m2m relationship (admin_double_list)', array('display' => array('title', 'body', 'author_article'), 'fields' => array('author_article' => array('type' => 'admin_double_list', 'params' => array('through_class' => 'AuthorArticle')))))->
     checkResponseElement('script[src*="double_list"]')->
-    checkResponseElement('script[src*="prototype"]')->
-    checkResponseElement('script[src]', 2)->
+    checkResponseElement('script[src]', 1)->
     checkResponseElement('link[href][media]', 2)->
     checkResponseElement('div.form-row label', 'Author article:', array('position' => 2))->
     checkResponseElement('div.form-row select[name="unassociated_author_article[]"][through_class]', false)->
