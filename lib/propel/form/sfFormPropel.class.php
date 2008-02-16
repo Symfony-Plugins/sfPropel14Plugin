@@ -42,7 +42,7 @@ abstract class sfFormPropel extends sfForm
     }
     else
     {
-      if ($this->getModelName() != get_class($object))
+      if ($this->getModelName() != get_class($object) && !is_subclass_of($object, $this->getModelName()))
       {
         throw new sfException(sprintf('The "%s" form only accepts a "%s" object.', get_class($this), $this->getModelName()));
       }
@@ -63,7 +63,7 @@ abstract class sfFormPropel extends sfForm
    */
   public function getConnection()
   {
-    return Propel::getConnection(constant(sprintf('%sPeer::DATABASE_NAME', $this->getModelName())));
+    return Propel::getConnection(constant(sprintf('%s::DATABASE_NAME', get_class($this->object->getPeer()))));
   }
 
   /**
