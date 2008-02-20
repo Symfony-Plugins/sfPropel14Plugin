@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Domain.php 965 2008-02-11 03:11:24Z hans $
+ *  $Id: Domain.php 972 2008-02-20 01:22:18Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -26,7 +26,7 @@ require_once 'propel/engine/database/model/XMLElement.php';
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
- * @version    $Revision: 965 $
+ * @version    $Revision: 972 $
  * @package    propel.engine.database.model
  */
 class Domain extends XMLElement {
@@ -355,27 +355,7 @@ class Domain extends XMLElement {
 			return "";
 		}
 	}
-
-	/*
-	 * 	$schemaType = strtoupper($this->getAttribute("type"));
-		$this->copy($this->getDatabase()->getPlatform()->getDomainForType($schemaType));
-
-		//Name
-		$this->name = $this->getAttribute("name");
-
-		// Default value
-		$defval = $this->getAttribute("defaultValue", $this->getAttribute("default"));
-		if ($defval !== null) {
-		$this->setDefaultValue(new ColumnDefaultValue($defval, ColumnDefaultValue::TYPE_VALUE));
-		} elseif ($this->getAttribute("defaultExpr") !== null) {
-		$this->setDefaultValue(new ColumnDefaultValue($this->getAttribute("defaultExpr"), ColumnDefaultValue::TYPE_EXPR));
-		}
-
-		$this->size = $this->getAttribute("size");
-		$this->scale = $this->getAttribute("scale");
-		$this->description = $this->getAttribute("description");
-		*/
-
+	
 	/**
 	 * @see        XMLElement::appendXml(DOMNode)
 	 */
@@ -386,7 +366,11 @@ class Domain extends XMLElement {
 		$domainNode = $node->appendChild($doc->createElement('domain'));
 		$domainNode->setAttribute('type', $this->getType());
 		$domainNode->setAttribute('name', $this->getName());
-
+		
+		if ($this->sqlType !== $this->getType()) {
+			$domainNode->setAttribute('sqlType', $this->sqlType);
+		}
+		
 		$def = $this->getDefaultValue();
 		if ($def) {
 			if ($def->isExpression()) {

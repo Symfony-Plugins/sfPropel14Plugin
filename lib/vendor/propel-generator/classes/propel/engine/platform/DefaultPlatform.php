@@ -27,7 +27,7 @@ include_once 'propel/engine/database/model/PropelTypes.php';
  * Default implementation for the Platform interface.
  *
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
- * @version    $Revision: 949 $
+ * @version    $Revision: 972 $
  * @package    propel.engine.platform
  */
 class DefaultPlatform implements Platform {
@@ -38,14 +38,14 @@ class DefaultPlatform implements Platform {
 	 * @var        array
 	 */
 	private $schemaDomainMap;
-
+	
 	/**
 	 * GeneratorConfig object holding build properties.
 	 *
 	 * @var        GeneratorConfig
 	 */
 	private $generatorConfig;
-
+	
 	/**
 	 * @var        PDO Database connection.
 	 */
@@ -69,7 +69,7 @@ class DefaultPlatform implements Platform {
 	{
 		$this->con = $con;
 	}
-
+	
 	/**
 	 * Sets the GeneratorConfig to use in the parsing.
 	 *
@@ -79,17 +79,17 @@ class DefaultPlatform implements Platform {
 	{
 		$this->generatorConfig = $config;
 	}
-
+	
 	/**
 	 * Gets the GeneratorConfig option.
-	 *
+	 * 
 	 * @return     GeneratorConfig
 	 */
 	public function getGeneratorConfig()
 	{
 		return $this->generatorConfig;
 	}
-
+	
 	/**
 	 * Gets a specific propel (renamed) property from the build.
 	 *
@@ -103,7 +103,7 @@ class DefaultPlatform implements Platform {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Returns the database connection to use for this Platform class.
 	 * @return     PDO The database connection or NULL if none has been set.
@@ -112,7 +112,7 @@ class DefaultPlatform implements Platform {
 	{
 		return $this->con;
 	}
-
+	
 	/**
 	 * Initialize the type -> Domain mapping.
 	 */
@@ -122,11 +122,18 @@ class DefaultPlatform implements Platform {
 		foreach (PropelTypes::getPropelTypes() as $type) {
 			$this->schemaDomainMap[$type] = new Domain($type);
 		}
-		$this->schemaDomainMap[PropelTypes::BU_DATE] = new Domain(PropelTypes::BU_DATE, "DATE");
-		$this->schemaDomainMap[PropelTypes::BU_TIMESTAMP] = new Domain(PropelTypes::BU_TIMESTAMP, "TIMESTAMP");
+		// BU_* no longer needed, so map these to the DATE/TIMESTAMP domains
+		$this->schemaDomainMap[PropelTypes::BU_DATE] = new Domain(PropelTypes::DATE);
+		$this->schemaDomainMap[PropelTypes::BU_TIMESTAMP] = new Domain(PropelTypes::TIMESTAMP);
+		
+		// Boolean is a bit special, since typically it must be mapped to INT type.
 		$this->schemaDomainMap[PropelTypes::BOOLEAN] = new Domain(PropelTypes::BOOLEAN, "INTEGER");
 	}
-
+	
+	/**
+	 * Adds a mapping entry for specified Domain.
+	 * @param      Domain $domain
+	 */
 	protected function setSchemaDomainMapping(Domain $domain)
 	{
 		$this->schemaDomainMap[$domain->getType()] = $domain;
@@ -172,14 +179,11 @@ class DefaultPlatform implements Platform {
 	}
 
 	/**
-	 * @return     Only produces a SQL fragment if null values are
-	 * disallowed.
+	 * @return     string Returns the SQL fragment to use if null values are disallowed.
 	 * @see        Platform::getNullString(boolean)
 	 */
 	public function getNullString($notNull)
 	{
-		// TODO: Check whether this is true for all DBs.  Also verify
-		// the old Sybase templates.
 		return ($notNull ? "NOT NULL" : "");
 	}
 
@@ -193,7 +197,6 @@ class DefaultPlatform implements Platform {
 
 	/**
 	 * @see        Platform::hasScale(String)
-	 * TODO collect info for all platforms
 	 */
 	public function hasScale($sqlType)
 	{
@@ -202,7 +205,6 @@ class DefaultPlatform implements Platform {
 
 	/**
 	 * @see        Platform::hasSize(String)
-	 * TODO collect info for all platforms
 	 */
 	public function hasSize($sqlType)
 	{
