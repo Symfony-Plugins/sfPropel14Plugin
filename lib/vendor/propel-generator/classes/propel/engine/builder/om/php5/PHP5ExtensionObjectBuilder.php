@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5ExtensionObjectBuilder.php 621 2007-04-23 09:42:26Z heltem $
+ *  $Id: PHP5ExtensionObjectBuilder.php 974 2008-02-20 21:53:11Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -113,7 +113,7 @@ require '".$requiredClassFilePath."';
  *
  * @package    ".$this->getPackage()."
  */
-class ".$this->getClassname()." extends $baseClassname {
+".($table->isAbstract() ? "abstract " : "")."class ".$this->getClassname()." extends $baseClassname {
 ";
 	}
 

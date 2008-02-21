@@ -27,36 +27,4 @@ class SfExtensionObjectBuilder extends PHP5ExtensionObjectBuilder
 
     parent::addIncludes($script);
   }
-
-  protected function addClassOpen(&$script)
-  {
-    $table = $this->getTable();
-    $tableName = $table->getName();
-    $tableDesc = $table->getDescription();
-
-    $baseClassname = $this->getObjectBuilder()->getClassname();
-
-    $script .= "
-/**
- * Subclass for representing a row from the '$tableName' table.
- *
- * $tableDesc
- *
- * @package    ".$this->getPackage()."
- * @subpackage model
- */
-class ".$this->getClassname()." extends $baseClassname
-{";
-  }
-
-  /**
-   * Closes class.
-   * @param string &$script The script will be modified in this method.
-   */
-  protected function addClassClose(&$script)
-  {
-    $script .= "
-}
-";
-  }
 }
