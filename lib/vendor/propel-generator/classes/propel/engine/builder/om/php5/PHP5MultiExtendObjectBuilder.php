@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5MultiExtendObjectBuilder.php 949 2008-01-30 22:41:59Z hans $
+ *  $Id: PHP5MultiExtendObjectBuilder.php 977 2008-02-25 18:45:38Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -180,10 +180,9 @@ class ".$this->getClassname()." extends ".$this->getParentClassname()." {
 	 * Constructs a new ".$this->getChild()->getClassname()." class, setting the ".$col->getName()." column to ".$this->getPeerClassname()."::$const.
 	 */
 	public function __construct()
-	{
-";
-
+	{";
 		$script .= "
+		parent::__construct();
 		\$this->set$cfc(".$this->getPeerClassname()."::CLASSKEY_".strtoupper($child->getKey()).");
 	}
 ";
