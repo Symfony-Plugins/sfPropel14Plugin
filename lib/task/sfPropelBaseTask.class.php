@@ -32,7 +32,9 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
     if (!self::$done)
     {
-      $libDir = dirname(__FILE__).DIRECTORY_SEPARATOR.'..';
+      set_include_path(get_include_path().PATH_SEPARATOR.dirname(__FILE__).'/../vendor');
+
+      $libDir = dirname(__FILE__).'/..';
 
       $autoloader = sfSimpleAutoload::getInstance();
       $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'creole');

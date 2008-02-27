@@ -19,4 +19,4 @@
 
 require_once('propel/Propel.php');
 
-sfPropel::initialize(sfContext::hasInstance() ? sfContext::getInstance()->getEventDispatcher() : new sfEventDispatcher());
+sfPropel::initialize(sfProjectConfiguration::getActive()->getEventDispatcher());
