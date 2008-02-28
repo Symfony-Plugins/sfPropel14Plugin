@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PropelGraphvizTask.php 812 2007-11-18 15:19:54Z hans $
+ *  $Id: PropelGraphvizTask.php 984 2008-02-28 20:02:33Z apinstein $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -27,7 +27,7 @@ include_once 'propel/engine/database/model/AppData.php';
  * A task to generate Graphviz dot files from Propel datamodel.
  *
  * @author     Mark Kimsal
- * @version    $Revision: 812 $
+ * @version    $Revision: 984 $
  * @package    propel.phing
  */
 class PropelGraphvizTask extends AbstractPropelDataModelTask {
@@ -146,10 +146,12 @@ class PropelGraphvizTask extends AbstractPropelDataModelTask {
 					++$count;
 
 					foreach ($tbl->getColumns() as $col) {
-						$fk = $col->getForeignKey();
-						if ( $fk == null ) continue;
-						$dotSyntax .= 'node'.$tbl->getName() .':cols -> node'.$fk->getForeignTableName() . ':table [label="' . $col->getName() . '=' . implode(',', $fk->getForeignColumns()) . ' "];';
-						$dotSyntax .= "\n";
+                        $fk = $col->getForeignKeys();
+                        if ( count($fk) == 0 or $fk === null ) continue;
+                        if ( count($fk) > 1 ) throw( new Exception("not sure what to do here...") );
+                        $fk = $fk[0];   // try first one
+                        $dotSyntax .= 'node'.$tbl->getName() .':cols -> node'.$fk->getForeignTableName() . ':table [label="' . $col->getName() . '=' . implode(',', $fk->getForeignColumns()) . ' "];';
+                        $dotSyntax .= "\n";
 					}
 				}
 

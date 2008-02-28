@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: PgsqlSchemaParser.php 956 2008-02-06 02:32:43Z hans $
+ *  $Id: PgsqlSchemaParser.php 983 2008-02-28 19:59:41Z apinstein $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -25,7 +25,7 @@ require_once 'propel/engine/database/reverse/BaseSchemaParser.php';
  * Postgresql database schema parser.
  *
  * @author    Hans Lellelid <hans@xmpl.org>
- * @version   $Revision: 956 $
+ * @version   $Revision: 983 $
  * @package   propel.engine.database.reverse.pgsql
  */
 class PgsqlSchemaParser extends BaseSchemaParser {
@@ -36,6 +36,8 @@ class PgsqlSchemaParser extends BaseSchemaParser {
      */
 	 /** Map MySQL native types to Creole (JDBC) types. */
     private static $pgsqlTypeMap = array(
+				'bool' => PropelTypes::BOOLEAN,
+				'boolean' => PropelTypes::BOOLEAN,
 				'tinyint' => PropelTypes::TINYINT,
 				'smallint' => PropelTypes::SMALLINT,
 				'mediumint' => PropelTypes::SMALLINT,
@@ -52,9 +54,11 @@ class PgsqlSchemaParser extends BaseSchemaParser {
 				'varchar' => PropelTypes::VARCHAR,
 				'date' => PropelTypes::DATE,
 				'time' => PropelTypes::TIME,
-				'year' => PropelTypes::YEAR,
+				'timetz' => PropelTypes::TIME,
+				//'year' => PropelTypes::YEAR,  PropelTypes::YEAR does not exist... does this need to be mapped to a different propel type?
 				'datetime' => PropelTypes::TIMESTAMP,
 				'timestamp' => PropelTypes::TIMESTAMP,
+				'timestamptz' => PropelTypes::TIMESTAMP,
 				'tinyblob' => PropelTypes::BINARY,
 				'blob' => PropelTypes::VARBINARY,
 				'mediumblob' => PropelTypes::VARBINARY,

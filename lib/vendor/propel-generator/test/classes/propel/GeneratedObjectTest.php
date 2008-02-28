@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: GeneratedObjectTest.php 935 2008-01-23 02:21:48Z hans $
+ *  $Id: GeneratedObjectTest.php 982 2008-02-28 10:29:45Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -310,8 +310,27 @@ class GeneratedObjectTest extends BookstoreTestBase {
 		$store->setStoreOpenTime(strtotime('12:55'));
 		$store->save();
 		$this->assertEquals('12:55', $store->getStoreOpenTime(null)->format('H:i'));
+		
+		$acct = new BookstoreEmployeeAccount();
+		$acct->setCreated(time());
+		$this->assertEquals(date('Y-m-d H:i'), $acct->getCreated('Y-m-d H:i'));
+		
+		$review = new Review();
+		$review->setReviewDate(time());
+		$this->assertEquals(date('Y-m-d'), $review->getReviewDate('Y-m-d'));
 	}
-
+	
+	/**
+	 * Test setting empty temporal values.
+	 * @link http://propel.phpdb.org/trac/ticket/586
+	 */
+	public function testTemporalValues_Empty()
+	{
+		$review = new Review();
+		$review->setReviewDate('');
+		$this->assertNull($review->getReviewDate());
+	}
+	
 	/**
 	 * Test setting TIME columns.
 	 */
