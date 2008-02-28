@@ -30,7 +30,7 @@ class sfPropelLogger implements BasicLogger
 	{
 	  if(is_null($this->dispatcher))
 	  {
-	    $this->dispatcher = sfContext::getInstance()->getEventDispatcher();
+	    $this->dispatcher = sfProjectConfiguration::getActive()->getEventDispatcher();
 	  }
 	  else
 	  {
