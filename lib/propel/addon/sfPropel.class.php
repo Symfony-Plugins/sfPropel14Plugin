@@ -30,9 +30,12 @@ class sfPropel
     }
 
     // propel initialization
-    Propel::setConfiguration(sfPropelDatabase::getConfiguration());
-
-    Propel::initialize();
+    $configuration = sfPropelDatabase::getConfiguration();
+    if($configuration)
+    {
+      Propel::setConfiguration($configuration);
+      Propel::initialize();
+    }
 
     $dispatcher->connect('user.change_culture', array('sfPropel', 'listenToChangeCultureEvent'));
 

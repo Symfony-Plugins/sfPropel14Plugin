@@ -54,93 +54,98 @@ class sfPropelDatabaseSchema
 
     $this->connection_name = $connection_name;
     $this->database = $database;
-    
+
     $this->fixYAMLDatabase();
     $this->fixYAMLI18n();
     $this->fixYAMLColumns();
   }
-  
+
   public function loadYAML($file)
   {
     $schema_array = sfYaml::load($file);
-    
+
     if (!isset($schema_array['classes']))
     {
-      // Old schema syntax: we convert it 
+      // Old schema syntax: we convert it
       $schema_array = $this->convertOldToNewYaml($schema_array);
     }
-    
+
     $this->loadArray($schema_array);
   }
-  
+
   public function convertOldToNewYaml($schema)
   {
     $new_schema = array();
 
     $tmp = array_keys($schema);
     $connection_name = array_shift($tmp);
-    $new_schema['connection'] = $connection_name;
-    
-    $classes = array();
-    foreach($schema[$connection_name] as $table => $table_params)
+
+    if(!empty($connection_name) && isset($schema[$connection_name]))
     {
-      if ($table == '_attributes')
+      $new_schema['connection'] = $connection_name;
+
+      $classes = array();
+      foreach($schema[$connection_name] as $table => $table_params)
       {
-        // Database attributes
-        $new_schema = array_merge($new_schema, $table_params);
-      }
-      else
-      {
-        // Table
-        $phpName = sfInflector::camelize($table);
-        if (isset($table_params['_attributes']))
+        if ($table == '_attributes')
         {
-          $table_attributes = $table_params['_attributes'];
-          unset($table_params['_attributes']);
-          if (isset($table_attributes['phpName']))
-          {
-            $phpName = $table_attributes['phpName'];
-            unset($table_attributes['phpName']);
-          }
+          // Database attributes
+          $new_schema = array_merge($new_schema, $table_params);
         }
         else
         {
-          $table_attributes = array();
-        }
-        $classes[$phpName] = $table_attributes;
-        $classes[$phpName]['tableName'] = $table;
-        $classes[$phpName]['columns'] = array();
-        foreach($table_params as $column => $column_params)
-        {
-          switch($column)
+          // Table
+          $phpName = sfInflector::camelize($table);
+          if (isset($table_params['_attributes']))
           {
-            case '_behaviors':
-              $classes[$phpName]['behaviors'] = $column_params;
-              break;
-            case '_foreignKeys':
-              $classes[$phpName]['foreignKeys'] = $column_params;
-              break;
-            case '_indexes':
-              $classes[$phpName]['indexes'] = $column_params;
-              break;
-            case '_uniques':
-              $classes[$phpName]['uniques'] = $column_params;
-              break;
-            default:
-              $classes[$phpName]['columns'][$column] = $column_params;
+            $table_attributes = $table_params['_attributes'];
+            unset($table_params['_attributes']);
+            if (isset($table_attributes['phpName']))
+            {
+              $phpName = $table_attributes['phpName'];
+              unset($table_attributes['phpName']);
+            }
+          }
+          else
+          {
+            $table_attributes = array();
+          }
+          $classes[$phpName] = $table_attributes;
+          $classes[$phpName]['tableName'] = $table;
+          $classes[$phpName]['columns'] = array();
+          foreach($table_params as $column => $column_params)
+          {
+            switch($column)
+            {
+              case '_behaviors':
+                $classes[$phpName]['behaviors'] = $column_params;
+                break;
+              case '_foreignKeys':
+                $classes[$phpName]['foreignKeys'] = $column_params;
+                break;
+              case '_indexes':
+                $classes[$phpName]['indexes'] = $column_params;
+                break;
+              case '_uniques':
+                $classes[$phpName]['uniques'] = $column_params;
+                break;
+              default:
+                $classes[$phpName]['columns'][$column] = $column_params;
+            }
           }
         }
       }
+
+      $new_schema['classes'] = $classes;
+
     }
-    
-    $new_schema['classes'] = $classes;
-    
+
     return $new_schema;
   }
-  
+
   public function convertNewToOldYaml($schema)
   {
-    
+
     if (isset($schema['connection']))
     {
       $connection_name = $schema['connection'];
@@ -150,17 +155,17 @@ class sfPropelDatabaseSchema
     {
       $connection_name = 'propel';
     }
-    
+
     $database = array();
-    
+
     // Tables
     if (isset($schema['classes']))
     {
       $tables = array();
       foreach ($schema['classes'] as $className => $classParams)
       {
-        $tableParams = array(); 
-        
+        $tableParams = array();
+
         // Columns
         if (isset($classParams['columns']))
         {
@@ -184,14 +189,14 @@ class sfPropelDatabaseSchema
           $tableParams['_foreignKeys'] = $classParams['foreignKeys'];
           unset($classParams['foreignKeys']);
         }
-        
+
         // Behaviors
         if (isset($classParams['behaviors']))
         {
           $tableParams['_behaviors'] = $classParams['behaviors'];
           unset($classParams['behaviors']);
         }
-        
+
         // Table attributes
         $tableAttributes = array();
         if (isset($classParams['tableName']))
@@ -203,29 +208,29 @@ class sfPropelDatabaseSchema
         {
           $tableName = sfInflector::underscore($className);
         }
-        
+
         if (sfInflector::camelize($tableName) != $className)
         {
           $tableAttributes['phpName'] = $className;
         }
-        
+
         if ($tableAttributes || $classParams)
         {
           $tableParams['_attributes'] = array_merge($tableAttributes, $classParams);
         }
-        
+
         $tables[$tableName] = $tableParams;
       }
       $database = array_merge($database, $tables);
       unset($schema['classes']);
     }
-    
+
     // Database attributes
     if ($schema)
     {
       $database['_attributes'] = $schema;
     }
-    
+
     return array($connection_name => $database);
   }
 
@@ -435,7 +440,7 @@ class sfPropelDatabaseSchema
               throw new sfException(sprintf('Unable to resolve foreign table for column "%s".', $column));
             }
           }
-          
+
         }
         else
         {
@@ -501,12 +506,12 @@ class sfPropelDatabaseSchema
     {
       if (
            ($tb_name == $table_name)
-           || (isset($table['_attributes']['phpName']) && 
+           || (isset($table['_attributes']['phpName']) &&
              (
-               $table['_attributes']['phpName'] == sfInflector::camelize($table_name) 
+               $table['_attributes']['phpName'] == sfInflector::camelize($table_name)
                || $table['_attributes']['phpName'] == $table_name
              )
-           || (sfInflector::underscore($table_name) == $tb_name)) 
+           || (sfInflector::underscore($table_name) == $tb_name))
          )
       {
         $table_match = $tb_name;
@@ -555,7 +560,7 @@ class sfPropelDatabaseSchema
         }
         $attributes_string .= "    <foreign-key foreignTable=\"".$foreignTable."\"";
       }
-      
+
       if (isset($column['onDelete']))
       {
         $attributes_string .= " onDelete=\"$column[onDelete]\"";
