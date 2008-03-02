@@ -25,59 +25,55 @@ $configuration = new $class('test', isset($debug) ? $debug : true);
 sfContext::createInstance($configuration);
 
 // remove all cache
-sfToolkit::clearDirectory(sfConfig::get('sf_app_cache_dir'));
+function sf_functional_test_shutdown()
+{
+  sfToolkit::clearDirectory(sfConfig::get('sf_cache_dir'));
+  sfToolkit::clearDirectory(sfConfig::get('sf_log_dir'));
+}
 
-$dispatcher = sfContext::getInstance()->getEventDispatcher();
-$formatter = new sfFormatter();
+sf_functional_test_shutdown();
+
+register_shutdown_function('sf_functional_test_shutdown');
+
+
+// build Propel om/map/sql/forms
+$files = glob(sfConfig::get('sf_lib_dir').'/model/om/*.php');
+if (false === $files || !count($files))
+{
+  chdir(sfConfig::get('sf_root_dir'));
+  $task = new sfPropelBuildModelTask(new sfEventDispatcher(), new sfFormatter());
+  ob_start();
+  $task->run();
+  $output = ob_get_clean();
+}
+
+$files = glob(sfConfig::get('sf_data_dir').'/sql/*.php');
+if (false === $files || !count($files))
+{
+  chdir(sfConfig::get('sf_root_dir'));
+  $task = new sfPropelBuildSqlTask(new sfEventDispatcher(), new sfFormatter());
+  ob_start();
+  $task->run();
+  $output = ob_get_clean();
+}
+
+$files = glob(sfConfig::get('sf_lib_dir').'/form/base/*.php');
+if (false === $files || !count($files))
+{
+  chdir(sfConfig::get('sf_root_dir'));
+  $task = new sfPropelBuildFormsTask(new sfEventDispatcher(), new sfFormatter());
+  $task->run();
+}
 
 if (isset($fixtures))
 {
-  chdir(sfConfig::get('sf_root_dir'));
-
-  // update propel configuration paths
-  $config = file_get_contents(sfConfig::get('sf_config_dir').DIRECTORY_SEPARATOR.'propel.ini');
-  $propel = sfToolkit::replaceConstants($config);
-
-  file_put_contents(sfConfig::get('sf_config_dir').DIRECTORY_SEPARATOR.'propel.ini', $propel);
-
-  // build Propel om/map/sql/forms
-  $files = glob(sfConfig::get('sf_lib_dir').'/model/om/*.php');
-  if (false === $files || !count($files))
-  {
-    $task = new sfPropelBuildModelTask($dispatcher, $formatter);
-    ob_start();
-    $task->run();
-    ob_end_clean();
-  }
-
-  $files = glob(sfConfig::get('sf_data_dir').'/sql/*.sql');
-  if (false === $files || !count($files))
-  {
-    $task = new sfPropelBuildSqlTask($dispatcher, $formatter);
-    ob_start();
-    $task->run();
-    ob_end_clean();
-  }
-
-  $files = glob(sfConfig::get('sf_lib_dir').'/form/base/*.php');
-  if (false === $files || !count($files))
-  {
-    $task = new sfPropelBuildFormsTask($dispatcher, $formatter);
-    ob_start();
-    $task->run();
-    ob_end_clean();
-  }
-
-  $task = new sfCacheClearTask($dispatcher, $formatter);
-  ob_start();
-  $task->run();
-  ob_end_clean();
-
   // initialize database manager
   $databaseManager = new sfDatabaseManager($configuration);
 
+  chdir(sfConfig::get('sf_root_dir'));
+
   // cleanup database
-  $db = sfConfig::get('sf_data_dir').DIRECTORY_SEPARATOR.'database.sqlite';
+  $db = sfConfig::get('sf_data_dir').DIRECTORY_SEPARATOR.'/database.sqlite';
   if (file_exists($db))
   {
     unlink($db);
@@ -87,9 +83,7 @@ if (isset($fixtures))
   $sql = file_get_contents(sfConfig::get('sf_data_dir').DIRECTORY_SEPARATOR.'sql'.DIRECTORY_SEPARATOR.'lib.model.schema.sql');
   $sql = preg_replace('/^\s*\-\-.+$/m', '', $sql);
   $sql = preg_replace('/^\s*DROP TABLE .+?$/m', '', $sql);
-
   $con = Propel::getConnection();
-
   $tables = preg_split('/CREATE TABLE/', $sql);
   foreach ($tables as $table)
   {
@@ -99,7 +93,7 @@ if (isset($fixtures))
       continue;
     }
 
-    $con->exec('CREATE TABLE '.$table);
+    $con->query('CREATE TABLE '.$table);
   }
 
   // load fixtures
@@ -112,9 +106,6 @@ if (isset($fixtures))
   {
     $data->loadData(sfConfig::get('sf_data_dir').'/'.$fixtures);
   }
-
-  // restore original propel config
-  file_put_contents(sfConfig::get('sf_config_dir').DIRECTORY_SEPARATOR.'propel.ini', $config);
 }
 
 return true;
