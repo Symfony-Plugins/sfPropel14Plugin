@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5ObjectBuilder.php 982 2008-02-28 10:29:45Z hans $
+ *  $Id: PHP5ObjectBuilder.php 986 2008-03-07 03:10:38Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -2098,6 +2098,7 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 	{
 		$table = $this->getTable();
 		$tblFK = $refFK->getTable();
+		$join_behavior = $this->getGeneratorConfig()->getBuildProperty('useLeftJoinsInDoJoinMethods') ? 'Criteria::LEFT_JOIN' : 'Criteria::INNER_JOIN';
 		
 		$peerClassname = $this->getStubPeerBuilder()->getClassname();
 		$relCol = $this->getRefFKPhpNameAffix($refFK, $plural=true);
@@ -2139,7 +2140,7 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 	 * api reasonable.  You can provide public methods for those you
 	 * actually need in ".$table->getPhpName().".
 	 */
-	public function get".$relCol."Join".$relCol2."(\$criteria = null, \$con = null)
+	public function get".$relCol."Join".$relCol2."(\$criteria = null, \$con = null, \$join_behavior = $join_behavior)
 	{
 		";
 				$script .= "
@@ -2172,7 +2173,7 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 				} // end foreach ($fk->getForeignColumns()
 
 				$script .= "
-				\$this->$collName = ".$fkPeerBuilder->getPeerClassname()."::doSelectJoin$relCol2(\$criteria, \$con);
+				\$this->$collName = ".$fkPeerBuilder->getPeerClassname()."::doSelectJoin$relCol2(\$criteria, \$con, \$join_behavior);
 			}
 		} else {
 			// the following code is to determine if a new query is
@@ -2191,7 +2192,7 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 
 				$script .= "
 			if (!isset(\$this->$lastCriteriaName) || !\$this->".$lastCriteriaName."->equals(\$criteria)) {
-				\$this->$collName = ".$fkPeerBuilder->getPeerClassname()."::doSelectJoin$relCol2(\$criteria, \$con);
+				\$this->$collName = ".$fkPeerBuilder->getPeerClassname()."::doSelectJoin$relCol2(\$criteria, \$con, \$join_behavior);
 			}
 		}
 		\$this->$lastCriteriaName = \$criteria;
@@ -2408,7 +2409,7 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 			$colFK = $refFK->getTable()->getColumn($colFKName);
 
 			$script .= "
-				\$criteria->add(".$fkPeerBuilder->getColumnConstant($colFK).", \$this->get".$localColumn->getPhpName()."());
+				\$criteria->add(".$fkPeerBuilder->getColumnConstant($colFK).", \$this->".$localColumn->getName()."); 
 ";
 		} // end foreach ($fk->getForeignColumns()
 
@@ -2429,7 +2430,7 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 			$colFK = $refFK->getTable()->getColumn($colFKName);
 			$script .= "
 
-				\$criteria->add(".$fkPeerBuilder->getColumnConstant($colFK).", \$this->get".$localColumn->getPhpName()."());
+				\$criteria->add(".$fkPeerBuilder->getColumnConstant($colFK).", \$this->".$localColumn->getName().");
 ";
 		} // foreach ($fk->getForeignColumns()
 		$script .= "
@@ -2502,7 +2503,7 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 			$colFK = $refFK->getTable()->getColumn($colFKName);
 
 			$script .= "
-				\$criteria->add(".$fkPeerBuilder->getColumnConstant($colFK).", \$this->get".$localColumn->getPhpName()."());
+				\$criteria->add(".$fkPeerBuilder->getColumnConstant($colFK).", \$this->".$localColumn->getName().");
 ";
 		} // end foreach ($fk->getForeignColumns()
 
@@ -2524,7 +2525,7 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 			$colFK = $refFK->getTable()->getColumn($colFKName);
 			$script .= "
 
-				\$criteria->add(".$fkPeerBuilder->getColumnConstant($colFK).", \$this->get".$localColumn->getPhpName()."());
+				\$criteria->add(".$fkPeerBuilder->getColumnConstant($colFK).", \$this->".$localColumn->getName()."); 
 ";
 		} // foreach ($fk->getForeignColumns()
 		$script .= "
