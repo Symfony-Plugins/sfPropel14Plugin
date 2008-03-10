@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5PeerBuilder.php 985 2008-03-07 02:53:20Z hans $
+ *  $Id: PHP5PeerBuilder.php 988 2008-03-10 02:45:32Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -1172,7 +1172,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 			$script .= $this->getPeerClassname() . "::doOnDeleteSetNull(new Criteria(".$this->getPeerClassname() . "::DATABASE_NAME), \$con);
 			";
 		}
-		$script .= "\$affectedRows += BasePeer::doDeleteAll(".$this->getPeerClassname()."::TABLE_NAME, \$con);
+		$script .= "\$affectedRows += {$this->basePeerClassname}::doDeleteAll(".$this->getPeerClassname()."::TABLE_NAME, \$con);
 			\$con->commit();
 			return \$affectedRows;
 		} catch (PropelException \$e) {

@@ -3,7 +3,7 @@
 /*
  * This file is part of the symfony package.
  * (c) 2004-2006 Fabien Potencier <fabien.potencier@symfony-project.com>
- * (c) 2004-2006 Sean Kerr.
+ * (c) 2004-2006 Sean Kerr <sean@code-box.org>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -47,7 +47,7 @@ set_include_path(get_include_path().PATH_SEPARATOR.dirname(__FILE__).'/../../ven
  * @package    symfony
  * @subpackage creole
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
- * @author     Sean Kerr <skerr@mojavi.org>
+ * @author     Sean Kerr <sean@code-box.org>
  * @version    SVN: $Id: sfCreoleDatabase.class.php 5214 2007-09-21 09:18:32Z fabien $
  */
 class sfCreoleDatabase extends sfDatabase
