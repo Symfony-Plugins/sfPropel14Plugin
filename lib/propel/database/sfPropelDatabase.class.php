@@ -197,8 +197,6 @@ class sfPropelDatabase extends sfPDODatabase
    */
   public function shutdown ()
   {
-    $this->log(sprintf("Disconnected from database '%s'", $this->getParameter('datasource')));
-
     if ($this->connection !== null)
     {
       @$this->connection = null;
