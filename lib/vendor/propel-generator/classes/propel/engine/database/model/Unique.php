@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Unique.php 965 2008-02-11 03:11:24Z hans $
+ *  $Id: Unique.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -31,7 +31,7 @@ include_once 'propel/engine/database/model/Index.php';
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Jason van Zyl <jvanzyl@apache.org> (Torque)
  * @author     Daniel Rall <dlr@collab.net> (Torque)
- * @version    $Revision: 965 $
+ * @version    $Revision: 989 $
  * @package    propel.engine.database.model
  */
 class Unique extends Index {
@@ -45,7 +45,7 @@ class Unique extends Index {
 	}
 
 	/**
-	 * @see XMLElement::appendXml(DOMNode)
+	 * @see        XMLElement::appendXml(DOMNode)
 	 */
 	public function appendXml(DOMNode $node)
 	{
@@ -54,12 +54,12 @@ class Unique extends Index {
 		$uniqueNode = $node->appendChild($doc->createElement('unique'));
 		$uniqueNode->setAttribute('name', $this->getName());
 		$columns = $this->getColumns();
-		foreach($this->getColumns() as $colname) {
+		foreach ($this->getColumns() as $colname) {
 			$uniqueColNode = $uniqueNode->appendChild($doc->createElement('unique-column'));
 			$uniqueColNode->setAttribute('name', $colname);
 		}
 
-		foreach($this->vendorInfos as $vi) {
+		foreach ($this->vendorInfos as $vi) {
 			$vi->appendXml($uniqueNode);
 		}
 	}

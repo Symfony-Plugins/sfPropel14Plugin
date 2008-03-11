@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Validator.php 964 2008-02-10 20:42:38Z hans $
+ *  $Id: Validator.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -28,7 +28,7 @@ include_once 'propel/engine/database/model/Rule.php';
  * Validator.
  *
  * @author     Michael Aichler <aichler@mediacluster.de> (Propel)
- * @version    $Revision: 964 $
+ * @version    $Revision: 989 $
  * @package    propel.engine.database.model
  */
 class Validator extends XMLElement {
@@ -42,21 +42,21 @@ class Validator extends XMLElement {
 	 * @var        Column
 	 */
 	private $column;
-	
+
 	/**
 	 * The rules for the validation.
 	 *
 	 * @var        array Rule[]
 	 */
 	private $ruleList = array();
-	
+
 	/**
 	 * The translation mode.
 	 *
 	 * @var        string
 	 */
 	private $translate;
-	
+
 	/**
 	 * Parent table.
 	 *
@@ -174,20 +174,20 @@ class Validator extends XMLElement {
 	}
 
 	/**
-	 * @see XMLElement::appendXml(DOMNode)
+	 * @see        XMLElement::appendXml(DOMNode)
 	 */
 	public function appendXml(DOMNode $node)
 	{
-		$doc = ($node instanceof DOMDocument) ? $node : $node->ownerDocument; 
-		
+		$doc = ($node instanceof DOMDocument) ? $node : $node->ownerDocument;
+
 		$valNode = $node->appendChild($doc->createElement('validator'));
 		$valNode->setAttribute('column', $this->getColumnName());
-		
+
 		if ($this->translate !== null) {
 			$valNode->setAttribute('translate', $this->translate);
 		}
 
-		foreach($this->ruleList as $rule) {
+		foreach ($this->ruleList as $rule) {
 			$rule->appendXml($valNode);
 		}
 	}

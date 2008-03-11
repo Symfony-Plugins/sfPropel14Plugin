@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Rule.php 964 2008-02-10 20:42:38Z hans $
+ *  $Id: Rule.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -26,7 +26,7 @@ require_once 'propel/engine/database/model/XMLElement.php';
  *
  * @author     Michael Aichler <aichler@mediacluster.de> (Propel)
  * @author     John McNally <jmcnally@collab.net> (Intake)
- * @version    $Revision: 964 $
+ * @version    $Revision: 989 $
  * @package    propel.engine.database.model
  */
 class Rule extends XMLElement {
@@ -181,23 +181,23 @@ class Rule extends XMLElement {
 	}
 
 	/**
-	 * @see XMLElement::appendXml(DOMNode)
+	 * @see        XMLElement::appendXml(DOMNode)
 	 */
 	public function appendXml(DOMNode $node)
 	{
 		$doc = ($node instanceof DOMDocument) ? $node : $node->ownerDocument;
-		
+
 		$ruleNode = $node->appendChild($doc->createElement('rule'));
 		$ruleNode->setAttribute('name', $this->getName());
 
 		if ($this->getValue() !== null) {
 			$ruleNode->setAttribute('value', $this->getValue());
 		}
-		
+
 		if ($this->classname !== null) {
 			$ruleNode->setAttribute('class', $this->getClass());
 		}
-		
+
 		$ruleNode->setAttribute('message', $this->getMessage());
 	}
 

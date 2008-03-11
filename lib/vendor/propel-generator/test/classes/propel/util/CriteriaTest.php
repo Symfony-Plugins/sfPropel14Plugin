@@ -9,7 +9,7 @@ include_once 'propel/util/BasePeer.php';
  *
  * @author     <a href="mailto:celkins@scardini.com">Christopher Elkins</a>
  * @author     <a href="mailto:sam@neurogrid.com">Sam Joseph</a>
- * @version    $Id: CriteriaTest.php 911 2008-01-11 15:08:46Z hans $
+ * @version    $Id: CriteriaTest.php 989 2008-03-11 14:29:30Z heltem $
  */
 class CriteriaTest extends BaseTestCase {
 
@@ -18,14 +18,14 @@ class CriteriaTest extends BaseTestCase {
 	 * @var        Criteria
 	 */
 	private $c;
-	
+
 	/**
 	 * DB adapter saved for later.
 	 *
 	 * @var        DBAdapter
 	 */
 	private $savedAdapter;
-	
+
 	protected function setUp()
 	{
 		parent::setUp();
@@ -33,7 +33,7 @@ class CriteriaTest extends BaseTestCase {
 		$this->savedAdapter = Propel::getDB(null);
 		Propel::setDB(null, new DBSQLite());
 	}
-	
+
 	protected function tearDown()
 	{
 		Propel::setDB(null, $this->savedAdapter);

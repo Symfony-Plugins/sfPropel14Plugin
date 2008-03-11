@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: XMLElement.php 965 2008-02-11 03:11:24Z hans $
+ *  $Id: XMLElement.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -25,7 +25,7 @@ include_once 'propel/engine/database/model/VendorInfo.php';
  * An abstract class for elements represented by XML tags (e.g. Column, Table).
  *
  * @author     Hans Lellelid <hans@xmpl.org>
- * @version    $Revision: 965 $
+ * @version    $Revision: 989 $
  * @package    propel.engine.database.model
  */
 abstract class XMLElement {
@@ -43,7 +43,7 @@ abstract class XMLElement {
 	 * @var        array VendorInfo[]
 	 */
 	protected $vendorInfos = array();
-	
+
 	/**
 	 * Replaces the old loadFromXML() so that we can use loadFromXML() to load the attribs into the class.
 	 */
@@ -100,13 +100,13 @@ abstract class XMLElement {
 			return (in_array(strtolower($val), array('true', 't', 'y', 'yes'), true) ? true : false);
 		}
 	}
-	
+
 	/**
 	 * Appends DOM elements to represent this object in XML.
 	 * @param      DOMNode $node
 	 */
 	abstract public function appendXml(DOMNode $node);
-	
+
 	/**
 	 * Sets an associated VendorInfo object.
 	 *
@@ -125,7 +125,7 @@ abstract class XMLElement {
 			return $this->addVendorInfo($vi); // call self w/ different param
 		}
 	}
-	
+
 	/**
 	 * Gets the any associated VendorInfo object.
 	 * @return     VendorInfo
@@ -139,13 +139,13 @@ abstract class XMLElement {
 			return new VendorInfo();
 		}
 	}
-	
+
 	/**
 	 * String representation of the current object.
-	 * 
+	 *
 	 * This is an xml representation with the XML declaration removed.
-	 * 
-	 * @see appendXml()
+	 *
+	 * @see        appendXml()
 	 */
 	public function toString()
 	{

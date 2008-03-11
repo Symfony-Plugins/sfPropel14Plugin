@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5NestedSetPeerBuilder.php 949 2008-01-30 22:41:59Z hans $
+ *  $Id: PHP5NestedSetPeerBuilder.php 994 2008-03-11 15:27:45Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -645,7 +645,7 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 		self::updateDBNode(\$node, \$destLeft, \$con);
 
 		// Update all loaded nodes
-		self::updateLoadedNode(\$parent, 2, \$con);
+		self::updateLoadedNode(\$dest->retrieveParent(), 2, \$con);
 	}
 ";
 	}
@@ -673,7 +673,7 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 		self::updateDBNode(\$node, \$destLeft, \$con);
 
 		// Update all loaded nodes
-		self::updateLoadedNode(\$parent, 2, \$con);
+		self::updateLoadedNode(\$dest->retrieveParent(), 2, \$con);
 	}
 ";
 	}
@@ -1393,8 +1393,9 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 	}
 
 	/**
-	 * TODO : Fix this broken in-memory nodes updater
-	 * Don't trust it
+	 * @deprecated 1.3 - 2008/03/11
+	 * Won't be fixed, defect by design
+	 * Never trust it
 	 */
 	protected function addShiftRParent(&$script)
 	{
@@ -1405,6 +1406,7 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 	 * Adds '\$delta' to all parent R values.
 	 * '\$delta' can also be negative.
 	 *
+	 * @deprecated 1.3 - 2008/03/11
 	 * @param      $objectClassname \$node	Propel object for parent node
 	 * @param      int \$delta	Value to be shifted by, can be negative
 	 * @param      PropelPDO \$con		Connection to use.
@@ -1436,17 +1438,14 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 	 */
 	protected static function updateLoadedNode(NodeObject \$node, \$delta, PropelPDO \$con = null)
 	{
-		if (Propel::isInstancePoolingEnabled())
-		{
+		if (Propel::isInstancePoolingEnabled()) {
 			\$keys = array();
-			foreach(self::\$instances as \$obj)
-			{
+			foreach (self::\$instances as \$obj) {
 				\$keys[] = \$obj->getPrimaryKey();
 			}
 
-			if(!empty(\$keys))
-			{
-				// We don't need to alter the object instance pool; we're just modifying this instance
+			if (!empty(\$keys)) {
+				// We don't need to alter the object instance pool; we're just modifying these ones
 				// already in the pool.
 				\$criteria = new Criteria(self::DATABASE_NAME);";
 		if (count($table->getPrimaryKey()) === 1) {
@@ -1456,24 +1455,28 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 				\$criteria->add(".$this->getColumnConstant($col).", \$keys, Criteria::IN);
 ";
 		} else {
-			// TODO : Need to support the multiple field primary key
 			$fields = array();
 			foreach ($table->getPrimaryKey() as $k => $col) {
 				$fields[] = $this->getColumnConstant($col);
 			};
 			$script .= "
+
+				// Loop on each instances in pool
 				foreach (\$keys as \$values) {
+				  // Create initial Criterion
 					\$cton = \$criteria->getNewCriterion(" . $fields[0] . ", \$values[0]);";
 			unset($fields[0]);
 			foreach ($fields as $k => $col) {
 				$script .= "
 
-					\$cton2 = \$criteria->getNewCriterion(" . $col . ", \$values[$k]);
-					\$cton->addAnd(\$cton2);";
+					// Create next criterion
+					\$nextcton = \$criteria->getNewCriterion(" . $col . ", \$values[$k]);
+					// And merge it with the first
+					\$cton->addAnd(\$nextcton);";
 			}
 			$script .= "
 
-					// add to Criteria
+					// Add final Criterion to Criteria
 					\$criteria->addOr(\$cton);
 				}";
 			}
@@ -1498,11 +1501,6 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 					}
 				}
 			}
-		}
-		else
-		{
-			// FIX: Do a refresh for all in-memory nodes with a real tree traversal
-			self::shiftRParent(\$node, \$delta, \$con);
 		}
 	}
 ";
@@ -1584,7 +1582,7 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 			array('raw' => \$leftUpdateCol . ' + ?', 'value' => \$delta),
 			Criteria::CUSTOM_EQUAL);
 
-		BasePeer::doUpdate(\$whereCriteria, \$valuesCriteria, \$con);
+		{$this->basePeerClassname}::doUpdate(\$whereCriteria, \$valuesCriteria, \$con);
 
 		// Shift right column values
 		\$whereCriteria = new Criteria($peerClassname::DATABASE_NAME);
@@ -1608,7 +1606,7 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 			array('raw' => \$rightUpdateCol . ' + ?', 'value' => \$delta),
 			Criteria::CUSTOM_EQUAL);
 
-		BasePeer::doUpdate(\$whereCriteria, \$valuesCriteria, \$con);
+		{$this->basePeerClassname}::doUpdate(\$whereCriteria, \$valuesCriteria, \$con);
 	}
 ";
 	}
@@ -1651,7 +1649,7 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 			array('raw' => \$leftUpdateCol . ' + ?', 'value' => \$delta),
 			Criteria::CUSTOM_EQUAL);
 
-		BasePeer::doUpdate(\$whereCriteria, \$valuesCriteria, \$con);
+		{$this->basePeerClassname}::doUpdate(\$whereCriteria, \$valuesCriteria, \$con);
 
 		// Shift right column values
 		\$whereCriteria = new Criteria($peerClassname::DATABASE_NAME);
@@ -1668,7 +1666,7 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 			array('raw' => \$rightUpdateCol . ' + ?', 'value' => \$delta),
 			Criteria::CUSTOM_EQUAL);
 
-		BasePeer::doUpdate(\$whereCriteria, \$valuesCriteria, \$con);
+		{$this->basePeerClassname}::doUpdate(\$whereCriteria, \$valuesCriteria, \$con);
 
 		return array('left' => \$first + \$delta, 'right' => \$last + \$delta);
 	}

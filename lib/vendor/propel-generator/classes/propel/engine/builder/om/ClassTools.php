@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: ClassTools.php 949 2008-01-30 22:41:59Z hans $
+ *  $Id: ClassTools.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -24,7 +24,7 @@
   * Tools to support class & package inclusion and referencing.
   *
   * @author     Hans Lellelid <hans@xmpl.org>
-  * @version    $Revision: 949 $
+  * @version    $Revision: 989 $
   * @package    propel.engine.builder.om
   */
 class ClassTools {
@@ -48,7 +48,7 @@ class ClassTools {
 	 * Gets the path to be used in include()/require() statement.
 	 *
 	 * Supports multiple function signatures:
-	 * 
+	 *
 	 * (1) getFilePath($dotPathClass);
 	 * (2) getFilePath($dotPathPrefix, $className);
 	 * (3) getFilePath($dotPathPrefix, $className, $extension);
@@ -107,11 +107,11 @@ class ClassTools {
 		}
 		return $interface;
 	}
-	
+
 	/**
 	 * Gets a list of PHP reserved words.
 	 *
-	 * @return array string[]
+	 * @return     array string[]
 	 */
 	public static function getPhpReservedWords()
 	{

@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PropelSQLTask.php 952 2008-02-05 22:59:20Z hans $
+ *  $Id: PropelSQLTask.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -151,16 +151,16 @@ class PropelSQLTask extends AbstractPropelDataModelTask {
 		$targetDatabase = $this->getTargetDatabase();
 
 		$generatorConfig = $this->getGeneratorConfig();
-		
+
 		$builderClazz = $generatorConfig->getBuilderClassname('ddl');
 
 		foreach ($dataModels as $package => $dataModel) {
 
 			foreach ($dataModel->getDatabases() as $database) {
-				
-				// Clear any start/end DLL 
+
+				// Clear any start/end DLL
 				call_user_func(array($builderClazz, 'reset'));
-				
+
 				// file we are going to create
 				if (!$this->packageObjectModel) {
 					$name = $dataModel->getName();

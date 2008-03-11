@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: ForeignKey.php 965 2008-02-11 03:11:24Z hans $
+ *  $Id: ForeignKey.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -27,7 +27,7 @@ require_once 'propel/engine/database/model/XMLElement.php';
  * @author     Hans Lellelid <hans@xmpl.org>
  * @author     Fedor <fedor.karpelevitch@home.com>
  * @author     Daniel Rall <dlr@finemaltcoding.com>
- * @version    $Revision: 965 $
+ * @version    $Revision: 989 $
  * @package    propel.engine.database.model
  */
 class ForeignKey extends XMLElement {
@@ -388,7 +388,7 @@ class ForeignKey extends XMLElement {
 		$foreignTable = $this->getForeignTable();
 		$map = $this->getForeignLocalMapping();
 
-		foreach($foreignTable->getForeignKeys() as $refFK) {
+		foreach ($foreignTable->getForeignKeys() as $refFK) {
 			$fkMap = $refFK->getLocalForeignMapping();
 			if ($map == $fkMap) { // compares keys and values, but doesn't care about order
 				return true;
@@ -399,7 +399,7 @@ class ForeignKey extends XMLElement {
 	}
 
 	/**
-	 * @see XMLElement::appendXml(DOMNode)
+	 * @see        XMLElement::appendXml(DOMNode)
 	 */
 	public function appendXml(DOMNode $node)
 	{
@@ -432,7 +432,7 @@ class ForeignKey extends XMLElement {
 			$refNode->setAttribute('foreign', $this->foreignColumns[$i]);
 		}
 
-		foreach($this->vendorInfos as $vi) {
+		foreach ($this->vendorInfos as $vi) {
 			$vi->appendXml($fkNode);
 		}
 	}

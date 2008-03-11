@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: SchemaParser.php 949 2008-01-30 22:41:59Z hans $
+ *  $Id: SchemaParser.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -23,7 +23,7 @@
  * Interface for reverse engineering schema parsers.
  *
  * @author     Hans Lellelid <hans@xmpl.org>
- * @version    $Revision: 949 $
+ * @version    $Revision: 989 $
  * @package    propel.engine.database.reverse
  */
 interface SchemaParser {
@@ -40,14 +40,14 @@ interface SchemaParser {
 	 * @param      PDO $dbh
 	 */
 	public function setConnection(PDO $dbh);
-	
+
 	/**
 	 * Sets the GeneratorConfig to use in the parsing.
 	 *
 	 * @param      GeneratorConfig $config
 	 */
 	public function setGeneratorConfig(GeneratorConfig $config);
-	
+
 	/**
 	 * Gets a specific propel (renamed) property from the build.
 	 *
@@ -55,7 +55,7 @@ interface SchemaParser {
 	 * @return     mixed
 	 */
 	public function getBuildProperty($name);
-	
+
 	/**
 	 * Gets array of warning messages.
 	 * @return     array string[]
@@ -69,4 +69,3 @@ interface SchemaParser {
 	 */
 	public function parse(Database $database);
 }
-

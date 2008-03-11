@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5MapBuilderBuilder.php 951 2008-01-31 16:30:03Z hans $
+ *  $Id: PHP5MapBuilderBuilder.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -196,7 +196,7 @@ class ".$this->getClassname()." implements MapBuilder {
 		$table = $this->getTable();
 		$platform = $this->getPlatform();
 		$ddlBuilder = $this->getDDLBuilder();
-		
+
 		$script .= "
 	/**
 	 * The doBuild() method builds the DatabaseMap

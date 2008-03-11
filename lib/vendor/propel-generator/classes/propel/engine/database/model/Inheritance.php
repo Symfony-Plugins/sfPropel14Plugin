@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: Inheritance.php 949 2008-01-30 22:41:59Z hans $
+ *  $Id: Inheritance.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -27,7 +27,7 @@ require_once 'propel/engine/database/model/XMLElement.php';
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     John McNally <jmcnally@collab.net> (Torque)
- * @version    $Revision: 949 $
+ * @version    $Revision: 989 $
  * @package    propel.engine.database.model
  */
 class Inheritance extends XMLElement {
@@ -141,16 +141,16 @@ class Inheritance extends XMLElement {
 	}
 
 	/**
-	 * @see XMLElement::appendXml(DOMNode)
+	 * @see        XMLElement::appendXml(DOMNode)
 	 */
 	public function appendXml(DOMNode $node)
 	{
 		$doc = ($node instanceof DOMDocument) ? $node : $node->ownerDocument;
-		
+
 		$inherNode = $node->appendChild($doc->createElement('inheritance'));
 		$inherNode->setAttribute('key', $this->key);
 		$inherNode->setAttribute('class', $this->className);
-		
+
 		if ($this->ancestor !== null) {
 			$inherNode->setAttribute('extends', $this->ancestor);
 		}

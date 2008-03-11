@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: XmlToAppData.php 970 2008-02-12 01:00:12Z hans $
+ *  $Id: XmlToAppData.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -35,7 +35,7 @@ include_once 'phing/system/io/FileReader.php';
  * @author     Jason van Zyl <jvanzyl@apache.org> (Torque)
  * @author     Martin Poeschl <mpoeschl@marmot.at> (Torque)
  * @author     Daniel Rall <dlr@collab.net> (Torque)
- * @version    $Revision: 970 $
+ * @version    $Revision: 989 $
  * @package    propel.engine.database.transform
  */
 class XmlToAppData extends AbstractHandler {

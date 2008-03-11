@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PropelOMTask.php 952 2008-02-05 22:59:20Z hans $
+ *  $Id: PropelOMTask.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -103,9 +103,9 @@ class PropelOMTask extends AbstractPropelDataModelTask {
 	{
 		// check to make sure task received all correct params
 		$this->validate();
-			
+
 		$generatorConfig = $this->getGeneratorConfig();
-		
+
 		foreach ($this->getDataModels() as $dataModel) {
 			$this->log("Processing Datamodel : " . $dataModel->getName());
 

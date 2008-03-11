@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: VendorInfo.php 965 2008-02-11 03:11:24Z hans $
+ *  $Id: VendorInfo.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -26,7 +26,7 @@ include_once 'propel/engine/EngineException.php';
  * Object to hold vendor-specific info.
  *
  * @author     Hans Lellelid <hans@xmpl.org>
- * @version    $Revision: 965 $
+ * @version    $Revision: 989 $
  * @package    propel.engine.database.model
  */
 class VendorInfo extends XMLElement {
@@ -118,7 +118,7 @@ class VendorInfo extends XMLElement {
 		}
 		return null; // just to be explicit
 	}
-	
+
 	/**
 	 * Whether parameter exists.
 	 *
@@ -148,7 +148,7 @@ class VendorInfo extends XMLElement {
 	{
 		return $this->parameters;
 	}
-	
+
 	/**
 	 * Gets a new merged VendorInfo object.
 	 * @param      VendorInfo $info
@@ -163,7 +163,7 @@ class VendorInfo extends XMLElement {
 	}
 
 	/**
-	 * @see XMLElement::appendXml(DOMNode)
+	 * @see        XMLElement::appendXml(DOMNode)
 	 */
 	public function appendXml(DOMNode $node)
 	{

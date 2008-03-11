@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: OMBuilder.php 951 2008-01-31 16:30:03Z hans $
+ *  $Id: OMBuilder.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -47,7 +47,7 @@ abstract class OMBuilder extends DataModelBuilder {
 	public function build()
 	{
 		$this->validateModel();
-		
+
 		$script = "<" . "?php\n"; // intentional concatenation
 		$this->addIncludes($script);
 		$this->addClassOpen($script);
@@ -55,20 +55,20 @@ abstract class OMBuilder extends DataModelBuilder {
 		$this->addClassClose($script);
 		return $script;
 	}
-	
+
 	/**
-	 * Validates the current table to make sure that it won't 
+	 * Validates the current table to make sure that it won't
 	 * result in generated code that will not parse.
-	 * 
+	 *
 	 * This method may emit warnings for code which may cause problems
-	 * and will throw exceptions for errors that will definitely cause 
-	 * problems. 
+	 * and will throw exceptions for errors that will definitely cause
+	 * problems.
 	 */
 	protected function validateModel()
 	{
 		// Validation is currently only implemented in the subclasses.
 	}
-	
+
 	/**
 	 * Creates a $obj = new Book(); code snippet. Can be used by frameworks, for instance, to
 	 * extend this behavior, e.g. initialize the object after creating the instance or so.
@@ -203,5 +203,5 @@ abstract class OMBuilder extends DataModelBuilder {
 		}
 		return $class;
 	}
-	
+
 }

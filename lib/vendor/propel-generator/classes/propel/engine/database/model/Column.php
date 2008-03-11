@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Column.php 965 2008-02-11 03:11:24Z hans $
+ *  $Id: Column.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -36,7 +36,7 @@ include_once 'propel/engine/database/model/ColumnDefaultValue.php';
  * @author     Daniel Rall <dlr@finemaltcoding.com> (Torque)
  * @author     Byron Foster <byron_foster@yahoo.com> (Torque)
  * @author     Bernd Goldschmidt <bgoldschmidt@rapidsoft.de>
- * @version    $Revision: 965 $
+ * @version    $Revision: 989 $
  * @package    propel.engine.database.model
  */
 class Column extends XMLElement {
@@ -525,7 +525,7 @@ class Column extends XMLElement {
 
 	/**
 	 * Set whether the column is a primary key or not.
-	 * @param boolean $v
+	 * @param      boolean $v
 	 */
 	public function setPrimaryKey($v)
 	{
@@ -786,7 +786,7 @@ class Column extends XMLElement {
 	}
 
 	/**
-	 * @see XMLElement::appendXml(DOMNode)
+	 * @see        XMLElement::appendXml(DOMNode)
 	 */
 	public function appendXml(DOMNode $node)
 	{
@@ -836,7 +836,7 @@ class Column extends XMLElement {
 
 		if ($this->isInheritance()) {
 			$colNode->setAttribute('inheritance', $this->inheritanceType);
-			foreach($this->inheritanceList as $inheritance) {
+			foreach ($this->inheritanceList as $inheritance) {
 				$inheritance->appendXml($colNode);
 			}
 		}
@@ -848,7 +848,7 @@ class Column extends XMLElement {
 			}
 		}
 
-		foreach($this->vendorInfos as $vi) {
+		foreach ($this->vendorInfos as $vi) {
 			$vi->appendXml($colNode);
 		}
 	}

@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PropelDataDumpTask.php 952 2008-02-05 22:59:20Z hans $
+ *  $Id: PropelDataDumpTask.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -35,7 +35,7 @@
  * @author     Fedor Karpelevitch <fedor.karpelevitch@home.com> (Torque)
  * @author     Jason van Zyl <jvanzyl@zenplex.com> (Torque)
  * @author     Daniel Rall <dlr@finemaltcoding.com> (Torque)
- * @version    $Revision: 952 $
+ * @version    $Revision: 989 $
  * @package    propel.phing
  */
 class PropelDataDumpTask extends AbstractPropelDataModelTask {
@@ -338,9 +338,9 @@ class PropelDataDumpTask extends AbstractPropelDataModelTask {
 		$dsNode = $doc->createElement("dataset");
 		$dsNode->setAttribute("name", "all");
 		$doc->appendChild($dsNode);
-		
+
 		$platform = $this->getGeneratorConfig()->getConfiguredPlatform($this->conn);
-		
+
 		$this->log("Building DOM tree containing data from tables:");
 
 		foreach ($database->getTables() as $tbl) {

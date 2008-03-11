@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: GeneratedPeerTest.php 971 2008-02-19 23:30:42Z hans $
+ *  $Id: GeneratedPeerTest.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -121,7 +121,7 @@ class GeneratedPeerTest extends BookstoreTestBase {
 	{
 
 		$origBceCount = BookstoreContestEntryPeer::doCount(new Criteria());
-			
+
 		$cust1 = new Customer();
 		$cust1->setName("Cust1");
 		$cust1->save();
@@ -527,7 +527,7 @@ class GeneratedPeerTest extends BookstoreTestBase {
 	{
 		BookPeer::doDeleteAll();
 
-		for($i=0; $i < 25; $i++) {
+		for ($i=0; $i < 25; $i++) {
 			$b = new Book();
 			$b->setTitle("Book $i");
 			$b->setISBN("ISBN $i");
@@ -565,7 +565,7 @@ class GeneratedPeerTest extends BookstoreTestBase {
 	{
 		BookPeer::doDeleteAll();
 
-		for($i=0; $i < 25; $i++) {
+		for ($i=0; $i < 25; $i++) {
 			$b = new Book();
 			$b->setTitle("Book $i");
 			$b->setISBN("ISBN $i");
@@ -574,7 +574,7 @@ class GeneratedPeerTest extends BookstoreTestBase {
 
 		$c = new Criteria();
 		$totalCount = BookPeer::doCount($c);
-		
+
 		$this->assertEquals($totalCount, BookPeer::doCountJoinAuthor($c));
 		$this->assertEquals($totalCount, BookPeer::doCountJoinPublisher($c));
 	}

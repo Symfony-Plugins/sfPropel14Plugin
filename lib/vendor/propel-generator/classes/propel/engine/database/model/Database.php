@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: Database.php 965 2008-02-11 03:11:24Z hans $
+ *  $Id: Database.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -34,7 +34,7 @@ include_once 'propel/engine/database/model/Table.php';
  * @author     Martin Poeschl<mpoeschl@marmot.at> (Torque)
  * @author     Daniel Rall<dlr@collab.net> (Torque)
  * @author     Byron Foster <byron_foster@yahoo.com> (Torque)
- * @version    $Revision: 965 $
+ * @version    $Revision: 989 $
  * @package    propel.engine.database.model
  */
 class Database extends XMLElement {
@@ -462,7 +462,7 @@ class Database extends XMLElement {
 	}
 
 	/**
-	 * @see XMLElement::appendXml(DOMNode)
+	 * @see        XMLElement::appendXml(DOMNode)
 	 */
 	public function appendXml(DOMNode $node)
 	{
@@ -502,17 +502,17 @@ class Database extends XMLElement {
 		to have a method of the Column that indicates whether the column was mapped
 		to a SPECIFIC domain (since Column->getDomain() will always return a Domain object)
 
-		foreach($this->domainMap as $domain) {
+		foreach ($this->domainMap as $domain) {
 		$domain->appendXml($dbNode);
 		}
 		*/
-		foreach($this->vendorInfos as $vi) {
+		foreach ($this->vendorInfos as $vi) {
 			$vi->appendXml($dbNode);
 		}
 
-		foreach($this->tableList as $table) {
+		foreach ($this->tableList as $table) {
 			$table->appendXml($dbNode);
 		}
-		
+
 	}
 }

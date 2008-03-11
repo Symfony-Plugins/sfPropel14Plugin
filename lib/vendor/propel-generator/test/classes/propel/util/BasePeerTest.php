@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: BasePeerTest.php 944 2008-01-30 00:38:53Z hans $
+ *  $Id: BasePeerTest.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -88,9 +88,9 @@ class BasePeerTest extends BookstoreTestBase {
 		$this->assertEquals('SortTest1', $rows[2]->getStoreName());
 		$this->assertEquals('SortTest4', $rows[3]->getStoreName());
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public function testMixedJoinOrder()
 	{
@@ -98,13 +98,13 @@ class BasePeerTest extends BookstoreTestBase {
 		$c = new Criteria(BookPeer::DATABASE_NAME);
 		$c->addSelectColumn(BookPeer::ID);
 		$c->addSelectColumn(BookPeer::TITLE);
-		
+
 		$c->addJoin(BookPeer::PUBLISHER_ID, PublisherPeer::ID, Criteria::LEFT_JOIN);
 		$c->addJoin(BookPeer::AUTHOR_ID, AuthorPeer::ID);
-		
+
 		$params = array();
 		$sql = BasePeer::createSelectSql($c, $params);
-		
+
 		$expectedSql = "SELECT book.ID, book.TITLE FROM book LEFT JOIN publisher ON (book.PUBLISHER_ID=publisher.ID), author WHERE book.AUTHOR_ID=author.ID";
 		// print $sql . "\n";
 	}

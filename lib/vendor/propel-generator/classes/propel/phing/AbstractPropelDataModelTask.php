@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: AbstractPropelDataModelTask.php 952 2008-02-05 22:59:20Z hans $
+ *  $Id: AbstractPropelDataModelTask.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -146,7 +146,7 @@ abstract class AbstractPropelDataModelTask extends Task {
 	 * @var        PDO
 	 */
 	private $conn = false;
-	
+
 	/**
 	 * An initialized GeneratorConfig object containing the converted Phing props.
 	 *
@@ -573,11 +573,11 @@ abstract class AbstractPropelDataModelTask extends Task {
 	{
 		if ($this->generatorConfig === null) {
 			$this->generatorConfig = new GeneratorConfig();
-			$this->generatorConfig->setBuildProperties($this->getProject()->getProperties()); 
+			$this->generatorConfig->setBuildProperties($this->getProject()->getProperties());
 		}
 		return $this->generatorConfig;
 	}
-	
+
 	/**
 	 * Checks this class against Basic requrements of any propel datamodel task.
 	 *

@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PropelDataSQLTask.php 952 2008-02-05 22:59:20Z hans $
+ *  $Id: PropelDataSQLTask.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -32,7 +32,7 @@ include_once 'propel/engine/builder/util/transform/XmlToDataSQL.php';
  * @author     Jason van Zyl  <jvanzyl@periapt.com> (Torque)
  * @author     John McNally  <jmcnally@collab.net> (Torque)
  * @author     Fedor Karpelevitch  <fedor.karpelevitch@home.com> (Torque)
- * @version    $Revision: 952 $
+ * @version    $Revision: 989 $
  * @package    propel.phing
  */
 class PropelDataSQLTask extends AbstractPropelDataModelTask {
@@ -173,7 +173,7 @@ class PropelDataSQLTask extends AbstractPropelDataModelTask {
 
 				$outFile = $this->getMappedFile($dataXMLFilename);
 				$sqlWriter = new FileWriter($outFile);
-				
+
 				$this->log("Creating SQL from XML data dump file: " . $dataXMLFile->getAbsolutePath());
 
 				try {

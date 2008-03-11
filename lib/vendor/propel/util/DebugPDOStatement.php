@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: DebugPDOStatement.php 919 2008-01-13 21:12:24Z hans $
+ *  $Id: DebugPDOStatement.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -35,14 +35,14 @@ class DebugPDOStatement extends PDOStatement {
 	 * @var        DebugPDO
 	 */
 	protected $pdo;
-	
+
 	protected $typeMap = array(	PDO::PARAM_BOOL => "PDO::PARAM_BOOL",
 								PDO::PARAM_INT => "PDO::PARAM_INT",
 								PDO::PARAM_STR => "PDO::PARAM_STR",
 								PDO::PARAM_LOB => "PDO::PARAM_LOB",
 								PDO::PARAM_NULL => "PDO::PARAM_NULL",
 								);
-								
+
 	/**
 	 * Construct a new statement class with reference to main DebugPDO object.
 	 */
@@ -60,14 +60,14 @@ class DebugPDOStatement extends PDOStatement {
 		$this->pdo->incrementQueryCount();
 		return parent::execute($input_parameters);
 	}
-	
+
 	/**
 	 * Binds value to PDOStatement.
 	 *
-	 * @param int $pos
-	 * @param mixed $value
-	 * @param int $type
-	 * @return boolean
+	 * @param      int $pos
+	 * @param      mixed $value
+	 * @param      int $type
+	 * @return     boolean
 	 */
 	public function bindValue($pos, $value, $type = null)
 	{

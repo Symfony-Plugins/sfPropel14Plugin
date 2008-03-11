@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: DBAdapter.php 922 2008-01-14 20:29:24Z ron $
+ *  $Id: DBAdapter.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -38,7 +38,7 @@
  * @author     Jon S. Stevens <jon@latchkey.com> (Torque)
  * @author     Brett McLaughlin <bmclaugh@algx.net> (Torque)
  * @author     Daniel Rall <dlr@finemaltcoding.com> (Torque)
- * @version    $Revision: 922 $
+ * @version    $Revision: 989 $
  * @package    propel.adapter
  */
 abstract class DBAdapter {
@@ -84,7 +84,7 @@ abstract class DBAdapter {
 	/**
 	 * This method is called after a connection was created to run necessary
 	 * post-initialization queries or code.
-	 * 
+	 *
 	 * If a charset was specified, this will be set before any other queries
 	 * are executed.
 	 *
@@ -110,8 +110,8 @@ abstract class DBAdapter {
 
 	/**
 	 * Sets the character encoding using SQL standard SET NAMES statement.
-	 * 
-	 * This method is invoked from the default initConnection() method and must 
+	 *
+	 * This method is invoked from the default initConnection() method and must
 	 * be overridden for an RDMBS which does _not_ support this SQL standard.
 	 *
 	 * @param      PDO   A PDO connection instance.
@@ -122,7 +122,7 @@ abstract class DBAdapter {
 	{
 		$con->exec("SET NAMES '" . $charset . "'");
 	}
-	
+
 	/**
 	 * This method is used to ignore case.
 	 *

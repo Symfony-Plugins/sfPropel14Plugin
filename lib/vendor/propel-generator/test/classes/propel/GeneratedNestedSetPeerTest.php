@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: GeneratedNestedSetPeerTest.php 895 2007-12-27 15:55:32Z heltem $
+ *  $Id: GeneratedNestedSetPeerTest.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -170,7 +170,7 @@ class GeneratedNestedSetPeerTest extends CmsTestBase {
 		$contact = PagePeer::doSelectOne($c);
 		$this->assertFalse(PagePeer::isLeaf($contact), 'Node must not be a leaf');
 	}
-	
+
 	/**
 	 * Test xxxNestedSetPeer::createRoot()
 	 */

@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: UniqueValidator.php 964 2008-02-10 20:42:38Z hans $
+ *  $Id: UniqueValidator.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -31,7 +31,7 @@
  * </code>
  *
  * @author     Michael Aichler <aichler@mediacluster.de>
- * @version    $Revision: 964 $
+ * @version    $Revision: 989 $
  * @package    propel.validator
  */
 class UniqueValidator implements BasicValidator
@@ -43,19 +43,19 @@ class UniqueValidator implements BasicValidator
 	public function isValid (ValidatorMap $map, $str)
 	{
 		$column = $map->getColumn();
-		
+
 		$c = new Criteria();
 		$c->add($column->getFullyQualifiedName(), $str, Criteria::EQUAL);
-		
+
 		$isValid = false;
 
 		$table = $column->getTable()->getPhpName();
-		
+
 		$clazz = $table . 'Peer';
 		$count = call_user_func(array($clazz, 'doCount'), $c);
-		
+
 		$isValid = ($count === 0);
-		
+
 		return $isValid;
 	}
 }

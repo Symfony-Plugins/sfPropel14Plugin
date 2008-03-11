@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: Index.php 965 2008-02-11 03:11:24Z hans $
+ *  $Id: Index.php 989 2008-03-11 14:29:30Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -28,7 +28,7 @@ include_once 'propel/engine/EngineException.php';
  *
  * @author     Jason van Zyl <vanzyl@apache.org>
  * @author     Daniel Rall <dlr@finemaltcoding.com>
- * @version    $Revision: 965 $
+ * @version    $Revision: 989 $
  * @package    propel.engine.database.model
  */
 class Index extends XMLElement {
@@ -200,7 +200,7 @@ class Index extends XMLElement {
 	{
 		$this->indexColumns = array();
 		$this->indexColumnSizes = array();
-		foreach($indexColumns as $col) {
+		foreach ($indexColumns as $col) {
 			$this->addColumn($col);
 		}
 	}
@@ -265,7 +265,7 @@ class Index extends XMLElement {
 	}
 
 	/**
-	 * @see XMLElement::appendXml(DOMNode)
+	 * @see        XMLElement::appendXml(DOMNode)
 	 */
 	public function appendXml(DOMNode $node)
 	{
@@ -274,12 +274,12 @@ class Index extends XMLElement {
 		$idxNode = $node->appendChild($doc->createElement('index'));
 		$idxNode->setAttribute('name', $this->getName());
 
-		foreach($this->indexColumns as $colname) {
+		foreach ($this->indexColumns as $colname) {
 			$idxColNode = $idxNode->appendChild($doc->createElement('index-column'));
 			$idxColNode->setAttribute('name', $colname);
 		}
 
-		foreach($this->vendorInfos as $vi) {
+		foreach ($this->vendorInfos as $vi) {
 			$vi->appendXml($idxNode);
 		}
 	}
