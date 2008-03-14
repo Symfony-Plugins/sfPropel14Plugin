@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5NestedSetPeerBuilder.php 994 2008-03-11 15:27:45Z heltem $
+ *  $Id: PHP5NestedSetPeerBuilder.php 999 2008-03-14 17:02:13Z heltem $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -1500,6 +1500,7 @@ abstract class ".$this->getClassname()." extends ".$this->getPeerBuilder()->getC
 			$script .= "
 					}
 				}
+				\$stmt->closeCursor();
 			}
 		}
 	}
