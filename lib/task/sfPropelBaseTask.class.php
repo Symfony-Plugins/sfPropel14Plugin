@@ -229,7 +229,7 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
     if (is_null($this->commandApplication) || !$this->commandApplication->isVerbose())
     {
-      $args[] = '-q';
+      $args[] = '-quiet';
     }
 
     // Logger
