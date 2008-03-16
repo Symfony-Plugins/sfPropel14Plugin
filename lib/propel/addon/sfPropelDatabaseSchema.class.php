@@ -903,7 +903,7 @@ class sfPropelDatabaseSchema
 
   public function asYAML()
   {
-    return sfYaml::dump(array($this->connection_name => $this->database));
+    return sfYaml::dump(array($this->connection_name => $this->database), 3);
   }
 
   protected function getNameAndAttributes($hash, $name_attribute = 'name')
