@@ -246,7 +246,7 @@ class sfPropelDatabaseSchema
       $xml .= "\n  <table name=\"$tb_name\"".$this->getAttributesFor($table);
       if (isset($table['_behaviors']))
       {
-        $xml .= sprintf(" behaviors=\"%s\"", htmlspecialchars(serialize($table['_behaviors'])));
+        $xml .= sprintf(" behaviors=\"%s\"", htmlspecialchars(serialize($table['_behaviors'])), ENT_QUOTES, sfConfig::get('sf_charset'));
       }
       $xml .= ">\n";
 
@@ -531,7 +531,7 @@ class sfPropelDatabaseSchema
       {
         if (!in_array($key, array('foreignClass', 'foreignTable', 'foreignReference', 'onDelete', 'onUpdate', 'index', 'unique', 'sequence')))
         {
-          $attributes_string .= " $key=\"".htmlspecialchars($this->getCorrectValueFor($key, $value))."\"";
+          $attributes_string .= " $key=\"".htmlspecialchars($this->getCorrectValueFor($key, $value), ENT_QUOTES, sfConfig::get('sf_charset'))."\"";
         }
       }
       $attributes_string .= " />\n";
@@ -611,7 +611,7 @@ class sfPropelDatabaseSchema
     $attributes_string = '';
     foreach ($attributes as $key => $value)
     {
-      $attributes_string .= ' '.$key.'="'.htmlspecialchars($this->getCorrectValueFor($key, $value)).'"';
+      $attributes_string .= ' '.$key.'="'.htmlspecialchars($this->getCorrectValueFor($key, $value), ENT_QUOTES, sfConfig::get('sf_charset')).'"';
     }
 
     return $attributes_string;
