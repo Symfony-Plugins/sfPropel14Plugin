@@ -24,7 +24,8 @@ class CrudBrowser extends sfTestBrowser
     $task = new sfPropelGenerateCrudTask(new sfEventDispatcher(), new sfFormatter());
     $task->run(array('crud', 'article', 'Article'), $options);
 
-    sfContext::createInstance(sfApplicationConfiguration::getForApplication('crud', 'test', true, $this->projectDir));
+    require_once($this->projectDir.'/config/ProjectConfiguration.class.php');
+    sfContext::createInstance(ProjectConfiguration::getApplicationConfiguration('crud', 'test', true, $this->projectDir));
 
     return $this;
   }
