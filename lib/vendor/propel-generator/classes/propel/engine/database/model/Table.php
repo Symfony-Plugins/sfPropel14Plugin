@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: Table.php 989 2008-03-11 14:29:30Z heltem $
+ *  $Id: Table.php 1009 2008-03-19 22:15:23Z soenke $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -40,7 +40,7 @@ include_once 'propel/engine/database/model/Validator.php';
  * @author     John McNally <jmcnally@collab.net> (Torque)
  * @author     Daniel Rall <dlr@collab.net> (Torque)
  * @author     Byron Foster <byron_foster@yahoo.com> (Torque)
- * @version    $Revision: 989 $
+ * @version    $Revision: 1009 $
  * @package    propel.engine.database.model
  */
 class Table extends XMLElement implements IDMethod {
@@ -119,6 +119,13 @@ class Table extends XMLElement implements IDMethod {
 	 * @var        string
 	 */
 	private $idMethod;
+
+	/**
+	 * Wether an INSERT with set PK is allowed on tables with IDMethod::NATIVE
+	 *
+	 * @var        boolean
+	 */
+	private $allowPkInsert;
 
 	/**
 	 * Strategry to use for converting column name to phpName.
@@ -294,6 +301,7 @@ class Table extends XMLElement implements IDMethod {
 		$this->name = $this->getAttribute("name");
 		$this->phpName = $this->getAttribute("phpName");
 		$this->idMethod = $this->getAttribute("idMethod", $this->getDatabase()->getDefaultIdMethod());
+		$this->allowPkInsert = $this->booleanValue($this->getAttribute("allowPkInsert"));
 
 		// retrieves the method for converting from specified name to a PHP name.
 		$this->phpNamingMethod = $this->getAttribute("phpNamingMethod", $this->getDatabase()->getDefaultPhpNamingMethod());
@@ -817,6 +825,18 @@ class Table extends XMLElement implements IDMethod {
 			return $this->idMethod;
 		}
 	}
+
+	/**
+	 * Whether we allow to insert primary keys on tables with
+	 * idMethod=native
+	 *
+	 * @return     boolean
+	 */
+	public function isAllowPkInsert()
+	{
+		return $this->allowPkInsert;
+	}
+
 
 	/**
 	 * Set the method for generating pk's

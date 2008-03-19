@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: GeneratedObjectTest.php 989 2008-03-11 14:29:30Z heltem $
+ *  $Id: GeneratedObjectTest.php 1007 2008-03-19 22:01:26Z soenke $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -952,5 +952,39 @@ class GeneratedObjectTest extends BookstoreTestBase {
 			$this->fail("Expected no exception when setting auto-increment primary key to NULL");
 		}
 		// success ...
+	}
+	
+	/**
+	 * Checks wether we are allowed to specify the primary key on a 
+	 * table with allowPkInsert=true set
+         *
+	 * saves the object, gets it from data-source again and then compares
+	 * them for equality (thus the instance pool is also checked) 
+	 */
+	public function testAllowPkInsertOnIdMethodNativeTable()
+	{
+		$cu = new Customer;
+		$cu->setPrimaryKey(100000);
+		
+		$cu->save();
+		
+		$cu2 = CustomerPeer::retrieveByPk(100000);
+				
+		$this->assertSame($cu, $cu2);
+	}
+	
+	/**
+	 * test the forbiddenness of setting the PK with idMethod=native
+	 */
+	public function testDontAllowPkInsertOnIdMethodNativeTable()
+	{
+		$b = new Book;
+		$b->setPrimaryKey(1000);
+		try {
+			$b->save();
+			$this->fail("Propel must throw an exception if a PK was set by the user and the table has idMethod=native");
+		} catch (PropelException $e) {
+			// [SR] as of XXX this throws an exception so everything is fine
+		}
 	}
 }

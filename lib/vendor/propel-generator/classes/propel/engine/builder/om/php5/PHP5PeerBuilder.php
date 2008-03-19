@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5PeerBuilder.php 1001 2008-03-16 20:43:29Z hans $
+ *  $Id: PHP5PeerBuilder.php 1009 2008-03-19 22:15:23Z soenke $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -1060,7 +1060,7 @@ Propel::getDatabaseMap(".$this->getClassname()."::DATABASE_NAME)->addTableBuilde
 
 		foreach ($table->getColumns() as $col) {
 			$cfc = $col->getPhpName();
-			if ($col->isPrimaryKey() && $col->isAutoIncrement() && $table->getIdMethod() != "none") {
+			if ($col->isPrimaryKey() && $col->isAutoIncrement() && $table->getIdMethod() != "none" && !$table->isAllowPkInsert()) {
 				$script .= "
 		if (\$criteria->containsKey(".$this->getColumnConstant($col).")) {
 			throw new PropelException('Cannot insert a value for auto-increment primary key ('.".$this->getColumnConstant($col).".')');
