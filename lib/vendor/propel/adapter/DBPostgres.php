@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: DBPostgres.php 563 2007-02-01 09:45:55Z heltem $
+ *  $Id: DBPostgres.php 1011 2008-03-20 11:36:27Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -27,7 +27,7 @@
  *
  * @author     Hans Lellelid <hans@xmpl.org> (Propel)
  * @author     Hakan Tandogan <hakan42@gmx.de> (Torque)
- * @version    $Revision: 563 $
+ * @version    $Revision: 1011 $
  * @package    propel.adapter
  */
 class DBPostgres extends DBAdapter {
@@ -141,7 +141,10 @@ class DBPostgres extends DBAdapter {
 			$sql .= " OFFSET ".$offset;
 		}
 	}
-
+	
+	/**
+	 * @see        DBAdapter::random()
+	 */
 	public function random($seed=NULL)
 	{
 		return 'random()';

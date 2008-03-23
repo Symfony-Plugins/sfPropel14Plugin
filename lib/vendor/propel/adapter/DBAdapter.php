@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: DBAdapter.php 989 2008-03-11 14:29:30Z heltem $
+ *  $Id: DBAdapter.php 1011 2008-03-20 11:36:27Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -38,7 +38,7 @@
  * @author     Jon S. Stevens <jon@latchkey.com> (Torque)
  * @author     Brett McLaughlin <bmclaugh@algx.net> (Torque)
  * @author     Daniel Rall <dlr@finemaltcoding.com> (Torque)
- * @version    $Revision: 989 $
+ * @version    $Revision: 1011 $
  * @package    propel.adapter
  */
 abstract class DBAdapter {
@@ -285,7 +285,8 @@ abstract class DBAdapter {
 	 * @return     boolean
 	 * @deprecated
 	 */
-	public function useQuoteIdentifier() {
+	public function useQuoteIdentifier()
+	{
 		return false;
 	}
 
@@ -293,7 +294,12 @@ abstract class DBAdapter {
 	 * Modifies the passed-in SQL to add LIMIT and/or OFFSET.
 	 */
 	public abstract function applyLimit(&$sql, $offset, $limit);
-
-	public abstract function random($seed=NULL);
+	
+	/**
+	 * Gets the SQL string that this adapter uses for getting a random number.
+	 *
+	 * @param      mixed $seed (optional) seed value for databases that support this
+	 */
+	public abstract function random($seed = null);
 
 }
