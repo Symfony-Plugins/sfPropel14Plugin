@@ -95,16 +95,21 @@ class sfPropelData extends sfData
       foreach ($datas as $key => $data)
       {
         // create a new entry in the database
+        if (!class_exists($class))
+        {
+          throw new InvalidArgumentException(sprintf('Unknown class "%s".', $class));
+        }
+
         $obj = new $class();
 
         if (!$obj instanceof BaseObject)
         {
-          throw new Exception(sprintf('The class "%s" is not a Propel class. This probably means there is already a class named "%s" somewhere in symfony or in your project.', $class, $class));
+          throw new RuntimeException(sprintf('The class "%s" is not a Propel class. This probably means there is already a class named "%s" somewhere in symfony or in your project.', $class, $class));
         }
 
         if (!is_array($data))
         {
-          throw new Exception(sprintf('You must give a name for each fixture data entry (class %s)', $class));
+          throw new InvalidArgumentException(sprintf('You must give a name for each fixture data entry (class %s).', $class));
         }
 
         foreach ($data as $name => $value)
@@ -136,7 +141,7 @@ class sfPropelData extends sfData
               $relatedTable = $this->dbMap->getTable($column->getRelatedTableName());
               if (!isset($this->object_references[$relatedTable->getPhpName().'_'.$value]))
               {
-                throw new sfException(sprintf('The object "%s" from class "%s" is not defined in your data file.', $value, $relatedTable->getPhpName()));
+                throw new InvalidArgumentException(sprintf('The object "%s" from class "%s" is not defined in your data file.', $value, $relatedTable->getPhpName()));
               }
               $value = $this->object_references[$relatedTable->getPhpName().'_'.$value]->getPrimaryKey();
             }
@@ -152,7 +157,7 @@ class sfPropelData extends sfData
           }
           else
           {
-            throw new sfException(sprintf('Column "%s" does not exist for class "%s"', $name, $class));
+            throw new InvalidArgumentException(sprintf('Column "%s" does not exist for class "%s".', $name, $class));
           }
         }
         $obj->save($this->con);
@@ -188,7 +193,7 @@ class sfPropelData extends sfData
 
     if (!isset($relatedClass))
     {
-      throw new sfException(sprintf('Unable to find the many-to-many relationship for object "%s"', get_class($obj)));
+      throw new InvalidArgumentException(sprintf('Unable to find the many-to-many relationship for object "%s".', get_class($obj)));
     }
 
     $setter = 'set'.get_class($obj);
@@ -198,7 +203,7 @@ class sfPropelData extends sfData
     {
       if (!isset($this->object_references[$relatedClass.'_'.$value]))
       {
-        throw new sfException(sprintf('The object "%s" from class "%s" is not defined in your data file.', $value, $relatedClass));
+        throw new InvalidArgumentException(sprintf('The object "%s" from class "%s" is not defined in your data file.', $value, $relatedClass));
       }
 
       $middle = new $middleClass();
@@ -244,6 +249,12 @@ class sfPropelData extends sfData
         if (in_array($class, $this->deletedClasses))
         {
           continue;
+        }
+
+        // Check that peer class exists before calling doDeleteAll()
+        if (!class_exists($class.'Peer'))
+        {
+          throw new InvalidArgumentException(sprintf('Unknown class "%sPeer".', $class));
         }
 
         call_user_func(array($class.'Peer', 'doDeleteAll'), $this->con);

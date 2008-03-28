@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5ObjectBuilder.php 1006 2008-03-19 15:30:19Z hans $
+ *  $Id: PHP5ObjectBuilder.php 1017 2008-03-27 17:58:03Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -3274,13 +3274,17 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 				$varName = $this->getPKRefFKVarName($refFK);
 				$vars[] = $varName;
 				$script .= "
-			\$this->{$varName}->clearAllReferences(\$deep);";
+			if (\$this->$varName) {
+				\$this->{$varName}->clearAllReferences(\$deep);
+			}";
 			} else {
 				$varName = $this->getRefFKCollVarName($refFK);
 				$vars[] = $varName;
 				$script .= "
-			foreach (\$this->$varName as \$o) {
-				\$o->clearAllReferences(\$deep);
+			if (\$this->$varName) {
+				foreach((array) \$this->$varName as \$o) {
+					\$o->clearAllReferences(\$deep);
+				}
 			}";
 			}
 		}
