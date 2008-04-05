@@ -115,7 +115,7 @@ else
       }
       catch (PropelException $e)
       {
-        $this->getRequest()->setError('edit', 'Could not create or edit the <?php echo sfInflector::humanize($this->getSingularName()) ?>.');
+        $this->getRequest()->setError('edit', 'Could not save the edited <?php echo sfInflector::humanize($this->getPluralName()) ?>.');
         return $this->forward('<?php echo $this->getModuleName() ?>', 'list');
       }
 

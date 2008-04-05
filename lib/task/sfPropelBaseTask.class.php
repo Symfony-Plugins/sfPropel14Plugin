@@ -9,7 +9,6 @@
  */
 
 require_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'config/config.php');
-require_once('phing/Phing.php');
 
 /**
  * Base class for all symfony Propel tasks.
@@ -50,11 +49,6 @@ abstract class sfPropelBaseTask extends sfBaseTask
       $autoloader->register();
 
       self::$done = true;
-    }
-
-    if (!class_exists('Phing'))
-    {
-      throw new sfCommandException('You must install Phing to use propel tasks. (pear install http://phing.info/pear/phing-current.tgz)');
     }
   }
 
@@ -241,6 +235,8 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
     $args[] = $taskName;
 
+    require_once dirname(__FILE__).'/sfPhing.class.php';
+
     Phing::startup();
     Phing::setProperty('phing.home', getenv('PHING_HOME'));
 
@@ -249,29 +245,5 @@ abstract class sfPropelBaseTask extends sfBaseTask
     $m->runBuild();
 
     chdir(sfConfig::get('sf_root_dir'));
-  }
-}
-
-/**
- * @package    symfony
- * @subpackage command
- * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
- * @version    SVN: $Id$
- */
-class sfPhing extends Phing
-{
-  function getPhingVersion()
-  {
-    return 'sfPhing';
-  }
-
-  public static function shutdown($exitcode = 0)
-  {
-    self::getTimer()->stop();
-
-    if($exitcode != 0)
-    {
-     throw new Exception(sprintf('Problem executing Phing task (%s).', $exitcode));
-    }
   }
 }
