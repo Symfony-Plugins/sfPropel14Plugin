@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: Database.php 989 2008-03-11 14:29:30Z heltem $
+ *  $Id: Database.php 1020 2008-04-04 10:03:56Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -34,7 +34,7 @@ include_once 'propel/engine/database/model/Table.php';
  * @author     Martin Poeschl<mpoeschl@marmot.at> (Torque)
  * @author     Daniel Rall<dlr@collab.net> (Torque)
  * @author     Byron Foster <byron_foster@yahoo.com> (Torque)
- * @version    $Revision: 989 $
+ * @version    $Revision: 1020 $
  * @package    propel.engine.database.model
  */
 class Database extends XMLElement {
@@ -414,7 +414,7 @@ class Database extends XMLElement {
 				}
 
 				$referrers = $foreignTable->getReferrers();
-				if ($referrers === null || ! in_array($currFK,$referrers) ) {
+				if ($referrers === null || !in_array($currFK, $referrers, true) ) {
 					$foreignTable->addReferrer($currFK);
 				}
 

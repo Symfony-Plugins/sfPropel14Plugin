@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: Criteria.php 1013 2008-03-22 01:59:36Z hans $
+ *  $Id: Criteria.php 1021 2008-04-04 10:35:57Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -32,7 +32,7 @@
  * @author     Eric Dobbs <eric@dobbse.net> (Torque)
  * @author     Henning P. Schmiedehausen <hps@intermeta.de> (Torque)
  * @author     Sam Joseph <sam@neurogrid.com> (Torque)
- * @version    $Revision: 1013 $
+ * @version    $Revision: 1021 $
  * @package    propel.util
  */
 class Criteria implements IteratorAggregate {
@@ -619,7 +619,10 @@ class Criteria implements IteratorAggregate {
 	 */
 	public function addJoin($left, $right, $operator = null)
 	{
-		$this->joins[] = new Join($left, $right, $operator);
+		$j = new Join($left, $right, $operator);
+		if (!in_array($j, $this->joins)) { // compare equality, NOT identity
+			$this->joins[] = $j;
+		}
 		return $this;
 	}
 

@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: GeneratedObjectTest.php 1007 2008-03-19 22:01:26Z soenke $
+ *  $Id: GeneratedObjectTest.php 1019 2008-04-03 20:35:22Z soenke $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -971,20 +971,5 @@ class GeneratedObjectTest extends BookstoreTestBase {
 		$cu2 = CustomerPeer::retrieveByPk(100000);
 				
 		$this->assertSame($cu, $cu2);
-	}
-	
-	/**
-	 * test the forbiddenness of setting the PK with idMethod=native
-	 */
-	public function testDontAllowPkInsertOnIdMethodNativeTable()
-	{
-		$b = new Book;
-		$b->setPrimaryKey(1000);
-		try {
-			$b->save();
-			$this->fail("Propel must throw an exception if a PK was set by the user and the table has idMethod=native");
-		} catch (PropelException $e) {
-			// [SR] as of XXX this throws an exception so everything is fine
-		}
 	}
 }

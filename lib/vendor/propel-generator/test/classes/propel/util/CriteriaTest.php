@@ -9,7 +9,7 @@ include_once 'propel/util/BasePeer.php';
  *
  * @author     <a href="mailto:celkins@scardini.com">Christopher Elkins</a>
  * @author     <a href="mailto:sam@neurogrid.com">Sam Joseph</a>
- * @version    $Id: CriteriaTest.php 1013 2008-03-22 01:59:36Z hans $
+ * @version    $Id: CriteriaTest.php 1021 2008-04-04 10:35:57Z hans $
  */
 class CriteriaTest extends BaseTestCase {
 
@@ -571,5 +571,30 @@ class CriteriaTest extends BaseTestCase {
 
 		$result = BasePeer::createSelectSql($c, $params=array());
 		$this->assertEquals($expected, $result);
+	}
+	
+	/**
+	 * Tests adding duplicate joins.
+	 * @link http://propel.phpdb.org/trac/ticket/613
+	 */
+	public function testAddJoin_Duplicate()
+	{
+		$c = new Criteria();
+		
+		$c->addJoin("tbl.COL1", "tbl.COL2", Criteria::LEFT_JOIN);
+		$c->addJoin("tbl.COL1", "tbl.COL2", Criteria::LEFT_JOIN);
+		$this->assertEquals(1, count($c->getJoins()), "Expected not to have duplciate LJOIN added.");
+		
+		$c->addJoin("tbl.COL1", "tbl.COL2", Criteria::RIGHT_JOIN);
+		$c->addJoin("tbl.COL1", "tbl.COL2", Criteria::RIGHT_JOIN);
+		$this->assertEquals(2, count($c->getJoins()), "Expected 1 new right join to be added.");
+		
+		$c->addJoin("tbl.COL1", "tbl.COL2");
+		$c->addJoin("tbl.COL1", "tbl.COL2");
+		$this->assertEquals(3, count($c->getJoins()), "Expected 1 new implicit join to be added.");
+		
+		$c->addJoin("tbl.COL3", "tbl.COL4");
+		$this->assertEquals(4, count($c->getJoins()), "Expected new col join to be added.");
+		
 	}
 }
