@@ -19,7 +19,7 @@ class Base<?php echo $this->table->getPhpName() ?>Form extends BaseFormPropel
       '<?php echo strtolower($column->getColumnName()) ?>'<?php echo str_repeat(' ', $this->getColumnNameMaxLength() - strlen($column->getColumnName())) ?> => new <?php echo $this->getWidgetClassForColumn($column) ?>(<?php echo $this->getWidgetOptionsForColumn($column) ?>),
 <?php endforeach; ?>
 <?php foreach ($this->getManyToManyTables() as $tables): ?>
-      '<?php echo $tables['relatedTable']->getName() ?>_list'<?php echo str_repeat(' ', $this->getColumnNameMaxLength() - strlen($tables['relatedTable']->getName().'_list')) ?> => new sfWidgetFormPropelSelectMany(array('model' => '<?php echo $tables['relatedTable']->getPhpName() ?>')),
+      '<?php echo $tables['middleTable']->getName() ?>_list'<?php echo str_repeat(' ', $this->getColumnNameMaxLength() - strlen($tables['middleTable']->getName().'_list')) ?> => new sfWidgetFormPropelSelectMany(array('model' => '<?php echo $tables['relatedTable']->getPhpName() ?>')),
 <?php endforeach; ?>
     ));
 
@@ -28,7 +28,7 @@ class Base<?php echo $this->table->getPhpName() ?>Form extends BaseFormPropel
       '<?php echo strtolower($column->getColumnName()) ?>'<?php echo str_repeat(' ', $this->getColumnNameMaxLength() - strlen($column->getColumnName())) ?> => new <?php echo $this->getValidatorClassForColumn($column) ?>(<?php echo $this->getValidatorOptionsForColumn($column) ?>),
 <?php endforeach; ?>
 <?php foreach ($this->getManyToManyTables() as $tables): ?>
-      '<?php echo $tables['relatedTable']->getName() ?>_list'<?php echo str_repeat(' ', $this->getColumnNameMaxLength() - strlen($tables['relatedTable']->getName().'_list')) ?> => new sfValidatorPropelChoiceMany(array('model' => '<?php echo $tables['relatedTable']->getPhpName() ?>', 'required' => false)),
+      '<?php echo $tables['middleTable']->getName() ?>_list'<?php echo str_repeat(' ', $this->getColumnNameMaxLength() - strlen($tables['middleTable']->getName().'_list')) ?> => new sfValidatorPropelChoiceMany(array('model' => '<?php echo $tables['relatedTable']->getPhpName() ?>', 'required' => false)),
 <?php endforeach; ?>
     ));
 
@@ -62,7 +62,7 @@ class Base<?php echo $this->table->getPhpName() ?>Form extends BaseFormPropel
     parent::updateDefaultsFromObject();
 
 <?php foreach ($this->getManyToManyTables() as $tables): ?>
-    if (isset($this->widgetSchema['<?php echo $tables['relatedTable']->getName() ?>_list']))
+    if (isset($this->widgetSchema['<?php echo $tables['middleTable']->getName() ?>_list']))
     {
       $values = array();
       foreach ($this->object->get<?php echo $tables['middleTable']->getPhpName() ?>s() as $obj)
@@ -70,7 +70,7 @@ class Base<?php echo $this->table->getPhpName() ?>Form extends BaseFormPropel
         $values[] = $obj->get<?php echo $tables['relatedColumn']->getPhpName() ?>();
       }
 
-      $this->setDefault('<?php echo $tables['relatedTable']->getName() ?>_list', $values);
+      $this->setDefault('<?php echo $tables['middleTable']->getName() ?>_list', $values);
     }
 
 <?php endforeach; ?>
@@ -81,19 +81,19 @@ class Base<?php echo $this->table->getPhpName() ?>Form extends BaseFormPropel
     parent::doSave($con);
 
 <?php foreach ($this->getManyToManyTables() as $tables): ?>
-    $this->save<?php echo $tables['relatedTable']->getPhpName() ?>List($con);
+    $this->save<?php echo $tables['middleTable']->getPhpName() ?>List($con);
 <?php endforeach; ?>
   }
 
 <?php foreach ($this->getManyToManyTables() as $tables): ?>
-  public function save<?php echo $tables['relatedTable']->getPhpName() ?>List($con = null)
+  public function save<?php echo $tables['middleTable']->getPhpName() ?>List($con = null)
   {
     if (!$this->isValid())
     {
       throw $this->getErrorSchema();
     }
 
-    if (!isset($this->widgetSchema['<?php echo $tables['relatedTable']->getName() ?>_list']))
+    if (!isset($this->widgetSchema['<?php echo $tables['middleTable']->getName() ?>_list']))
     {
       // somebody has unset this widget
       return;
@@ -108,10 +108,10 @@ class Base<?php echo $this->table->getPhpName() ?>Form extends BaseFormPropel
     $c->add(<?php echo $tables['middleTable']->getPhpName() ?>Peer::<?php echo strtoupper($tables['column']->getColumnName()) ?>, $this->object->getPrimaryKey());
     <?php echo $tables['middleTable']->getPhpName() ?>Peer::doDelete($c, $con);
 
-    $values = $this->getValues();
-    if (is_array($values['<?php echo $tables['relatedTable']->getName() ?>_list']))
+    $values = $this->getValue('<?php echo $tables['middleTable']->getName() ?>_list');
+    if (is_array($values))
     {
-      foreach ($values['<?php echo $tables['relatedTable']->getName() ?>_list'] as $value)
+      foreach ($values as $value)
       {
         $obj = new <?php echo $tables['middleTable']->getPhpName() ?>();
         $obj->set<?php echo $tables['column']->getPhpName() ?>($this->object->getPrimaryKey());

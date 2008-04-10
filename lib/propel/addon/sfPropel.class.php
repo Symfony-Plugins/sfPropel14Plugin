@@ -21,6 +21,12 @@ class sfPropel
   static protected
     $defaultCulture = 'en';
 
+  /**
+   * Initialize sfymfony propel
+   *
+   * @param sfEventDispatcher $dispatcher
+   * @param string $culture
+   */
   static public function initialize(sfEventDispatcher $dispatcher, $culture = null)
   {
     if (sfConfig::get('sf_debug') && sfConfig::get('sf_logging_enabled'))
@@ -43,13 +49,27 @@ class sfPropel
     {
       self::setDefaultCulture($culture);
     }
+    else if (class_exists('sfContext', false) && sfContext::hasInstance() && $user = sfContext::getInstance()->getUser())
+    {
+      self::setDefaultCulture($user->getCulture());
+    }
   }
 
+  /**
+   * Sets the default culture
+   *
+   * @param string $culture
+   */
   static public function setDefaultCulture($culture)
   {
     self::$defaultCulture = $culture;
   }
 
+  /**
+   * Return the default culture
+   *
+   * @return string the default culture
+   */
   static public function getDefaultCulture()
   {
     return self::$defaultCulture;
