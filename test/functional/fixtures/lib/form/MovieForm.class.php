@@ -5,7 +5,7 @@
  *
  * @package    form
  * @subpackage movie
- * @version    SVN: $Id: sfPropelFormTemplate.php 6180 2007-11-27 18:50:50Z dwhittle $
+ * @version    SVN: $Id$
  */
 class MovieForm extends BaseMovieForm
 {
