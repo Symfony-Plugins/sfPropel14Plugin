@@ -24,27 +24,47 @@ require_once 'phing/tasks/ext/svn/SvnBaseTask.php';
 
 /**
  * Exports/checks out a repository to a local directory
- * with authentication 
+ * with authentication
  *
  * @author Michiel Rook <michiel.rook@gmail.com>
- * @author Andrew Eddie <andrew.eddie@jamboworks.com> 
+ * @author Andrew Eddie <andrew.eddie@jamboworks.com>
  * @version $Id$
  * @package phing.tasks.ext.svn
  * @since 2.2.0
  */
 class SvnExportTask extends SvnBaseTask
 {
-	/**
-	 * The main entry point
-	 *
-	 * @throws BuildException
-	 */
-	function main()
-	{
-		$this->setup('export');
-		
-		$this->log("Exporting SVN repository to '" . $this->getToDir() . "'");
+#
+    /**
+     * Which Revision to Export
+     *
+     * @todo check if version_control_svn supports constants
+     *
+     * @var string
+     */
+    private $revision = 'HEAD';
 
-		$this->run(array($this->getToDir()));
-	}
+    /**
+     * The main entry point
+     *
+     * @throws BuildException
+     */
+    function main()
+    {
+        $this->setup('export');
+
+        $this->log("Exporting SVN repository to '" . $this->getToDir() . "'");
+
+        // revision
+        $switches = array(
+            'r' => $this->revision,
+        );
+
+        $this->run(array($this->getToDir()), $switches);
+    }
+
+    public function setRevision($revision)
+    {
+        $this->revision = $revision;
+    }
 }
