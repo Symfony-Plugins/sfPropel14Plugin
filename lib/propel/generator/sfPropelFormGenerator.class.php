@@ -314,19 +314,6 @@ class sfPropelFormGenerator extends sfGenerator
   {
     $options = array();
 
-    switch ($column->getType())
-    {
-      case PropelColumnTypes::CHAR:
-      case PropelColumnTypes::VARCHAR:
-      case PropelColumnTypes::LONGVARCHAR:
-        if ($column->getSize())
-        {
-          $options[] = sprintf('\'max_length\' => %s', $column->getSize());
-        }
-        break;
-      default:
-    }
-
     if ($column->isForeignKey())
     {
       $options[] = sprintf('\'model\' => \'%s\'', $this->getForeignTable($column)->getPhpName());
@@ -334,6 +321,21 @@ class sfPropelFormGenerator extends sfGenerator
     else if ($column->isPrimaryKey())
     {
       $options[] = sprintf('\'model\' => \'%s\', \'column\' => \'%s\'', $column->getTable()->getPhpName(), $column->getPhpName());
+    }
+    else
+    {
+      switch ($column->getType())
+      {
+        case PropelColumnTypes::CHAR:
+        case PropelColumnTypes::VARCHAR:
+        case PropelColumnTypes::LONGVARCHAR:
+          if ($column->getSize())
+          {
+            $options[] = sprintf('\'max_length\' => %s', $column->getSize());
+          }
+          break;
+        default:
+      }
     }
 
     if (!$column->isNotNull() || $column->isPrimaryKey())
