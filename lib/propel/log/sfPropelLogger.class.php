@@ -55,7 +55,7 @@ class sfPropelLogger implements BasicLogger
 	 */
 	public function crit($message)
 	{
-		$this->log($message, sfLogger::CRITICAL);
+		$this->log($message, sfLogger::CRIT);
 	}
 
 	/**
@@ -65,7 +65,7 @@ class sfPropelLogger implements BasicLogger
 	 */
 	public function err($message)
 	{
-		$this->log($message, sfLogger::ERROR);
+		$this->log($message, sfLogger::ERR);
 	}
 
 	/**
