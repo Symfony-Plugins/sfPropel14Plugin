@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  $Id: PHP5ObjectBuilder.php 1017 2008-03-27 17:58:03Z hans $
+ *  $Id: PHP5ObjectBuilder.php 1028 2008-04-18 10:29:27Z hans $
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -3169,15 +3169,16 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 	{
 ";
 
-		$pkcols = array();
-		foreach ($table->getColumns() as $pkcol) {
-			if ($pkcol->isPrimaryKey()) {
-				$pkcols[] = $pkcol->getName();
+		$autoIncCols = array();
+		foreach ($table->getColumns() as $col) {
+			/* @var $col Column */
+			if ($col->isAutoIncrement()) {
+				$autoIncCols[] = $col;
 			}
 		}
 
 		foreach ($table->getColumns() as $col) {
-			if (!in_array($col->getName(), $pkcols)) {
+			if (!in_array($col, $autoIncCols)) {
 				$script .= "
 		\$copyObj->set".$col->getPhpName()."(\$this->".strtolower($col->getName()).");
 ";
@@ -3231,15 +3232,14 @@ abstract class ".$this->getClassname()." extends ".ClassTools::classname($this->
 		\$copyObj->setNew(true);
 ";
 
-
-		foreach ($table->getColumns() as $col) {
-			if ($col->isPrimaryKey()) {
+		// Note: we're no longer resetting non-autoincrement primary keys to default values
+		// due to: http://propel.phpdb.org/trac/ticket/618
+		foreach ($autoIncCols as $col) {
 				$coldefval = $col->getPhpDefaultValue();
 				$coldefval = var_export($coldefval, true);
 				$script .= "
-		\$copyObj->set".$col->getPhpName() ."($coldefval); // this is a pkey column, so set to default value
+		\$copyObj->set".$col->getPhpName() ."($coldefval); // this is a auto-increment column, so set to default value
 ";
-			} // if col->isPrimaryKey
 		} // foreach
 		$script .= "
 	}
