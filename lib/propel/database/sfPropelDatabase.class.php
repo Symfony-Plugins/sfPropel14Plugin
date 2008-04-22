@@ -59,6 +59,8 @@ class sfPropelDatabase extends sfPDODatabase
       $this->setDefaultConfig();
     }
 
+    Propel::setConfiguration(self::$config);
+
     if($this->getParameter('pooling', false))
     {
       Propel::enableInstancePooling();
@@ -66,6 +68,11 @@ class sfPropelDatabase extends sfPDODatabase
     else
     {
       Propel::disableInstancePooling();
+    }
+
+    if(!Propel::isInit())
+    {
+      Propel::initialize();
     }
   }
 
