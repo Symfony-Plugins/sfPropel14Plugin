@@ -2,16 +2,16 @@ autoload:
 
   propel:
     name:           propel
-    path:           %SF_SYMFONY_LIB_DIR%/plugins/sfPropelPlugin/lib/vendor/propel
+    path:           <?php echo realpath(dirname(__FILE__).'/../lib/vendor/propel')."\n"; ?>
     recursive:      on
 
   propel_class:
     name:           propel class
     files:
-      Propel:       %SF_SYMFONY_LIB_DIR%/plugins/sfPropelPlugin/lib/propel/addon/sfPropelAutoload.php
+      Propel:       <?php echo realpath(dirname(__FILE__).'/../lib/propel/addon/sfPropelAutoload.php')."\n"; ?>
 
   propel_addon:
     name:           propel addon
-    path:           %SF_SYMFONY_LIB_DIR%/plugins/sfPropelPlugin/lib
+    path:           <?php echo realpath(dirname(__FILE__).'/../lib')."\n"; ?>
     recursive:      on
     exclude:        [vendor]

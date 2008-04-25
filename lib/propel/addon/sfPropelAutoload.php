@@ -17,8 +17,8 @@
  * @version    SVN: $Id$
  */
 
-set_include_path(get_include_path().PATH_SEPARATOR.sfConfig::get('sf_root_dir').PATH_SEPARATOR.dirname(__FILE__).'/../../lib/vendor');
-
 require_once('propel/Propel.php');
+
+set_include_path(get_include_path().PATH_SEPARATOR.sfConfig::get('sf_symfony_lib_dir').PATH_SEPARATOR.dirname(__FILE__).'/../lib/vendor/');
 
 sfPropel::initialize(sfProjectConfiguration::getActive()->getEventDispatcher());

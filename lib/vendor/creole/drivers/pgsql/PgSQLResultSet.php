@@ -87,8 +87,6 @@ class PgSQLResultSet extends ResultSetCommon implements ResultSet {
 			}
 		}
 
-		$this->parseFields();
-
 		if ($this->fetchmode === ResultSet::FETCHMODE_ASSOC && $this->lowerAssocCase) {
             $this->fields = array_change_key_case($this->fields, CASE_LOWER);
         }
@@ -115,7 +113,6 @@ class PgSQLResultSet extends ResultSetCommon implements ResultSet {
 	public function close()
 	{
 		$this->fields = array();
-		$this->fieldsInResultSet = NULL;
 		@pg_free_result($this->result);
 	}
 		
@@ -168,8 +165,8 @@ class PgSQLResultSet extends ResultSetCommon implements ResultSet {
 	 */
 	public function getArray($column) 
 	{
-		if ($this->fetchmode == ResultSet::FETCHMODE_NUM) $column--;
-		if (!isset($this->fieldsInResultSet[$column])) { throw new SQLException("Invalid resultset column: " . $column); }
+		if (is_int($column)) { $column--; } // because Java convention is to start at 1 
+		if (!array_key_exists($column, $this->fields)) { throw new SQLException("Invalid resultset column: " . (is_int($column) ? $column + 1 : $column)); }
 		if ($this->fields[$column] === null) { return null; }
 		return $this->strToArray($this->fields[$column]);
 	} 
@@ -183,8 +180,8 @@ class PgSQLResultSet extends ResultSetCommon implements ResultSet {
 	 */
 	public function getBlob($column) 
 	{
-		if ($this->fetchmode == ResultSet::FETCHMODE_NUM) $column--;
-		if (!isset($this->fieldsInResultSet[$column])) { throw new SQLException("Invalid resultset column: " . $column); }
+		if (is_int($column)) { $column--; } // because Java convention is to start at 1 
+		if (!array_key_exists($column, $this->fields)) { throw new SQLException("Invalid resultset column: " . (is_int($column) ? $column + 1 : $column)); }
 		if ($this->fields[$column] === null) { return null; }
 		require_once 'creole/util/Blob.php';
 		$b = new Blob();
@@ -199,8 +196,8 @@ class PgSQLResultSet extends ResultSetCommon implements ResultSet {
 	 */
 	public function getBoolean($column) 
 	{
-		if ($this->fetchmode == ResultSet::FETCHMODE_NUM) $column--;
-		if (!isset($this->fieldsInResultSet[$column])) { throw new SQLException("Invalid resultset column: " . $column); }
+		if (is_int($column)) { $column--; } // because Java convention is to start at 1 
+		if (!array_key_exists($column, $this->fields)) { throw new SQLException("Invalid resultset column: " . (is_int($column) ? $column + 1 : $column)); }
 		if ($this->fields[$column] === null) { return null; }
 		return ($this->fields[$column] === 't');
 	}

@@ -123,6 +123,8 @@ class OCI8Connection extends ConnectionCommon implements Connection
         //must be changed to match
         $sql = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
         $this->executeQuery($sql);
+        $sql = "ALTER SESSION SET NLS_TIMESTAMP_FORMAT='YYYY-MM-DD HH24:MI:SS'";
+        $this->executeQuery($sql);
     }
 
 
@@ -186,7 +188,7 @@ class OCI8Connection extends ConnectionCommon implements Connection
 			);
         }
                 
-        $success				= oci_execute( $statement, $this->execMode );
+        $success = @oci_execute( $statement, $this->execMode );
 
         if ( ! $success )
 		{

@@ -59,7 +59,7 @@ class sfPropelDatabase extends sfPDODatabase
       $this->setDefaultConfig();
     }
 
-    Propel::setConfiguration(self::$config);
+    Propel::setConfiguration(self::$config[$name]);
 
     if($this->getParameter('pooling', false))
     {

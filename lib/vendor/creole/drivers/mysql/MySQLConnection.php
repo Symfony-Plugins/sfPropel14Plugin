@@ -250,10 +250,15 @@ class MySQLConnection extends ConnectionCommon implements Connection {
                  throw new SQLException('No database selected', mysql_error($this->dblink));
             }
         }
+        
         $result = @mysql_query('COMMIT', $this->dblink);
+        if (!$result) {
+            throw new SQLException('Could not commit transaction', mysql_error($this->dblink));                
+        }
+        
         $result = @mysql_query('SET AUTOCOMMIT=1', $this->dblink);
         if (!$result) {
-            throw new SQLException('Can not commit transaction', mysql_error($this->dblink));                
+            throw new SQLException('Could not set AUTOCOMMIT', mysql_error($this->dblink));                
         }
     }
 
@@ -269,10 +274,15 @@ class MySQLConnection extends ConnectionCommon implements Connection {
                 throw new SQLException('No database selected', mysql_error($this->dblink));
             }
         }
+        
         $result = @mysql_query('ROLLBACK', $this->dblink);
-        $result = @mysql_query('SET AUTOCOMMIT=1', $this->dblink);
         if (!$result) {
             throw new SQLException('Could not rollback transaction', mysql_error($this->dblink));
+        }
+        
+        $result = @mysql_query('SET AUTOCOMMIT=1', $this->dblink);
+        if (!$result) {
+            throw new SQLException('Could not set AUTOCOMMIT', mysql_error($this->dblink));
         }
     }
 
@@ -287,4 +297,56 @@ class MySQLConnection extends ConnectionCommon implements Connection {
         return (int) @mysql_affected_rows($this->dblink);
     }
     
+    /**
+     * Checks if the current connection supports savepoints
+     * 
+     * @return bool Does the connection support savepoints
+     * @todo This should check the version of the server to see if it supports savepoints
+     */
+    protected function supportsSavepoints()
+    {
+    	return true;
+    }
+    
+    /**
+     * Creates a new savepoint
+     *
+     * @param string $identifier Name of the savepoint to create
+     * @see ConnectionCommon::setSavepoint()
+     */
+    protected function setSavepoint( $identifier )
+    {
+        $result = @mysql_query("savepoint ".$identifier, $this->dblink);
+        if (!$result) {
+            throw new SQLException('Could not begin transaction', mysql_error($this->dblink));
+        }
+    }
+    
+    /**
+     * Releases a savepoint
+     *
+     * @param string $identifier Name of the savepoint to release
+     * @see ConnectionCommon::releaseSavepoint()
+     */
+    protected function releaseSavepoint( $identifier )
+    {
+        $result = @mysql_query("release savepoint ".$identifier, $this->dblink);
+        if (!$result) {
+            throw new SQLException('Could not begin transaction', mysql_error($this->dblink));
+        }
+    }
+    
+    /**
+     * Rollback changes to a savepoint
+     *
+     * @param string $identifier Name of the savepoint to rollback to
+     * @see ConnectionCommon::rollbackToSavepoint()
+     */
+    protected function rollbackToSavepoint( $identifier )
+    {
+        $result = @mysql_query("rollback to savepoint ".$identifier, $this->dblink);
+        if (!$result) {
+            throw new SQLException('Could not begin transaction', mysql_error($this->dblink));
+        }
+    }
 }

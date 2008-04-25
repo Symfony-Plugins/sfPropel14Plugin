@@ -214,7 +214,10 @@ class MySQLiConnection extends ConnectionCommon implements Connection {
         if (!mysqli_commit($this->dblink)) {
             throw new SQLException('Can not commit transaction', mysqli_error($this->dblink));                
         }
-        mysqli_autocommit($this->dblink, TRUE);
+        
+        if (!mysqli_autocommit($this->dblink, TRUE)) {
+            throw new SQLException('Could not set AUTOCOMMIT', mysqli_error($this->dblink));
+        }
     }
 
     /**
@@ -227,7 +230,11 @@ class MySQLiConnection extends ConnectionCommon implements Connection {
         if (!mysqli_rollback($this->dblink)) {
             throw new SQLException('Could not rollback transaction', mysqli_error($this->dblink));
         }
-        mysqli_autocommit($this->dblink, TRUE);
+        
+        if (!mysqli_autocommit($this->dblink, TRUE)) {
+            throw new SQLException('Could not set AUTOCOMMIT', mysqli_error($this->dblink));
+        }
+        
     }
 
     /**

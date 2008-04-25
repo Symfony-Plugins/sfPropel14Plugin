@@ -95,6 +95,7 @@ class PgSQLConnection extends ConnectionCommon implements Connection {
             $connstr .= ' tty=' . $dsninfo['tty'];
         }
         
+        @ini_set('track_errors', true);
         if ($persistent) {
             $conn = @pg_pconnect($connstr);
         } else {
@@ -106,8 +107,14 @@ class PgSQLConnection extends ConnectionCommon implements Connection {
 			$cleanconnstr = preg_replace('/password=\'.*?\'($|\s)/', 'password=\'*********\'', $connstr);
             throw new SQLException('Could not connect', $php_errormsg, $cleanconnstr);
         }
+        @ini_restore('track_errors');
         
-        $this->dblink = $conn;        
+        $this->dblink = $conn;
+        
+        // set the schema search order
+        if( !empty( $dsninfo['schema'] ) ) {
+            $this->setSchemaSearchPath( $dsninfo['schema'] );   
+        }
     }
     
     /**
@@ -143,7 +150,7 @@ class PgSQLConnection extends ConnectionCommon implements Connection {
         if (!$result) {
             throw new SQLException('Could not execute query', pg_last_error($this->dblink), $sql);
         }
-	$this->result_affected_rows = (int) @pg_affected_rows($result);
+        $this->result_affected_rows = (int) @pg_affected_rows($result);
 
         return new PgSQLResultSet($this, $result, $fetchmode);
     }        
@@ -157,9 +164,9 @@ class PgSQLConnection extends ConnectionCommon implements Connection {
         if (!$result) {
             throw new SQLException('Could not execute update', pg_last_error($this->dblink), $sql);
         }
-	$this->result_affected_rows = (int) @pg_affected_rows($result);
+        $this->result_affected_rows = (int) @pg_affected_rows($result);
 
-	return $this->result_affected_rows;
+        return $this->result_affected_rows;
     }
 
     /**
@@ -257,4 +264,62 @@ class PgSQLConnection extends ConnectionCommon implements Connection {
         return new PgSQLStatement($this);
     }
     
+    /**
+     * Checks if the current connection supports savepoints
+     * 
+     * @return bool Does the connection support savepoints
+     * @todo This should check the version of the server to see if it supports savepoints
+     */
+    protected function supportsSavepoints()
+    {
+    	return true;
+    }
+    
+    /**
+     * Creates a new savepoint
+     *
+     * @param string $identifier Name of the savepoint to create
+     * @see ConnectionCommon::setSavepoint()
+     */
+    protected function setSavepoint( $identifier )
+    {
+        $result = @pg_query($this->dblink, "savepoint ".$identifier);
+        if (!$result) {
+            throw new SQLException('Could not begin transaction', pg_last_error($this->dblink));
+        }
+    }
+    
+    /**
+     * Releases a savepoint
+     *
+     * @param string $identifier Name of the savepoint to release
+     * @see ConnectionCommon::releaseSavepoint()
+     */
+    protected function releaseSavepoint( $identifier )
+    {
+        $result = @pg_query($this->dblink, "release savepoint ".$identifier);
+        if (!$result) {
+            throw new SQLException('Could not begin transaction', pg_last_error($this->dblink));
+        }
+    }
+    
+    /**
+     * Rollback changes to a savepoint
+     *
+     * @param string $identifier Name of the savepoint to rollback to
+     * @see ConnectionCommon::rollbackToSavepoint()
+     */
+    protected function rollbackToSavepoint( $identifier )
+    {
+        $result = @pg_query($this->dblink, "rollback to savepoint ".$identifier);
+        if (!$result) {
+            throw new SQLException('Could not begin transaction', pg_last_error($this->dblink));
+        }
+    }
+    
+    public function setSchemaSearchPath( $searchPath ) {
+        $sql = "SET search_path TO $searchPath";
+        
+        return $this->executeUpdate( $sql );
+    }
 }

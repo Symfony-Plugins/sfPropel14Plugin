@@ -119,7 +119,7 @@ class ODBCTableInfo extends TableInfo {
 
                 if (($foreignTable = $this->database->getTable($ftbl)) === null)
                 {
-                    $foreignTable = new TableInfo($ltbl);
+                    $foreignTable = new TableInfo($ftbl);
                     $this->database->addTable($foreignTable);
                 }
 

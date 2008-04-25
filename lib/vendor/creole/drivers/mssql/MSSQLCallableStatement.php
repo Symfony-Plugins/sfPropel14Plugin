@@ -88,7 +88,6 @@ class MSSQLCallableStatement extends MSSQLPreparedStatement implements CallableS
      */
     public function __construct(Connection $conn, $stmt)
     {
-        print " - > IN CONSTRUCTOR \n";
         $this->conn = $conn;
         $this->stmt = $stmt;
     }   
@@ -375,7 +374,7 @@ class MSSQLCallableStatement extends MSSQLPreparedStatement implements CallableS
     /**
      * @see CallableStatement::getDate()
      */
-    function getDate($paramIndex, $fmt = '%Y-%m-%d') 
+    function getDate($paramIndex, $format = '%Y-%m-%d') 
     {
         if (!array_key_exists($paramIndex, $this->boundOutVars)) {
             throw new SQLException('Requesting variable not bound to output var: '.$paramIndex);

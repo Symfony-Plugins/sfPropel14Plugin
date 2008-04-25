@@ -159,7 +159,12 @@ class Query {
         if ($this->start) $stmt->setOffset($this->start);
         $rs = $stmt->executeQuery($this->sql);
         $rs->next();
-        $res = array_shift($rs->getRow());
+        $row = $rs->getRow();
+        if( is_array( $row ) ) {
+            $res = array_shift($row);
+        } else {
+            $res = null;
+        }
         $rs->close();
         $stmt->close();
         return $res;

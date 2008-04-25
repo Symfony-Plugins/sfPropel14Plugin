@@ -104,7 +104,7 @@ class OCI8TableInfo extends TableInfo {
                         WHERE b.constraint_type = 'P'
                         AND a.constraint_name = b.constraint_name
                         AND b.table_name = '{$this->name}'
-            AND b.owner = '{$this->schema}'
+                        AND b.owner = '{$this->schema}' AND a.owner = b.owner
             ";
 
 

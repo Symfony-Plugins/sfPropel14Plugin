@@ -198,14 +198,11 @@ abstract class sfPropelBaseTask extends sfBaseTask
     // Call phing targets
     if (false === strpos('propel-generator', get_include_path()))
     {
-      set_include_path(sfConfig::get('sf_symfony_lib_dir').DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR.'sfPropelPlugin'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'propel-generator'.DIRECTORY_SEPARATOR.'classes'.PATH_SEPARATOR.get_include_path());
+      set_include_path(dirname(__FILE__).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'propel-generator'.DIRECTORY_SEPARATOR.'classes'.PATH_SEPARATOR.get_include_path());
     }
     set_include_path(sfConfig::get('sf_root_dir').PATH_SEPARATOR.get_include_path());
 
     $args = array();
-
-    // needed to include the right Propel builders
-    set_include_path(sfConfig::get('sf_symfony_lib_dir').PATH_SEPARATOR.get_include_path());
 
     $options = array(
       'project.dir'       => sfConfig::get('sf_config_dir'),
@@ -219,7 +216,7 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
     // Build file
     $args[] = '-f';
-    $args[] = realpath(sfConfig::get('sf_symfony_lib_dir').DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR.'sfPropelPlugin'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'propel-generator'.DIRECTORY_SEPARATOR.'build.xml');
+    $args[] = realpath(dirname(__FILE__).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'propel-generator'.DIRECTORY_SEPARATOR.'build.xml');
 
     if (is_null($this->commandApplication) || !$this->commandApplication->isVerbose())
     {

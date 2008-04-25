@@ -76,6 +76,17 @@ class SQLiteResultSet extends ResultSetCommon implements ResultSet {
             }
         }
         
+        // strip out the table part of the field names so we get
+        // just the column part
+        $keys = array_keys($this->fields);
+        foreach( $keys as $key ) {
+            if( ($pos = strpos($key, '.')) !== false ) {
+                $newkey = substr($key, $pos + 1 );
+                $this->fields[$newkey] = $this->fields[$key];
+                unset($this->fields[$key]);
+            }
+        }
+        
         // Advance cursor position
         $this->cursorPos++;
         return true;

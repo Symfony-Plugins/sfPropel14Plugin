@@ -89,6 +89,7 @@ class Creole {
                                         'odbc' => 'creole.drivers.odbc.ODBCConnection',
                                         'pdosqlite' => 'creole.drivers.pdosqlite.PdoSQLiteConnection',
                                         'pdosqlite2' => 'creole.drivers.pdosqlite.PdoSQLiteConnection',
+                                        'sqlite3' => 'creole.drivers.pdosqlite.PdoSQLiteConnection',
                                        );
 
     /**
@@ -375,14 +376,13 @@ class Creole {
         // get just classname ('path.to.ClassName' -> 'ClassName')
         if ($pos !== false) {
             $classname = substr($class, $pos + 1);
-        }
-        else
-        {
+        } else {
           $classname = $class;
         }
+        
         if (!class_exists($classname, false)) {
             $path = strtr($class, '.', DIRECTORY_SEPARATOR) . '.php';
-            $ret = include_once($path);
+            $ret = @include_once($path);
             if ($ret === false) {
                 throw new SQLException("Unable to load driver class: " . $class);
             }

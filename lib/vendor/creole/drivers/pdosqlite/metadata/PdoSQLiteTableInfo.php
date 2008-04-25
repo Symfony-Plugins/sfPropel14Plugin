@@ -19,117 +19,63 @@
  * <http://creole.phpdb.org>.
  */
  
-require_once 'creole/metadata/TableInfo.php';
+require_once 'creole/drivers/sqlite/metadata/SQLiteTableInfo.php';
 
 /**
- * MySQL implementation of TableInfo.
+ * PdoSQLite implementation of TableInfo.
  * 
  * @author    Hans Lellelid <hans@xmpl.org>
+ * @author    Randy Syring <randy@rcs-comp.com>
  * @version   $Revision: 1.8 $
  * @package   creole.drivers.sqlite.metadata
  */
-class SQLiteTableInfo extends TableInfo {
+class PdoSQLiteTableInfo extends SQLiteTableInfo {
     
-    /** Loads the columns for this table. */
-    protected function initColumns() 
-    {
-        
-        include_once 'creole/metadata/ColumnInfo.php';
-        include_once 'creole/metadata/PrimaryKeyInfo.php';
-        include_once 'creole/drivers/sqlite/SQLiteTypes.php';                
-        
-        // To get all of the attributes we need, we'll actually do 
-        // two separate queries.  The first gets names and default values
-        // the second will fill in some more details.
-        
+    protected $statement;
+    
+    protected $i2statement;
+    
+    protected function prepTable() {
         $sql = 'PRAGMA table_info('.$this->name.')';
-                
-        $res = sqlite_query($this->conn->getResource(), $sql);
         
-        
-        while($row = sqlite_fetch_array($res, SQLITE_ASSOC)) {
-        
-            $name = $row['name'];
-            
-            $fulltype = $row['type'];            
-            $size = null;
-            $precision = null;
-            $scale = null;
-            
-            if (preg_match('/^([^\(]+)\(\s*(\d+)\s*,\s*(\d+)\s*\)$/', $fulltype, $matches)) {
-                $type = $matches[1];
-                $precision = $matches[2];
-                $scale = $matches[3]; // aka precision    
-            } elseif (preg_match('/^([^\(]+)\(\s*(\d+)\s*\)$/', $fulltype, $matches)) {
-                $type = $matches[1];
-                $size = $matches[2];
-            } else {
-                $type = $fulltype;
-            }
-            
-            $not_null = $row['notnull'];
-            $is_nullable = !$not_null;
-            
-            $default_val = $row['dflt_value'];
-            
-            $this->columns[$name] = new ColumnInfo($this, $name, SQLiteTypes::getType($type), $type, $size, $precision, $scale, $is_nullable, $default_val);
-            
-            if (($row['pk'] == 1) || (strtolower($type) == 'integer primary key')) {
-                if ($this->primaryKey === null) {
-                    $this->primaryKey = new PrimaryKeyInfo($name);
-                }
-                $this->primaryKey->addColumn($this->columns[ $name ]);
-            }
-            
-        }        
-                
-        $this->colsLoaded = true;
+        try {
+            $this->statement = $this->dblink->prepare($sql);
+            $this->statement->execute();
+        } catch( PDOException $e ) {
+            throw new SQLException('Could not get table info', $e->getMessage(), $sql);
+        }
     }
-    
-    /** Loads the primary key information for this table. */
-    protected function initPrimaryKey()
-    {        
-        // columns have to be loaded first
-        if (!$this->colsLoaded) $this->initColumns();                        
-        // keys are loaded by initColumns() in this class.
-        $this->pkLoaded = true;
-    }
-    
-    /** Loads the indexes for this table. */
-    protected function initIndexes() {
-    
-        include_once 'creole/metadata/IndexInfo.php';        
 
-        // columns have to be loaded first
-        if (!$this->colsLoaded) $this->initColumns();        
-
-        $sql = 'PRAGMA index_list('.$this->name.')';
-        $res = sqlite_query($this->conn->getResource(), $sql);
-        
-        while($row = sqlite_fetch_array($res, SQLITE_ASSOC)) {        
-            $name = $row['name'];
-            $this->indexes[$name] = new IndexInfo($name);
-            
-            // get columns for that index
-            $res2 = sqlite_query($this->conn->getResource(), 'PRAGMA index_info('.$name.')');
-            while($row2 = sqlite_fetch_array($res2, SQLITE_ASSOC)) {
-                $colname = $row2['name'];
-                $this->indexes[$name]->addColumn($this->columns[ $colname ]);
-            }
-        }        
-                
-        $this->indexesLoaded = true;
+    protected function getRow() {
+        return $this->statement->fetch(PDO::FETCH_ASSOC);
     }
     
-    /** Load foreign keys (unsupported in SQLite). */
-    protected function initForeignKeys() {
+    protected function prepIndex1() {
+        $sql = "PRAGMA index_list('".$this->name."')";
+                
+        try {
+            $this->statement = $this->dblink->prepare($sql);
+            $this->statement->execute();
+        } catch( PDOException $e ) {
+            throw new SQLException('Could not get index info', $e->getMessage(), $sql);
+        }
+    }
+    
+    protected function prepIndex2($name) {
+        $sql = "PRAGMA index_info('$name')";
         
-        // columns have to be loaded first
-        if (!$this->colsLoaded) $this->initColumns();        
-        
-        // No fkeys in SQLite
-        
-        $this->fksLoaded = true;
+        try {
+            $this->i2statement = $this->dblink->prepare($sql);
+            $this->i2statement->execute();
+        } catch( PDOException $e ) {
+            throw new SQLException("Could not get index info for: $name", $e->getMessage(), $sql);
+        }
+    }
+    
+    protected function getI2Row() {
+        return $this->i2statement->fetch(PDO::FETCH_ASSOC);
     }
     
 }
+
+?>

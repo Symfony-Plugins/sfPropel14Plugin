@@ -1,13 +1,13 @@
 <?php
 
 /*
- * This file is part of the symfony package.
- * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
- * (c) Francois Zaninotto <francois.zaninotto@symfony-project.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+* This file is part of the symfony package.
+* (c) Fabien Potencier <fabien.potencier@symfony-project.com>
+* (c) Francois Zaninotto <francois.zaninotto@symfony-project.com>
+*
+* For the full copyright and license information, please view the LICENSE
+* file that was distributed with this source code.
+*/
 
 /**
  * Manages propel database schemas as YAML and XML.
@@ -23,43 +23,61 @@ class sfPropelDatabaseSchema
   protected $connection_name = '';
   protected $database        = array();
 
+  /**
+   * Dumps schema as array
+   *
+   * @return array
+   */
   public function asArray()
   {
     return array($this->connection_name => $this->database);
   }
 
+  /**
+   * Load schema from array
+   *
+   * @param array $schema_array
+   */
   public function loadArray($schema_array)
   {
-    $database = array();
-    $connection_name = '';
-
-    if (isset($schema_array['classes']))
+    if (is_array($schema_array) && !empty($schema_array))
     {
-      // New schema syntax
-      $schema_array = $this->convertNewToOldYaml($schema_array);
+      $database = array();
+      $connection_name = '';
+
+      if (isset($schema_array['classes']))
+      {
+        // New schema syntax
+        $schema_array = $this->convertNewToOldYaml($schema_array);
+      }
+
+      if (count($schema_array) > 1)
+      {
+        throw new sfException('A schema.yml must only contain 1 database entry.');
+      }
+
+      $tmp = array_keys($schema_array);
+      $connection_name = array_shift($tmp);
+
+      if ($connection_name)
+      {
+        $database = $schema_array[$connection_name];
+      }
+
+      $this->connection_name = $connection_name;
+      $this->database = $database;
+
+      $this->fixYAMLDatabase();
+      $this->fixYAMLI18n();
+      $this->fixYAMLColumns();
     }
-
-    if (count($schema_array) > 1)
-    {
-      throw new sfException('A schema.yml must only contain 1 database entry.');
-    }
-
-    $tmp = array_keys($schema_array);
-    $connection_name = array_shift($tmp);
-
-    if ($connection_name)
-    {
-      $database = $schema_array[$connection_name];
-    }
-
-    $this->connection_name = $connection_name;
-    $this->database = $database;
-
-    $this->fixYAMLDatabase();
-    $this->fixYAMLI18n();
-    $this->fixYAMLColumns();
   }
 
+  /**
+   * Load schema from YAML file
+   *
+   * @param string $file
+   */
   public function loadYAML($file)
   {
     $schema_array = sfYaml::load($file);
@@ -73,76 +91,93 @@ class sfPropelDatabaseSchema
     $this->loadArray($schema_array);
   }
 
+  /**
+   * Converts old yaml format schema to new yaml schema
+   *
+   * @param array $schema
+   *
+   * @return array
+   */
   public function convertOldToNewYaml($schema)
   {
-    $new_schema = array();
-
-    $tmp = array_keys($schema);
-    $connection_name = array_shift($tmp);
-
-    if(!empty($connection_name) && isset($schema[$connection_name]))
+    if (is_array($schema) && !empty($schema))
     {
-      $new_schema['connection'] = $connection_name;
+      $new_schema = array();
 
-      $classes = array();
-      foreach($schema[$connection_name] as $table => $table_params)
+      $tmp = array_keys($schema);
+      $connection_name = array_shift($tmp);
+
+      if(!empty($connection_name) && isset($schema[$connection_name]))
       {
-        if ($table == '_attributes')
+        $new_schema['connection'] = $connection_name;
+
+        $classes = array();
+        foreach($schema[$connection_name] as $table => $table_params)
         {
-          // Database attributes
-          $new_schema = array_merge($new_schema, $table_params);
-        }
-        else
-        {
-          // Table
-          $phpName = sfInflector::camelize($table);
-          if (isset($table_params['_attributes']))
+          if ($table == '_attributes')
           {
-            $table_attributes = $table_params['_attributes'];
-            unset($table_params['_attributes']);
-            if (isset($table_attributes['phpName']))
-            {
-              $phpName = $table_attributes['phpName'];
-              unset($table_attributes['phpName']);
-            }
+            // Database attributes
+            $new_schema = array_merge($new_schema, $table_params);
           }
           else
           {
-            $table_attributes = array();
-          }
-          $classes[$phpName] = $table_attributes;
-          $classes[$phpName]['tableName'] = $table;
-          $classes[$phpName]['columns'] = array();
-          foreach($table_params as $column => $column_params)
-          {
-            switch($column)
+            // Table
+            $phpName = sfInflector::camelize($table);
+            if (isset($table_params['_attributes']))
             {
-              case '_behaviors':
-                $classes[$phpName]['behaviors'] = $column_params;
-                break;
-              case '_foreignKeys':
-                $classes[$phpName]['foreignKeys'] = $column_params;
-                break;
-              case '_indexes':
-                $classes[$phpName]['indexes'] = $column_params;
-                break;
-              case '_uniques':
-                $classes[$phpName]['uniques'] = $column_params;
-                break;
-              default:
-                $classes[$phpName]['columns'][$column] = $column_params;
+              $table_attributes = $table_params['_attributes'];
+              unset($table_params['_attributes']);
+              if (isset($table_attributes['phpName']))
+              {
+                $phpName = $table_attributes['phpName'];
+                unset($table_attributes['phpName']);
+              }
+            }
+            else
+            {
+              $table_attributes = array();
+            }
+            $classes[$phpName] = $table_attributes;
+            $classes[$phpName]['tableName'] = $table;
+            $classes[$phpName]['columns'] = array();
+            foreach($table_params as $column => $column_params)
+            {
+              switch($column)
+              {
+                case '_behaviors':
+                  $classes[$phpName]['behaviors'] = $column_params;
+                  break;
+                case '_foreignKeys':
+                  $classes[$phpName]['foreignKeys'] = $column_params;
+                  break;
+                case '_indexes':
+                  $classes[$phpName]['indexes'] = $column_params;
+                  break;
+                case '_uniques':
+                  $classes[$phpName]['uniques'] = $column_params;
+                  break;
+                default:
+                  $classes[$phpName]['columns'][$column] = $column_params;
+              }
             }
           }
         }
+
+        $new_schema['classes'] = $classes;
+
       }
 
-      $new_schema['classes'] = $classes;
-
+      return $new_schema;
     }
-
-    return $new_schema;
   }
 
+  /**
+   * Converts new yaml schema format to old yaml schema
+   *
+   * @param array $schema
+   *
+   * @return array
+   */
   public function convertNewToOldYaml($schema)
   {
 
@@ -234,6 +269,11 @@ class sfPropelDatabaseSchema
     return array($connection_name => $database);
   }
 
+  /**
+   * Dumps schema as propel xml
+   *
+   * @return unknown
+   */
   public function asXML()
   {
     $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
@@ -329,6 +369,10 @@ class sfPropelDatabaseSchema
     return $xml;
   }
 
+  /**
+   * Fixes databases in yaml shorthand schema
+   *
+   */
   protected function fixYAMLDatabase()
   {
     if (!isset($this->database['_attributes']))
@@ -342,6 +386,10 @@ class sfPropelDatabaseSchema
     $this->setIfNotSet($this->database['_attributes'], 'package', 'lib.model');
   }
 
+  /**
+   * Fixes i18n tables in yaml shorthand schema
+   *
+   */
   protected function fixYAMLI18n()
   {
     foreach ($this->getTables() as $i18n_table => $columns)
@@ -353,7 +401,7 @@ class sfPropelDatabaseSchema
       {
         if (is_array($attributes) && array_key_exists('primaryKey', $attributes))
         {
-           $has_primary_key = true;
+          $has_primary_key = true;
         }
       }
 
@@ -370,19 +418,19 @@ class sfPropelDatabaseSchema
 
           // set id and culture columns for i18n table
           $this->setIfNotSet($this->database[$i18n_table], 'id', array(
-            'type'             => 'integer',
-            'required'         => true,
-            'primaryKey'       => true,
-            'foreignTable'     => $main_table,
-            'foreignReference' => 'id',
-            'onDelete'         => 'cascade'
+          'type'             => 'integer',
+          'required'         => true,
+          'primaryKey'       => true,
+          'foreignTable'     => $main_table,
+          'foreignReference' => 'id',
+          'onDelete'         => 'cascade'
           ));
           $this->setIfNotSet($this->database[$i18n_table], 'culture', array(
-            'isCulture'  => true,
-            'type'       => 'varchar',
-            'size'       => '7',
-            'required'   => true,
-            'primaryKey' => true
+          'isCulture'  => true,
+          'type'       => 'varchar',
+          'size'       => '7',
+          'required'   => true,
+          'primaryKey' => true
           ));
         }
         else
@@ -393,6 +441,10 @@ class sfPropelDatabaseSchema
     }
   }
 
+  /**
+   * Fixes columns in yaml shorthand schema
+   *
+   */
   protected function fixYAMLColumns()
   {
     foreach ($this->getTables() as $table => $columns)
@@ -414,10 +466,10 @@ class sfPropelDatabaseSchema
           {
             // primary key convention
             $this->database[$table]['id'] = array(
-              'type'          => 'integer',
-              'required'      => true,
-              'primaryKey'    => true,
-              'autoIncrement' => true
+            'type'          => 'integer',
+            'required'      => true,
+            'primaryKey'    => true,
+            'autoIncrement' => true
             );
             $has_primary_key = true;
           }
@@ -430,9 +482,9 @@ class sfPropelDatabaseSchema
             if ($foreign_table)
             {
               $this->database[$table][$column] = array(
-                'type'             => 'integer',
-                'foreignTable'     => $foreign_table,
-                'foreignReference' => 'id'
+              'type'             => 'integer',
+              'foreignTable'     => $foreign_table,
+              'foreignReference' => 'id'
               );
             }
             else
@@ -468,15 +520,22 @@ class sfPropelDatabaseSchema
       {
         // convention for tables without primary key
         $this->database[$table]['id'] = array(
-          'type'          => 'integer',
-          'required'      => true,
-          'primaryKey'    => true,
-          'autoIncrement' => true
+        'type'          => 'integer',
+        'required'      => true,
+        'primaryKey'    => true,
+        'autoIncrement' => true
         );
       }
     }
   }
 
+  /**
+   * Returns attributes for compact type
+   *
+   * @param string $type
+   *
+   * @return array The attributes for type
+   */
   protected function getAttributesFromCompactType($type)
   {
     preg_match('/varchar\(([\d]+)\)/', $type, $matches);
@@ -490,6 +549,13 @@ class sfPropelDatabaseSchema
     }
   }
 
+  /**
+   * Sets entry if not set
+   *
+   * @param string $entry
+   * @param string $key
+   * @param string $value
+   */
   protected function setIfNotSet(&$entry, $key, $value)
   {
     if (!isset($entry[$key]))
@@ -498,6 +564,13 @@ class sfPropelDatabaseSchema
     }
   }
 
+  /**
+   * Find table by name
+   *
+   * @param string $table_name
+   *
+   * @return array
+   */
   protected function findTable($table_name)
   {
     // find a table from a phpName or a name
@@ -505,14 +578,14 @@ class sfPropelDatabaseSchema
     foreach ($this->getTables() as $tb_name => $table)
     {
       if (
-           ($tb_name == $table_name)
-           || (isset($table['_attributes']['phpName']) &&
-             (
-               $table['_attributes']['phpName'] == sfInflector::camelize($table_name)
-               || $table['_attributes']['phpName'] == $table_name
-             )
-           || (sfInflector::underscore($table_name) == $tb_name))
-         )
+      ($tb_name == $table_name)
+      || (isset($table['_attributes']['phpName']) &&
+      (
+      $table['_attributes']['phpName'] == sfInflector::camelize($table_name)
+      || $table['_attributes']['phpName'] == $table_name
+      )
+      || (sfInflector::underscore($table_name) == $tb_name))
+      )
       {
         $table_match = $tb_name;
         break;
@@ -522,6 +595,15 @@ class sfPropelDatabaseSchema
     return $table_match;
   }
 
+  /**
+   * Get attributes for column
+   *
+   * @param string $tb_name
+   * @param string $col_name
+   * @param string $column
+   *
+   * @return array
+   */
   protected function getAttributesForColumn($tb_name, $col_name, $column)
   {
     $attributes_string = '';
@@ -601,6 +683,13 @@ class sfPropelDatabaseSchema
     return $attributes_string;
   }
 
+  /**
+   * Returns attributes for a tag
+   *
+   * @param string $tag
+   *
+   * @return string
+   */
   protected function getAttributesFor($tag)
   {
     if (!isset($tag['_attributes']))
@@ -630,11 +719,23 @@ class sfPropelDatabaseSchema
     }
   }
 
+  /**
+   * Returns the tables for database
+   *
+   * @return array
+   */
   public function getTables()
   {
     return $this->getChildren($this->database);
   }
 
+  /**
+   * Returns the children for a given hash
+   *
+   * @param string $hash
+   *
+   * @return array
+   */
   public function getChildren($hash)
   {
     foreach ($hash as $key => $value)
@@ -649,6 +750,11 @@ class sfPropelDatabaseSchema
     return $hash;
   }
 
+  /**
+   * Loads propel xml schema
+   *
+   * @param string $file The path to the propel xml schema
+   */
   public function loadXML($file)
   {
     $schema = simplexml_load_file($file);
@@ -779,6 +885,11 @@ class sfPropelDatabaseSchema
     $this->fixXML();
   }
 
+  /**
+   * Fixed xml for using short hand syntax
+   *
+   * @return void
+   */
   public function fixXML()
   {
     $this->fixXMLForeignKeys();
@@ -786,6 +897,11 @@ class sfPropelDatabaseSchema
     // $this->fixXMLColumns();
   }
 
+  /**
+   * Fixes xml foreign keys
+   *
+   * @return void
+   */
   protected function fixXMLForeignKeys()
   {
     foreach ($this->getTables() as $table => $columns)
@@ -822,6 +938,11 @@ class sfPropelDatabaseSchema
     }
   }
 
+  /**
+   * Fixes xml indices
+   *
+   * @return void
+   */
   protected function fixXMLIndexes()
   {
     foreach ($this->getTables() as $table => $columns)
@@ -869,6 +990,11 @@ class sfPropelDatabaseSchema
     }
   }
 
+  /**
+   * Fixes xml columns
+   *
+   * @return void
+   */
   protected function fixXMLColumns()
   {
     foreach ($this->getTables() as $table => $columns)
@@ -901,11 +1027,24 @@ class sfPropelDatabaseSchema
     }
   }
 
+  /**
+   * Dumps schema as yaml
+   *
+   * @return string
+   */
   public function asYAML()
   {
     return sfYaml::dump(array($this->connection_name => $this->database), 3);
   }
 
+  /**
+   * Returns name and attributes from given hash
+   *
+   * @param string $hash
+   * @param string $name_attribute
+   *
+   * @return array
+   */
   protected function getNameAndAttributes($hash, $name_attribute = 'name')
   {
     // tag name

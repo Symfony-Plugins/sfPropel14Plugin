@@ -51,9 +51,14 @@ class PdoSQLiteConnection extends PdoConnectionCommon implements Connection {
         $mode = (isset($dsninfo['mode']) && is_numeric($dsninfo['mode'])) ? $dsninfo['mode'] : 0644;
         
         if ($file != ':memory:') {
+            
             if (!file_exists($file)) {
-                touch($file);
+                if( !@touch($file) ) {
+                    throw new SQLException("Unable to create SQLite database.  Check parent folder permissions.");
+                }
+                
                 chmod($file, $mode);
+                
                 if (!file_exists($file)) {
                     throw new SQLException("Unable to create SQLite database.");
                 }
@@ -73,6 +78,10 @@ class PdoSQLiteConnection extends PdoConnectionCommon implements Connection {
         $pdo_dsn .= ':'.$dsninfo['database'];
         
         parent::connect( $dsninfo, $flags, $pdo_dsn );
+        
+        // make sure sqlite does not give long column names
+        $this->executeQuery('PRAGMA full_column_names=0');
+        $this->executeQuery('PRAGMA short_column_names=1');
     }   
 
     /**
