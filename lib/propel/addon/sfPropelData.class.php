@@ -384,7 +384,7 @@ class sfPropelData extends sfData
       else
       {
         $stmt = $this->con->query('SELECT * FROM '.constant($tableName.'Peer::TABLE_NAME'));
-        $resultsSets[] = $stmt->fetchAll();
+        $resultsSets[] = $stmt->fetchAll(PDO::FETCH_ASSOC);
       }
 
       foreach ($resultsSets as $rows)
@@ -428,6 +428,8 @@ class sfPropelData extends sfData
                 else
                 {
                   $values[$col] = $relatedTable->getPhpName().'_'.$row[$col];
+
+                  $values[$col] = strlen($row[$col]) ? $relatedTable->getPhpName().'_'.$row[$col] : '';
                 }
               }
               elseif (!$isPrimaryKey || ($isPrimaryKey && !$tableMap->isUseIdGenerator()))
