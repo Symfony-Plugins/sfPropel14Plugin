@@ -129,7 +129,7 @@ class sfPropelDatabase extends sfPDODatabase
         $params = $this->parseDsn($dsn);
       }
 
-      $options = array('dsn', 'phptype', 'hostspec', 'database', 'username', 'password', 'port', 'protocol', 'socket');
+      $options = array('dsn', 'phptype', 'hostspec', 'database', 'username', 'password', 'port', 'protocol', 'encoding', 'persistent', 'socket', 'compat_assoc_lower', 'compat_rtrim_string');
       foreach ($options as $option)
       {
         if (!$this->getParameter($option) && isset($params[$option]))
