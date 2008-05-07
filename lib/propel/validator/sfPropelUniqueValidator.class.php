@@ -25,7 +25,7 @@
  *
  * Warning: sfPropelUniqueValidator is susceptible to race conditions.  Although
  * unlikely, in multiuser environments, the result may change the instant it
- * returns.  You should still be ready to handle a duplicate INSERT error.  
+ * returns.  You should still be ready to handle a duplicate INSERT error.
  *
  * @package    symfony
  * @subpackage propel

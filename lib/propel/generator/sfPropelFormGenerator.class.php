@@ -14,7 +14,7 @@
  * This class generates a Propel forms.
  *
  * @package    symfony
- * @subpackage propel
+ * @subpackage generator
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @version    SVN: $Id$
  */
@@ -66,12 +66,12 @@ class sfPropelFormGenerator extends sfGenerator
     $this->dbMap = Propel::getDatabaseMap($this->params['connection']);
 
     // create the project base class for all forms
-    $file = sfConfig::get('sf_lib_dir').DIRECTORY_SEPARATOR.'form'.DIRECTORY_SEPARATOR.'base'.DIRECTORY_SEPARATOR.'BaseFormPropel.class.php';
+    $file = sfConfig::get('sf_lib_dir').'/form/base/BaseFormPropel.class.php';
     if (!file_exists($file))
     {
-      if (!is_dir(sfConfig::get('sf_lib_dir').DIRECTORY_SEPARATOR.'form'.DIRECTORY_SEPARATOR.'base'))
+      if (!is_dir(sfConfig::get('sf_lib_dir').'/form/base'))
       {
-        mkdir(sfConfig::get('sf_lib_dir').DIRECTORY_SEPARATOR.'form'.DIRECTORY_SEPARATOR.'base', 0777, true);
+        mkdir(sfConfig::get('sf_lib_dir').'/form/base', 0777, true);
       }
 
       file_put_contents($file, $this->evalTemplate('sfPropelFormBaseTemplate.php'));
@@ -332,11 +332,20 @@ class sfPropelFormGenerator extends sfGenerator
 
     if ($column->isForeignKey())
     {
-      $options[] = sprintf('\'model\' => \'%s\'', $this->getForeignTable($column)->getPhpName());
+      $map = call_user_func(array($this->getForeignTable($column)->getPhpName().'Peer', 'getTableMap'));
+      foreach ($map->getColumns() as $primaryKey)
+      {
+        if ($primaryKey->isPrimaryKey())
+        {
+          break;
+        }
+      }
+
+      $options[] = sprintf('\'model\' => \'%s\', \'column\' => \'%s\'', $this->getForeignTable($column)->getPhpName(), strtolower($primaryKey->getColumnName()));
     }
     else if ($column->isPrimaryKey())
     {
-      $options[] = sprintf('\'model\' => \'%s\', \'column\' => \'%s\'', $column->getTable()->getPhpName(), $column->getPhpName());
+      $options[] = sprintf('\'model\' => \'%s\', \'column\' => \'%s\'', $column->getTable()->getPhpName(), strtolower($column->getColumnName()));
     }
     else
     {
@@ -350,7 +359,6 @@ class sfPropelFormGenerator extends sfGenerator
             $options[] = sprintf('\'max_length\' => %s', $column->getSize());
           }
           break;
-        default:
       }
     }
 
@@ -447,7 +455,20 @@ class sfPropelFormGenerator extends sfGenerator
 
   public function getUniqueColumnNames()
   {
-    return call_user_func(array($this->table->getPhpName().'MapBuilder', 'getUniqueColumnNames'));
+    $uniqueColumns = array();
+
+    foreach (call_user_func(array($this->table->getPhpName().'Peer', 'getUniqueColumnNames')) as $unique)
+    {
+      $uniqueColumn = array();
+      foreach ($unique as $column)
+      {
+        $uniqueColumn[] = strtolower($this->table->getColumn($column)->getColumnName());
+      }
+
+      $uniqueColumns[] = $uniqueColumn;
+    }
+
+    return $uniqueColumns;
   }
 
   /**
@@ -467,3 +488,4 @@ class sfPropelFormGenerator extends sfGenerator
     }
   }
 }
+

@@ -90,7 +90,10 @@ else
 
     try
     {
-      <?php echo $this->getClassName() ?>Peer::doDelete($this->selectedItems);
+      foreach (<?php echo $this->getClassName() ?>Peer::retrieveByPks($this->selectedItems) as $object)
+      {
+        $object->delete();
+      }
     }
     catch (PropelException $e)
     {
@@ -467,9 +470,9 @@ $column = sfPropelManyToMany::getColumn($class, $through_class);
   {
     if ($sort_column = $this->getUser()->getAttribute('sort', null, 'sf_admin/<?php echo $this->getSingularName() ?>/sort'))
     {
+      // camelize lower case to be able to compare with BasePeer::TYPE_PHPNAME translate field name
+      $sort_column = <?php echo $this->getClassName() ?>Peer::translateFieldName(sfInflector::camelize(strtolower($sort_column)), BasePeer::TYPE_PHPNAME, BasePeer::TYPE_COLNAME);
 
-      $sort_column = sfInflector::camelize(strtolower($sort_column));
-      $sort_column = <?php echo $this->getClassName() ?>Peer::translateFieldName($sort_column, BasePeer::TYPE_PHPNAME, BasePeer::TYPE_COLNAME);
       if ($this->getUser()->getAttribute('type', null, 'sf_admin/<?php echo $this->getSingularName() ?>/sort') == 'asc')
       {
         $c->addAscendingOrderByColumn($sort_column);
