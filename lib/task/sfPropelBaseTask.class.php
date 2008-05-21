@@ -56,7 +56,7 @@ abstract class sfPropelBaseTask extends sfBaseTask
   {
     $finder = sfFinder::type('file')->name('*schema.xml');
 
-    $schemas = array_merge($finder->in('config'), $finder->in(glob(sfConfig::get('sf_plugins_dir').DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'config')));
+    $schemas = array_unique(array_merge($finder->in('config'), $finder->in(glob(sfConfig::get('sf_plugins_dir').DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'config'))));
     if (self::CHECK_SCHEMA === $checkSchema && !count($schemas))
     {
       throw new sfCommandException('You must create a schema.xml file.');
@@ -151,32 +151,35 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
   protected function copyXmlSchemaFromPlugins($prefix = '')
   {
-    $schemas = sfFinder::type('file')->name('*schema.xml')->in(glob(sfConfig::get('sf_plugins_dir').DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'config'));
-    foreach ($schemas as $schema)
+    if($dirs = glob(sfConfig::get('sf_plugins_dir').DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'config'))
     {
-      // reset local prefix
-      $localprefix = '';
-
-      // change prefix for plugins
-      if (preg_match('#plugins[/\\\\]([^/\\\\]+)[/\\\\]#', $schema, $match))
+      $schemas = sfFinder::type('file')->name('*schema.xml')->in($dirs);
+      foreach ($schemas as $schema)
       {
-        // if the plugin name is not in the schema filename, add it
-        if (!strstr(basename($schema), $match[1]))
+        // reset local prefix
+        $localprefix = '';
+
+        // change prefix for plugins
+        if (preg_match('#plugins[/\\\\]([^/\\\\]+)[/\\\\]#', $schema, $match))
         {
-          $localprefix = $match[1].'-';
+          // if the plugin name is not in the schema filename, add it
+          if (!strstr(basename($schema), $match[1]))
+          {
+            $localprefix = $match[1].'-';
+          }
         }
-      }
 
-      // if the prefix is not in the schema filename, add it
-      if (!strstr(basename($schema), $prefix))
-      {
-        $localprefix = $prefix.$localprefix;
-      }
+        // if the prefix is not in the schema filename, add it
+        if (!strstr(basename($schema), $prefix))
+        {
+          $localprefix = $prefix.$localprefix;
+        }
 
-      $this->getFilesystem()->copy($schema, 'config'.DIRECTORY_SEPARATOR.$localprefix.basename($schema));
-      if ('' === $localprefix)
-      {
-        $this->getFilesystem()->remove($schema);
+        $this->getFilesystem()->copy($schema, 'config'.DIRECTORY_SEPARATOR.$localprefix.basename($schema));
+        if ('' === $localprefix)
+        {
+          $this->getFilesystem()->remove($schema);
+        }
       }
     }
   }
