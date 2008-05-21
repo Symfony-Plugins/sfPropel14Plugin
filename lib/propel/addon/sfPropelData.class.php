@@ -28,14 +28,14 @@ class sfPropelData extends sfData
    *
    * @see sfPropelData::loadData()
    *
-   * @param mixed A file or directory path
-   * @param string The Propel connection name, default 'propel'
+   * @param mixed   $directoryOrFile  A file or directory path
+   * @param string  $connectionName   The Propel connection name, default 'propel'
    *
    * @throws Exception If the database throws an error, rollback transaction and rethrows exception
    */
-  public function loadData($directory_or_file = null, $connectionName = 'propel')
+  public function loadData($directoryOrFile = null, $connectionName = 'propel')
   {
-    $fixture_files = $this->getFiles($directory_or_file);
+    $fixtureFiles = $this->getFiles($directoryOrFile);
 
     // load map classes
     $this->loadMapBuilders();
@@ -47,9 +47,9 @@ class sfPropelData extends sfData
     {
       $this->con->beginTransaction();
 
-      $this->doDeleteCurrentData($fixture_files);
+      $this->doDeleteCurrentData($fixtureFiles);
 
-      $this->doLoadData($fixture_files);
+      $this->doLoadData($fixtureFiles);
 
       $this->con->commit();
     }
@@ -63,7 +63,7 @@ class sfPropelData extends sfData
   /**
    * Implements the abstract loadDataFromArray method and loads the data using the generated data model.
    *
-   * @param array The data to be loaded into the data source
+   * @param array   $data  The data to be loaded into the data source
    *
    * @throws Exception If data is unnamed.
    * @throws sfException If an object defined in the model does not exist in the data
@@ -174,9 +174,9 @@ class sfPropelData extends sfData
   /**
    * Loads many to many objects.
    *
-   * @param BaseObject A Propel object
-   * @param string     The middle table name
-   * @param array      An array of values
+   * @param BaseObject $obj               A Propel object
+   * @param string     $middleTableName   The middle table name
+   * @param array      $values            An array of values
    */
   protected function loadMany2Many($obj, $middleTableName, $values)
   {
@@ -218,11 +218,11 @@ class sfPropelData extends sfData
    * and deleting the existing data for only those classes that are mentioned
    * in the fixtures.
    *
-   * @param array The list of YAML files.
+   * @param array $fixtureFiles The list of YAML files.
    *
    * @throws sfException If a class mentioned in a fixture can not be found
    */
-  protected function doDeleteCurrentData($fixture_files)
+  protected function doDeleteCurrentData($fixtureFiles)
   {
     // delete all current datas in database
     if (!$this->deleteCurrentData)
@@ -230,8 +230,8 @@ class sfPropelData extends sfData
       return;
     }
 
-    rsort($fixture_files);
-    foreach ($fixture_files as $fixture_file)
+    rsort($fixtureFiles);
+    foreach ($fixtureFiles as $fixture_file)
     {
       $data = sfYaml::load($fixture_file);
 
@@ -283,18 +283,18 @@ class sfPropelData extends sfData
   /**
    * Dumps data to fixture from one or more tables.
    *
-   * @param string The directory or file to dump to
-   * @param mixed  The name or names of tables to dump (or all to dump all tables)
-   * @param string The connection name (default to propel)
+   * @param string $directoryOrFile   The directory or file to dump to
+   * @param mixed  $tables            The name or names of tables to dump (or all to dump all tables)
+   * @param string $connectionName    The connection name (default to propel)
    */
-  public function dumpData($directory_or_file, $tables = 'all', $connectionName = 'propel')
+  public function dumpData($directoryOrFile, $tables = 'all', $connectionName = 'propel')
   {
     $dumpData = $this->getData($tables, $connectionName);
 
     // save to file(s)
-    if (!is_dir($directory_or_file))
+    if (!is_dir($directoryOrFile))
     {
-      file_put_contents($directory_or_file, sfYaml::dump($dumpData, 3));
+      file_put_contents($directoryOrFile, sfYaml::dump($dumpData, 3));
     }
     else
     {
@@ -306,7 +306,7 @@ class sfPropelData extends sfData
           continue;
         }
 
-        file_put_contents(sprintf("%s/%03d-%s.yml", $directory_or_file, ++$i, $tableName), sfYaml::dump(array($tableName => $dumpData[$tableName]), 3));
+        file_put_contents(sprintf("%s/%03d-%s.yml", $directoryOrFile, ++$i, $tableName), sfYaml::dump(array($tableName => $dumpData[$tableName]), 3));
       }
     }
   }
@@ -314,8 +314,8 @@ class sfPropelData extends sfData
   /**
    * Returns data from one or more tables.
    *
-   * @param  mixed  name or names of tables to dump (or all to dump all tables)
-   * @param  string connection name
+   * @param  mixed  $tables           name or names of tables to dump (or all to dump all tables)
+   * @param  string $connectionName   connection name
    *
    * @return array  An array of database data
    */
@@ -456,7 +456,7 @@ class sfPropelData extends sfData
   /**
    * Fixes the ordering of foreign key data, by outputting data a foreign key depends on before the table with the foreign key.
    *
-   * @param array The array with the class names.
+   * @param array $classes The array with the class names.
    */
   public function fixOrderingOfForeignKeyData($classes)
   {

@@ -46,7 +46,7 @@ class sfDebugConnection implements Connection
   /**
    * Sets a sfEventDispatcher object.
    *
-   * @param object $dispatcher
+   * @param sfEventDispatcher $dispatcher $dispatcher
    */
   public static function setDispatcher($dispatcher)
   {
