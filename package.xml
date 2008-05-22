@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.7.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
+<package packagerversion="1.7.2" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
     http://pear.php.net/dtd/tasks-1.0.xsd
     http://pear.php.net/dtd/package-2.0
     http://pear.php.net/dtd/package-2.0.xsd">
@@ -13,11 +13,11 @@
   <email>dustin.whittle@symfony-project.com</email>
   <active>yes</active>
  </lead>
- <date>2008-04-22</date>
- <time>14:27:20</time>
+ <date>2008-05-22</date>
+ <time>14:39:41</time>
  <version>
-  <release>1.1.0.0</release>
-  <api>1.1.0.0</api>
+  <release>1.3.0</release>
+  <api>1.3.0</api>
  </version>
  <stability>
   <release>stable</release>
@@ -30,6 +30,8 @@
    <dir name="config">
     <file name="autoload.yml" role="data" />
     <file name="config.php" role="php" />
+    <file name="databases.yml.example" role="data" />
+    <file name="propel.ini.example" role="data" />
    </dir> <!-- /config -->
    <dir name="data">
     <dir name="generator">
@@ -158,6 +160,7 @@
       <file name="sfPropelUniqueValidator.class.php" role="php" />
       <file name="sfValidatorPropelChoice.class.php" role="php" />
       <file name="sfValidatorPropelChoiceMany.class.php" role="php" />
+      <file name="sfValidatorPropelUnique.class.php" role="php" />
      </dir> <!-- /lib/propel/validator -->
      <dir name="widget">
       <file name="sfWidgetFormPropelSelect.class.php" role="php" />
@@ -226,7 +229,9 @@
        <dir name="mysql">
         <dir name="metadata">
          <file name="MySQLDatabaseInfo.php" role="php" />
+         <file name="MySQLDatabaseInfoBase.php" role="php" />
          <file name="MySQLTableInfo.php" role="php" />
+         <file name="MySQLTableInfoBase.php" role="php" />
         </dir> <!-- /lib/vendor/creole/drivers/mysql/metadata -->
         <file name="MySQLConnection.php" role="php" />
         <file name="MySQLIdGenerator.php" role="php" />
@@ -396,11 +401,9 @@
       </dir> <!-- /lib/vendor/phing/lib -->
       <dir name="listener">
        <file name="AnsiColorLogger.php" role="php" />
-       <file name="BuildLogger.php" role="php" />
        <file name="DefaultLogger.php" role="php" />
        <file name="defaults.properties" role="data" />
        <file name="NoBannerLogger.php" role="php" />
-       <file name="PearLogger.php" role="php" />
        <file name="PearLogListener.php" role="php" />
        <file name="StreamRequiredBuildLogger.php" role="php" />
        <file name="XmlLogger.php" role="php" />
@@ -446,7 +449,6 @@
         <file name="PhingFile.php" role="php" />
         <file name="Reader.php" role="php" />
         <file name="StringReader.php" role="php" />
-        <file name="TokenReader.php" role="php" />
         <file name="UnixFileSystem.php" role="php" />
         <file name="Win32FileSystem.php" role="php" />
         <file name="WinNTFileSystem.php" role="php" />
@@ -528,18 +530,6 @@
          <file name="PHPUnitTestRunner.php" role="php" />
          <file name="PHPUnitUtil.php" role="php" />
         </dir> <!-- /lib/vendor/phing/tasks/ext/phpunit -->
-        <dir name="phpunit2">
-         <file name="BatchTest.php" role="php" />
-         <file name="FormatterElement.php" role="php" />
-         <file name="PHPUnit2ReportTask.php" role="php" />
-         <file name="PHPUnit2ResultFormatter.php" role="php" />
-         <file name="PHPUnit2Task.php" role="php" />
-         <file name="PHPUnit2TestRunner.php" role="php" />
-         <file name="PHPUnit2Util.php" role="php" />
-         <file name="PlainPHPUnit2ResultFormatter.php" role="php" />
-         <file name="SummaryPHPUnit2ResultFormatter.php" role="php" />
-         <file name="XMLPHPUnit2ResultFormatter.php" role="php" />
-        </dir> <!-- /lib/vendor/phing/tasks/ext/phpunit2 -->
         <dir name="simpletest">
          <file name="SimpleTestCountResultFormatter.php" role="php" />
          <file name="SimpleTestFormatterElement.php" role="php" />
@@ -556,16 +546,12 @@
          <file name="SvnUpdateTask.php" role="php" />
         </dir> <!-- /lib/vendor/phing/tasks/ext/svn -->
         <file name="CapsuleTask.php" role="php" />
-        <file name="CreoleSQLExecTask.php" role="php" />
-        <file name="CreoleTask.php" role="php" />
         <file name="ExtractBaseTask.php" role="php" />
         <file name="FtpDeployTask.php" role="php" />
         <file name="JslLintTask.php" role="php" />
         <file name="MailTask.php" role="php" />
         <file name="ManifestTask.php" role="php" />
         <file name="PackageAsPathTask.php" role="php" />
-        <file name="PDOSQLExecTask.php" role="php" />
-        <file name="PDOTask.php" role="php" />
         <file name="PearPackage2Task.php" role="php" />
         <file name="PearPackageTask.php" role="php" />
         <file name="PhpCodeSnifferTask.php" role="php" />
@@ -716,12 +702,10 @@
        <file name="DBAdapter.php" role="php" />
        <file name="DBMSSQL.php" role="php" />
        <file name="DBMySQL.php" role="php" />
-       <file name="DBMySQLi.php" role="php" />
        <file name="DBNone.php" role="php" />
        <file name="DBOracle.php" role="php" />
        <file name="DBPostgres.php" role="php" />
        <file name="DBSQLite.php" role="php" />
-       <file name="DBSybase.php" role="php" />
       </dir> <!-- /lib/vendor/propel/adapter -->
       <dir name="logger">
        <file name="BasicLogger.php" role="php" />
@@ -735,7 +719,6 @@
        <file name="ValidatorMap.php" role="php" />
       </dir> <!-- /lib/vendor/propel/map -->
       <dir name="om">
-       <file name="BaseNodeObject.php" role="php" />
        <file name="BaseObject.php" role="php" />
        <file name="NestedSetRecursiveIterator.php" role="php" />
        <file name="NodeObject.php" role="php" />
@@ -743,19 +726,15 @@
        <file name="PreOrderNodeIterator.php" role="php" />
       </dir> <!-- /lib/vendor/propel/om -->
       <dir name="util">
-       <file name="BaseNodePeer.php" role="php" />
        <file name="BasePeer.php" role="php" />
        <file name="Criteria.php" role="php" />
        <file name="DebugPDO.php" role="php" />
        <file name="DebugPDOStatement.php" role="php" />
        <file name="NodePeer.php" role="php" />
-       <file name="PeerInfo.php" role="php" />
        <file name="PropelColumnTypes.php" role="php" />
        <file name="PropelDateTime.php" role="php" />
        <file name="PropelPager.php" role="php" />
        <file name="PropelPDO.php" role="php" />
-       <file name="SlavePDO.php" role="php" />
-       <file name="Transaction.php" role="php" />
       </dir> <!-- /lib/vendor/propel/util -->
       <dir name="validator">
        <file name="BasicValidator.php" role="php" />
@@ -785,8 +764,6 @@
          <dir name="builder">
           <dir name="om">
            <dir name="php5">
-            <file name="PHP5BasicObjectBuilder.php" role="php" />
-            <file name="PHP5BasicPeerBuilder.php" role="php" />
             <file name="PHP5ExtensionNodeBuilder.php" role="php" />
             <file name="PHP5ExtensionNodePeerBuilder.php" role="php" />
             <file name="PHP5ExtensionObjectBuilder.php" role="php" />
@@ -815,10 +792,6 @@
             <file name="MysqlDataSQLBuilder.php" role="php" />
             <file name="MysqlDDLBuilder.php" role="php" />
            </dir> <!-- /lib/vendor/propel-generator/classes/propel/engine/builder/sql/mysql -->
-           <dir name="mysqli">
-            <file name="MysqliDataSQLBuilder.php" role="php" />
-            <file name="MysqliDDLBuilder.php" role="php" />
-           </dir> <!-- /lib/vendor/propel-generator/classes/propel/engine/builder/sql/mysqli -->
            <dir name="oracle">
             <file name="OracleDataSQLBuilder.php" role="php" />
             <file name="OracleDDLBuilder.php" role="php" />
@@ -885,13 +858,11 @@
           </dir> <!-- /lib/vendor/propel-generator/classes/propel/engine/database/reverse -->
           <dir name="transform">
            <file name="XmlToAppData.php" role="php" />
-           <file name="XmlToData.php" role="php" />
           </dir> <!-- /lib/vendor/propel-generator/classes/propel/engine/database/transform -->
          </dir> <!-- /lib/vendor/propel-generator/classes/propel/engine/database -->
          <dir name="platform">
           <file name="DefaultPlatform.php" role="php" />
           <file name="MssqlPlatform.php" role="php" />
-          <file name="MysqliPlatform.php" role="php" />
           <file name="MysqlPlatform.php" role="php" />
           <file name="OraclePlatform.php" role="php" />
           <file name="PgsqlPlatform.php" role="php" />
@@ -907,12 +878,9 @@
          <file name="PropelCreoleTransformTask.php" role="php" />
          <file name="PropelDataDTDTask.php" role="php" />
          <file name="PropelDataDumpTask.php" role="php" />
-         <file name="PropelDataModelTask.php" role="php" />
          <file name="PropelDataModelTemplateTask.php" role="php" />
          <file name="PropelDataSQLTask.php" role="php" />
          <file name="PropelGraphvizTask.php" role="php" />
-         <file name="PropelOldOMTask.php" role="php" />
-         <file name="PropelOldSQLTask.php" role="php" />
          <file name="PropelOMTask.php" role="php" />
          <file name="PropelSchemaReverseTask.php" role="php" />
          <file name="PropelSQLExec.php" role="php" />
@@ -951,11 +919,6 @@
         <file name="nestedset-schema.xml" role="data" />
         <file name="runtime-conf.xml" role="data" />
        </dir> <!-- /lib/vendor/propel-generator/projects/nestedset -->
-       <dir name="nestedsettest">
-        <file name="build.properties" role="data" />
-        <file name="nestedsettest-schema.xml" role="data" />
-        <file name="runtime-conf.xml" role="data" />
-       </dir> <!-- /lib/vendor/propel-generator/projects/nestedsettest -->
        <dir name="treetest">
         <file name="build.properties" role="data" />
         <file name="runtime-conf.xml" role="data" />
@@ -1202,6 +1165,15 @@
            <file name="indexSuccess.php" role="php" />
           </dir> <!-- /test/functional/fixtures/apps/frontend/modules/i18n/templates -->
          </dir> <!-- /test/functional/fixtures/apps/frontend/modules/i18n -->
+         <dir name="unique">
+          <dir name="actions">
+           <file name="actions.class.php" role="php" />
+          </dir> <!-- /test/functional/fixtures/apps/frontend/modules/unique/actions -->
+          <dir name="templates">
+           <file name="articleSuccess.php" role="php" />
+           <file name="categorySuccess.php" role="php" />
+          </dir> <!-- /test/functional/fixtures/apps/frontend/modules/unique/templates -->
+         </dir> <!-- /test/functional/fixtures/apps/frontend/modules/unique -->
         </dir> <!-- /test/functional/fixtures/apps/frontend/modules -->
         <dir name="templates">
          <file name="layout.php" role="php" />
@@ -1371,6 +1343,7 @@
    <file name="LICENSE.famfamfam" role="data" />
    <file name="LICENSE.phing" role="data" />
    <file name="LICENSE.Propel" role="data" />
+   <file name="README" role="data" />
   </dir> <!-- / -->
  </contents>
  <dependencies>
@@ -1401,7 +1374,7 @@
     <release>stable</release>
     <api>stable</api>
    </stability>
-   <date>2008-04-22</date>
+   <date>2008-05-22</date>
    <license uri="http://www.symfony-project.com/license">MIT License</license>
    <notes>--</notes>
   </release>
