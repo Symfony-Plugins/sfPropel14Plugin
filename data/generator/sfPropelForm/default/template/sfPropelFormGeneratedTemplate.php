@@ -5,9 +5,9 @@ require_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'BaseFormPropel.class.php');
 /**
  * <?php echo $this->table->getPhpName() ?> form base class.
  *
- * @package    form
- * @subpackage <?php echo $this->underscore($this->table->getPhpName()) ?>
-
+ * @package    ##PROJECT_NAME##
+ * @subpackage form
+ * @author     ##AUTHOR_NAME##
  * @version    SVN: $Id$
  */
 class Base<?php echo $this->table->getPhpName() ?>Form extends BaseFormPropel
