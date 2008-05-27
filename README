@@ -81,6 +81,9 @@ Propel allows you, the web application developer, to work with databases in the 
 
 == TODO ==
 
+  * Add master/slave support for config
+  * Add query timing
+
 == Changelog ==
 
 === 1.3.0-PRE ===
