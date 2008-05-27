@@ -10,7 +10,7 @@
  */
 class <?php echo $this->getGeneratedModuleName() ?>Actions extends sfActions
 {
-  public function executeIndex()
+  public function executeIndex($request)
   {
     $this-><?php echo $this->getSingularName() ?>List = <?php echo $this->getClassName() ?>Peer::doSelect(new Criteria());
   }
@@ -40,7 +40,7 @@ class <?php echo $this->getGeneratedModuleName() ?>Actions extends sfActions
     }
   }
 <?php else: ?>
-  public function executeCreate()
+  public function executeCreate($request)
   {
     $this->form = new <?php echo $this->getClassName() ?>Form();
 

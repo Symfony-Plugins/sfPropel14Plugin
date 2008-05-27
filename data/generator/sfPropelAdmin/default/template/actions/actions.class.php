@@ -5,18 +5,17 @@
  *
  * @package    ##PROJECT_NAME##
  * @subpackage <?php echo $this->getGeneratedModuleName() ?>
-
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @version    SVN: $Id$
  */
 class <?php echo $this->getGeneratedModuleName() ?>Actions extends sfActions
 {
-  public function executeIndex()
+  public function executeIndex($request)
   {
     return $this->forward('<?php echo $this->getModuleName() ?>', 'list');
   }
 
-  public function executeList()
+  public function executeList($request)
   {
     $this->processSort();
 
@@ -42,19 +41,19 @@ class <?php echo $this->getGeneratedModuleName() ?>Actions extends sfActions
     $this->pager->init();
   }
 
-  public function executeCreate()
+  public function executeCreate($request)
   {
     return $this->forward('<?php echo $this->getModuleName() ?>', 'edit');
   }
 
-  public function executeSave()
+  public function executeSave($request)
   {
     return $this->forward('<?php echo $this->getModuleName() ?>', 'edit');
   }
 
 <?php $listActions = $this->getParameterValue('list.batch_actions') ?>
 <?php if (null !== $listActions): ?>
-  public function executeBatchAction()
+  public function executeBatchAction($request)
   {
     $action = $this->getRequestParameter('sf_admin_batch_action');
     switch($action)
@@ -84,7 +83,7 @@ else
   }
 <?php endif; ?>
 
-  public function executeDeleteSelected()
+  public function executeDeleteSelected($request)
   {
     $this->selectedItems = $this->getRequestParameter('sf_admin_batch_selection', array());
 
@@ -97,18 +96,18 @@ else
     }
     catch (PropelException $e)
     {
-      $this->getRequest()->setError('delete', 'Could not delete the selected <?php echo sfInflector::humanize($this->getPluralName()) ?>. Make sure they do not have any associated items.');
+      $request->setError('delete', 'Could not delete the selected <?php echo sfInflector::humanize($this->getPluralName()) ?>. Make sure they do not have any associated items.');
       return $this->forward('<?php echo $this->getModuleName() ?>', 'list');
     }
 
     return $this->redirect('<?php echo $this->getModuleName() ?>/list');
   }
 
-  public function executeEdit()
+  public function executeEdit($request)
   {
     $this-><?php echo $this->getSingularName() ?> = $this->get<?php echo $this->getClassName() ?>OrCreate();
 
-    if ($this->getRequest()->isMethod('post'))
+    if ($request->isMethod('post'))
     {
       $this->update<?php echo $this->getClassName() ?>FromRequest();
 
@@ -118,7 +117,7 @@ else
       }
       catch (PropelException $e)
       {
-        $this->getRequest()->setError('edit', 'Could not save the edited <?php echo sfInflector::humanize($this->getPluralName()) ?>.');
+        $request->setError('edit', 'Could not save the edited <?php echo sfInflector::humanize($this->getPluralName()) ?>.');
         return $this->forward('<?php echo $this->getModuleName() ?>', 'list');
       }
 
@@ -143,7 +142,7 @@ else
     }
   }
 
-  public function executeDelete()
+  public function executeDelete($request)
   {
     $this-><?php echo $this->getSingularName() ?> = <?php echo $this->getClassName() ?>Peer::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForAction(40) ?>);
     $this->forward404Unless($this-><?php echo $this->getSingularName() ?>);
@@ -154,7 +153,7 @@ else
     }
     catch (PropelException $e)
     {
-      $this->getRequest()->setError('delete', 'Could not delete the selected <?php echo sfInflector::humanize($this->getSingularName()) ?>. Make sure it does not have any associated items.');
+      $request->setError('delete', 'Could not delete the selected <?php echo sfInflector::humanize($this->getSingularName()) ?>. Make sure it does not have any associated items.');
       return $this->forward('<?php echo $this->getModuleName() ?>', 'list');
     }
 
