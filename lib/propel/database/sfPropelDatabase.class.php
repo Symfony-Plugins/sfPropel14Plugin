@@ -44,7 +44,7 @@ class sfPropelDatabase extends sfPDODatabase
   {
     parent::initialize($parameters);
 
-    if (!$this->hasParameter('datasource') || empty($this->getParameter('datasource')))
+    if (!$this->hasParameter('datasource'))
     {
       $this->setParameter('datasource', $name);
     }
