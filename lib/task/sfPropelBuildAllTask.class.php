@@ -73,5 +73,7 @@ EOF;
     $insertSql = new sfPropelInsertSqlTask($this->dispatcher, $this->formatter);
     $insertSql->setCommandApplication($this->commandApplication);
     $insertSql->run();
+
+    $this->cleanup();
   }
 }

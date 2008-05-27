@@ -73,5 +73,7 @@ EOF;
     $loadData->setCommandApplication($this->commandApplication);
 
     $loadData->run(array('application' => $arguments['application']), array('--env='.$options['env'], '--connection='.$options['connection']));
+
+    $this->cleanup();
   }
 }
