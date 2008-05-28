@@ -1018,10 +1018,7 @@
       <file name="build.properties-sample" role="data" />
       <file name="build.xml" role="data" />
       <file name="build.xml-local" role="data" />
-      <file name="CHANGELOG" role="data" />
       <file name="default.properties" role="data" />
-      <file name="INSTALL" role="data" />
-      <file name="LICENSE" role="data" />
      </dir> <!-- /lib/vendor/propel-generator -->
     </dir> <!-- /lib/vendor -->
    </dir> <!-- /lib -->
