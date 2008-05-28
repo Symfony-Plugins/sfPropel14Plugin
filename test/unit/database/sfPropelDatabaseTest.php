@@ -13,8 +13,6 @@ set_include_path(sfConfig::get('sf_symfony_lib_dir').'/plugins/sfPropelPlugin/li
 
 $t = new lime_test(1, new lime_output_color());
 
-$p = new sfPropelDatabase();
-
 $configuration = array ('propel' =>
                  array('datasources' =>
                   array('propel' =>
@@ -42,6 +40,6 @@ $parametersTests = array(
 
 foreach ($parametersTests as $parameters)
 {
-  $p->initialize($parameters);
+  $p = new sfPropelDatabase($parameters);
   $t->is($p->getConfiguration(), $configuration, 'initialize() - creates a valid propel configuration from parameters');
 }

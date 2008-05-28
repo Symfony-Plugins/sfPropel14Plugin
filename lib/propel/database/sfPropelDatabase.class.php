@@ -44,7 +44,11 @@ class sfPropelDatabase extends sfPDODatabase
   {
     parent::initialize($parameters);
 
-    if (!$this->hasParameter('datasource'))
+    if(!$this->hasParameter('datasource') && $this->hasParameter('name'))
+    {
+      $this->setParameter('datasource', $this->getParameter('name'));
+    }
+    elseif(!$this->hasParameter('datasource') && !empty($name))
     {
       $this->setParameter('datasource', $name);
     }
@@ -149,7 +153,7 @@ class sfPropelDatabase extends sfPDODatabase
     'user'         => $this->getParameter('username'),
     'password'     => $this->getParameter('password'),
     'classname'    => $this->getParameter('classname', 'PropelPDO'),
-    'options'      => array('ATTR_PERSISTENT' => $this->getParameter('persistent', true)),
+    'options'      => ($this->hasParameter('persistent')) ? array('ATTR_PERSISTENT' => $this->getParameter('persistent')) : array(),
     'settings'     => array('charset' => array('value' => $this->getParameter('encoding', 'utf8')), 'queries' => $this->getParameter('queries', array()))
     )
     );
