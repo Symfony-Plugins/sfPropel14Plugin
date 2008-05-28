@@ -358,6 +358,12 @@ class sfPropelDatabaseSchema
             $xml .= " name=\"$fkey_name\"";
           }
 
+          // foreign key phpName (for propel 1.3)
+ 	        if (isset($fkey['phpName']))
+ 	        {
+            $xml .= " phpName=\"$fkey[phpName]\"";
+          }
+
           // onDelete
           if (isset($fkey['onDelete']))
           {
