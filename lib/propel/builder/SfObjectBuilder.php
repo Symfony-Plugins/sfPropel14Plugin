@@ -117,6 +117,12 @@ require_once \''.ClassTools::getFilePath($this->getStubObjectBuilder()->getPacka
   protected function addCultureAccessorMethod(&$script)
   {
     $script .= '
+
+  /**
+   * Returns the culture.
+   *
+   * @return string The culture
+   */
   public function getCulture()
   {
     return $this->culture;
@@ -127,6 +133,13 @@ require_once \''.ClassTools::getFilePath($this->getStubObjectBuilder()->getPacka
   protected function addCultureMutatorMethod(&$script)
   {
     $script .= '
+  /**
+   * Sets the culture.
+   *
+   * @param string $culture The culture to set
+   *
+   * @return void
+   */
   public function setCulture($culture)
   {
     $this->culture = $culture;
@@ -354,11 +367,21 @@ EOF;
     parent::addClassClose($script);
 
     $behaviors = $this->getTable()->getAttribute('behaviors');
-    if($behaviors)
+    if ($behaviors)
     {
       $behavior_file_name = 'Base'.$this->getTable()->getPhpName().'Behaviors';
       $behavior_file_path = ClassTools::getFilePath($this->getStubObjectBuilder()->getPackage().'.om.', $behavior_file_name);
-      $script .= sprintf("\n\ninclude_once '%s';\n", $behavior_file_path);
+
+      $behavior_include_script = <<<EOF
+
+
+if (ProjectConfiguration::getActive() instanceof sfApplicationConfiguration)
+{
+  include_once '%s';
+}
+
+EOF;
+      $script .= sprintf($behavior_include_script, $behavior_file_path);
     }
   }
 }

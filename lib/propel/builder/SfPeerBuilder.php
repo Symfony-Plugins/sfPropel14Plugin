@@ -248,7 +248,8 @@ class SfPeerBuilder extends PHP5PeerBuilder
     }
 
 ";
-      $tmp = preg_replace('/public static function doSelect(Stmt|Join.*)\(Criteria \$(c|criteria), PropelPDO \$con = null\)\n\s*{/', '\0'.$mixer_script, $tmp);
+
+     $tmp = preg_replace('/{/', '{'.$mixer_script, $tmp, 1);
     }
 
     $script .= $tmp;
@@ -269,7 +270,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
     }
 
 ";
-      $tmp = preg_replace('/public static function doSelectJoin.*\(Criteria \$c, PropelPDO \$con = null\)\n\s*{/', '\0'.$mixer_script, $tmp);
+      $tmp = preg_replace('/{/', '{'.$mixer_script, $tmp, 1);
     }
 
     $script .= $tmp;
@@ -290,7 +291,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
     }
 
 ";
-      $tmp = preg_replace('/public static function doSelectJoinAll\(Criteria \$c, PropelPDO \$con = null\)\n\s*{/', '\0'.$mixer_script, $tmp);
+      $tmp = preg_replace('/{/', '{'.$mixer_script, $tmp, 1);
     }
 
     $script .= $tmp;
@@ -311,7 +312,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
     }
 
 ";
-      $tmp = preg_replace('/public static function doSelectJoinAllExcept.*\(Criteria \$c, PropelPDO \$con = null\)\n\s*{/', '\0'.$mixer_script, $tmp);
+      $tmp = preg_replace('/{/', '{'.$mixer_script, $tmp, 1);
     }
 
     $script .= $tmp;
@@ -400,16 +401,26 @@ class SfPeerBuilder extends PHP5PeerBuilder
 
     $absolute_behavior_file_path = sfConfig::get('sf_root_dir').'/'.$behavior_file_path;
 
-    if(file_exists($absolute_behavior_file_path))
+    if (file_exists($absolute_behavior_file_path))
     {
       unlink($absolute_behavior_file_path);
     }
 
     $behaviors = $this->getTable()->getAttribute('behaviors');
-    if($behaviors)
+    if ($behaviors)
     {
       file_put_contents($absolute_behavior_file_path, sprintf("<?php\nsfPropelBehavior::add('%s', %s);\n", $this->getTable()->getPhpName(), var_export(unserialize($behaviors), true)));
-      $script .= sprintf("\n\ninclude_once '%s';\n", $behavior_file_path);
+
+      $behavior_include_script = <<<EOF
+
+
+if (ProjectConfiguration::getActive() instanceof sfApplicationConfiguration)
+{
+  include_once '%s';
+}
+
+EOF;
+      $script .= sprintf($behavior_include_script, $behavior_file_path);
     }
   }
 

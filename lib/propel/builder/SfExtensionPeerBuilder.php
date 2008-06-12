@@ -18,6 +18,17 @@ require_once 'propel/engine/builder/om/php5/PHP5ExtensionPeerBuilder.php';
  */
 class SfExtensionPeerBuilder extends PHP5ExtensionPeerBuilder
 {
+  public function build()
+  {
+    $code = parent::build();
+    if (!DataModelBuilder::getBuildProperty('builderAddComments'))
+    {
+      $code = sfToolkit::stripComments($code);
+    }
+
+    return $code;
+  }
+
   protected function addIncludes(&$script)
   {
     if (!DataModelBuilder::getBuildProperty('builderAddIncludes'))
