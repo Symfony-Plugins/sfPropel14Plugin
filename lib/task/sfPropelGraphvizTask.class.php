@@ -8,6 +8,8 @@
  * file that was distributed with this source code.
  */
 
+require_once(dirname(FILE).'/sfPropelBaseTask.class.php'); 
+
 /**
  * Generates a graphviz chart of current object model.
  *
