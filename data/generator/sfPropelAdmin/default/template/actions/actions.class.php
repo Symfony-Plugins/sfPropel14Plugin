@@ -362,22 +362,25 @@ $column = sfPropelManyToMany::getColumn($class, $through_class);
 <?php if ($this->getParameterValue('list.filters')): ?>
     if ($this->getRequest()->hasParameter('filter'))
     {
+      $this->getUser()->getAttributeHolder()->removeNamespace('sf_admin/<?php echo $this->getSingularName() ?>/filters');
+
       $filters = $this->getRequestParameter('filters');
+      if(is_array($filters))
+      {
 <?php foreach ($this->getColumns('list.filters') as $column): $type = $column->getType() ?>
 <?php if ($type == PropelColumnTypes::DATE || $type == PropelColumnTypes::TIMESTAMP): ?>
-      if (isset($filters['<?php echo $column->getName() ?>']['from']) && $filters['<?php echo $column->getName() ?>']['from'] !== '')
-      {
-        $filters['<?php echo $column->getName() ?>']['from'] = $this->getContext()->getI18N()->getTimestampForCulture($filters['<?php echo $column->getName() ?>']['from'], $this->getUser()->getCulture());
-      }
-      if (isset($filters['<?php echo $column->getName() ?>']['to']) && $filters['<?php echo $column->getName() ?>']['to'] !== '')
-      {
-        $filters['<?php echo $column->getName() ?>']['to'] = $this->getContext()->getI18N()->getTimestampForCulture($filters['<?php echo $column->getName() ?>']['to'], $this->getUser()->getCulture());
-      }
+        if (isset($filters['<?php echo $column->getName() ?>']['from']) && $filters['<?php echo $column->getName() ?>']['from'] !== '')
+        {
+          $filters['<?php echo $column->getName() ?>']['from'] = $this->getContext()->getI18N()->getTimestampForCulture($filters['<?php echo $column->getName() ?>']['from'], $this->getUser()->getCulture());
+        }
+        if (isset($filters['<?php echo $column->getName() ?>']['to']) && $filters['<?php echo $column->getName() ?>']['to'] !== '')
+        {
+          $filters['<?php echo $column->getName() ?>']['to'] = $this->getContext()->getI18N()->getTimestampForCulture($filters['<?php echo $column->getName() ?>']['to'], $this->getUser()->getCulture());
+        }
 <?php endif; ?>
 <?php endforeach; ?>
-
-      $this->getUser()->getAttributeHolder()->removeNamespace('sf_admin/<?php echo $this->getSingularName() ?>/filters');
-      $this->getUser()->getAttributeHolder()->add($filters, 'sf_admin/<?php echo $this->getSingularName() ?>/filters');
+        $this->getUser()->getAttributeHolder()->add($filters, 'sf_admin/<?php echo $this->getSingularName() ?>/filters');
+      }
     }
 <?php endif; ?>
   }
