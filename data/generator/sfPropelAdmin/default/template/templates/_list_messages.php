@@ -5,6 +5,7 @@
     <li>[?php echo __($sf_request->getError('delete')) ?]</li>
   </ul>
 </div>
+[?php endif; ?]
 
 [?php if ($sf_request->hasError('edit')): ?]
 <div class="form-errors">
