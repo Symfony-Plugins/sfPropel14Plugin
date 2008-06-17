@@ -4,7 +4,7 @@
  * <?php echo $this->getModuleName() ?> actions.
  *
  * @package    ##PROJECT_NAME##
- * @subpackage <?php echo $this->getModuleName() ?>
+ * @subpackage <?php echo $this->getModuleName()."\n" ?>
  * @author     ##AUTHOR_NAME##
  * @version    SVN: $Id$
  */
