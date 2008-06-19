@@ -432,6 +432,8 @@ EOF;
       $unices[] = sprintf("array('%s')", implode("', '", $unique->getColumns()));
     }
 
+    $unices = array_unique($unices);
+
     $unices = implode(', ', $unices);
     $script .= <<<EOF
 
