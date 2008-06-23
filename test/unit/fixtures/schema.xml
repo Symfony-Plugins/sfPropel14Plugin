@@ -100,4 +100,11 @@
     </column>
   </table>
 
+  <table name="my_nested_sets" phpName="myNestedSetNode" treeMode="NestedSet">
+    <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+    <column name="lft" type="integer" required="true" nestedSetLeftKey="true" />
+    <column name="rgt" type="integer" required="true" nestedSetRightKey="true" />
+    <column name="scope" type="integer" required="true" treeScopeKey="true" />
+  </table>
+
 </database>

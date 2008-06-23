@@ -47,7 +47,7 @@ require_once(dirname(__FILE__).'/../../../../util/sfInflector.class.php');
 require_once(dirname(__FILE__).'/../../../../util/sfToolkit.class.php');
 require_once(dirname(__FILE__).'/../../../../yaml/sfYaml.class.php');
 
-$t = new my_lime_test(333, new lime_output_color());
+$t = new my_lime_test(367, new lime_output_color());
 
 $t->diag('Classical YAML to XML conversion');
 $p = new sfPropelDatabaseSchema();

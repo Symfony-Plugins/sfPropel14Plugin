@@ -155,6 +155,9 @@ class sfPropelDatabaseSchema
                 case '_inheritance':
                   $classes[$phpName]['inheritance'] = $column_params;
                   break;
+                case '_nestedSet':
+                  $classes[$phpName]['nestedSet'] = $column_params;
+                  break;
                 case '_foreignKeys':
                   $classes[$phpName]['foreignKeys'] = $column_params;
                   break;
@@ -247,6 +250,13 @@ class sfPropelDatabaseSchema
           unset($classParams['inheritance']);
         }
 
+        // Nested sets
+        if (isset($classParams['nestedSet']))
+        {
+          $tableParams['_nestedSet'] = $classParams['nestedSet'];
+          unset($classParams['nestedSet']);
+        }
+
         // Table attributes
         $tableAttributes = array();
         if (isset($classParams['tableName']))
@@ -298,7 +308,25 @@ class sfPropelDatabaseSchema
     // tables
     foreach ($this->getChildren($this->database) as $tb_name => $table)
     {
+      // capture nested set config for this table
+      if ($isNestedSet = isset($table['_nestedSet']))
+      {
+        $treeConfig = $table['_nestedSet'];
+        if (!isset($treeConfig['left']) ||
+            !isset($treeConfig['right']) ||
+            !isset($table[$treeConfig['left']]) ||
+            !isset($table[$treeConfig['right']]) ||
+            (isset($treeConfig['scope']) && !isset($table[$treeConfig['scope']])))
+        {
+          throw new sfException(sprintf('Incorrect NestedSet configuration for "%s" table.', $tb_name));
+        }
+      }
+
       $xml .= "\n  <table name=\"$tb_name\"".$this->getAttributesFor($table);
+      if ($isNestedSet)
+      {
+        $xml .= ' treeMode="NestedSet"';
+      }
       if (isset($table['_behaviors']))
       {
         $xml .= sprintf(" behaviors=\"%s\"", htmlspecialchars(serialize($table['_behaviors'])), ENT_QUOTES, sfConfig::get('sf_charset'));
@@ -317,6 +345,23 @@ class sfPropelDatabaseSchema
         {
           $column['inheritance'] = $table['_inheritance']['classes'];
           unset($table['_inheritance']);
+        }
+
+        // add nested set attributes to this column
+        if ($isNestedSet && in_array($col_name, $treeConfig))
+        {
+          if ($col_name == $treeConfig['left'])
+          {
+            $column['nestedSetLeftKey'] = 'true';
+          }
+          elseif ($col_name == $treeConfig['right'])
+          {
+            $column['nestedSetRightKey'] = 'true';
+          }
+          elseif (isset($treeConfig['scope']) && $col_name == $treeConfig['scope'])
+          {
+            $column['treeScopeKey'] = 'true';
+          }
         }
 
         $xml .= "    <column name=\"$col_name\"".$this->getAttributesForColumn($tb_name, $col_name, $column);
@@ -380,8 +425,8 @@ class sfPropelDatabaseSchema
           }
 
           // foreign key phpName (for propel 1.3)
- 	        if (isset($fkey['phpName']))
- 	        {
+          if (isset($fkey['phpName']))
+          {
             $xml .= " phpName=\"$fkey[phpName]\"";
           }
 
