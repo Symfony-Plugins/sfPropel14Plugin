@@ -50,7 +50,6 @@ propel:
       paranoid: { column: deleted_at }
       act_as_nested_set:
 
-#test 'phpName' attribute in foreignKey element
   kl_article:
     title:          varchar(50)
     user_id:        { type: integer, phpName: AuthorId }

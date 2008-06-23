@@ -55,6 +55,7 @@ class sfWidgetFormPropelSelect extends sfWidgetFormSelect
     $this->addOption('criteria', null);
     $this->addOption('connection', null);
     $this->addOption('multiple', false);
+    $this->addOption('value_method', 'getPrimaryKey');
 
     parent::configure($options, $attributes);
   }
@@ -82,10 +83,11 @@ class sfWidgetFormPropelSelect extends sfWidgetFormSelect
     }
     $objects = call_user_func(array($class, 'doSelect'), $criteria, $this->getOption('connection'));
 
+    $valueMethod = $this->getOption('value_method') ? $this->getOption('value_method') : 'getPrimaryKey';
     $method = $this->getOption('method');
     foreach ($objects as $object)
     {
-      $choices[$object->getPrimaryKey()] = $object->$method();
+      $choices[$object->$valueMethod()] = $object->$method();
     }
 
     return $choices;
