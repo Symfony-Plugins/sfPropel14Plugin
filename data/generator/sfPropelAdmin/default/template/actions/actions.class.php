@@ -200,19 +200,20 @@ else
 $user_params = $this->getParameterValue('edit.fields.'.$column->getName().'.params');
 $user_params = is_array($user_params) ? $user_params : sfToolkit::stringToArray($user_params);
 $through_class = isset($user_params['through_class']) ? $user_params['through_class'] : '';
+$remote_column = isset($user_params['related_column']) ? $user_params['related_column'] : '';
 
 ?>
 <?php if ($through_class): ?>
 <?php
 
 $class = $this->getClassName();
-$related_class = sfPropelManyToMany::getRelatedClass($class, $through_class);
+$related_class = sfPropelManyToMany::getRelatedClass($class, $through_class, $remote_column);
 $related_table = constant($related_class.'Peer::TABLE_NAME');
 $middle_table = constant($through_class.'Peer::TABLE_NAME');
 $this_table = constant($class.'Peer::TABLE_NAME');
 
-$related_column = sfPropelManyToMany::getRelatedColumn($class, $through_class);
-$column = sfPropelManyToMany::getColumn($class, $through_class);
+$related_column = sfPropelManyToMany::getRelatedColumn($class, $through_class, $remote_column);
+$column = sfPropelManyToMany::getColumn($class, $through_class, $remote_column);
 
 ?>
 <?php if ($input_type == 'admin_double_list' || $input_type == 'admin_check_list' || $input_type == 'admin_select_list'): ?>
