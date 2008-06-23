@@ -444,4 +444,425 @@ EOF;
   }
 EOF;
   }
+
+	/**
+	 * Adds the doCountJoin*() methods.
+	 * @param      string &$script The script will be modified in this method.
+	 */
+	protected function addDoCountJoin(&$script)
+	{
+		$table = $this->getTable();
+		$className = $this->getObjectClassname();
+		$countFK = count($table->getForeignKeys());
+		$join_behavior = $this->getJoinBehavior();
+
+		if ($countFK >= 1) {
+
+			foreach ($table->getForeignKeys() as $fk) {
+
+				$joinTable = $table->getDatabase()->getTable($fk->getForeignTableName());
+
+				if (!$joinTable->isForReferenceOnly()) {
+
+					if ( $fk->getForeignTableName() != $table->getName() ) {
+
+						$thisTableObjectBuilder = $this->getNewObjectBuilder($table);
+						$joinedTableObjectBuilder = $this->getNewObjectBuilder($joinTable);
+						$joinedTablePeerBuilder = $this->getNewPeerBuilder($joinTable);
+
+						$joinClassName = $joinedTableObjectBuilder->getObjectClassname();
+
+						$script .= "
+
+	/**
+	 * Returns the number of rows matching criteria, joining the related ".$thisTableObjectBuilder->getFKPhpNameAffix($fk, $plural = false)." table
+	 *
+	 * @param      Criteria \$c
+	 * @param      boolean \$distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
+	 * @param      PropelPDO \$con
+	 * @param      String    \$join_behavior the type of joins to use, defaults to $join_behavior
+	 * @return     int Number of matching rows.
+	 */
+	public static function doCountJoin".$thisTableObjectBuilder->getFKPhpNameAffix($fk, $plural = false)."(Criteria \$criteria, \$distinct = false, PropelPDO \$con = null, \$join_behavior = $join_behavior)
+	{
+		// we're going to modify criteria, so copy it first
+		\$criteria = clone \$criteria;
+
+		// We need to set the primary table name, since in the case that there are no WHERE columns
+		// it will be impossible for the BasePeer::createSelectSql() method to determine which
+		// tables go into the FROM clause.
+		\$criteria->setPrimaryTableName(".$this->getPeerClassname()."::TABLE_NAME);
+
+		if (\$distinct && !in_array(Criteria::DISTINCT, \$criteria->getSelectModifiers())) {
+			\$criteria->setDistinct();
+		}
+
+		if (!\$criteria->hasSelectClause()) {
+			".$this->getPeerClassname()."::addSelectColumns(\$criteria);
+		}
+
+		\$criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
+
+		// Set the correct dbName
+		\$criteria->setDbName(self::DATABASE_NAME);
+
+		if (\$con === null) {
+			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_READ);
+		}
+";
+
+						$lfMap = $fk->getLocalForeignMapping();
+						$left = array();
+						$right = array();
+						foreach ($fk->getLocalColumns() as $columnName ) {
+							array_push($left, $this->getColumnConstant($table->getColumn($columnName) ) );
+							array_push($right, $joinedTablePeerBuilder->getColumnConstant($joinTable->getColumn( $lfMap[$columnName] ) ) );
+						}
+						$script .= "
+		\$criteria->addJoin(array(";
+						foreach ($left as $lCol) {
+							$script .= $lCol;
+							if ($lCol != $left[count($left)]) {
+								$script .= ",";
+							}
+						}
+						$script .= "), array(";
+						foreach ($right as $rCol) {
+							$script .= $rCol;
+							if ($rCol != $right[count($right)]) {
+								$script .= ",";
+							}
+						}
+						$script .= "), \$join_behavior);
+";
+
+    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
+    {
+      $script .= "
+
+    foreach (sfMixer::getCallables('{$this->getClassname()}:doCount:doCount') as \$callable)
+    {
+      call_user_func(\$callable, '{$this->getClassname()}', \$criteria, \$con);
+    }
+
+";
+    }
+
+      $script .= "
+		\$stmt = ".$this->basePeerClassname."::doCount(\$criteria, \$con);
+
+		if (\$row = \$stmt->fetch(PDO::FETCH_NUM)) {
+			\$count = (int) \$row[0];
+		} else {
+			\$count = 0; // no rows returned; we infer that means 0 matches.
+		}
+		\$stmt->closeCursor();
+		return \$count;
+	}
+";
+					}
+				}
+			}
+		}
+
+	}
+
+	/**
+	 * Adds the doCountJoinAll() method.
+	 * @param      string &$script The script will be modified in this method.
+	 */
+	protected function addDoCountJoinAll(&$script)
+	{
+		$table = $this->getTable();
+		$className = $this->getObjectClassname();
+		$join_behavior = $this->getJoinBehavior();
+
+		$script .= "
+
+	/**
+	 * Returns the number of rows matching criteria, joining all related tables
+	 *
+	 * @param      Criteria \$c
+	 * @param      boolean \$distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
+	 * @param      PropelPDO \$con
+	 * @param      String    \$join_behavior the type of joins to use, defaults to $join_behavior
+	 * @return     int Number of matching rows.
+	 */
+	public static function doCountJoinAll(Criteria \$criteria, \$distinct = false, PropelPDO \$con = null, \$join_behavior = $join_behavior)
+	{
+		// we're going to modify criteria, so copy it first
+		\$criteria = clone \$criteria;
+
+		// We need to set the primary table name, since in the case that there are no WHERE columns
+		// it will be impossible for the BasePeer::createSelectSql() method to determine which
+		// tables go into the FROM clause.
+		\$criteria->setPrimaryTableName(".$this->getPeerClassname()."::TABLE_NAME);
+
+		if (\$distinct && !in_array(Criteria::DISTINCT, \$criteria->getSelectModifiers())) {
+			\$criteria->setDistinct();
+		}
+
+		if (!\$criteria->hasSelectClause()) {
+			".$this->getPeerClassname()."::addSelectColumns(\$criteria);
+		}
+
+		\$criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
+
+		// Set the correct dbName
+		\$criteria->setDbName(self::DATABASE_NAME);
+
+		if (\$con === null) {
+			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_READ);
+		}
+";
+
+		foreach ($table->getForeignKeys() as $fk) {
+			// want to cover this case, but the code is not there yet.
+			if ( $fk->getForeignTableName() != $table->getName() ) {
+				$joinTable = $table->getDatabase()->getTable($fk->getForeignTableName());
+				$joinedTablePeerBuilder = $this->getNewPeerBuilder($joinTable);
+
+				$joinClassName = $joinedTablePeerBuilder->getObjectClassname();
+
+				$lfMap = $fk->getLocalForeignMapping();
+				$left = array();
+				$right = array();
+				foreach ($fk->getLocalColumns() as $columnName ) {
+					array_push($left, $this->getColumnConstant($table->getColumn($columnName) ) );
+					array_push($right, $joinedTablePeerBuilder->getColumnConstant($joinTable->getColumn( $lfMap[$columnName] ) ) );
+				}
+				$script .= "
+		\$criteria->addJoin(array(";
+				foreach ($left as $lCol) {
+					$script .= $lCol;
+					if ($lCol != $left[count($left)]) {
+						$script .= ",";
+					}
+				}
+				$script .= "), array(";
+				foreach ($right as $rCol) {
+					$script .= $rCol;
+					if ($rCol != $right[count($right)]) {
+						$script .= ",";
+					}
+				}
+				$script .= "), \$join_behavior);";
+			} // if fk->getForeignTableName != table->getName
+		} // foreach [sub] foreign keys
+
+    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
+    {
+      $script .= "
+
+    foreach (sfMixer::getCallables('{$this->getClassname()}:doCount:doCount') as \$callable)
+    {
+      call_user_func(\$callable, '{$this->getClassname()}', \$criteria, \$con);
+    }
+
+";
+    }
+
+
+		$script .= "
+		\$stmt = ".$this->basePeerClassname."::doCount(\$criteria, \$con);
+
+		if (\$row = \$stmt->fetch(PDO::FETCH_NUM)) {
+			\$count = (int) \$row[0];
+		} else {
+			\$count = 0; // no rows returned; we infer that means 0 matches.
+		}
+		\$stmt->closeCursor();
+		return \$count;
+	}";
+	} // end addDoCountJoinAll()
+
+	/**
+	 * Adds the doCountJoinAllExcept*() methods.
+	 * @param      string &$script The script will be modified in this method.
+	 */
+	protected function addDoCountJoinAllExcept(&$script)
+	{
+		$table = $this->getTable();
+		$join_behavior = $this->getJoinBehavior();
+
+		$fkeys = $table->getForeignKeys();  // this sep assignment is necessary otherwise sub-loops over
+		// getForeignKeys() will cause this to only execute one time.
+		foreach ($fkeys as $fk ) {
+
+			$tblFK = $table->getDatabase()->getTable($fk->getForeignTableName());
+
+			$excludedTable = $table->getDatabase()->getTable($fk->getForeignTableName());
+
+			$thisTableObjectBuilder = $this->getNewObjectBuilder($table);
+			$excludedTableObjectBuilder = $this->getNewObjectBuilder($excludedTable);
+			$excludedTablePeerBuilder = $this->getNewPeerBuilder($excludedTable);
+
+			$excludedClassName = $excludedTableObjectBuilder->getObjectClassname();
+
+			$script .= "
+
+	/**
+	 * Returns the number of rows matching criteria, joining the related ".$thisTableObjectBuilder->getFKPhpNameAffix($fk, $plural = false)." table
+	 *
+	 * @param      Criteria \$c
+	 * @param      boolean \$distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
+	 * @param      PropelPDO \$con
+	 * @param      String    \$join_behavior the type of joins to use, defaults to $join_behavior
+	 * @return     int Number of matching rows.
+	 */
+	public static function doCountJoinAllExcept".$thisTableObjectBuilder->getFKPhpNameAffix($fk, $plural = false)."(Criteria \$criteria, \$distinct = false, PropelPDO \$con = null, \$join_behavior = $join_behavior)
+	{
+		// we're going to modify criteria, so copy it first
+		\$criteria = clone \$criteria;
+
+		if (\$distinct && !in_array(Criteria::DISTINCT, \$criteria->getSelectModifiers())) {
+			\$criteria->setDistinct();
+		}
+
+		if (!\$criteria->hasSelectClause()) {
+			".$this->getPeerClassname()."::addSelectColumns(\$criteria);
+		}
+
+		\$criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
+
+		// Set the correct dbName
+		\$criteria->setDbName(self::DATABASE_NAME);
+
+		if (\$con === null) {
+			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_READ);
+		}
+	";
+
+			foreach ($table->getForeignKeys() as $subfk) {
+				// want to cover this case, but the code is not there yet.
+				if ( $subfk->getForeignTableName() != $table->getName() ) {
+					$joinTable = $table->getDatabase()->getTable($subfk->getForeignTableName());
+					$joinTablePeerBuilder = $this->getNewPeerBuilder($joinTable);
+					$joinClassName = $joinTablePeerBuilder->getObjectClassname();
+
+					if ($joinClassName != $excludedClassName)
+					{
+						$lfMap = $subfk->getLocalForeignMapping();
+						$left = array();
+						$right = array();
+						foreach ($subfk->getLocalColumns() as $columnName ) {
+							array_push($left, $this->getColumnConstant($table->getColumn($columnName) ) );
+							array_push($right, $joinTablePeerBuilder->getColumnConstant($joinTable->getColumn( $lfMap[$columnName] ) ) );
+						}
+						$script .= "
+				\$criteria->addJoin(array(";
+						foreach ($left as $lCol) {
+							$script .= $lCol;
+							if ($lCol != $left[count($left)]) {
+								$script .= ",";
+							}
+						}
+						$script .= "), array(";
+						foreach ($right as $rCol) {
+							$script .= $rCol;
+							if ($rCol != $right[count($right)]) {
+								$script .= ",";
+							}
+						}
+						$script .= "), \$join_behavior);";
+					}
+				}
+			} // foreach fkeys
+
+
+    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
+    {
+      $script .= "
+
+    foreach (sfMixer::getCallables('{$this->getClassname()}:doCount:doCount') as \$callable)
+    {
+      call_user_func(\$callable, '{$this->getClassname()}', \$criteria, \$con);
+    }
+
+";
+    }
+
+
+			$script .= "
+		\$stmt = ".$this->basePeerClassname."::doCount(\$criteria, \$con);
+
+		if (\$row = \$stmt->fetch(PDO::FETCH_NUM)) {
+			\$count = (int) \$row[0];
+		} else {
+			\$count = 0; // no rows returned; we infer that means 0 matches.
+		}
+		\$stmt->closeCursor();
+		return \$count;
+	}
+";
+		} // foreach fk
+
+	} // addDoCountJoinAllExcept
+
+	/**
+	 * Adds the doCount() method.
+	 * @param      string &$script The script will be modified in this method.
+	 */
+	protected function addDoCount(&$script)
+	{
+		$script .= "
+	/**
+	 * Returns the number of rows matching criteria.
+	 *
+	 * @param      Criteria \$criteria
+	 * @param      boolean \$distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
+	 * @param      PropelPDO \$con
+	 * @return     int Number of matching rows.
+	 */
+	public static function doCount(Criteria \$criteria, \$distinct = false, PropelPDO \$con = null)
+	{
+		// we may modify criteria, so copy it first
+		\$criteria = clone \$criteria;
+
+		// We need to set the primary table name, since in the case that there are no WHERE columns
+		// it will be impossible for the BasePeer::createSelectSql() method to determine which
+		// tables go into the FROM clause.
+		\$criteria->setPrimaryTableName(".$this->getPeerClassname()."::TABLE_NAME);
+
+		if (\$distinct && !in_array(Criteria::DISTINCT, \$criteria->getSelectModifiers())) {
+			\$criteria->setDistinct();
+		}
+
+		if (!\$criteria->hasSelectClause()) {
+			".$this->getPeerClassname()."::addSelectColumns(\$criteria);
+		}
+
+		\$criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
+		\$criteria->setDbName(self::DATABASE_NAME); // Set the correct dbName
+
+		if (\$con === null) {
+			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_READ);
+		}
+";
+    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
+    {
+      $script .= "
+
+    foreach (sfMixer::getCallables('{$this->getClassname()}:doCount:doCount') as \$callable)
+    {
+      call_user_func(\$callable, '{$this->getClassname()}', \$criteria, \$con);
+    }
+
+";
+    }
+      $script .= "
+		// BasePeer returns a PDOStatement
+		\$stmt = ".$this->basePeerClassname."::doCount(\$criteria, \$con);
+
+		if (\$row = \$stmt->fetch(PDO::FETCH_NUM)) {
+			\$count = (int) \$row[0];
+		} else {
+			\$count = 0; // no rows returned; we infer that means 0 matches.
+		}
+		\$stmt->closeCursor();
+		return \$count;
+	}";
+	}
+
+
 }
