@@ -480,8 +480,7 @@ $column = sfPropelManyToMany::getColumn($class, $through_class, $remote_column);
     if ($sort_column = $this->getUser()->getAttribute('sort', null, 'sf_admin/<?php echo $this->getSingularName() ?>/sort'))
     {
       // camelize lower case to be able to compare with BasePeer::TYPE_PHPNAME translate field name
-      $sort_column = <?php echo $this->getClassName() ?>Peer::translateFieldName($sort_column, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_COLNAME);
-
+      $sort_column = <?php echo $this->getClassName() ?>Peer::translateFieldName(sfInflector::camelize(strtolower($sort_column)), BasePeer::TYPE_PHPNAME, BasePeer::TYPE_COLNAME);
       if ($this->getUser()->getAttribute('type', null, 'sf_admin/<?php echo $this->getSingularName() ?>/sort') == 'asc')
       {
         $c->addAscendingOrderByColumn($sort_column);
