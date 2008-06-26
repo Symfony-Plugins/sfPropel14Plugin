@@ -18,7 +18,7 @@ class CrudBrowser extends sfTestBrowser
     $this->projectDir = dirname(__FILE__).'/../fixtures';
 
     $this->clearDirectory($this->projectDir.'/apps/crud/modules/article');
-    $this->clearDirectory($this->projectDir.'/cache/crud/test/modules/autoArticle');
+    $this->clearDirectory($this->projectDir.'/cache/crud');
 
     chdir($this->projectDir);
     $task = new sfPropelGenerateCrudTask(new sfEventDispatcher(), new sfFormatter());
@@ -73,8 +73,7 @@ class CrudBrowser extends sfTestBrowser
       checkResponseElement('table tbody tr td:nth(7)', '')->
 
       checkResponseElement(sprintf('a[href$="/article/%s"]', in_array('non-atomic-actions', $options) ? 'edit' : 'create'), 'Create')->
-      checkResponseElement('a[href*="/article/edit/id/"]', '/\d+/', array('count' => 2))
-    ;
+      checkResponseElement(sprintf('a[href*="/article/%s/id/"]', in_array('with-show', $options) ? 'show' : 'edit'), '/\d+/', array('count' => 2));
 
     // create page
     $this->test()->diag('create page');
@@ -121,33 +120,40 @@ class CrudBrowser extends sfTestBrowser
 
     // edit page
     $this->test()->diag('edit page');
-    $this->
-      click('3')->
-      isStatusCode(200)->
-      isRequestParameter('module', 'article')->
-      isRequestParameter('action', 'edit')->
-      isRequestParameter('id', 3)->
+    if (!in_array('with-show', $options) && ($options['with-show'] === true))
+    {
+      $this->click('3');
+    }
+    else
+    {
+      $this->get('/article/edit/id/3');
+    }
 
-      checkResponseElement('h1', 'Edit Article')->
+    $this->isStatusCode(200)->
+    isRequestParameter('module', 'article')->
+    isRequestParameter('action', 'edit')->
+    isRequestParameter('id', 3)->
 
-      checkResponseElement('a[href$="/article"]', 'Cancel')->
-      checkResponseElement('a[href$="/article/delete/id/3"]', 'Delete')->
-      checkResponseElement('a[href$="/article/delete/id/3"][onclick*="confirm"]')->
+    checkResponseElement('h1', 'Edit Article')->
 
-      checkResponseElement('table tbody th:nth(0)', 'Title')->
-      checkResponseElement('table tbody th:nth(1)', 'Body')->
-      checkResponseElement('table tbody th:nth(2)', 'Online')->
-      checkResponseElement('table tbody th:nth(3)', 'Category id')->
-      checkResponseElement('table tbody th:nth(4)', 'Created at')->
-      checkResponseElement('table tbody th:nth(5)', 'End date')->
-      checkResponseElement('table tbody th:nth(6)', 'Book id')->
-      checkResponseElement('table tbody th:nth(7)', 'Author article list')->
-      checkResponseElement('table tbody th', 8)->
+    checkResponseElement('a[href$="/article"]', 'Cancel')->
+    checkResponseElement('a[href$="/article/delete/id/3"]', 'Delete')->
+    checkResponseElement('a[href$="/article/delete/id/3"][onclick*="confirm"]')->
 
-      checkResponseElement('table tbody td', 8)->
-      checkResponseElement('table tbody td select[id="article_category_id"][name="article[category_id]"] option', 2)->
-      checkResponseElement('table tbody td select[id="article_book_id"][name="article[book_id]"] option', 2)
-    ;
+    checkResponseElement('table tbody th:nth(0)', 'Title')->
+    checkResponseElement('table tbody th:nth(1)', 'Body')->
+    checkResponseElement('table tbody th:nth(2)', 'Online')->
+    checkResponseElement('table tbody th:nth(3)', 'Category id')->
+    checkResponseElement('table tbody th:nth(4)', 'Created at')->
+    checkResponseElement('table tbody th:nth(5)', 'End date')->
+    checkResponseElement('table tbody th:nth(6)', 'Book id')->
+    checkResponseElement('table tbody th:nth(7)', 'Author article list')->
+    checkResponseElement('table tbody th', 8)->
+
+    checkResponseElement('table tbody td', 8)->
+    checkResponseElement('table tbody td select[id="article_category_id"][name="article[category_id]"] option', 2)->
+    checkResponseElement('table tbody td select[id="article_book_id"][name="article[book_id]"] option', 2)
+  ;
 
     // save / validation
     $this->test()->diag('save / validation');

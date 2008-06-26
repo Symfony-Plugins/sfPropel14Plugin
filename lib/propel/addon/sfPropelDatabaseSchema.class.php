@@ -768,13 +768,13 @@ class sfPropelDatabaseSchema
     {
       if ($column['index'] === 'unique')
       {
-        $attributes_string .= "    <unique name=\"${tb_name}_${col_name}_unique\">\n";
+        $attributes_string .= "    <unique>\n";
         $attributes_string .= "      <unique-column name=\"$col_name\" />\n";
         $attributes_string .= "    </unique>\n";
       }
       else
       {
-        $attributes_string .= "    <index name=\"${tb_name}_${col_name}_index\">\n";
+        $attributes_string .= "    <index>\n";
         $attributes_string .= "      <index-column name=\"$col_name\" />\n";
         $attributes_string .= "    </index>\n";
       }
@@ -1060,7 +1060,7 @@ class sfPropelDatabaseSchema
         foreach ($indexes as $index => $references)
         {
           // Only single indexes can be simplified
-          if (count($references) == 1 && array_key_exists(substr($index, 0, strlen($index) - 6), $columns))
+          if (count($references) == 1 && false !== substr($index, 0, strlen($index) - 6) && array_key_exists(substr($index, 0, strlen($index) - 6), $columns))
           {
             $reference = $references[0];
 
@@ -1080,7 +1080,7 @@ class sfPropelDatabaseSchema
         foreach ($uniques as $index => $references)
         {
           // Only single unique indexes can be simplified
-          if (count($references) == 1 && array_key_exists(substr($index, 0, strlen($index) - 7), $columns))
+          if (count($references) == 1 && false !== substr($index, 0, strlen($index) - 7) && array_key_exists(substr($index, 0, strlen($index) - 7), $columns))
           {
             $reference = $references[0];
 
