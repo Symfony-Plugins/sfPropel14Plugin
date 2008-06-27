@@ -3,7 +3,7 @@
 /*
  * This file is part of the symfony package.
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
- * 
+ *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
@@ -18,7 +18,12 @@ require_once('phing/Phing.php');
  */
 class sfPhing extends Phing
 {
-  function getPhingVersion()
+  public static function printVersion()
+  {
+    print(self::getPhingVersion()."\n");
+  }
+
+  public static function getPhingVersion()
   {
     return 'sfPhing';
   }

@@ -52,7 +52,7 @@ EOF;
    */
   protected function execute($arguments = array(), $options = array())
   {
-    $this->callPhing('creole', self::DO_NOT_CHECK_SCHEMA);
+    $this->callPhing('reverse', self::DO_NOT_CHECK_SCHEMA);
 
     $xmlSchemaPath = sfConfig::get('sf_config_dir').DIRECTORY_SEPARATOR.'schema.xml';
     $ymlSchemaPath = sfConfig::get('sf_config_dir').DIRECTORY_SEPARATOR.'schema.yml';
