@@ -1,0 +1,99 @@
+= sfPropelPlugin (Propel 1.3 for symfony 1.1) =
+
+The `sfPropelPlugin` is a symfony plugin that provides integration with [http://propel.phpdb.org/ Propel].
+Propel is an [http://en.wikipedia.org/wiki/Object-relational_mapping Object-Relational Mapping (ORM)] framework.
+It allows you to access your database using a set of objects, providing a simple API for storing and retrieving data.
+The plugin provides a model layer for symfony with tasks for managing the object model and generators for creating crud/admin modules.
+
+Propel allows you, the web application developer, to work with databases in the same way you work with other classes and objects in PHP.
+
+    * You don't have to worry about database connections or writing SQL -- unless you want to.
+    * You never have to worry about escaping data or type-casting results.
+    * You define your database in a simple XML format (or tell Propel to build it from an existing database) and Propel will create database initialization files for your database and will generate static classes and objects that provide an OO interface to your database. (It can generate other useful things based on the datamodel too!)
+    * Propel builds classes which are aware of the structure of your database so there's no performance lost to initialization or to on-the-fly database metadata queries.
+
+== Installation ==
+
+  * Install the plugin
+
+{{{
+symfony plugin:install sfPropelPlugin
+}}}
+
+  * Configure databases.yml and propel.ini
+
+config/databases.yml (copy from sfPropelPlugin/config/databases.yml.example)
+{{{
+dev:
+  propel:
+    param:
+      classname:  DebugPDO
+
+all:
+  propel:
+    class:        sfPropelDatabase
+    param:
+      classname:  PropelPDO
+      dsn:        mysql:dbname=foobar;host=localhost
+      username:   foo
+      password:   bar
+      encoding:   utf8
+      persistent: true
+      pooling:    true
+}}}
+
+
+config/propel.ini (copy from sfPropelPlugin/config/propel.ini.example)
+{{{
+propel.database.driver     = mysql
+propel.database.url        = mysql:dbname=foobar;host=localhost
+propel.database.creole.url = ${propel.database.url}
+propel.database.user       = foo
+propel.database.password   = bar
+propel.output.dir          = /path/to/project
+}}}
+
+  * Clear you cache
+
+{{{
+symfony cc
+}}}
+
+  * Rebuild your object model
+
+{{{
+symfony propel:build-all
+}}}
+
+  * Clear you cache
+
+{{{
+symfony cc
+}}}
+
+== Documentation ==
+
+  * [http://propel.phpdb.org/trac/wiki/Users/Documentation/1.3/Upgrading Upgrading from Propel 1.2 to 1.3]
+  * [http://propel.phpdb.org/trac/wiki/Users/Documentation/1.3 Propel Documentation] + [http://propel.phpdb.org/trac/wiki/Users/Documentation/1.3/UserGuide User Guide]
+  * The symfony book on: [http://www.symfony-project.org/book/1_1/08-Inside-the-Model-Layer model layer], [http://www.symfony-project.org/book/1_1/14-Generators generators], [http://www.symfony-project.org/book/1_1/13-I18n-and-L10n i18n] - warning: based on propel 1.2 (but most is valid)
+  * [http://propel.phpdb.org/trac/wiki/Users/Documentation/1.3/HowTos Propel Tutorials]
+  * [http://propel.phpdb.org/docs/api/1.3/runtime/ Propel API Documentation]
+
+If upgrading see:
+
+  * [http://propel.phpdb.org/trac/wiki/Users/Documentation/1.3/Upgrading#NewTransactionAPI Transaction syntax has changed in Propel 1.3.]
+  * [http://propel.phpdb.org/trac/wiki/Users/Documentation/1.3/Upgrading#NewPropelMethodSignatures Out with RecordSet, in with Statements]
+  * [http://propel.phpdb.org/trac/wiki/Users/Documentation/1.3/Upgrading#GeneralDBAPIChanges Custom SQL API has changed]
+  * [http://propel.phpdb.org/trac/wiki/Users/Documentation/1.3/Upgrading#Much-ImprovedDateTimeHandling new DateTime handling]
+
+
+== TODO ==
+
+  * Add master/slave support for config
+  * Add query timing + better logging
+
+== Changelog ==
+
+=== 1.3.0-PRE ===
+
+  * dwhittle: initial release
