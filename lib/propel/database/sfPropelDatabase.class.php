@@ -138,7 +138,7 @@ class sfPropelDatabase extends sfPDODatabase
                               'options'      => ($this->hasParameter('persistent')) ? array('ATTR_PERSISTENT' => $this->getParameter('persistent')) : array(),
                               'settings'     => array('charset' => array('value' => $this->getParameter('encoding', 'utf8')),
                                                       'queries' => $this->getParameter('queries', array()))
-      )
+      ));
   }
 
   /**
