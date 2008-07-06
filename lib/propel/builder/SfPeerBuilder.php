@@ -218,16 +218,15 @@ class SfPeerBuilder extends PHP5PeerBuilder
       $tmp = '';
       parent::addDoValidate($tmp);
 
-      // fix setting validation errors for 1.1
+      /**
+       * @todo setup 1.1 global validation errors for propel model validation
+       */
       $script .= str_replace("return {$this->basePeerClassname}::doValidate(".$this->getPeerClassname()."::DATABASE_NAME, ".$this->getPeerClassname()."::TABLE_NAME, \$columns);\n",
         "\$res =  {$this->basePeerClassname}::doValidate(".$this->getPeerClassname()."::DATABASE_NAME, ".$this->getPeerClassname()."::TABLE_NAME, \$columns);\n".
         "    if (\$res !== true) {\n".
         "        \$request = sfContext::getInstance()->getRequest();\n".
         "        foreach (\$res as \$failed) {\n".
         "            \$col = ".$this->getPeerClassname()."::translateFieldname(\$failed->getColumn(), BasePeer::TYPE_COLNAME, BasePeer::TYPE_PHPNAME);\n".
-        "            if(sfConfig::get('sf_compat_10')) {\n".
-        "               \$request->setError(\$col, \$failed->getMessage());\n".
-        "            }\n".
         "        }\n".
         "    }\n\n".
         "    return \$res;\n", $tmp);
