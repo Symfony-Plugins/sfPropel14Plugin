@@ -33,6 +33,9 @@ class SfPeerBuilder extends PHP5PeerBuilder
       $peerCode = preg_replace("/(include|require)_once\s*.*MapBuilder\.php.*\s*/", "", $peerCode);
     }
 
+    // change Propel::import() calls to sfPropel::import()
+    $peerCode = str_replace('Propel::import(', 'sfPropel::import(', $peerCode);
+
     return $peerCode;
   }
 
