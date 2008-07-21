@@ -83,11 +83,11 @@ class sfPropelFormGenerator extends sfGenerator
       $this->table = $table;
 
       // find the package to store forms in the same directory as the model classes
-      $packages = explode('.', constant($table->getPhpName().'Peer::CLASS_DEFAULT'));
+      $packages = explode('.', constant($table->getClassname().'Peer::CLASS_DEFAULT'));
       array_pop($packages);
       if (false === $pos = array_search($this->params['model_dir_name'], $packages))
       {
-        throw new InvalidArgumentException(sprintf('Unable to find the model dir name (%s) in the package %s.', $this->params['model_dir_name'], constant($table->getPhpName().'Peer::CLASS_DEFAULT')));
+        throw new InvalidArgumentException(sprintf('Unable to find the model dir name (%s) in the package %s.', $this->params['model_dir_name'], constant($table->getClassname().'Peer::CLASS_DEFAULT')));
       }
       $packages[$pos] = $this->params['form_dir_name'];
       $baseDir = sfConfig::get('sf_root_dir').'/'.implode(DIRECTORY_SEPARATOR, $packages);
@@ -97,8 +97,8 @@ class sfPropelFormGenerator extends sfGenerator
         mkdir($baseDir.'/base', 0777, true);
       }
 
-      file_put_contents($baseDir.'/base/Base'.$table->getPhpName().'Form.class.php', $this->evalTemplate('sfPropelFormGeneratedTemplate.php'));
-      if (!file_exists($classFile = $baseDir.'/'.$table->getPhpName().'Form.class.php'))
+      file_put_contents($baseDir.'/base/Base'.$table->getClassname().'Form.class.php', $this->evalTemplate('sfPropelFormGeneratedTemplate.php'));
+      if (!file_exists($classFile = $baseDir.'/'.$table->getClassname().'Form.class.php'))
       {
         file_put_contents($classFile, $this->evalTemplate('sfPropelFormTemplate.php'));
       }
@@ -121,13 +121,13 @@ class sfPropelFormGenerator extends sfGenerator
     {
       foreach ($table->getColumns() as $column)
       {
-        if ($column->isForeignKey() && $column->isPrimaryKey() && $this->table->getPhpName() == $this->getForeignTable($column)->getPhpName())
+        if ($column->isForeignKey() && $column->isPrimaryKey() && $this->table->getClassname() == $this->getForeignTable($column)->getClassname())
         {
           // we have a m2m relationship
           // find the other primary key
           foreach ($table->getColumns() as $relatedColumn)
           {
-            if ($relatedColumn->isForeignKey() && $relatedColumn->isPrimaryKey() && $this->table->getPhpName() != $this->getForeignTable($relatedColumn)->getPhpName())
+            if ($relatedColumn->isForeignKey() && $relatedColumn->isPrimaryKey() && $this->table->getClassname() != $this->getForeignTable($relatedColumn)->getClassname())
             {
               // we have the related table
               $tables[] = array(
@@ -165,13 +165,13 @@ class sfPropelFormGenerator extends sfGenerator
     {
       if (!$column->isPrimaryKey() && $column->isForeignKey())
       {
-        $names[] = array($this->getForeignTable($column)->getPhpName(), $column->getPhpName(), $column->isNotNull(), false);
+        $names[] = array($this->getForeignTable($column)->getClassname(), $column->getPhpName(), $column->isNotNull(), false);
       }
     }
 
     foreach ($this->getManyToManyTables() as $tables)
     {
-      $names[] = array($tables['relatedTable']->getPhpName(), $tables['middleTable']->getPhpName(), false, true);
+      $names[] = array($tables['relatedTable']->getClassname(), $tables['middleTable']->getClassname(), false, true);
     }
 
     return $names;
@@ -260,7 +260,7 @@ class sfPropelFormGenerator extends sfGenerator
 
     if (!$column->isPrimaryKey() && $column->isForeignKey())
     {
-      $options[] = sprintf('\'model\' => \'%s\', \'add_empty\' => %s', $this->getForeignTable($column)->getPhpName(), $column->isNotNull() ? 'false' : 'true');
+      $options[] = sprintf('\'model\' => \'%s\', \'add_empty\' => %s', $this->getForeignTable($column)->getClassname(), $column->isNotNull() ? 'false' : 'true');
     }
 
     return count($options) ? sprintf('array(%s)', implode(', ', $options)) : '';
@@ -332,7 +332,7 @@ class sfPropelFormGenerator extends sfGenerator
 
     if ($column->isForeignKey())
     {
-      $map = call_user_func(array($this->getForeignTable($column)->getPhpName().'Peer', 'getTableMap'));
+      $map = call_user_func(array($this->getForeignTable($column)->getClassname().'Peer', 'getTableMap'));
       foreach ($map->getColumns() as $primaryKey)
       {
         if ($primaryKey->isPrimaryKey())
@@ -341,11 +341,11 @@ class sfPropelFormGenerator extends sfGenerator
         }
       }
 
-      $options[] = sprintf('\'model\' => \'%s\', \'column\' => \'%s\'', $this->getForeignTable($column)->getPhpName(), strtolower($primaryKey->getColumnName()));
+      $options[] = sprintf('\'model\' => \'%s\', \'column\' => \'%s\'', $this->getForeignTable($column)->getClassname(), strtolower($primaryKey->getColumnName()));
     }
     else if ($column->isPrimaryKey())
     {
-      $options[] = sprintf('\'model\' => \'%s\', \'column\' => \'%s\'', $column->getTable()->getPhpName(), strtolower($column->getColumnName()));
+      $options[] = sprintf('\'model\' => \'%s\', \'column\' => \'%s\'', $column->getTable()->getClassname(), strtolower($column->getColumnName()));
     }
     else
     {
@@ -388,7 +388,7 @@ class sfPropelFormGenerator extends sfGenerator
 
     foreach ($this->getManyToManyTables() as $tables)
     {
-      if (($m = strlen($this->underscore($tables['middleTable']->getPhpName()).'_list')) > $max)
+      if (($m = strlen($this->underscore($tables['middleTable']->getClassname()).'_list')) > $max)
       {
         $max = $m;
       }
@@ -435,7 +435,7 @@ class sfPropelFormGenerator extends sfGenerator
    */
   public function isI18n()
   {
-    return method_exists($this->table->getPhpName().'Peer', 'getI18nModel');
+    return method_exists($this->table->getClassname().'Peer', 'getI18nModel');
   }
 
   /**
@@ -445,7 +445,7 @@ class sfPropelFormGenerator extends sfGenerator
    */
   public function getI18nModel()
   {
-    return call_user_func(array($this->table->getPhpName().'Peer', 'getI18nModel'));
+    return call_user_func(array($this->table->getClassname().'Peer', 'getI18nModel'));
   }
 
   public function underscore($name)
@@ -457,7 +457,7 @@ class sfPropelFormGenerator extends sfGenerator
   {
     $uniqueColumns = array();
 
-    foreach (call_user_func(array($this->table->getPhpName().'Peer', 'getUniqueColumnNames')) as $unique)
+    foreach (call_user_func(array($this->table->getClassname().'Peer', 'getUniqueColumnNames')) as $unique)
     {
       $uniqueColumn = array();
       foreach ($unique as $column)
