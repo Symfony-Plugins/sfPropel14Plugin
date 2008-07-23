@@ -51,7 +51,8 @@ class sfPropelGenerateMigrationTask extends sfPropelBaseTask
         $upSql .= file_get_contents($sqlFile)."\n";
       }
       
-      file_put_contents($migrationManager->getMigrationsDir().'/'.$class.'_up.sql', $upSql);
+      $this->logSection('file+', $upFile = $migrationManager->getMigrationsDir().'/'.$class.'_up.sql');
+      file_put_contents($upFile, $upSql);
       $up = "\n    \$this->executeSqlFromFile(dirname(__FILE__).'/{$class}_up.sql');";
       
       // generate down sql file
@@ -71,7 +72,8 @@ class sfPropelGenerateMigrationTask extends sfPropelBaseTask
           $downSql .= "SET FOREIGN_KEY_CHECKS=1;\n";
         }
         
-        file_put_contents($migrationManager->getMigrationsDir().'/'.$class.'_down.sql', $downSql);
+        $this->logSection('file+', $downFile = $migrationManager->getMigrationsDir().'/'.$class.'_down.sql');
+        file_put_contents($downFile, $downSql);
         $down = "\n    \$this->executeSqlFromFile(dirname(__FILE__).'/{$class}_down.sql');";
       }
     }
