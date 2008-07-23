@@ -1,62 +1,65 @@
 <?php
 
-/*
- * This file is part of the sfPropelMigrationsLightPlugin package.
- * (c) 2006-2008 Martin Kreidenweis <sf@kreidenweis.com>
- * 
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
-require_once(dirname(__FILE__).'/sfPropelBaseTask.class.php');
+require_once dirname(__FILE__).'/sfPropelBaseTask.class.php';
 
 /**
- * A symfony 1.1 port for the pake migrate task.
- * 
- * @package     sfPropelMigrationsLightPlugin
- * @subpackage  task
- * @author      Martin Kreidenweis <sf@kreidenweis.com>
- * @version     SVN: $Id: sfPropelMigrateTask.class.php 10345 2008-07-17 21:21:13Z Kris.Wallsmith $
+ * Execute a database migration.
  */
 class sfPropelMigrateTask extends sfPropelBaseTask
 {
+  /**
+   * @see sfTask
+   */
   protected function configure()
   {
     $this->addArguments(array(
       new sfCommandArgument('application', sfCommandArgument::REQUIRED, 'The application name'),
     ));
-
+    
     $this->addOptions(array(
-      new sfCommandOption('env', null, sfCommandOption::PARAMETER_REQUIRED, 'The environment', 'dev'),
-      new sfCommandOption('schema-version', 'v', sfCommandOption::PARAMETER_REQUIRED, 'The target schema version'),
+      new sfCommandOption('env', null, sfCommandOption::PARAMETER_REQUIRED, 'The environement', 'cli'),
+      new sfCommandOption('connection', null, sfCommandOption::PARAMETER_REQUIRED, 'The connection name', 'propel'),
+      new sfCommandOption('revision', 'r', sfCommandOption::PARAMETER_REQUIRED, 'The target schema revision'),
+      new sfCommandOption('down', null, sfCommandOption::PARAMETER_NONE, 'Migrate down a certain number of revisions'),
+      new sfCommandOption('up', null, sfCommandOption::PARAMETER_NONE, 'Migrate up a certain number of revisions'),
+      new sfCommandOption('manual', null, sfCommandOption::PARAMETER_NONE, 'Manually set the current schema revision but do not run any migrations'),
     ));
-
-    $this->aliases = array('migrate');
+    
+    $this->aliases = array('propel-migrate');
     $this->namespace = 'propel';
     $this->name = 'migrate';
-    $this->briefDescription = 'Migrates the database schema to another version';
+    $this->briefDescription = 'Migrate your database to a schema revision';
   }
-
+  
+  /**
+   * @see sfTask
+   */
   protected function execute($arguments = array(), $options = array())
   {
-    $configuration = ProjectConfiguration::getApplicationConfiguration($arguments['application'], $options['env'], true);
-
-    $databaseManager = new sfDatabaseManager($configuration);
-
-    $migrator = new sfMigrator();
-
-    if (isset($options['schema-version']) && ctype_digit($options['schema-version']))
+    $databaseManager  = new sfDatabaseManager($this->configuration);
+    
+    $migrationManager = new sfPropelMigrationManager($this->configuration, $this->formatter, $options['connection']);
+    $migrationManager->setIsManual($options['manual']);
+    
+    $currentRevision = $migrationManager->getCurrentRevision();
+    
+    if (!is_null($options['revision']))
     {
-      $runMigrationsCount = $migrator->migrate((int) $options['schema-version']);
+      $migrationManager->setTargetRevision($options['revision']);
+    }
+    elseif ($options['up'])
+    {
+      $migrationManager->setTargetRevision($currentRevision + 1);
+    }
+    elseif ($options['down'])
+    {
+      $migrationManager->setTargetRevision($currentRevision - 1);
     }
     else
     {
-      $runMigrationsCount = $migrator->migrate();
+      $migrationManager->setTargetRevision(sfPropelMigrationManager::HEAD);
     }
-
-    $currentVersion = $migrator->getCurrentVersion();
-
-    $this->logSection('migrations', 'migrated '.$runMigrationsCount.' step(s)');
-    $this->logSection('migrations', 'current database version: '.$currentVersion);
+    
+    $migrationManager->execute();
   }
 }
