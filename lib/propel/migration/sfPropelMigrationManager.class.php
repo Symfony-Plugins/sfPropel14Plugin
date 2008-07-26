@@ -15,9 +15,11 @@ class sfPropelMigrationManager implements ArrayAccess, Countable
     $migrationLogTable = 'sf_propel_plugin_migration_log',
     $queries = array(
       'mysql' => array(
-        'create'  => 'CREATE TABLE %table% (id INT PRIMARY KEY AUTO_INCREMENT, revision_from INT, revision_to INT NOT NULL, manual INT NOT NULL DEFAULT 0, migrated_at DATETIME NOT NULL)',
-        'insert'  => 'INSERT INTO %table% SET revision_from = :revision_from, revision_to = :revision_to, manual = :manual, migrated_at = NOW()',
-        'current' => 'SELECT revision_to FROM %table% ORDER BY migrated_at DESC LIMIT 1',
+        'create'      => 'CREATE TABLE %table% (id INT PRIMARY KEY AUTO_INCREMENT, revision_from INT, revision_to INT NOT NULL, manual INT NOT NULL DEFAULT 0, migrated_at DATETIME NOT NULL)',
+        'insert'      => 'INSERT INTO %table% SET revision_from = :revision_from, revision_to = :revision_to, manual = :manual, migrated_at = NOW()',
+        'current'     => 'SELECT revision_to FROM %table% ORDER BY migrated_at DESC LIMIT 1',
+        'log'         => 'SELECT * FROM %table% ORDER BY migrated_at DESC',
+        'log_limited' => 'SELECT * FROM %table% ORDER BY migrated_at DESC LIMIT %limit%',
       ),
     );
   
@@ -35,20 +37,21 @@ class sfPropelMigrationManager implements ArrayAccess, Countable
    * Get a query appropriate for the current database driver.
    * 
    * @param   string  $key
+   * @param   array   $vars
    * 
    * @return  string
    * 
    * @throws  <b>RuntimeException</b> If the current PDO driver is not supported
    */
-  static protected function getLogQuery($key)
+  static protected function getLogQuery($key, $vars = array())
   {
     $driver = Propel::getConnection()->getAttribute(PDO::ATTR_DRIVER_NAME);
     
     if (isset(self::$queries[$driver][$key]))
     {
-      $query = strtr(self::$queries[$driver][$key], array(
-        '%table%' => self::$migrationLogTable,
-      ));
+      $vars['%table%'] = self::$migrationLogTable;
+      
+      $query = strtr(self::$queries[$driver][$key], $vars);
     }
     else
     {
@@ -229,6 +232,20 @@ class sfPropelMigrationManager implements ArrayAccess, Countable
   public function getMigrationsDir()
   {
     return $this->configuration->getRootDir().'/data/migrations';
+  }
+  
+  /**
+   * A PDO statement populated with values from the migration log table.
+   * 
+   * @param   integer $limit
+   * 
+   * @return  PDOStatement
+   */
+  public function getMigrationLog($limit = null)
+  {
+    $sql = is_null($limit) ? $this->getLogQuery('log') : $this->getLogQuery('log_limited', array('%limit%' => $limit));
+    
+    return $this->getConnection()->query($sql);
   }
   
   /**
