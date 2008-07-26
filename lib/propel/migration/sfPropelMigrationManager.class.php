@@ -17,7 +17,6 @@ class sfPropelMigrationManager implements ArrayAccess, Countable
     $migrationLogTable = 'sf_propel_plugin_migration_log',
     $queries = array(
       'mysql' => array(
-        'drop'    => 'DROP TABLE IF EXISTS %table%',
         'create'  => 'CREATE TABLE %table% (id INT PRIMARY KEY AUTO_INCREMENT, revision_from INT, revision_to INT NOT NULL, manual INT NOT NULL DEFAULT 0, migrated_at DATETIME NOT NULL)',
         'insert'  => 'INSERT INTO %table% SET revision_from = :revision_from, revision_to = :revision_to, manual = :manual, migrated_at = NOW()',
         'current' => 'SELECT revision_to FROM %table% ORDER BY migrated_at DESC LIMIT 1',
@@ -395,34 +394,12 @@ class sfPropelMigrationManager implements ArrayAccess, Countable
     }
     catch (PDOException $e)
     {
-      $this->createMigrationLogTable();
+      $con->exec($this->getLogQuery('create'));
       $stmt->execute();
     }
     
     $this->currentRevision = $to;
     
     $this->logMessage(sprintf('Schema%s migrated from revision %d to %d.', $manual ? ' manually' : null, $from, $to));
-  }
-  
-  /**
-   * Create the migration log table in the database.
-   */
-  protected function createMigrationLogTable()
-  {
-    $con = $this->getConnection();
-    try
-    {
-      $con->beginTransaction();
-      
-      $con->exec($this->getLogQuery('drop'));
-      $con->exec($this->getLogQuery('create'));
-      
-      $con->commit();
-    }
-    catch (Exception $e)
-    {
-      $con->rollBack();
-      throw $e;
-    }
   }
 }
