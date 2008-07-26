@@ -89,12 +89,7 @@ class sfPropelMigrationManager implements ArrayAccess, Countable
   {
     if (is_null($this->getTargetRevision()))
     {
-      throw new LogicException('%s requires a target revision be set.', __METHOD__);
-    }
-    
-    if (sfPropelMigrationManager::HEAD == $this->getTargetRevision())
-    {
-      $this->setTargetRevision($this->getHeadRevision());
+      throw new LogicException(sprintf('%s requires a target revision be set.', __METHOD__));
     }
     
     $queue = array();
@@ -122,13 +117,15 @@ class sfPropelMigrationManager implements ArrayAccess, Countable
       else
       {
         $this->logMessage(sprintf('Preparing migration from revision %d to %d.', $this->getCurrentRevision(), $this->getTargetRevision()));
+        
+        $method = 'execute'.ucwords($direction);
         foreach ($queue as $revision)
         {
           try
           {
             $con->beginTransaction();
             
-            $this->logMigration($this[$revision]->$direction());
+            $this->logMigration($this[$revision]->$method());
             
             $con->commit();
           }

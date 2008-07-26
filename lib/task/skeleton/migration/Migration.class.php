@@ -6,11 +6,11 @@ class ##CLASS## extends sfPropelMigration
   {##CONFIGURE##
   }
   
-  protected function doUp()
+  protected function up()
   {##UP##
   }
   
-  protected function doDown()
+  protected function down()
   {##DOWN##
   }
 }

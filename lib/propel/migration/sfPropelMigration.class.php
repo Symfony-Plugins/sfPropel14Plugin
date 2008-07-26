@@ -45,9 +45,9 @@ abstract class sfPropelMigration
    * 
    * @return  integer The resulting schema revision
    */
-  public function up()
+  public function executeUp()
   {
-    $this->doUp();
+    $this->up();
     
     return $this->revision;
   }
@@ -55,16 +55,16 @@ abstract class sfPropelMigration
   /**
    * Migrate the schema up from the previous version to the current one.
    */
-  abstract protected function doUp();
+  abstract protected function up();
   
   /**
    * Execute the down migration.
    * 
    * @return  integer The resulting schema revision
    */
-  public function down()
+  public function executeDown()
   {
-    $this->doDown();
+    $this->down();
     
     return $this->revision - 1;
   }
@@ -72,7 +72,7 @@ abstract class sfPropelMigration
   /**
    * Migrate the schema down to the previous version, i.e. undo the modifications made in up().
    */
-  abstract protected function doDown();
+  abstract protected function down();
   
   /**
    * Get a description of this migration.
