@@ -24,6 +24,13 @@ class sfPropelMigrationStatusTask extends sfPropelBaseTask
     $this->namespace = 'propel';
     $this->name = 'migration-status';
     $this->briefDescription = 'Display the current schema revision';
+    
+    $this->detailedDescription = <<<EOF
+The [propel:migration-status|INFO] task displays the database's current schema 
+revision and the highest schema revision available:
+
+  [./symfony propel:migration-status frontend|INFO]
+EOF;
   }
   
   /**

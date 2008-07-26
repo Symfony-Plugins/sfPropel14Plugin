@@ -10,8 +10,6 @@
  */
 class sfPropelMigrationManager implements ArrayAccess, Countable
 {
-  const HEAD = -1;
-  
   static protected
     $autoloadRegistered = false,
     $migrationLogTable = 'sf_propel_plugin_migration_log',
@@ -194,7 +192,7 @@ class sfPropelMigrationManager implements ArrayAccess, Countable
   }
   
   /**
-   * Get the maximum available revision (sfPropelMigrationManager::HEAD).
+   * Get the maximum available revision.
    * 
    * @return  integer
    */
@@ -210,11 +208,6 @@ class sfPropelMigrationManager implements ArrayAccess, Countable
    */
   public function setTargetRevision($revision)
   {
-    if (sfPropelMigrationManager::HEAD == $revision)
-    {
-      $revision = $this->getHeadRevision();
-    }
-    
     $this->targetRevision = (int) $revision;
   }
   
@@ -301,11 +294,6 @@ class sfPropelMigrationManager implements ArrayAccess, Countable
    */
   public function offsetGet($offset)
   {
-    if (sfPropelMigrationManager::HEAD == $offset)
-    {
-      $offset = $this->getHeadRevision();
-    }
-    
     if (!isset($this[$offset]))
     {
       throw new InvalidArgumentException(sprintf('No migration exists for revision number "%s".', $offset));

@@ -29,6 +29,28 @@ class sfPropelMigrateTask extends sfPropelBaseTask
     $this->namespace = 'propel';
     $this->name = 'migrate';
     $this->briefDescription = 'Migrate your database to a schema revision';
+    
+    $this->detailedDescription = <<<EOF
+The [propel:migrate|INFO] task executes a chain of schema migrations:
+
+  [./symfony propel:migrate frontend|INFO]
+
+You can define which schema revision you would like to migrate to using the
+[--revision|COMMENT] option.
+
+  [./symfony propel:migrate frontend --revision=10|INFO]
+
+Alternatively, if you would like to migrate up or down one revision, you can 
+use the [--up|COMMENT] and [--down|COMMENT] options, respectively:
+
+  [./symfony propel:migrate frontend --down|INFO]
+
+If you would like to manually set the schema revision number stored in your 
+database without running any migrations, use the [--manual|COMMENT] option:
+
+  [./symfony propel:migrate frontend --revision=1 --manual|INFO]
+
+EOF;
   }
   
   /**
@@ -57,7 +79,7 @@ class sfPropelMigrateTask extends sfPropelBaseTask
     }
     else
     {
-      $migrationManager->setTargetRevision(sfPropelMigrationManager::HEAD);
+      $migrationManager->setTargetRevision($migrationManager->getHeadRevision());
     }
     
     $migrationManager->execute();

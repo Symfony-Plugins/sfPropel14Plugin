@@ -20,6 +20,17 @@ class sfPropelGenerateMigrationTask extends sfPropelBaseTask
     $this->namespace = 'propel';
     $this->name = 'generate-migration';
     $this->briefDescription = 'Generate a new Propel migration';
+    
+    $this->detailedDescription = <<<EOF
+The [propel:generate-migration|INFO] task generates a migration class file:
+
+  [./symfony propel:generate-migration|INFO]
+
+You can optionally define a description of this migration using the 
+[--description|COMMENT] option:
+
+  [./symfony propel:generate-migration --description="Added sfGuardPlugin tables"|INFO]
+EOF;
   }
   
   /**
