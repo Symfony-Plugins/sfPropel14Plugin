@@ -20,10 +20,10 @@ class sfPhing extends Phing
 {
   public static function printVersion()
   {
-    print($this->getPhingVersion()."\n");
+    print(self::getPhingVersion()."\n");
   }
 
-  public function getPhingVersion()
+  public static function getPhingVersion()
   {
     return 'sfPhing';
   }
