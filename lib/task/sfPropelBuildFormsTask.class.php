@@ -61,7 +61,7 @@ EOF;
   protected function execute($arguments = array(), $options = array())
   {
     $this->logSection('propel', 'generating form classes');
-
+    
     $generatorManager = new sfGeneratorManager($this->configuration);
     $generatorManager->generate('sfPropelFormGenerator', array(
       'connection'     => $options['connection'],

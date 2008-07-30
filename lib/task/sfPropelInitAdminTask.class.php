@@ -62,7 +62,9 @@ EOF;
    */
   protected function execute($arguments = array(), $options = array())
   {
-    $properties = parse_ini_file(sfConfig::get('sf_config_dir').DIRECTORY_SEPARATOR.'properties.ini', true);
+    $databaseManager = new sfDatabaseManager($this->configuration);
+    
+    $properties = parse_ini_file(sfConfig::get('sf_config_dir').'/properties.ini', true);
 
     $constants = array(
       'PROJECT_NAME' => isset($properties['symfony']['name']) ? $properties['symfony']['name'] : 'symfony',
