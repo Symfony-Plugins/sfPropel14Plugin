@@ -5,7 +5,7 @@ require_once dirname(__FILE__).'/../../bootstrap/unit.php';
 $t = new lime_test(14, new lime_output_color);
 
 $_root_dir = realpath(dirname(__FILE__).'/../../functional/fixtures');
-$configuration = new ProjectConfiguration($_root_dir);
+$configuration = new sfProjectConfiguration($_root_dir);
 $manager = new sfPropelMigrationManager($configuration);
 
 $t->ok(is_null($manager->getTargetRevision()), '"->targetRevision" defaults to "null"');
