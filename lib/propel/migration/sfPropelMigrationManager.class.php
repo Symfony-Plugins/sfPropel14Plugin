@@ -17,9 +17,9 @@ class sfPropelMigrationManager implements ArrayAccess, Countable
       'mysql' => array(
         'create'      => 'CREATE TABLE %table% (id INT PRIMARY KEY AUTO_INCREMENT, revision_from INT, revision_to INT NOT NULL, manual INT NOT NULL DEFAULT 0, migrated_at DATETIME NOT NULL)',
         'insert'      => 'INSERT INTO %table% SET revision_from = :revision_from, revision_to = :revision_to, manual = :manual, migrated_at = NOW()',
-        'current'     => 'SELECT revision_to FROM %table% ORDER BY migrated_at DESC LIMIT 1',
-        'log'         => 'SELECT * FROM %table% ORDER BY migrated_at DESC',
-        'log_limited' => 'SELECT * FROM %table% ORDER BY migrated_at DESC LIMIT %limit%',
+        'current'     => 'SELECT revision_to FROM %table% ORDER BY id DESC LIMIT 1',
+        'log'         => 'SELECT * FROM %table% ORDER BY id DESC',
+        'log_limited' => 'SELECT * FROM %table% ORDER BY id DESC LIMIT %limit%',
       ),
     );
   
@@ -399,7 +399,7 @@ class sfPropelMigrationManager implements ArrayAccess, Countable
     }
     catch (PDOException $e)
     {
-      $con->exec($this->getLogQuery('create'));
+      $this->getConnection()->exec($this->getLogQuery('create'));
       $stmt->execute();
     }
     

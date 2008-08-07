@@ -55,6 +55,8 @@ EOF;
     
     if (1 == $revision && $sqlFiles = sfFinder::type('file')->name('*.sql')->maxdepth(0)->in($this->configuration->getRootDir().'/data/sql'))
     {
+      $this->getFilesystem()->mkdirs($migrationManager->getMigrationsDir(), 0755);
+
       // generate up sql file
       $upSql = null;
       foreach ($sqlFiles as $sqlFile)
