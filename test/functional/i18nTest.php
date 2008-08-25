@@ -15,7 +15,7 @@ if (!include(dirname(__FILE__).'/../bootstrap/functional.php'))
   return;
 }
 
-class myTestBrowser extends sfTestBrowser
+class myBrowser extends sfBrowser
 {
   public function getContext($forceReload = false)
   {
@@ -27,7 +27,7 @@ class myTestBrowser extends sfTestBrowser
   }
 }
 
-$b = new myTestBrowser();
+$b = new sfTestBrowser(new myBrowser());
 
 // en
 $b->
