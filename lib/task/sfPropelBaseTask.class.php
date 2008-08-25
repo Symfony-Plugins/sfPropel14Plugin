@@ -228,6 +228,10 @@ abstract class sfPropelBaseTask extends sfBaseTask
       $args[] = "-D$key=$value";
     }
 
+    // Build listener
+    $args[] = '-listener';
+    $args[] = 'plugins.sfPropelPlugin.lib.propel.builder.SfBuildListener';
+
     // Build file
     $args[] = '-f';
     $args[] = realpath(dirname(__FILE__).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'propel-generator'.DIRECTORY_SEPARATOR.'build.xml');
