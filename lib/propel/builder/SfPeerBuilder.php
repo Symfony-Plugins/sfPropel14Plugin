@@ -4,7 +4,7 @@ require_once 'propel/engine/builder/om/php5/PHP5PeerBuilder.php';
 
 /*
  * This file is part of the symfony package.
- * (c) 2004-2006 Fabien Potencier <fabien.potencier@symfony-project.com>
+ * (c) 2004-2008 Fabien Potencier <fabien.potencier@symfony-project.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,6 +14,7 @@ require_once 'propel/engine/builder/om/php5/PHP5PeerBuilder.php';
  * @package    symfony
  * @subpackage propel
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
+ * @author     Kris Wallsmith <kris.wallsmith@gmail.com>
  * @version    SVN: $Id$
  */
 class SfPeerBuilder extends PHP5PeerBuilder
@@ -23,7 +24,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
     $peerCode = parent::build();
     if (!DataModelBuilder::getBuildProperty('builderAddComments'))
     {
-      $peerCode =  sfToolkit::stripComments($peerCode);
+      $peerCode = sfToolkit::stripComments($peerCode);
     }
 
     if (!DataModelBuilder::getBuildProperty('builderAddIncludes'))
@@ -39,7 +40,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
     return $peerCode;
   }
 
-  protected function addIncludes(&$script)
+  protected function addIncludes(& $script)
   {
     if (!DataModelBuilder::getBuildProperty('builderAddIncludes'))
     {
@@ -49,7 +50,25 @@ class SfPeerBuilder extends PHP5PeerBuilder
     parent::addIncludes($script);
   }
 
-  protected function addSelectMethods(&$script)
+  protected function addConstantsAndAttributes(& $script)
+  {
+    parent::addConstantsAndAttributes($script);
+    
+    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
+    {
+      $script .= "
+  /**
+   * An associative array of behavior names and user parameters.
+   * 
+   * @var array
+   * @see sfPropelBehavior::add()
+   */
+  protected static \$behaviors = array();
+";
+    }
+  }
+
+  protected function addSelectMethods(& $script)
   {
     parent::addSelectMethods($script);
 
@@ -60,9 +79,14 @@ class SfPeerBuilder extends PHP5PeerBuilder
     }
 
     $this->addUniqueColumnNamesMethod($script);
+    
+    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
+    {
+      $this->addBehaviorMethods($script);
+    }
   }
 
-  protected function addI18nMethods(&$script)
+  protected function addI18nMethods(& $script)
   {
     $table = $this->getTable();
     foreach ($table->getReferrers() as $fk)
@@ -89,7 +113,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
 ";
   }
 
-  protected function addDoSelectWithI18n(&$script)
+  protected function addDoSelectWithI18n(& $script)
   {
     $table = $this->getTable();
     $thisTableObjectBuilder = OMBuilder::getNewObjectBuilder($table);
@@ -147,12 +171,11 @@ class SfPeerBuilder extends PHP5PeerBuilder
     if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
     {
       $script .= "
-
-    foreach (sfMixer::getCallables('{$this->getClassname()}:doSelectJoin:doSelectJoin') as \$callable)
-    {
-      call_user_func(\$callable, '{$this->getClassname()}', \$c, \$con);
-    }
-
+    sfProjectConfiguration::getActive()->getEventDispatcher()->notify(new sfEventPropel('{$this->getClassname()}', 'propel.do_select_i18n', array(
+      'criteria'   => \$c,
+      'culture'    => \$culture,
+      'connection' => \$con,
+    )));
 ";
     }
 
@@ -216,655 +239,431 @@ class SfPeerBuilder extends PHP5PeerBuilder
 ";
   }
 
-  protected function addDoValidate(&$script)
+  protected function addDoValidate(& $script)
   {
-      $tmp = '';
-      parent::addDoValidate($tmp);
+    $tmp = '';
+    parent::addDoValidate($tmp);
 
-      /**
-       * @todo setup 1.1 global validation errors for propel model validation
-       */
-      $script .= str_replace("return {$this->basePeerClassname}::doValidate(".$this->getPeerClassname()."::DATABASE_NAME, ".$this->getPeerClassname()."::TABLE_NAME, \$columns);\n",
-        "\$res =  {$this->basePeerClassname}::doValidate(".$this->getPeerClassname()."::DATABASE_NAME, ".$this->getPeerClassname()."::TABLE_NAME, \$columns);\n".
-        "    if (\$res !== true) {\n".
-        "        \$request = sfContext::getInstance()->getRequest();\n".
-        "        foreach (\$res as \$failed) {\n".
-        "            \$col = ".$this->getPeerClassname()."::translateFieldname(\$failed->getColumn(), BasePeer::TYPE_COLNAME, BasePeer::TYPE_PHPNAME);\n".
-        "        }\n".
-        "    }\n\n".
-        "    return \$res;\n", $tmp);
+    /**
+     * @todo setup 1.1 global validation errors for propel model validation
+     */
+    $replacer = "
+    \$res = {$this->basePeerClassname}::doValidate({$this->getPeerClassname()}::DATABASE_NAME, {$this->getPeerClassname()}::TABLE_NAME, \$columns);
+    if (true !== \$res)
+    {
+      \$request = sfContext::getInstance()->getRequest();
+      foreach (\$res as \$failed)
+      {
+        \$col = {$this->getPeerClassname()}::translateFieldname(\$failed->getColumn(), BasePeer::TYPE_COLNAME, BasePeer::TYPE_PHPNAME);
+      }
+    }
+
+    return \$res;
+";
+
+    $script .= str_replace(sprintf('return %s::doValidate(%s::DATABASE_NAME, %2$s::TABLE_NAME, $columns);', $this->basePeerClassname, $this->getPeerClassname()), $replacer, $tmp);
   }
 
-  protected function addDoSelectStmt(&$script)
+  protected function addDoSelectStmt(& $script)
   {
     $tmp = '';
     parent::addDoSelectStmt($tmp);
 
     if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
     {
-      $mixer_script = "
-
-    foreach (sfMixer::getCallables('{$this->getClassname()}:doSelectStmt:doSelectStmt') as \$callable)
-    {
-      call_user_func(\$callable, '{$this->getClassname()}', \$criteria, \$con);
-    }
-
-";
-
-     $tmp = preg_replace('/{/', '{'.$mixer_script, $tmp, 1);
+      // insert hook just before return
+      $pos = strrpos($tmp, 'return');
+      $tmp = substr($tmp, 0, $pos).$this->getDoSelectHook().substr($tmp, $pos);
     }
 
     $script .= $tmp;
   }
 
-  protected function addDoSelectJoin(&$script)
+  protected function addDoSelectJoin(& $script)
   {
     $tmp = '';
     parent::addDoSelectJoin($tmp);
 
     if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
     {
-      $mixer_script = "
-
-    foreach (sfMixer::getCallables('{$this->getClassname()}:doSelectJoin:doSelectJoin') as \$callable)
-    {
-      call_user_func(\$callable, '{$this->getClassname()}', \$c, \$con);
-    }
-
-";
-      $tmp = preg_replace('/{/', '{'.$mixer_script, $tmp, 1);
+      $table   = $this->getTable();
+      $builder = $this->getNewObjectBuilder($table);
+      foreach ($table->getForeignKeys() as $fk)
+      {
+        $method = 'doSelectJoin'.$builder->getFKPhpNameAffix($fk, $plural = false);
+        if (false !== $pos = strpos($tmp, $method))
+        {
+          // insert hook just before the $stmt variable is defined
+          $pos = $pos + strpos(substr($tmp, $pos), '$stmt = ');
+          $tmp = substr($tmp, 0, $pos).$this->getDoSelectHook(true, '$c').substr($tmp, $pos);
+        }
+      }
     }
 
     $script .= $tmp;
   }
 
-  protected function addDoSelectJoinAll(&$script)
+  protected function addDoSelectJoinAll(& $script)
   {
     $tmp = '';
     parent::addDoSelectJoinAll($tmp);
 
     if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
     {
-      $mixer_script = "
-
-    foreach (sfMixer::getCallables('{$this->getClassname()}:doSelectJoinAll:doSelectJoinAll') as \$callable)
-    {
-      call_user_func(\$callable, '{$this->getClassname()}', \$c, \$con);
-    }
-
-";
-      $tmp = preg_replace('/{/', '{'.$mixer_script, $tmp, 1);
+      // insert hook just before the $stmt variable is defined
+      $pos = strpos($tmp, '$stmt = ');
+      $tmp = substr($tmp, 0, $pos).$this->getDoSelectHook(true, '$c').substr($tmp, $pos);
     }
 
     $script .= $tmp;
   }
 
-  protected function addDoSelectJoinAllExcept(&$script)
+  protected function addDoSelectJoinAllExcept(& $script)
   {
     $tmp = '';
     parent::addDoSelectJoinAllExcept($tmp);
 
     if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
     {
-      $mixer_script = "
-
-    foreach (sfMixer::getCallables('{$this->getClassname()}:doSelectJoinAllExcept:doSelectJoinAllExcept') as \$callable)
-    {
-      call_user_func(\$callable, '{$this->getClassname()}', \$c, \$con);
-    }
-
-";
-      $tmp = preg_replace('/{/', '{'.$mixer_script, $tmp, 1);
+      $table   = $this->getTable();
+      $builder = $this->getNewObjectBuilder($table);
+      foreach ($table->getForeignKeys() as $fk)
+      {
+        $method = 'doSelectJoinAllExcept'.$builder->getFKPhpNameAffix($fk, $plural = false);
+        if (false !== $pos = strpos($tmp, $method))
+        {
+          // insert hook just before the $stmt variable is defined
+          $pos = $pos + strpos(substr($tmp, $pos), '$stmt = ');
+          $tmp = substr($tmp, 0, $pos).$this->getDoSelectHook(true, '$c').substr($tmp, $pos);
+        }
+      }
     }
 
     $script .= $tmp;
   }
 
-  protected function addDoUpdate(&$script)
+  protected function addDoUpdate(& $script)
   {
     $tmp = '';
     parent::addDoUpdate($tmp);
 
     if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
     {
-      // add sfMixer call
-      $pre_mixer_script = "
-
-    foreach (sfMixer::getCallables('{$this->getClassname()}:doUpdate:pre') as \$callable)
+      $preHook = "
+    // dispatch pre-update hook
+    \$dispatcher = sfProjectConfiguration::getActive()->getEventDispatcher();
+    \$event = \$dispatcher->notifyUntil(new sfEventPropel('{$this->getClassname()}', 'propel.pre_do_update', array(
+      'values'          => \$values,
+      'select_criteria' => \$selectCriteria,
+      'update_criteria' => \$criteria,
+      'connection'      => \$con,
+    )));
+    if (\$event->isProcessed() && is_int(\$affectedRows = \$event->getReturnValue()))
     {
-      \$ret = call_user_func(\$callable, '{$this->getClassname()}', \$values, \$con);
-      if (false !== \$ret)
-      {
-        return \$ret;
-      }
+      return \$affectedRows;
     }
 
-";
+    ";
 
-      $post_mixer_script = "
+      $postHook = "
+    // dispatch post-update hook
+    \$dispatcher->notify(new sfEventPropel('{$this->getClassname()}', 'propel.post_do_update', array(
+      'values'          => \$values,
+      'select_criteria' => \$selectCriteria,
+      'update_criteria' => \$criteria,
+      'connection'      => \$con,
+      'affected_rows'   => \$affectedRows,
+    )));
 
-    foreach (sfMixer::getCallables('{$this->getClassname()}:doUpdate:post') as \$callable)
-    {
-      call_user_func(\$callable, '{$this->getClassname()}', \$values, \$con, \$ret);
-    }
+    return \$affectedRows;
+  ";
 
-    return \$ret;
-";
+      // insert pre hook just before return
+      $pos = strrpos($tmp, 'return');
+      $tmp = substr($tmp, 0, $pos).$preHook.substr($tmp, $pos);
 
-      $tmp = preg_replace('/{/', '{'.$pre_mixer_script, $tmp, 1);
-      $tmp = preg_replace("/\t\treturn ([^}]+)/", "\t\t\$ret = $1".$post_mixer_script.'  ', $tmp, 1);
+      // capture return value
+      $tmp = str_replace('return BasePeer', '$affectedRows = BasePeer', $tmp);
+
+      // insert post hook just before function close
+      $pos = strrpos($tmp, '}');
+      $tmp = substr($tmp, 0, $pos).$postHook.substr($tmp, $pos);
     }
 
     $script .= $tmp;
   }
 
-  protected function addDoInsert(&$script)
+  protected function addDoInsert(& $script)
   {
     $tmp = '';
     parent::addDoInsert($tmp);
 
     if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
     {
-      // add sfMixer call
-      $pre_mixer_script = "
-
-    foreach (sfMixer::getCallables('{$this->getClassname()}:doInsert:pre') as \$callable)
+      $preHook = "
+    // dispatch pre-insert hook
+    \$dispatcher = sfProjectConfiguration::getActive()->getEventDispatcher();
+    \$event = \$dispatcher->notifyUntil(new sfEventPropel('{$this->getClassname()}', 'propel.pre_do_insert', array(
+      'values'     => \$values,
+      'criteria'   => \$criteria,
+      'connection' => \$con,
+    )));
+    if (\$event->isProcessed() && \$pk = \$event->getReturnValue())
     {
-      \$ret = call_user_func(\$callable, '{$this->getClassname()}', \$values, \$con);
-      if (false !== \$ret)
-      {
-        return \$ret;
-      }
+      return \$pk;
     }
 
-";
+    ";
 
-      $post_mixer_script = "
-    foreach (sfMixer::getCallables('{$this->getClassname()}:doInsert:post') as \$callable)
-    {
-      call_user_func(\$callable, '{$this->getClassname()}', \$values, \$con, \$pk);
-    }
+      $postHook = "
+    // disaptch post-insert hook
+    \$dispatcher->notify(new sfEventPropel('{$this->getClassname()}', 'propel.post_do_insert', array(
+      'values'     => \$values,
+      'criteria'   => \$criteria,
+      'connection' => \$con,
+      'insert_id'  => \$pk,
+    )));
 
-    return";
+    ";
 
-      $tmp = preg_replace('/{/', '{'.$pre_mixer_script, $tmp, 1);
-      $tmp = preg_replace("/\t\treturn/", "\t\t".$post_mixer_script, $tmp, 1);
+      // insert pre-hook just before the try statement
+      $pos = strpos($tmp, 'try');
+      $tmp = substr($tmp, 0, $pos).$preHook.substr($tmp, $pos);
+
+      // insert post-hook just before return
+      $pos = strrpos($tmp, 'return');
+      $tmp = substr($tmp, 0, $pos).$postHook.substr($tmp, $pos);
     }
 
     $script .= $tmp;
   }
 
-  protected function addClassClose(&$script)
+  protected function addClassClose(& $script)
   {
     parent::addClassClose($script);
 
-    $behavior_file_name = 'Base'.$this->getTable()->getPhpName().'Behaviors';
-    $behavior_file_path = ClassTools::getFilePath($this->getStubObjectBuilder()->getPackage().'.om.', $behavior_file_name);
-
-    $absolute_behavior_file_path = sfConfig::get('sf_root_dir').'/'.$behavior_file_path;
-
-    if (file_exists($absolute_behavior_file_path))
+    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
     {
-      unlink($absolute_behavior_file_path);
-    }
+      $behavior_file_name = 'Base'.$this->getTable()->getPhpName().'Behaviors';
+      $behavior_file_path = ClassTools::getFilePath($this->getStubObjectBuilder()->getPackage().'.om', $behavior_file_name);
 
-    $behaviors = $this->getTable()->getAttribute('behaviors');
-    if ($behaviors)
-    {
-      file_put_contents($absolute_behavior_file_path, sprintf("<?php\nsfPropelBehavior::add('%s', %s);\n", $this->getTable()->getPhpName(), var_export(unserialize($behaviors), true)));
+      $absolute_behavior_file_path = sfConfig::get('sf_root_dir').'/'.$behavior_file_path;
 
-      $behavior_include_script = <<<EOF
+      if (file_exists($absolute_behavior_file_path))
+      {
+        unlink($absolute_behavior_file_path);
+      }
 
+      $behaviors = $this->getTable()->getAttribute('behaviors');
+      if ($behaviors)
+      {
+        file_put_contents($absolute_behavior_file_path, sprintf("<?php\n\nsfPropelBehavior::add('%s', %s);\n", $this->getTable()->getPhpName(), var_export(unserialize($behaviors), true)));
 
-if (ProjectConfiguration::getActive() instanceof sfApplicationConfiguration)
+        $behavior_include_script = "
+
+if (sfProjectConfiguration::getActive() instanceof sfApplicationConfiguration)
 {
-  include_once '%s';
+  include_once '$behavior_file_path';
 }
+";
 
-EOF;
-      $script .= sprintf($behavior_include_script, $behavior_file_path);
+        $script .= $behavior_include_script;
+      }
     }
   }
 
-  protected function addUniqueColumnNamesMethod(&$script)
+  protected function addUniqueColumnNamesMethod(& $script)
   {
     $unices = array();
     foreach ($this->getTable()->getUnices() as $unique)
     {
       $unices[] = sprintf("array('%s')", implode("', '", $unique->getColumns()));
     }
-
     $unices = array_unique($unices);
-
     $unices = implode(', ', $unices);
-    $script .= <<<EOF
 
+    $script .= "
 
   static public function getUniqueColumnNames()
   {
     return array($unices);
   }
-EOF;
+";
   }
 
-	/**
-	 * Adds the doCountJoin*() methods.
-	 * @param      string &$script The script will be modified in this method.
-	 */
-	protected function addDoCountJoin(&$script)
-	{
-		$table = $this->getTable();
-		$className = $this->getObjectClassname();
-		$countFK = count($table->getForeignKeys());
-		$join_behavior = $this->getJoinBehavior();
-
-		if ($countFK >= 1) {
-
-			foreach ($table->getForeignKeys() as $fk) {
-
-				$joinTable = $table->getDatabase()->getTable($fk->getForeignTableName());
-
-				if (!$joinTable->isForReferenceOnly()) {
-
-					if ( $fk->getForeignTableName() != $table->getName() ) {
-
-						$thisTableObjectBuilder = $this->getNewObjectBuilder($table);
-						$joinedTableObjectBuilder = $this->getNewObjectBuilder($joinTable);
-						$joinedTablePeerBuilder = $this->getNewPeerBuilder($joinTable);
-
-						$joinClassName = $joinedTableObjectBuilder->getObjectClassname();
-
-						$script .= "
-
-	/**
-	 * Returns the number of rows matching criteria, joining the related ".$thisTableObjectBuilder->getFKPhpNameAffix($fk, $plural = false)." table
-	 *
-	 * @param      Criteria \$c
-	 * @param      boolean \$distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
-	 * @param      PropelPDO \$con
-	 * @param      String    \$join_behavior the type of joins to use, defaults to $join_behavior
-	 * @return     int Number of matching rows.
-	 */
-	public static function doCountJoin".$thisTableObjectBuilder->getFKPhpNameAffix($fk, $plural = false)."(Criteria \$criteria, \$distinct = false, PropelPDO \$con = null, \$join_behavior = $join_behavior)
-	{
-		// we're going to modify criteria, so copy it first
-		\$criteria = clone \$criteria;
-
-		// We need to set the primary table name, since in the case that there are no WHERE columns
-		// it will be impossible for the BasePeer::createSelectSql() method to determine which
-		// tables go into the FROM clause.
-		\$criteria->setPrimaryTableName(".$this->getPeerClassname()."::TABLE_NAME);
-
-		if (\$distinct && !in_array(Criteria::DISTINCT, \$criteria->getSelectModifiers())) {
-			\$criteria->setDistinct();
-		}
-
-		if (!\$criteria->hasSelectClause()) {
-			".$this->getPeerClassname()."::addSelectColumns(\$criteria);
-		}
-
-		\$criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
-
-		// Set the correct dbName
-		\$criteria->setDbName(self::DATABASE_NAME);
-
-		if (\$con === null) {
-			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_READ);
-		}
-";
-
-						$lfMap = $fk->getLocalForeignMapping();
-						$left = array();
-						$right = array();
-						foreach ($fk->getLocalColumns() as $columnName ) {
-							array_push($left, $this->getColumnConstant($table->getColumn($columnName) ) );
-							array_push($right, $joinedTablePeerBuilder->getColumnConstant($joinTable->getColumn( $lfMap[$columnName] ) ) );
-						}
-						$script .= "
-		\$criteria->addJoin(array(";
-						foreach ($left as $lCol) {
-							$script .= $lCol;
-							if ($lCol != $left[count($left)]) {
-								$script .= ",";
-							}
-						}
-						$script .= "), array(";
-						foreach ($right as $rCol) {
-							$script .= $rCol;
-							if ($rCol != $right[count($right)]) {
-								$script .= ",";
-							}
-						}
-						$script .= "), \$join_behavior);
-";
+  protected function addDoCountJoin(& $script)
+  {
+    $tmp = '';
+    parent::addDoCountJoin($tmp);
 
     if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
     {
-      $script .= "
-
-    foreach (sfMixer::getCallables('{$this->getClassname()}:doCount:doCount') as \$callable)
-    {
-      call_user_func(\$callable, '{$this->getClassname()}', \$criteria, \$con);
+      $table   = $this->getTable();
+      $builder = $this->getNewObjectBuilder($table);
+      foreach ($table->getForeignKeys() as $fk)
+      {
+        $method = 'doCountJoin'.$builder->getFKPhpNameAffix($fk, $plural = false);
+        if (false !== $pos = strpos($tmp, $method))
+        {
+          // insert hook just before the $stmt variable is defined
+          $pos = $pos + strpos(substr($tmp, $pos), '$stmt = ');
+          $tmp = substr($tmp, 0, $pos).$this->getDoCountHook(true).substr($tmp, $pos);
+        }
+      }
     }
 
-";
-    }
+    $script .= $tmp;
+  }
 
-      $script .= "
-		\$stmt = ".$this->basePeerClassname."::doCount(\$criteria, \$con);
-
-		if (\$row = \$stmt->fetch(PDO::FETCH_NUM)) {
-			\$count = (int) \$row[0];
-		} else {
-			\$count = 0; // no rows returned; we infer that means 0 matches.
-		}
-		\$stmt->closeCursor();
-		return \$count;
-	}
-";
-					}
-				}
-			}
-		}
-
-	}
-
-	/**
-	 * Adds the doCountJoinAll() method.
-	 * @param      string &$script The script will be modified in this method.
-	 */
-	protected function addDoCountJoinAll(&$script)
-	{
-		$table = $this->getTable();
-		$className = $this->getObjectClassname();
-		$join_behavior = $this->getJoinBehavior();
-
-		$script .= "
-
-	/**
-	 * Returns the number of rows matching criteria, joining all related tables
-	 *
-	 * @param      Criteria \$c
-	 * @param      boolean \$distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
-	 * @param      PropelPDO \$con
-	 * @param      String    \$join_behavior the type of joins to use, defaults to $join_behavior
-	 * @return     int Number of matching rows.
-	 */
-	public static function doCountJoinAll(Criteria \$criteria, \$distinct = false, PropelPDO \$con = null, \$join_behavior = $join_behavior)
-	{
-		// we're going to modify criteria, so copy it first
-		\$criteria = clone \$criteria;
-
-		// We need to set the primary table name, since in the case that there are no WHERE columns
-		// it will be impossible for the BasePeer::createSelectSql() method to determine which
-		// tables go into the FROM clause.
-		\$criteria->setPrimaryTableName(".$this->getPeerClassname()."::TABLE_NAME);
-
-		if (\$distinct && !in_array(Criteria::DISTINCT, \$criteria->getSelectModifiers())) {
-			\$criteria->setDistinct();
-		}
-
-		if (!\$criteria->hasSelectClause()) {
-			".$this->getPeerClassname()."::addSelectColumns(\$criteria);
-		}
-
-		\$criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
-
-		// Set the correct dbName
-		\$criteria->setDbName(self::DATABASE_NAME);
-
-		if (\$con === null) {
-			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_READ);
-		}
-";
-
-		foreach ($table->getForeignKeys() as $fk) {
-			// want to cover this case, but the code is not there yet.
-			if ( $fk->getForeignTableName() != $table->getName() ) {
-				$joinTable = $table->getDatabase()->getTable($fk->getForeignTableName());
-				$joinedTablePeerBuilder = $this->getNewPeerBuilder($joinTable);
-
-				$joinClassName = $joinedTablePeerBuilder->getObjectClassname();
-
-				$lfMap = $fk->getLocalForeignMapping();
-				$left = array();
-				$right = array();
-				foreach ($fk->getLocalColumns() as $columnName ) {
-					array_push($left, $this->getColumnConstant($table->getColumn($columnName) ) );
-					array_push($right, $joinedTablePeerBuilder->getColumnConstant($joinTable->getColumn( $lfMap[$columnName] ) ) );
-				}
-				$script .= "
-		\$criteria->addJoin(array(";
-				foreach ($left as $lCol) {
-					$script .= $lCol;
-					if ($lCol != $left[count($left)]) {
-						$script .= ",";
-					}
-				}
-				$script .= "), array(";
-				foreach ($right as $rCol) {
-					$script .= $rCol;
-					if ($rCol != $right[count($right)]) {
-						$script .= ",";
-					}
-				}
-				$script .= "), \$join_behavior);";
-			} // if fk->getForeignTableName != table->getName
-		} // foreach [sub] foreign keys
+  protected function addDoCountJoinAll(& $script)
+  {
+    $tmp = '';
+    parent::addDoCountJoinAll($tmp);
 
     if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
     {
-      $script .= "
-
-    foreach (sfMixer::getCallables('{$this->getClassname()}:doCount:doCount') as \$callable)
-    {
-      call_user_func(\$callable, '{$this->getClassname()}', \$criteria, \$con);
+      // insert hook just before the $stmt variable is defined
+      $pos = strpos($tmp, '$stmt = ');
+      $tmp = substr($tmp, 0, $pos).$this->getDoCountHook(true).substr($tmp, $pos);
     }
 
-";
-    }
+    $script .= $tmp;
+  }
 
-
-		$script .= "
-		\$stmt = ".$this->basePeerClassname."::doCount(\$criteria, \$con);
-
-		if (\$row = \$stmt->fetch(PDO::FETCH_NUM)) {
-			\$count = (int) \$row[0];
-		} else {
-			\$count = 0; // no rows returned; we infer that means 0 matches.
-		}
-		\$stmt->closeCursor();
-		return \$count;
-	}";
-	} // end addDoCountJoinAll()
-
-	/**
-	 * Adds the doCountJoinAllExcept*() methods.
-	 * @param      string &$script The script will be modified in this method.
-	 */
-	protected function addDoCountJoinAllExcept(&$script)
-	{
-		$table = $this->getTable();
-		$join_behavior = $this->getJoinBehavior();
-
-		$fkeys = $table->getForeignKeys();  // this sep assignment is necessary otherwise sub-loops over
-		// getForeignKeys() will cause this to only execute one time.
-		foreach ($fkeys as $fk ) {
-
-			$tblFK = $table->getDatabase()->getTable($fk->getForeignTableName());
-
-			$excludedTable = $table->getDatabase()->getTable($fk->getForeignTableName());
-
-			$thisTableObjectBuilder = $this->getNewObjectBuilder($table);
-			$excludedTableObjectBuilder = $this->getNewObjectBuilder($excludedTable);
-			$excludedTablePeerBuilder = $this->getNewPeerBuilder($excludedTable);
-
-			$excludedClassName = $excludedTableObjectBuilder->getObjectClassname();
-
-			$script .= "
-
-	/**
-	 * Returns the number of rows matching criteria, joining the related ".$thisTableObjectBuilder->getFKPhpNameAffix($fk, $plural = false)." table
-	 *
-	 * @param      Criteria \$c
-	 * @param      boolean \$distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
-	 * @param      PropelPDO \$con
-	 * @param      String    \$join_behavior the type of joins to use, defaults to $join_behavior
-	 * @return     int Number of matching rows.
-	 */
-	public static function doCountJoinAllExcept".$thisTableObjectBuilder->getFKPhpNameAffix($fk, $plural = false)."(Criteria \$criteria, \$distinct = false, PropelPDO \$con = null, \$join_behavior = $join_behavior)
-	{
-		// we're going to modify criteria, so copy it first
-		\$criteria = clone \$criteria;
-
-		if (\$distinct && !in_array(Criteria::DISTINCT, \$criteria->getSelectModifiers())) {
-			\$criteria->setDistinct();
-		}
-
-		if (!\$criteria->hasSelectClause()) {
-			".$this->getPeerClassname()."::addSelectColumns(\$criteria);
-		}
-
-		\$criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
-
-		// Set the correct dbName
-		\$criteria->setDbName(self::DATABASE_NAME);
-
-		if (\$con === null) {
-			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_READ);
-		}
-	";
-
-			foreach ($table->getForeignKeys() as $subfk) {
-				// want to cover this case, but the code is not there yet.
-				if ( $subfk->getForeignTableName() != $table->getName() ) {
-					$joinTable = $table->getDatabase()->getTable($subfk->getForeignTableName());
-					$joinTablePeerBuilder = $this->getNewPeerBuilder($joinTable);
-					$joinClassName = $joinTablePeerBuilder->getObjectClassname();
-
-					if ($joinClassName != $excludedClassName)
-					{
-						$lfMap = $subfk->getLocalForeignMapping();
-						$left = array();
-						$right = array();
-						foreach ($subfk->getLocalColumns() as $columnName ) {
-							array_push($left, $this->getColumnConstant($table->getColumn($columnName) ) );
-							array_push($right, $joinTablePeerBuilder->getColumnConstant($joinTable->getColumn( $lfMap[$columnName] ) ) );
-						}
-						$script .= "
-				\$criteria->addJoin(array(";
-						foreach ($left as $lCol) {
-							$script .= $lCol;
-							if ($lCol != $left[count($left)]) {
-								$script .= ",";
-							}
-						}
-						$script .= "), array(";
-						foreach ($right as $rCol) {
-							$script .= $rCol;
-							if ($rCol != $right[count($right)]) {
-								$script .= ",";
-							}
-						}
-						$script .= "), \$join_behavior);";
-					}
-				}
-			} // foreach fkeys
-
+  protected function addDoCountJoinAllExcept(& $script)
+  {
+    $tmp = '';
+    parent::addDoCountJoinAllExcept($tmp);
 
     if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
     {
-      $script .= "
-
-    foreach (sfMixer::getCallables('{$this->getClassname()}:doCount:doCount') as \$callable)
-    {
-      call_user_func(\$callable, '{$this->getClassname()}', \$criteria, \$con);
+      $table   = $this->getTable();
+      $builder = $this->getNewObjectBuilder($table);
+      foreach ($table->getForeignKeys() as $fk)
+      {
+        $method = 'doCountJoinAllExcept'.$builder->getFKPhpNameAffix($fk, $plural = false);
+        if (false !== $pos = strpos($tmp, $method))
+        {
+          // insert hook just before the $stmt variable is defined
+          $pos = $pos + strpos(substr($tmp, $pos), '$stmt = ');
+          $tmp = substr($tmp, 0, $pos).$this->getDoCountHook(true).substr($tmp, $pos);
+        }
+      }
     }
 
-";
-    }
+    $script .= $tmp;
+  }
 
+  protected function addDoCount(& $script)
+  {
+    $tmp = '';
+    parent::addDoCount($tmp);
 
-			$script .= "
-		\$stmt = ".$this->basePeerClassname."::doCount(\$criteria, \$con);
-
-		if (\$row = \$stmt->fetch(PDO::FETCH_NUM)) {
-			\$count = (int) \$row[0];
-		} else {
-			\$count = 0; // no rows returned; we infer that means 0 matches.
-		}
-		\$stmt->closeCursor();
-		return \$count;
-	}
-";
-		} // foreach fk
-
-	} // addDoCountJoinAllExcept
-
-	/**
-	 * Adds the doCount() method.
-	 * @param      string &$script The script will be modified in this method.
-	 */
-	protected function addDoCount(&$script)
-	{
-		$script .= "
-	/**
-	 * Returns the number of rows matching criteria.
-	 *
-	 * @param      Criteria \$criteria
-	 * @param      boolean \$distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
-	 * @param      PropelPDO \$con
-	 * @return     int Number of matching rows.
-	 */
-	public static function doCount(Criteria \$criteria, \$distinct = false, PropelPDO \$con = null)
-	{
-		// we may modify criteria, so copy it first
-		\$criteria = clone \$criteria;
-
-		// We need to set the primary table name, since in the case that there are no WHERE columns
-		// it will be impossible for the BasePeer::createSelectSql() method to determine which
-		// tables go into the FROM clause.
-		\$criteria->setPrimaryTableName(".$this->getPeerClassname()."::TABLE_NAME);
-
-		if (\$distinct && !in_array(Criteria::DISTINCT, \$criteria->getSelectModifiers())) {
-			\$criteria->setDistinct();
-		}
-
-		if (!\$criteria->hasSelectClause()) {
-			".$this->getPeerClassname()."::addSelectColumns(\$criteria);
-		}
-
-		\$criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
-		\$criteria->setDbName(self::DATABASE_NAME); // Set the correct dbName
-
-		if (\$con === null) {
-			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_READ);
-		}
-";
     if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
     {
-      $script .= "
+      // insert hook just before the $stmt variable is defined
+      $pos = strpos($tmp, '$stmt = ');
+      $tmp = substr($tmp, 0, $pos).$this->getDoCountHook().substr($tmp, $pos);
+    }
 
-    foreach (sfMixer::getCallables('{$this->getClassname()}:doCount:doCount') as \$callable)
+    $script .= $tmp;
+  }
+
+  protected function addBehaviorMethods(& $script)
+  {
+    $script .= "
+
+  /**
+   * Adds a behavior.
+   * 
+   * @param   string \$name
+   * @param   array  \$parameters
+   * 
+   * @throws  LogicException If the behavior has already been added
+   */
+  public static function addBehavior(\$name, \$parameters = array())
+  {
+    if (isset(self::\$behaviors[\$name]))
     {
-      call_user_func(\$callable, '{$this->getClassname()}', \$criteria, \$con);
+      throw new LogicException(sprintf('The \"%s\" behavior has already been added to {$this->getPeerClassname()}.', \$name));
     }
 
+    self::\$behaviors[\$name] = \$parameters;
+  }
+
+  /**
+   * Returns true if the behavior has been added.
+   * 
+   * Provides functionality similar to {@link instanceof}.
+   * 
+   * @param   string \$name
+   * 
+   * @return  boolean
+   */
+  public static function hasBehavior(\$name)
+  {
+    return isset(self::\$behaviors[\$name]);
+  }
+
+  /**
+   * Returns all behavior names.
+   * 
+   * @return  array
+   */
+  public static function getBehaviorNames()
+  {
+    return array_keys(self::\$behaviors);
+  }
+
+  /**
+   * Returns behavior parameters.
+   * 
+   * @param   string \$name
+   * 
+   * @return  array
+   *
+   * @throws  InvalidArgumentException If the behavior has not been added
+   */
+  public static function getBehaviorParameters(\$name)
+  {
+    if (!self::hasBehavior(\$name))
+    {
+      throw new InvalidArgumentException(sprintf('The \"%s\" behavior has not been added to {$this->getPeerClassname()}.', \$name));
+    }
+
+    return self::\$behaviors[\$name];
+  }
 ";
-    }
-      $script .= "
-		// BasePeer returns a PDOStatement
-		\$stmt = ".$this->basePeerClassname."::doCount(\$criteria, \$con);
+  }
 
-		if (\$row = \$stmt->fetch(PDO::FETCH_NUM)) {
-			\$count = (int) \$row[0];
-		} else {
-			\$count = 0; // no rows returned; we infer that means 0 matches.
-		}
-		\$stmt->closeCursor();
-		return \$count;
-	}";
-	}
+  protected function getDoCountHook($join = false)
+  {
+    $hook = "
+    // dispatch behavior hook
+    sfProjectConfiguration::getActive()->getEventDispatcher()->notify(new sfEventPropel('{$this->getClassname()}', 'propel.do_count', array(
+      'criteria'      => \$criteria,
+      'distinct'      => \$distinct,
+      'connection'    => \$con,%s
+      'method'        => __FUNCTION__,
+    )));
 
+    ";
 
+    return sprintf($hook, $join ? "\n      'join_behavior' => \$join_behavior," : null);
+  }
+
+  protected function getDoSelectHook($join = false, $criteriaVar = '$criteria')
+  {
+    $hook = "
+    // dispatch behavior hook
+    sfProjectConfiguration::getActive()->getEventDispatcher()->notify(new sfEventPropel('{$this->getClassname()}', 'propel.do_select', array(
+      'criteria'      => %s,
+      'connection'    => \$con,%s
+      'method'        => __FUNCTION__,
+    )));
+
+    ";
+
+    return sprintf($hook, $criteriaVar, $join ? "\n      'join_behavior' => \$join_behavior," : null);
+  }
 }
