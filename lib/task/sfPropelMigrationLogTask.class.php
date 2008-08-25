@@ -1,11 +1,11 @@
 <?php
 
-require_once dirname(__FILE__).'/sfPropelMigrationBaseTask.class.php';
+require_once dirname(__FILE__).'/sfPropelBaseTask.class.php';
 
 /**
  * Output the database's migration log.
  */
-class sfPropelMigrationLogTask extends sfPropelMigrationBaseTask
+class sfPropelMigrationLogTask extends sfPropelBaseTask
 {
   /**
    * @see sfTask

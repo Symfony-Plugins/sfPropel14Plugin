@@ -4,7 +4,7 @@ require_once 'propel/engine/builder/om/php5/PHP5ObjectBuilder.php';
 
 /*
  * This file is part of the symfony package.
- * (c) 2004-2008 Fabien Potencier <fabien.potencier@symfony-project.com>
+ * (c) 2004-2006 Fabien Potencier <fabien.potencier@symfony-project.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,6 @@ require_once 'propel/engine/builder/om/php5/PHP5ObjectBuilder.php';
  * @package    symfony
  * @subpackage propel
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
- * @author     Kris Wallsmith <kris.wallsmith@gmail.com>
  * @version    SVN: $Id$
  */
 class SfObjectBuilder extends PHP5ObjectBuilder
@@ -36,7 +35,7 @@ class SfObjectBuilder extends PHP5ObjectBuilder
     return $objectCode;
   }
 
-  protected function addIncludes(& $script)
+  protected function addIncludes(&$script)
   {
     if (!DataModelBuilder::getBuildProperty('builderAddIncludes'))
     {
@@ -57,7 +56,7 @@ require_once \''.ClassTools::getFilePath($this->getStubObjectBuilder()->getPacka
     }
   }
 
-  protected function addClassBody(& $script)
+  protected function addClassBody(&$script)
   {
     parent::addClassBody($script);
 
@@ -76,80 +75,36 @@ require_once \''.ClassTools::getFilePath($this->getStubObjectBuilder()->getPacka
 
     if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
     {
-      $this->addPostProcessEvent($script);
       $this->addCall($script);
     }
   }
 
-  protected function addPostProcessEvent(& $script)
+  protected function addCall(&$script)
   {
     $script .= "
 
-  /**
-   * Handles mutations embedded in a propel event.
-   * 
-   * @param   sfEventPropel \$event
-   * 
-   * @return  boolean True if the event was processed
-   */
-  public function postProcessEvent(sfEventPropel \$event)
-  {
-    if (\$event->isProcessed())
-    {
-      foreach (\$event->getMutations() as \$property => \$value)
-      {
-        \$this->\$property = \$value;
-      }
-
-      return true;
-    }
-
-    return false;
-  }
-";
-  }
-
-  protected function addCall(& $script)
-  {
-    $script .= "
-
-  /**
-   * Dispatches a method_not_found event.
-   * 
-   * @param   string \$method
-   * @param   array  \$arguments
-   * 
-   * @return  mixed
-   * 
-   * @throws  sfException If the dispatched event is not processed
-   */
   public function __call(\$method, \$arguments)
   {
-    \$event = sfProjectConfiguration::getActive()->getEventDispatcher()->notifyUntil(new sfEventPropel(\$this, 'propel.method_not_found', array(
-      'method'      => \$method,
-      'arguments'   => \$arguments,
-      'object_vars' => get_object_vars(\$this),
-    )));
-    if (\$this->postProcessEvent(\$event))
-    {
-      return \$event->getReturnValue();
-    }
-    else
+    if (!\$callable = sfMixer::getCallable('{$this->getClassname()}:'.\$method))
     {
       throw new sfException(sprintf('Call to undefined method {$this->getClassname()}::%s', \$method));
     }
+
+    array_unshift(\$arguments, \$this);
+
+    return call_user_func_array(\$callable, \$arguments);
   }
+
 ";
   }
 
-  protected function addAttributes(& $script)
+  protected function addAttributes(&$script)
   {
     parent::addAttributes($script);
 
     if ($this->getTable()->getAttribute('isI18N'))
     {
       $script .= '
-
   /**
    * The value for the culture field.
    * @var string
@@ -159,7 +114,7 @@ require_once \''.ClassTools::getFilePath($this->getStubObjectBuilder()->getPacka
     }
   }
 
-  protected function addCultureAccessorMethod(& $script)
+  protected function addCultureAccessorMethod(&$script)
   {
     $script .= '
 
@@ -175,10 +130,9 @@ require_once \''.ClassTools::getFilePath($this->getStubObjectBuilder()->getPacka
 ';
   }
 
-  protected function addCultureMutatorMethod(& $script)
+  protected function addCultureMutatorMethod(&$script)
   {
     $script .= '
-
   /**
    * Sets the culture.
    *
@@ -193,7 +147,7 @@ require_once \''.ClassTools::getFilePath($this->getStubObjectBuilder()->getPacka
 ';
   }
 
-  protected function addI18nMethods(& $script)
+  protected function addI18nMethods(&$script)
   {
     $table = $this->getTable();
     $pks = $table->getPrimaryKey();
@@ -221,7 +175,6 @@ require_once \''.ClassTools::getFilePath($this->getStubObjectBuilder()->getPacka
           if ($col->isPrimaryKey()) continue;
 
           $script .= '
-
   public function get'.$col->getPhpName().'($culture = null)
   {
     return $this->getCurrent'.$className.'($culture)->get'.$col->getPhpName().'();
@@ -234,8 +187,7 @@ require_once \''.ClassTools::getFilePath($this->getStubObjectBuilder()->getPacka
 ';
         }
 
-        $script .= '
-
+$script .= '
   protected $current_i18n = array();
 
   public function getCurrent'.$className.'($culture = null)
@@ -272,7 +224,7 @@ require_once \''.ClassTools::getFilePath($this->getStubObjectBuilder()->getPacka
     }
   }
 
-  protected function addDoSave(& $script)
+  protected function addDoSave(&$script)
   {
     $tmp = '';
     parent::addDoSave($tmp);
@@ -307,48 +259,43 @@ require_once \''.ClassTools::getFilePath($this->getStubObjectBuilder()->getPacka
     return $value;
   }
 
-  protected function addDelete(& $script)
+  protected function addDelete(&$script)
   {
     $tmp = '';
     parent::addDelete($tmp);
 
     if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
     {
-      $preHook = "
-    // dispatch pre-delete event
-    \$dispatcher = sfProjectConfiguration::getActive()->getEventDispatcher();
-    \$event = \$dispatcher->notifyUntil(new sfEventPropel(\$this, 'propel.pre_delete', array(
-      'connection'  => \$con,
-      'object_vars' => \$objectVars = get_object_vars(\$this),
-    )));
-    if (\$this->postProcessEvent(\$event) && \$event->getReturnValue())
+      // add sfMixer call
+      $pre_mixer_script = "
+
+    foreach (sfMixer::getCallables('{$this->getClassname()}:delete:pre') as \$callable)
     {
-      return;
+      \$ret = call_user_func(\$callable, \$this, \$con);
+      if (\$ret)
+      {
+        return;
+      }
     }
 
-    ";
+";
+      $post_mixer_script = "
 
-      $postHook = "
-    // dispatch post-save event
-    \$dispatcher->notify(new sfEventPropel(\$this, 'propel.post_delete', array(
-      'connection'  => \$con,
-      'object_vars' => \$objectVars,
-    )));
-  ";
-
-      // insert pre-hook just before the transaction
-      $pos = strpos($tmp, '$con->begin');
-      $tmp = substr($tmp, 0, $pos).$preHook.substr($tmp, $pos);
-
-      // insert post-hook just before function close
-      $pos = strrpos($tmp, '}');
-      $tmp = substr($tmp, 0, $pos).$postHook.substr($tmp, $pos);
+    foreach (sfMixer::getCallables('{$this->getClassname()}:delete:post') as \$callable)
+    {
+      call_user_func(\$callable, \$this, \$con);
     }
 
+";
+      $tmp = preg_replace('/{/', '{'.$pre_mixer_script, $tmp, 1);
+      $tmp = preg_replace('/}\s*$/', $post_mixer_script.'  }', $tmp);
+    }
+
+    // update current script
     $script .= $tmp;
   }
 
-  protected function addSave(& $script)
+  protected function addSave(&$script)
   {
     $tmp = '';
     parent::addSave($tmp);
@@ -371,7 +318,7 @@ require_once \''.ClassTools::getFilePath($this->getStubObjectBuilder()->getPacka
     }
 ";
       }
-      elseif (!$created && in_array($clo, array('created_at', 'created_on')))
+      else if (!$created && in_array($clo, array('created_at', 'created_on')))
       {
         $created = true;
         $date_script .= "
@@ -386,64 +333,55 @@ require_once \''.ClassTools::getFilePath($this->getStubObjectBuilder()->getPacka
 
     if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
     {
-      $preHook = "
-    // dispatch pre-save event
-    \$dispatcher = sfProjectConfiguration::getActive()->getEventDispatcher();
-    \$event = \$dispatcher->notifyUntil(new sfEventPropel(\$this, 'propel.pre_save', array(
-      'connection'  => \$con,
-      'object_vars' => \$objectVars = get_object_vars(\$this),
-    )));
-    if (\$this->postProcessEvent(\$event) && is_int(\$affectedRows = \$event->getReturnValue()))
+      // add sfMixer call
+      $pre_mixer_script = "
+
+    foreach (sfMixer::getCallables('{$this->getClassname()}:save:pre') as \$callable)
     {
-      return \$affectedRows;
+      \$affectedRows = call_user_func(\$callable, \$this, \$con);
+      if (is_int(\$affectedRows))
+      {
+        return \$affectedRows;
+      }
     }
 
-    ";
+";
+      $post_mixer_script = <<<EOF
 
-      $postHook = "
-      // dispatch post-save event
-      \$dispatcher->notify(new sfEventPropel(\$this, 'propel.post_save', array(
-        'connection'    => \$con,
-        'object_vars'   => \$objectVars,
-        'affected_rows' => \$affectedRows,
-      )));
-
-      ";
-
-      // insert pre-hook just before the transaction
-      $pos = strpos($tmp, '$con->begin');
-      $tmp = substr($tmp, 0, $pos).$preHook.substr($tmp, $pos);
-
-      // insert post-hook just before return
-      $pos = strrpos($tmp, 'return');
-      $tmp = substr($tmp, 0, $pos).$postHook.substr($tmp, $pos);
+    foreach (sfMixer::getCallables('{$this->getClassname()}:save:post') as \$callable)
+    {
+      call_user_func(\$callable, \$this, \$con, \$affectedRows);
     }
 
+EOF;
+      $tmp = preg_replace('/{/', '{'.$pre_mixer_script, $tmp, 1);
+      $tmp = preg_replace('/(\$con\->commit\(\);)/', '$1'.$post_mixer_script, $tmp);
+    }
+
+    // update current script
     $script .= $tmp;
   }
 
-  protected function addClassClose(& $script)
+  protected function addClassClose(&$script)
   {
     parent::addClassClose($script);
 
-    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
+    $behaviors = $this->getTable()->getAttribute('behaviors');
+    if ($behaviors)
     {
-      $behaviors = $this->getTable()->getAttribute('behaviors');
-      if ($behaviors)
-      {
-        $behavior_file_name = 'Base'.$this->getTable()->getPhpName().'Behaviors';
-        $behavior_file_path = ClassTools::getFilePath($this->getStubObjectBuilder()->getPackage().'.om', $behavior_file_name);
+      $behavior_file_name = 'Base'.$this->getTable()->getPhpName().'Behaviors';
+      $behavior_file_path = ClassTools::getFilePath($this->getStubObjectBuilder()->getPackage().'.om.', $behavior_file_name);
 
-        $behavior_include_script = "
+      $behavior_include_script = <<<EOF
 
-if (sfProjectConfiguration::getActive() instanceof sfApplicationConfiguration)
+
+if (ProjectConfiguration::getActive() instanceof sfApplicationConfiguration)
 {
-  include_once '$behavior_file_path';
+  include_once '%s';
 }
-";
 
-        $script .= $behavior_include_script;
-      }
+EOF;
+      $script .= sprintf($behavior_include_script, $behavior_file_path);
     }
   }
 }
