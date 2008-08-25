@@ -2,28 +2,32 @@
 
 /*
  * This file is part of the symfony package.
- * (c) 2004-2006 Fabien Potencier <fabien.potencier@symfony-project.com>
+ * (c) 2004-2008 Fabien Potencier <fabien.potencier@symfony-project.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-require_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'config/config.php');
+require_once dirname(__FILE__).'/../../config/config.php';
+require_once dirname(__FILE__).'/sfPhing.class.php';
 
 /**
  * Base class for all symfony Propel tasks.
  *
- * @package    symfony
- * @subpackage propel
- * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
- * @version    SVN: $Id$
+ * @package     sfPropelPlugin
+ * @subpackage  task
+ * @author      Fabien Potencier <fabien.potencier@symfony-project.com>
+ * @version     SVN: $Id$
  */
 abstract class sfPropelBaseTask extends sfBaseTask
 {
-  const CHECK_SCHEMA = true;
-  const DO_NOT_CHECK_SCHEMA = false;
+  const
+    CHECK_SCHEMA        = true,
+    DO_NOT_CHECK_SCHEMA = false;
 
-  static protected $done = false;
+  static protected
+    $done = false,
+    $generatorConfig = null;
 
   public function initialize(sfEventDispatcher $dispatcher, sfFormatter $formatter)
   {
@@ -31,22 +35,27 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
     if (!self::$done)
     {
-      set_include_path(get_include_path().PATH_SEPARATOR.dirname(__FILE__).'/../vendor');
+      set_include_path(sfConfig::get('sf_root_dir').PATH_SEPARATOR.dirname(__FILE__).'/../vendor/propel-generator/classes'.PATH_SEPARATOR.get_include_path().PATH_SEPARATOR.dirname(__FILE__).'/../vendor');
 
       $libDir = dirname(__FILE__).'/..';
 
       $autoloader = sfSimpleAutoload::getInstance();
-      $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'creole');
-      $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'propel');
-      $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'creole');
-      $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'propel');
-      $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'task');
+      $autoloader->addDirectory($libDir.'/vendor/creole');
+      $autoloader->addDirectory($libDir.'/vendor/propel');
+      $autoloader->addDirectory($libDir.'/creole');
+      $autoloader->addDirectory($libDir.'/propel');
+      $autoloader->addDirectory($libDir.'/task');
 
-      $autoloader->setClassPath('Propel', $libDir.DIRECTORY_SEPARATOR.'propel'.DIRECTORY_SEPARATOR.'addon'.DIRECTORY_SEPARATOR.'sfPropelAutoload.php');
+      $autoloader->setClassPath('Propel', $libDir.'/propel/addon/sfPropelAutoload.php');
 
       $autoloader->addDirectory(sfConfig::get('sf_lib_dir').'/model');
-      $autoloader->addDirectory(sfConfig::get('sf_lib_dir').DIRECTORY_SEPARATOR.'form');
+      $autoloader->addDirectory(sfConfig::get('sf_lib_dir').'/form');
       $autoloader->register();
+
+      // enable output buffering
+      sfPhing::setOutputStream(new OutputStream(fopen('php://output', 'w')));
+      sfPhing::startup();
+      sfPhing::setProperty('phing.home', getenv('PHING_HOME'));
 
       self::$done = true;
     }
@@ -54,9 +63,7 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
   protected function schemaToYML($checkSchema = self::CHECK_SCHEMA, $prefix = '')
   {
-    $finder = sfFinder::type('file')->name('*schema.xml')->prune('doctrine');
-
-    $schemas = array_unique(array_merge($finder->in('config'), $finder->in(glob(sfConfig::get('sf_plugins_dir').DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'config'))));
+    $schemas = sfFinder::type('file')->name('*schema.xml')->prune('doctrine')->in($this->getConfigPaths());
     if (self::CHECK_SCHEMA === $checkSchema && !count($schemas))
     {
       throw new sfCommandException('You must create a schema.xml file.');
@@ -88,13 +95,8 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
   protected function schemaToXML($checkSchema = self::CHECK_SCHEMA, $prefix = '')
   {
-    $finder = sfFinder::type('file')->name('*schema.yml')->prune('doctrine');
-    $dirs = array('config');
-    if ($pluginDirs = glob(sfConfig::get('sf_plugins_dir').DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'config'))
-    {
-      $dirs = array_merge($dirs, $pluginDirs);
-    }
-    $schemas = $finder->in($dirs);
+    $configPaths = $this->getConfigPaths();
+    $schemas = sfFinder::type('file')->name('*schema.yml')->prune('doctrine')->in($configPaths);
     if (self::CHECK_SCHEMA === $checkSchema && !count($schemas))
     {
       throw new sfCommandException('You must create a schema.yml file.');
@@ -124,7 +126,7 @@ abstract class sfPropelBaseTask extends sfBaseTask
         '/',
         'schema.yml'
       ), array('', '', '', '_', 'schema.custom.yml'), $schema);
-      $customSchemas = sfFinder::type('file')->name($customSchemaFilename)->in($dirs);
+      $customSchemas = sfFinder::type('file')->name($customSchemaFilename)->in($configPaths);
 
       foreach ($customSchemas as $customSchema)
       {
@@ -162,46 +164,61 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
   protected function copyXmlSchemaFromPlugins($prefix = '')
   {
-    if($dirs = glob(sfConfig::get('sf_plugins_dir').DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'config'))
+    $schemas = sfFinder::type('file')->name('*schema.xml')->prune('doctrine')->in($this->getPluginConfigPaths());
+    foreach ($schemas as $schema)
     {
-      $schemas = sfFinder::type('file')->name('*schema.xml')->prune('doctrine')->in($dirs);
-      foreach ($schemas as $schema)
+      // reset local prefix
+      $localprefix = '';
+
+      // change prefix for plugins
+      if (preg_match('#plugins[/\\\\]([^/\\\\]+)[/\\\\]#', $schema, $match))
       {
-        // reset local prefix
-        $localprefix = '';
-
-        // change prefix for plugins
-        if (preg_match('#plugins[/\\\\]([^/\\\\]+)[/\\\\]#', $schema, $match))
+        // if the plugin name is not in the schema filename, add it
+        if (!strstr(basename($schema), $match[1]))
         {
-          // if the plugin name is not in the schema filename, add it
-          if (!strstr(basename($schema), $match[1]))
-          {
-            $localprefix = $match[1].'-';
-          }
+          $localprefix = $match[1].'-';
         }
+      }
 
-        // if the prefix is not in the schema filename, add it
-        if (!strstr(basename($schema), $prefix))
-        {
-          $localprefix = $prefix.$localprefix;
-        }
+      // if the prefix is not in the schema filename, add it
+      if (!strstr(basename($schema), $prefix))
+      {
+        $localprefix = $prefix.$localprefix;
+      }
 
-        $this->getFilesystem()->copy($schema, 'config'.DIRECTORY_SEPARATOR.$localprefix.basename($schema));
-        if ('' === $localprefix)
-        {
-          $this->getFilesystem()->remove($schema);
-        }
+      $this->getFilesystem()->copy($schema, 'config/'.$localprefix.basename($schema));
+      if ('' === $localprefix)
+      {
+        $this->getFilesystem()->remove($schema);
       }
     }
   }
 
   protected function cleanup()
   {
-    $finder = sfFinder::type('file')->name('generated-*schema.xml');
-    $this->getFilesystem()->remove($finder->in(array('config', 'plugins')));
+    $this->getFilesystem()->remove(sfFinder::type('file')->name('generated-*schema.xml')->in('config', 'plugins'));
+    $this->getFilesystem()->remove(sfFinder::type('file')->name('*schema-transformed.xml')->in('config', 'plugins'));
   }
 
   protected function callPhing($taskName, $checkSchema)
+  {
+    self::doCallPhing($taskName, $checkSchema, array(
+      'quiet' => is_null($this->commandApplication) || !$this->commandApplication->isVerbose(),
+      'debug' => !is_null($this->commandApplication) && $this->commandApplication->withTrace(),
+    ));
+  }
+
+  protected function getConfigPaths()
+  {
+    return array_merge(array('config'), $this->getPluginConfigPaths());
+  }
+
+  protected function getPluginConfigPaths()
+  {
+    return array_map(create_function('$path', 'return $path.\'/config\';'), $this->configuration->getPluginPaths());
+  }
+
+  static public function doCallPhing($taskName, $checkSchema, $options = array())
   {
     $schemas = sfFinder::type('file')->name('*schema.xml')->relative()->follow_link()->in('config');
     if (self::CHECK_SCHEMA === $checkSchema && !$schemas)
@@ -210,12 +227,6 @@ abstract class sfPropelBaseTask extends sfBaseTask
     }
 
     // Call phing targets
-    if (false === strpos('propel-generator', get_include_path()))
-    {
-      set_include_path(dirname(__FILE__).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'propel-generator'.DIRECTORY_SEPARATOR.'classes'.PATH_SEPARATOR.get_include_path());
-    }
-    set_include_path(sfConfig::get('sf_root_dir').PATH_SEPARATOR.get_include_path());
-
     $args = array();
 
     $options = array(
@@ -234,14 +245,14 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
     // Build file
     $args[] = '-f';
-    $args[] = realpath(dirname(__FILE__).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'propel-generator'.DIRECTORY_SEPARATOR.'build.xml');
+    $args[] = realpath(dirname(__FILE__).'/../vendor/propel-generator/build.xml');
 
-    if (is_null($this->commandApplication) || !$this->commandApplication->isVerbose())
+    if (isset($options['quiet']) && $options['quiet'])
     {
       $args[] = '-quiet';
     }
 
-    if (!is_null($this->commandApplication) && $this->commandApplication->withTrace())
+    if (isset($options['debug']) && $options['debug'])
     {
       $args[] = '-debug';
     }
@@ -255,15 +266,44 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
     $args[] = $taskName;
 
-    require_once dirname(__FILE__).'/sfPhing.class.php';
-
-    Phing::startup();
-    Phing::setProperty('phing.home', getenv('PHING_HOME'));
-
     $m = new sfPhing();
     $m->execute($args);
     $m->runBuild();
 
     chdir(sfConfig::get('sf_root_dir'));
+  }
+
+  /**
+   * @see GeneratorConfig::getBuildProperty()
+   */
+  static public function getBuildProperty($name, $default = null)
+  {
+    if (is_null(self::$generatorConfig))
+    {
+      $dispatcher = sfProjectConfiguration::getActive()->getEventDispatcher();
+      $listener   = array(__CLASS__, 'listenForBuildFinished');
+
+      $dispatcher->connect('phing.build_finished', $listener);
+
+      ob_start();
+      self::doCallPhing('configure', self::DO_NOT_CHECK_SCHEMA);
+      ob_end_clean();
+
+      $dispatcher->disconnect('phing.build_finished', $listener);
+    }
+
+    if (is_null(self::$generatorConfig))
+    {
+      throw new RuntimeException('Unable to capture an instance of GeneratorConfig.');
+    }
+
+    return is_null($property = self::$generatorConfig->getBuildProperty($name)) ? $default : $property;
+  }
+
+  static public function listenForBuildFinished(sfEvent $event)
+  {
+    require_once 'propel/engine/GeneratorConfig.php';
+
+    self::$generatorConfig = new GeneratorConfig($event->getSubject()->getProject()->getProperties());
   }
 }

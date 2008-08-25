@@ -52,3 +52,5 @@ propel.builder.mapbuilder.class        = plugins.sfPropelPlugin.lib.propel.build
 propel.builder.addIncludes  = false
 propel.builder.addComments  = true
 propel.builder.addBehaviors = true
+
+propel.disableMigrations = false

@@ -1,0 +1,12 @@
+# <?php if (!sfPropelBaseTask::getBuildProperty('disableMigrations')): ?> 
+classes:
+  sfPropelMigrationLog:
+    tableName:        sf_propel_migration_log
+    columns:
+      id:             ~
+      nspace:         { type: varchar(255), required: true, index: unique, phpName: Namespace }
+      revision_from:  { type: integer }
+      revision_to:    { type: integer, required: true }
+      manual:         { type: boolean, required: true, default: false }
+      created_at:     ~
+# <?php endif; ?> 
