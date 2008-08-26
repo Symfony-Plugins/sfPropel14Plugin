@@ -9,7 +9,7 @@
 */
 
 /**
- * A symfony database driver for Propel, derived from the native Creole driver.
+ * A symfony database driver for Propel.
  *
  * <b>Optional parameters:</b>
  *
