@@ -25,11 +25,8 @@ class sfPropelBuildAllLoadTask extends sfPropelBaseTask
    */
   protected function configure()
   {
-    $this->addArguments(array(
-      new sfCommandArgument('application', sfCommandArgument::REQUIRED, 'The application name'),
-    ));
-
     $this->addOptions(array(
+      new sfCommandOption('application', null, sfCommandOption::PARAMETER_OPTIONAL, 'The application name', null),
       new sfCommandOption('env', null, sfCommandOption::PARAMETER_REQUIRED, 'The environment', 'dev'),
       new sfCommandOption('connection', null, sfCommandOption::PARAMETER_REQUIRED, 'The connection name', 'propel'),
       new sfCommandOption('skip-forms', 'F', sfCommandOption::PARAMETER_NONE, 'Skip generating forms')
@@ -72,7 +69,13 @@ EOF;
     $loadData = new sfPropelLoadDataTask($this->dispatcher, $this->formatter);
     $loadData->setCommandApplication($this->commandApplication);
 
-    $loadData->run(array('application' => $arguments['application']), array('--env='.$options['env'], '--connection='.$options['connection']));
+    $options = array('--env='.$options['env'], '--connection='.$options['connection']);
+    if (isset($this->options['application']))
+    {
+      $options[] = '--application='.$options['application'];
+    }
+
+    $loadData->run(array(), $options);
 
     $this->cleanup();
   }
