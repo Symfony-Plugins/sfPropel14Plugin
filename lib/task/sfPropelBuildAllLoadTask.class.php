@@ -29,6 +29,7 @@ class sfPropelBuildAllLoadTask extends sfPropelBaseTask
       new sfCommandOption('application', null, sfCommandOption::PARAMETER_OPTIONAL, 'The application name', null),
       new sfCommandOption('env', null, sfCommandOption::PARAMETER_REQUIRED, 'The environment', 'dev'),
       new sfCommandOption('connection', null, sfCommandOption::PARAMETER_REQUIRED, 'The connection name', 'propel'),
+      new sfCommandOption('no-confirmation', null, sfCommandOption::PARAMETER_NONE, 'Do not ask for confirmation'),
       new sfCommandOption('skip-forms', 'F', sfCommandOption::PARAMETER_NONE, 'Skip generating forms')
     ));
 
@@ -40,15 +41,20 @@ class sfPropelBuildAllLoadTask extends sfPropelBaseTask
     $this->detailedDescription = <<<EOF
 The [propel:build-all-load|INFO] task is a shortcut for four other tasks:
 
-  [./symfony propel:build-all-load frontend|INFO]
+  [./symfony propel:build-all-load|INFO]
 
 The task is equivalent to:
 
   [./symfony propel:build-all|INFO]
-  [./symfony propel:data-load frontend|INFO]
+  [./symfony propel:data-load|INFO]
 
 The task takes an application argument because of the [propel:data-load|COMMENT]
 task. See [propel:data-load|COMMENT] help page for more information.
+
+To bypass the confirmation, you can pass the [no-confirmation|COMMENT]
+option:
+
+  [./symfony propel:buil-all-load --no-confirmation|INFO]
 EOF;
   }
 
@@ -64,19 +70,34 @@ EOF;
 
     $buildAll = new sfPropelBuildAllTask($this->dispatcher, $this->formatter);
     $buildAll->setCommandApplication($this->commandApplication);
-    $buildAll->run(array(), $options['skip-forms'] ? array('--skip-forms') : array());
 
-    $loadData = new sfPropelLoadDataTask($this->dispatcher, $this->formatter);
-    $loadData->setCommandApplication($this->commandApplication);
-
-    $options = array('--env='.$options['env'], '--connection='.$options['connection']);
-    if (isset($this->options['application']))
+    $buildAllOptions = array();
+    if ($options['skip-forms'])
     {
-      $options[] = '--application='.$options['application'];
+      $buildAllOptions[] = '--skip-forms';
+    }
+    if ($options['no-confirmation'])
+    {
+      $buildAllOptions[] = '--no-confirmation';
+    }
+    $ret = $buildAll->run(array(), $buildAllOptions);
+
+    if (0 == $ret)
+    {
+      $loadData = new sfPropelLoadDataTask($this->dispatcher, $this->formatter);
+      $loadData->setCommandApplication($this->commandApplication);
+
+      $options = array('--env='.$options['env'], '--connection='.$options['connection']);
+      if (isset($this->options['application']))
+      {
+        $options[] = '--application='.$options['application'];
+      }
+
+      $loadData->run(array(), $options);
     }
 
-    $loadData->run(array(), $options);
-
     $this->cleanup();
+
+    return $ret;
   }
 }

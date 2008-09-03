@@ -31,6 +31,7 @@ class sfPropelBuildAllTask extends sfPropelBaseTask
     $this->briefDescription = 'Generates Propel model, SQL and initializes the database';
 
     $this->addOptions(array(
+      new sfCommandOption('no-confirmation', null, sfCommandOption::PARAMETER_NONE, 'Do not ask for confirmation'),
       new sfCommandOption('skip-forms', 'F', sfCommandOption::PARAMETER_NONE, 'Skip generating forms')
     ));
 
@@ -47,6 +48,11 @@ The task is equivalent to:
   [./symfony propel:insert-sql|INFO]
 
 See those three tasks help page for more information.
+
+To bypass the confirmation, you can pass the [no-confirmation|COMMENT]
+option:
+
+  [./symfony propel:buil-all-load --no-confirmation|INFO]
 EOF;
   }
 
@@ -72,8 +78,10 @@ EOF;
 
     $insertSql = new sfPropelInsertSqlTask($this->dispatcher, $this->formatter);
     $insertSql->setCommandApplication($this->commandApplication);
-    $insertSql->run();
+    $ret = $insertSql->run(array(), $options['no-confirmation'] ? array('--no-confirmation') : array());
 
     $this->cleanup();
+
+    return $ret;
   }
 }

@@ -44,12 +44,12 @@ class sfPropelDumpDataTask extends sfPropelBaseTask
     $this->detailedDescription = <<<EOF
 The [propel:data-dump|INFO] task dumps database data:
 
-  [./symfony propel:data-dump frontend > data/fixtures/dump.yml|INFO]
+  [./symfony propel:data-dump > data/fixtures/dump.yml|INFO]
 
 By default, the task outputs the data to the standard output,
 but you can also pass a filename as a second argument:
 
-  [./symfony propel:data-dump frontend dump.yml|INFO]
+  [./symfony propel:data-dump dump.yml|INFO]
 
 The task will dump data in [data/fixtures/%target%|COMMENT]
 (data/fixtures/dump.yml in the example).
@@ -60,11 +60,16 @@ the [propel:data-load|INFO] task.
 By default, the task use the [propel|COMMENT] connection as defined in [config/databases.yml|COMMENT].
 You can use another connection by using the [connection|COMMENT] option:
 
-  [./symfony propel:data-load --connection="name" frontend|INFO]
+  [./symfony propel:data-dump --connection="name"|INFO]
 
 If you only want to dump some classes, use the [classes|COMMENT] option:
 
-  [./symfony propel:data-load --classes="Article,Category" frontend|INFO]
+  [./symfony propel:data-dump --classes="Article,Category"|INFO]
+
+If you want to use a specific database configuration from an application, you can use
+the [application|COMMENT] option:
+
+  [./symfony propel:data-dump --application=frontend|INFO]
 EOF;
   }
 
