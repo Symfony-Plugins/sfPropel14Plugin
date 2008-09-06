@@ -11,14 +11,14 @@
 require_once(dirname(__FILE__).'/sfPropelBaseTask.class.php');
 
 /**
- * Generates a Propel CRUD module.
+ * Generates a Propel module.
  *
  * @package    symfony
  * @subpackage propel
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @version    SVN: $Id$
  */
-class sfPropelGenerateCrudTask extends sfPropelBaseTask
+class sfPropelGenerateModuleTask extends sfPropelBaseTask
 {
   /**
    * @see sfTask
@@ -40,15 +40,15 @@ class sfPropelGenerateCrudTask extends sfPropelBaseTask
       new sfCommandOption('env', null, sfCommandOption::PARAMETER_REQUIRED, 'The environment', 'dev'),
     ));
 
-    $this->aliases = array('propel-generate-crud');
+    $this->aliases = array('propel-generate-crud', 'propel:generate-crud');
     $this->namespace = 'propel';
-    $this->name = 'generate-crud';
-    $this->briefDescription = 'Generates a Propel CRUD module';
+    $this->name = 'generate-module';
+    $this->briefDescription = 'Generates a Propel module';
 
     $this->detailedDescription = <<<EOF
-The [propel:generate-crud|INFO] task generates a Propel CRUD module:
+The [propel:generate-module|INFO] task generates a Propel module:
 
-  [./symfony propel:generate-crud frontend article Article|INFO]
+  [./symfony propel:generate-module frontend article Article|INFO]
 
 The task creates a [%module%|COMMENT] module in the [%application%|COMMENT] application
 for the model class [%model%|COMMENT].
@@ -57,13 +57,13 @@ You can also create an empty module that inherits its actions and templates from
 a runtime generated module in [%sf_app_cache_dir%/modules/auto%module%|COMMENT] by
 using the [--generate-in-cache|COMMENT] option:
 
-  [./symfony propel:generate-crud --generate-in-cache frontend article Article|INFO]
+  [./symfony propel:generate-module --generate-in-cache frontend article Article|INFO]
 
 The generator can use a customized theme by using the [--theme|COMMENT] option:
 
-  [./symfony propel:generate-crud --theme="custom" frontend article Article|INFO]
+  [./symfony propel:generate-module --theme="custom" frontend article Article|INFO]
 
-This way, you can create your very own CRUD generator with your own conventions.
+This way, you can create your very own module generator with your own conventions.
 EOF;
   }
 
