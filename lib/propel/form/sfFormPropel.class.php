@@ -256,6 +256,28 @@ abstract class sfFormPropel extends sfForm
   }
 
   /**
+   * Renders a form tag suitable for the related Propel object.
+   *
+   * The method is automatically guessed based on the Propel object:
+   *
+   *  * if the object is new, the method is POST
+   *  * if the object already exists, the method is PUT
+   *
+   * @param  string $url         The URL for the action
+   * @param  array  $attributes  An array of HTML attributes
+   *
+   * @return string An HTML representation of the opening form tag
+   *
+   * @see sfForm
+   */
+  public function renderFormTag($url, array $attributes = array())
+  {
+    $attributes['method'] = $this->getObject()->isNew() ? 'POST' : 'PUT';
+
+    return parent::renderFormTag($url, $attributes);
+  }
+
+  /**
    * Updates and saves the current object.
    *
    * If you want to add some logic before saving or save other associated objects,
