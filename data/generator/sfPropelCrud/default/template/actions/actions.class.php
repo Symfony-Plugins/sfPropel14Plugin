@@ -26,7 +26,7 @@ class <?php echo $this->getGeneratedModuleName() ?>Actions extends sfActions
 <?php if (isset($this->params['non_atomic_actions']) && $this->params['non_atomic_actions']): ?>
   public function executeEdit($request)
   {
-    $this->form = new <?php echo $this->getClassName() ?>Form(<?php echo $this->getPeerClassName() ?>::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForEdit(49, $this->getSingularName()) ?>));
+    $this->form = new <?php echo $this->getFormClassName() ?>(<?php echo $this->getPeerClassName() ?>::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForEdit(49, $this->getSingularName()) ?>));
 
     if ($request->isMethod('post'))
     {
@@ -42,21 +42,21 @@ class <?php echo $this->getGeneratedModuleName() ?>Actions extends sfActions
 <?php else: ?>
   public function executeCreate($request)
   {
-    $this->form = new <?php echo $this->getClassName() ?>Form();
+    $this->form = new <?php echo $this->getFormClassName() ?>();
 
     $this->setTemplate('edit');
   }
 
   public function executeEdit($request)
   {
-    $this->form = new <?php echo $this->getClassName() ?>Form(<?php echo $this->getPeerClassName() ?>::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForAction(49, '$request->getParameter') ?>));
+    $this->form = new <?php echo $this->getFormClassName() ?>(<?php echo $this->getPeerClassName() ?>::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForAction(49, '$request->getParameter') ?>));
   }
 
   public function executeUpdate($request)
   {
     $this->forward404Unless($request->isMethod('post'));
 
-    $this->form = new <?php echo $this->getClassName() ?>Form(<?php echo $this->getPeerClassName() ?>::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForAction(49, '$request->getParameter') ?>));
+    $this->form = new <?php echo $this->getFormClassName() ?>(<?php echo $this->getPeerClassName() ?>::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForAction(49, '$request->getParameter') ?>));
 
     $this->form->bind($request->getParameter('<?php echo $this->getFormParameterName() ?>'));
     if ($this->form->isValid())
