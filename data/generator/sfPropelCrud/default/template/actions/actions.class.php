@@ -12,7 +12,7 @@ class <?php echo $this->getGeneratedModuleName() ?>Actions extends sfActions
 {
   public function executeIndex($request)
   {
-    $this-><?php echo $this->getSingularName() ?>List = <?php echo $this->getPeerClassName() ?>::doSelect(new Criteria());
+    $this-><?php echo $this->getPluralName() ?> = <?php echo $this->getPeerClassName() ?>::doSelect(new Criteria());
   }
 
 <?php if (isset($this->params['with_show']) && $this->params['with_show']): ?>

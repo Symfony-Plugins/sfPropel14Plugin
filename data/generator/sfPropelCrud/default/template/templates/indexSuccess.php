@@ -10,7 +10,7 @@
     </tr>
   </thead>
   <tbody>
-    [?php foreach ($<?php echo $this->getSingularName() ?>List as $<?php echo $this->getSingularName() ?>): ?]
+    [?php foreach ($<?php echo $this->getPluralName() ?> as $<?php echo $this->getSingularName() ?>): ?]
     <tr>
 <?php foreach ($this->getTableMap()->getColumns() as $column): ?>
 <?php if ($column->isPrimaryKey()): ?>
