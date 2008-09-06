@@ -93,7 +93,7 @@ else
 
     try
     {
-      foreach (<?php echo $this->getClassName() ?>Peer::retrieveByPks($this->selectedItems) as $object)
+      foreach (<?php echo $this->getPeerClassName() ?>::retrieveByPks($this->selectedItems) as $object)
       {
         $object->delete();
       }
@@ -148,7 +148,7 @@ else
 
   public function executeDelete($request)
   {
-    $this-><?php echo $this->getSingularName() ?> = <?php echo $this->getClassName() ?>Peer::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForAction(40) ?>);
+    $this-><?php echo $this->getSingularName() ?> = <?php echo $this->getPeerClassName() ?>::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForAction(40) ?>);
     $this->forward404Unless($this-><?php echo $this->getSingularName() ?>);
 
     try
@@ -212,9 +212,9 @@ $remote_column = isset($user_params['related_column']) ? $user_params['related_c
 
 $class = $this->getClassName();
 $related_class = sfPropelManyToMany::getRelatedClass($class, $through_class, $remote_column);
-$related_table = constant($related_class.'Peer::TABLE_NAME');
-$middle_table = constant($through_class.'Peer::TABLE_NAME');
-$this_table = constant($class.'Peer::TABLE_NAME');
+$related_table = constant(constant($related_class.'::PEER').'::TABLE_NAME');
+$middle_table = constant(constant($through_class.'::PEER').'::TABLE_NAME');
+$this_table = constant(constant($class.'::PEER').'::TABLE_NAME');
 
 $related_column = sfPropelManyToMany::getRelatedColumn($class, $through_class, $remote_column);
 $column = sfPropelManyToMany::getColumn($class, $through_class, $remote_column);
@@ -227,8 +227,8 @@ $column = sfPropelManyToMany::getColumn($class, $through_class, $remote_column);
 <?php endif; ?>
       // Update many-to-many for "<?php echo $name ?>"
       $c = new Criteria();
-      $c->add(<?php echo $through_class ?>Peer::<?php echo strtoupper($column->getColumnName()) ?>, $<?php echo $this->getSingularName() ?>->getPrimaryKey());
-      <?php echo $through_class ?>Peer::doDelete($c);
+      $c->add(<?php echo constant($through_class.'::PEER') ?>::<?php echo strtoupper($column->getColumnName()) ?>, $<?php echo $this->getSingularName() ?>->getPrimaryKey());
+      <?php echo constant($through_class.'::PEER') ?>::doDelete($c);
 
       $ids = $this->getRequestParameter('associated_<?php echo $name ?>');
       if (is_array($ids))
@@ -354,7 +354,7 @@ $column = sfPropelManyToMany::getColumn($class, $through_class, $remote_column);
     }
     else
     {
-      $<?php echo $this->getSingularName() ?> = <?php echo $this->getClassName() ?>Peer::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForGetOrCreate() ?>);
+      $<?php echo $this->getSingularName() ?> = <?php echo constant($this->getClassName().'::PEER') ?>::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForGetOrCreate() ?>);
 
       $this->forward404Unless($<?php echo $this->getSingularName() ?>);
     }
@@ -480,7 +480,7 @@ $column = sfPropelManyToMany::getColumn($class, $through_class, $remote_column);
     if ($sort_column = $this->getUser()->getAttribute('sort', null, 'sf_admin/<?php echo $this->getSingularName() ?>/sort'))
     {
       // camelize lower case to be able to compare with BasePeer::TYPE_PHPNAME translate field name
-      $sort_column = <?php echo $this->getClassName() ?>Peer::translateFieldName(sfInflector::camelize(strtolower($sort_column)), BasePeer::TYPE_PHPNAME, BasePeer::TYPE_COLNAME);
+      $sort_column = <?php echo $this->getPeerClassName() ?>::translateFieldName(sfInflector::camelize(strtolower($sort_column)), BasePeer::TYPE_PHPNAME, BasePeer::TYPE_COLNAME);
       if ($this->getUser()->getAttribute('type', null, 'sf_admin/<?php echo $this->getSingularName() ?>/sort') == 'asc')
       {
         $c->addAscendingOrderByColumn($sort_column);

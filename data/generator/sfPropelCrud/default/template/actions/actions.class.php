@@ -12,13 +12,13 @@ class <?php echo $this->getGeneratedModuleName() ?>Actions extends sfActions
 {
   public function executeIndex($request)
   {
-    $this-><?php echo $this->getSingularName() ?>List = <?php echo $this->getClassName() ?>Peer::doSelect(new Criteria());
+    $this-><?php echo $this->getSingularName() ?>List = <?php echo $this->getPeerClassName() ?>::doSelect(new Criteria());
   }
 
 <?php if (isset($this->params['with_show']) && $this->params['with_show']): ?>
   public function executeShow($request)
   {
-    $this-><?php echo $this->getSingularName() ?> = <?php echo $this->getClassName() ?>Peer::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForAction(49, '$request->getParameter') ?>);
+    $this-><?php echo $this->getSingularName() ?> = <?php echo $this->getPeerClassName() ?>::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForAction(49, '$request->getParameter') ?>);
     $this->forward404Unless($this-><?php echo $this->getSingularName() ?>);
   }
 
@@ -26,7 +26,7 @@ class <?php echo $this->getGeneratedModuleName() ?>Actions extends sfActions
 <?php if (isset($this->params['non_atomic_actions']) && $this->params['non_atomic_actions']): ?>
   public function executeEdit($request)
   {
-    $this->form = new <?php echo $this->getClassName() ?>Form(<?php echo $this->getClassName() ?>Peer::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForEdit(49, $this->getSingularName()) ?>));
+    $this->form = new <?php echo $this->getClassName() ?>Form(<?php echo $this->getPeerClassName() ?>::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForEdit(49, $this->getSingularName()) ?>));
 
     if ($request->isMethod('post'))
     {
@@ -49,14 +49,14 @@ class <?php echo $this->getGeneratedModuleName() ?>Actions extends sfActions
 
   public function executeEdit($request)
   {
-    $this->form = new <?php echo $this->getClassName() ?>Form(<?php echo $this->getClassName() ?>Peer::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForAction(49, '$request->getParameter') ?>));
+    $this->form = new <?php echo $this->getClassName() ?>Form(<?php echo $this->getPeerClassName() ?>::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForAction(49, '$request->getParameter') ?>));
   }
 
   public function executeUpdate($request)
   {
     $this->forward404Unless($request->isMethod('post'));
 
-    $this->form = new <?php echo $this->getClassName() ?>Form(<?php echo $this->getClassName() ?>Peer::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForAction(49, '$request->getParameter') ?>));
+    $this->form = new <?php echo $this->getClassName() ?>Form(<?php echo $this->getPeerClassName() ?>::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForAction(49, '$request->getParameter') ?>));
 
     $this->form->bind($request->getParameter('<?php echo $this->getSingularName() ?>'));
     if ($this->form->isValid())
@@ -72,7 +72,7 @@ class <?php echo $this->getGeneratedModuleName() ?>Actions extends sfActions
 
   public function executeDelete($request)
   {
-    $this->forward404Unless($<?php echo $this->getSingularName() ?> = <?php echo $this->getClassName() ?>Peer::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForAction(43, '$request->getParameter') ?>));
+    $this->forward404Unless($<?php echo $this->getSingularName() ?> = <?php echo $this->getPeerClassName() ?>::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForAction(43, '$request->getParameter') ?>));
 
     $<?php echo $this->getSingularName() ?>->delete();
 

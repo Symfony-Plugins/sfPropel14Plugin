@@ -22,8 +22,8 @@ class sfPropelManyToMany
   public static function getColumn($class, $middleClass, $relatedColumn = '')
   {
     // find the related class
-    $tableMap = call_user_func(array($middleClass.'Peer', 'getTableMap'));
-    $object_table_name = constant($class.'Peer::TABLE_NAME');
+    $tableMap = call_user_func(array(constant($middleClass.'::PEER'), 'getTableMap'));
+    $object_table_name = constant(constant($class.'::PEER').'::TABLE_NAME');
 
     if (!empty($relatedColumn))
     {
@@ -52,8 +52,8 @@ class sfPropelManyToMany
   public static function getRelatedColumn($class, $middleClass, $relatedColumn = '')
   {
     // find the related class
-    $tableMap = call_user_func(array($middleClass.'Peer', 'getTableMap'));
-    $object_table_name = constant($class.'Peer::TABLE_NAME');
+    $tableMap = call_user_func(array(constant($middleClass.'::PEER'), 'getTableMap'));
+    $object_table_name = constant(constant($class.'::PEER').'::TABLE_NAME');
 
     if (!empty($relatedColumn))
     {
@@ -82,7 +82,7 @@ class sfPropelManyToMany
       $map->doBuild();
     }
 
-    $tableMap = call_user_func(array($middleClass.'Peer', 'getTableMap'));
+    $tableMap = call_user_func(array(constant($middleClass.'::PEER'), 'getTableMap'));
 
     return $tableMap->getDatabaseMap()->getTable($column->getRelatedTableName())->getPhpName();
   }
@@ -107,7 +107,7 @@ class sfPropelManyToMany
       }
     }
 
-    return call_user_func(array($relatedClass.'Peer', 'doSelect'), $criteria);
+    return call_user_func(array(constant($relatedClass.'::PEER'), 'doSelect'), $criteria);
   }
 
   /**
@@ -139,9 +139,9 @@ class sfPropelManyToMany
       $localColumn = self::getColumn(get_class($object), $middleClass, $relatedColumn);
       $remoteColumn = self::getRelatedColumn(get_class($object), $middleClass, $relatedColumn);
       $c = new Criteria();
-      $c->add(constant($middleClass.'Peer::'.$localColumn->getColumnName()), $object->getId());
+      $c->add(constant(constant($middleClass.'::PEER').'::'.$localColumn->getColumnName()), $object->getId());
       $relatedMethod = 'get'.$relatedClass.'RelatedBy'.$remoteColumn->getPhpName();
-      $rels = call_user_func(array($middleClass.'Peer', 'doSelectJoin'.$relatedClass.'RelatedBy'.$remoteColumn->getPhpName()), $c);
+      $rels = call_user_func(array(constant($middleClass.'::PEER'), 'doSelectJoin'.$relatedClass.'RelatedBy'.$remoteColumn->getPhpName()), $c);
     }
     foreach ($rels as $rel)
     {

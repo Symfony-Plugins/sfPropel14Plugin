@@ -81,9 +81,9 @@ class sfPropelData extends sfData
     {
       $class = trim($class);
 
-      $tableMap = $this->dbMap->getTable(constant($class.'Peer::TABLE_NAME'));
+      $tableMap = $this->dbMap->getTable(constant(constant($class.'::PEER').'::TABLE_NAME'));
 
-      $column_names = call_user_func_array(array($class.'Peer', 'getFieldNames'), array(BasePeer::TYPE_FIELDNAME));
+      $column_names = call_user_func_array(array(constant($class.'::PEER'), 'getFieldNames'), array(BasePeer::TYPE_FIELDNAME));
 
       // iterate through datas for this class
       // might have been empty just for force a table to be emptied on import
@@ -184,7 +184,7 @@ class sfPropelData extends sfData
     $middleClass = $middleTable->getPhpName();
     foreach ($middleTable->getColumns()  as $column)
     {
-      if ($column->isForeignKey() && constant(get_class($obj).'Peer::TABLE_NAME') != $column->getRelatedTableName())
+      if ($column->isForeignKey() && constant(constant(get_class($obj).'::PEER').'::TABLE_NAME') != $column->getRelatedTableName())
       {
         $relatedClass = $this->dbMap->getTable($column->getRelatedTableName())->getPhpName();
         break;
@@ -252,12 +252,12 @@ class sfPropelData extends sfData
         }
 
         // Check that peer class exists before calling doDeleteAll()
-        if (!class_exists($class.'Peer'))
+        if (!class_exists(constant($class.'::PEER')))
         {
           throw new InvalidArgumentException(sprintf('Unknown class "%sPeer".', $class));
         }
 
-        call_user_func(array($class.'Peer', 'doDeleteAll'), $this->con);
+        call_user_func(array(constant($class.'::PEER'), 'doDeleteAll'), $this->con);
 
         $this->deletedClasses[] = $class;
       }
@@ -344,7 +344,7 @@ class sfPropelData extends sfData
     $tables = $this->fixOrderingOfForeignKeyData($tables);
     foreach ($tables as $tableName)
     {
-      $tableMap = $this->dbMap->getTable(constant($tableName.'Peer::TABLE_NAME'));
+      $tableMap = $this->dbMap->getTable(constant(constant($tableName.'::PEER').'::TABLE_NAME'));
       $hasParent = false;
       $haveParents = false;
       $fixColumn = null;
@@ -383,7 +383,7 @@ class sfPropelData extends sfData
       }
       else
       {
-        $stmt = $this->con->query('SELECT * FROM '.constant($tableName.'Peer::TABLE_NAME'));
+        $stmt = $this->con->query('SELECT * FROM '.constant(constant($tableName.'::PEER').'::TABLE_NAME'));
         $resultsSets[] = $stmt->fetchAll(PDO::FETCH_ASSOC);
       }
 
@@ -464,7 +464,7 @@ class sfPropelData extends sfData
     for ($i = 0, $count = count($classes); $i < $count; $i++)
     {
       $class = $classes[$i];
-      $tableMap = $this->dbMap->getTable(constant($class.'Peer::TABLE_NAME'));
+      $tableMap = $this->dbMap->getTable(constant(constant($class.'::PEER').'::TABLE_NAME'));
       foreach ($tableMap->getColumns() as $column)
       {
         if ($column->isForeignKey())
@@ -496,7 +496,7 @@ class sfPropelData extends sfData
   protected function fixOrderingOfForeignKeyDataInSameTable($resultsSets, $tableName, $column, $in = null)
   {
     $stmt = $this->con->prepare('SELECT * FROM :table WHERE :column :where');
-    $stmt->bindValue(':table', constant($tableName.'Peer::TABLE_NAME'));
+    $stmt->bindValue(':table', constant(constant($tableName.'::PEER').'::TABLE_NAME'));
     $stmt->bindValue(':column', strtolower($column->getColumnName()));
     $stmt->bindValue(':where', is_null($in) ? 'IS NULL' : 'IN ('.$in.')');
 

@@ -47,7 +47,7 @@ class sfValidatorPropelChoice extends sfValidatorBase
     $criteria = is_null($this->getOption('criteria')) ? new Criteria() : $this->getOption('criteria');
     $criteria->add($this->getColumn(), $value);
 
-    $object = call_user_func(array($this->getOption('model').'Peer', 'doSelectOne'), $criteria, $this->getOption('connection'));
+    $object = call_user_func(array(constant($this->getOption('model').'::PEER'), 'doSelectOne'), $criteria, $this->getOption('connection'));
 
     if (is_null($object))
     {
@@ -72,7 +72,7 @@ class sfValidatorPropelChoice extends sfValidatorBase
     }
     else
     {
-      $map = call_user_func(array($this->getOption('model').'Peer', 'getTableMap'));
+      $map = call_user_func(array(constant($this->getOption('model').'::PEER'), 'getTableMap'));
       foreach ($map->getColumns() as $column)
       {
         if ($column->isPrimaryKey())
@@ -83,6 +83,6 @@ class sfValidatorPropelChoice extends sfValidatorBase
       }
     }
 
-    return call_user_func(array($this->getOption('model').'Peer', 'translateFieldName'), $columnName, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_COLNAME);
+    return call_user_func(array(constant($this->getOption('model').'::PEER'), 'translateFieldName'), $columnName, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_COLNAME);
   }
 }

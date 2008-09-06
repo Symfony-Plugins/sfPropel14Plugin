@@ -29,7 +29,7 @@ class sfPropelPager extends sfPager
     parent::__construct($class, $maxPerPage);
 
     $this->setCriteria(new Criteria());
-    $this->tableName = constant($class.'Peer::TABLE_NAME');
+    $this->tableName = constant($this->getClassPeer().'::TABLE_NAME');
   }
 
   public function init()
@@ -120,7 +120,7 @@ class sfPropelPager extends sfPager
 
   public function getClassPeer()
   {
-    return $this->class.'Peer';
+    return constant($this->class.'::PEER');
   }
 
   public function getCriteria()

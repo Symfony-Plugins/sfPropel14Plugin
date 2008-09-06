@@ -87,12 +87,12 @@ class sfValidatorPropelUnique extends sfValidatorSchema
     $criteria = new Criteria();
     foreach ($this->getOption('column') as $i => $column)
     {
-      $colName = call_user_func(array($this->getOption('model').'Peer', 'translateFieldName'), $column, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_COLNAME);
+      $colName = call_user_func(array(constant($this->getOption('model').'::PEER'), 'translateFieldName'), $column, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_COLNAME);
 
       $criteria->add($colName, $values[isset($fields[$i]) ? $fields[$i] : $column]);
     }
 
-    $object = call_user_func(array($this->getOption('model').'Peer', 'doSelectOne'), $criteria, $this->getOption('connection'));
+    $object = call_user_func(array(constant($this->getOption('model').'::PEER'), 'doSelectOne'), $criteria, $this->getOption('connection'));
 
     // if no object or if we're updating the object, it's ok
     if (is_null($object) || $this->isUpdate($object, $values))
@@ -125,7 +125,7 @@ class sfValidatorPropelUnique extends sfValidatorSchema
     // check each primary key column
     foreach ($this->getPrimaryKeys() as $column)
     {
-      $columnPhpName = call_user_func(array($this->getOption('model').'Peer', 'translateFieldName'), $column, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_PHPNAME);
+      $columnPhpName = call_user_func(array(constant($this->getOption('model').'::PEER'), 'translateFieldName'), $column, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_PHPNAME);
       $method = 'get'.$columnPhpName;
       if (!isset($values[$column]) or $object->$method() != $values[$column])
       {
@@ -146,7 +146,7 @@ class sfValidatorPropelUnique extends sfValidatorSchema
     if (is_null($this->getOption('primary_key')))
     {
       $primaryKeys = array();
-      $tableMap = call_user_func(array($this->getOption('model').'Peer', 'getTableMap'));
+      $tableMap = call_user_func(array(constant($this->getOption('model').'::PEER'), 'getTableMap'));
       foreach ($tableMap->getColumns() as $column)
       {
         if (!$column->isPrimaryKey())
@@ -154,7 +154,7 @@ class sfValidatorPropelUnique extends sfValidatorSchema
           continue;
         }
 
-        $primaryKeys[] = call_user_func(array($this->getOption('model').'Peer', 'translateFieldName'), $column->getPhpName(), BasePeer::TYPE_PHPNAME, BasePeer::TYPE_FIELDNAME);
+        $primaryKeys[] = call_user_func(array(constant($this->getOption('model').'::PEER'), 'translateFieldName'), $column->getPhpName(), BasePeer::TYPE_PHPNAME, BasePeer::TYPE_FIELDNAME);
       }
 
       $this->setOption('primary_key', $primaryKeys);

@@ -384,4 +384,9 @@ EOF;
       $script .= sprintf($behavior_include_script, $behavior_file_path);
     }
   }
+
+  protected function addConstants(&$script)
+  {
+    $script .= "\n  const PEER = '".$this->getPeerClassName()."';\n";
+  }
 }

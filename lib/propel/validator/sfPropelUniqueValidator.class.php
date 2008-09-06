@@ -37,7 +37,7 @@ class sfPropelUniqueValidator extends sfValidator
 {
   public function execute(&$value, &$error)
   {
-    $className  = $this->getParameter('class').'Peer';
+    $className  = constant($this->getParameter('class').'::PEER');
     $columnName = call_user_func(array($className, 'translateFieldName'), $this->getParameter('column'), BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_COLNAME);
 
     $c = new Criteria();

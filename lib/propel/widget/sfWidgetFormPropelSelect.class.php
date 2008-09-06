@@ -72,7 +72,7 @@ class sfWidgetFormPropelSelect extends sfWidgetFormSelect
       $choices[''] = true === $this->getOption('add_empty') ? '' : $this->getOption('add_empty');
     }
 
-    $class = $this->getOption('model').'Peer';
+    $class = constant($this->getOption('model').'::PEER');
 
     $criteria = is_null($this->getOption('criteria')) ? new Criteria() : $this->getOption('criteria');
     if ($order = $this->getOption('order_by'))

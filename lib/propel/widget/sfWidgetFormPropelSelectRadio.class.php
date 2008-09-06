@@ -71,7 +71,7 @@ class sfWidgetFormPropelSelectRadio extends sfWidgetFormSelectRadio
   {
     $choices = array();
 
-    $class = $this->getOption('model').'Peer';
+    $class = constant($this->getOption('model').'::PEER');
 
     $criteria = is_null($this->getOption('criteria')) ? new Criteria() : $this->getOption('criteria');
     if ($order = $this->getOption('order_by'))

@@ -119,8 +119,8 @@ class Base<?php echo $this->table->getClassname() ?>Form extends BaseFormPropel
     }
 
     $c = new Criteria();
-    $c->add(<?php echo $tables['middleTable']->getClassname() ?>Peer::<?php echo strtoupper($tables['column']->getColumnName()) ?>, $this->object->getPrimaryKey());
-    <?php echo $tables['middleTable']->getClassname() ?>Peer::doDelete($c, $con);
+    $c->add(<?php echo constant($tables['middleTable']->getClassname().'::PEER') ?>::<?php echo strtoupper($tables['column']->getColumnName()) ?>, $this->object->getPrimaryKey());
+    <?php echo constant($tables['middleTable']->getClassname().'::PEER') ?>::doDelete($c, $con);
 
     $values = $this->getValue('<?php echo $this->underscore($tables['middleTable']->getClassname()) ?>_list');
     if (is_array($values))

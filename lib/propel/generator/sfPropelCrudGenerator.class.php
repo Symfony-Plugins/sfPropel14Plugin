@@ -21,6 +21,9 @@
 
 class sfPropelCrudGenerator extends sfAdminGenerator
 {
+  protected
+    $peerClassName = '';
+
   /**
    * Initializes the current sfGenerator instance.
    *
@@ -31,6 +34,18 @@ class sfPropelCrudGenerator extends sfAdminGenerator
     parent::initialize($generatorManager);
 
     $this->setGeneratorClass('sfPropelCrud');
+  }
+
+  /**
+   * Sets the class name to use for scaffolding
+   *
+   * @param string $className class name
+   */
+  protected function setScaffoldingClassName($className)
+  {
+    parent::setScaffoldingClassName($className);
+
+    $this->peerClassName = constant($className.'::PEER');
   }
 
   /**
@@ -86,7 +101,7 @@ class sfPropelCrudGenerator extends sfAdminGenerator
       throw new sfException(sprintf('The model class "%s" does not exist.', $this->className));
     }
 
-    $this->tableMap = $this->map->getDatabaseMap()->getTable(constant($this->className.'Peer::TABLE_NAME'));
+    $this->tableMap = $this->map->getDatabaseMap()->getTable(constant($this->peerClassName.'::TABLE_NAME'));
   }
 
   /**
@@ -378,5 +393,15 @@ class sfPropelCrudGenerator extends sfAdminGenerator
     {
       return "$columnGetter";
     }
+  }
+
+  /**
+   * Gets the Peer class name.
+   *
+   * @return string
+   */
+  public function getPeerClassName()
+  {
+    return $this->peerClassName;
   }
 }

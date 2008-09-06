@@ -25,7 +25,7 @@ class sfPropelDataRetriever
       $peerMethod = 'doSelect';
     }
 
-    $classPeer = $class.'Peer';
+    $classPeer = constant($class.'::PEER');
 
     if (!is_callable(array($classPeer, $peerMethod)))
     {
