@@ -30,7 +30,7 @@ class <?php echo $this->getGeneratedModuleName() ?>Actions extends sfActions
 
     if ($request->isMethod('post'))
     {
-      $this->form->bind($request->getParameter('<?php echo $this->getSingularName() ?>'));
+      $this->form->bind($request->getParameter('<?php echo $this->getFormParameterName() ?>'));
       if ($this->form->isValid())
       {
         $<?php echo $this->getSingularName() ?> = $this->form->save();
@@ -58,7 +58,7 @@ class <?php echo $this->getGeneratedModuleName() ?>Actions extends sfActions
 
     $this->form = new <?php echo $this->getClassName() ?>Form(<?php echo $this->getPeerClassName() ?>::retrieveByPk(<?php echo $this->getRetrieveByPkParamsForAction(49, '$request->getParameter') ?>));
 
-    $this->form->bind($request->getParameter('<?php echo $this->getSingularName() ?>'));
+    $this->form->bind($request->getParameter('<?php echo $this->getFormParameterName() ?>'));
     if ($this->form->isValid())
     {
       $<?php echo $this->getSingularName() ?> = $this->form->save();
