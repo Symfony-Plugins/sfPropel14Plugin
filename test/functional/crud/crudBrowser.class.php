@@ -21,7 +21,7 @@ class CrudBrowser extends sfTestBrowser
     $this->clearDirectory($this->projectDir.'/cache/crud');
 
     chdir($this->projectDir);
-    $task = new sfPropelGenerateCrudTask(new sfEventDispatcher(), new sfFormatter());
+    $task = new sfPropelGenerateModuleTask(new sfEventDispatcher(), new sfFormatter());
     $options[] = 'env=test';
     $task->run(array('crud', 'article', 'Article'), $options);
 
