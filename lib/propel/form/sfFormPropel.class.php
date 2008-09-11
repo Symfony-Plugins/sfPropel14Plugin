@@ -214,7 +214,16 @@ abstract class sfFormPropel extends sfForm
     $values = $this->values;
     foreach ($this->values as $field => $value)
     {
-      $method = sprintf('update%sColumn', call_user_func(array(constant(get_class($this->object).'::PEER'), 'translateFieldName'), $field, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_PHPNAME));
+      try
+      {
+        $method = sprintf('update%sColumn', call_user_func(array(constant(get_class($this->object).'::PEER'), 'translateFieldName'), $field, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_PHPNAME));
+      }
+      catch (Exception $e)
+      {
+        // no a "real" column of this object
+        continue;
+      }
+
       if (method_exists($this, $method))
       {
         if (false === $ret = $this->$method($value))
