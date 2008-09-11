@@ -191,9 +191,44 @@ abstract class sfFormPropel extends sfForm
       throw $this->getErrorSchema();
     }
 
-    $this->object->fromArray($this->getValues(), BasePeer::TYPE_FIELDNAME);
+    $this->object->fromArray($this->processValues(), BasePeer::TYPE_FIELDNAME);
 
     return $this->object;
+  }
+
+  /**
+   * Processes cleaned up values with user defined methods.
+   *
+   * To process a value before it is used by the updateObject() method,
+   * you need to define an updateXXXColumn() method where XXX is the PHP name
+   * of the column.
+   *
+   * The method must return the processed value or false to remove the value
+   * from the array of cleaned up values.
+   *
+   * @return array An array of cleaned up values processed by the user defined methods
+   */
+  public function processValues()
+  {
+    // see if the user has overridden some column setter
+    $values = $this->values;
+    foreach ($this->values as $field => $value)
+    {
+      $method = sprintf('update%sColumn', call_user_func(array(constant(get_class($this->object).'::PEER'), 'translateFieldName'), $field, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_PHPNAME));
+      if (method_exists($this, $method))
+      {
+        if (false === $ret = $this->$method($value))
+        {
+          unset($values[$field]);
+        }
+        else
+        {
+          $values[$field] = $ret;
+        }
+      }
+    }
+
+    return $values;
   }
 
   /**
