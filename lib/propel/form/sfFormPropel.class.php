@@ -235,6 +235,14 @@ abstract class sfFormPropel extends sfForm
           $values[$field] = $ret;
         }
       }
+      else
+      {
+        // save files
+        if ($this->validatorSchema[$field] instanceof sfValidatorFile)
+        {
+          $values[$field] = $this->saveUploadedFile($field, $value);
+        }
+      }
     }
 
     return $values;
@@ -377,5 +385,48 @@ abstract class sfFormPropel extends sfForm
         }
       }
     }
+  }
+
+  protected function saveUploadedFile($field, $file, $filename = null)
+  {
+    $column = call_user_func(array(constant(get_class($this->object).'::PEER'), 'translateFieldName'), $field, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_PHPNAME);
+    $getter = 'get'.$column;
+    $setter = 'set'.$column;
+
+    if (!$file)
+    {
+      return $this->object->$getter();
+    }
+
+    // we need the base directory
+    if (!$directory = $this->validatorSchema[$field]->getOption('path'))
+    {
+      return $file;
+    }
+
+    // remove old file
+    if (is_file($directory.$this->object->$getter()))
+    {
+      unlink($directory.$this->object->$getter());
+    }
+
+    // save new file
+    $method = sprintf('generate%sFilename', $column);
+    if (!is_null($filename))
+    {
+      $filename = $file->save();
+    }
+    else if (method_exists($this->object, $method))
+    {
+      $filename = $file->save($filename = $this->object->$method($file));
+    }
+    else
+    {
+      $filename = $file->save();
+    }
+
+    $this->object->$setter($filename);
+
+    return $filename;
   }
 }

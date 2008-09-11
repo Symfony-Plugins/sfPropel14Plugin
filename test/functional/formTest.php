@@ -40,7 +40,7 @@ $c->add(AttachmentPeer::NAME, $name);
 $attachments = AttachmentPeer::doSelect($c);
 
 $b->test()->is(count($attachments), 1, 'the attachment has been saved in the database');
-$b->test()->is($attachments[0]->getFile(), $uploadedFile, 'the attachment filename has been saved in the database');
+$b->test()->is($attachments[0]->getFile(), 'uploaded.yml', 'the attachment filename has been saved in the database');
 
 // sfValidatorPropelUnique
 
