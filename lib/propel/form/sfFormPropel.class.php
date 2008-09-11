@@ -425,8 +425,6 @@ abstract class sfFormPropel extends sfForm
       $filename = $file->save();
     }
 
-    $this->object->$setter($filename);
-
     return $filename;
   }
 }
