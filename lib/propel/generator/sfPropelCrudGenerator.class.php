@@ -18,7 +18,6 @@
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @version    SVN: $Id$
  */
-
 class sfPropelCrudGenerator extends sfAdminGenerator
 {
   protected
@@ -403,5 +402,22 @@ class sfPropelCrudGenerator extends sfAdminGenerator
   public function getPeerClassName()
   {
     return $this->peerClassName;
+  }
+
+  /**
+   * Returns the URL for a given action.
+   *
+   * @return string The URL related to a given action
+   */
+  public function getUrlForAction($action)
+  {
+    if (isset($this->params['route_prefix']))
+    {
+      return 'list' == $action ? $this->params['route_prefix'] : $this->params['route_prefix'].'_'.$action;
+    }
+    else
+    {
+      return $this->getModuleName().'/'.$action;
+    }
   }
 }

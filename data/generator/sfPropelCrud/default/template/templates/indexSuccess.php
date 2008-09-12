@@ -14,7 +14,11 @@
     <tr>
 <?php foreach ($this->getTableMap()->getColumns() as $column): ?>
 <?php if ($column->isPrimaryKey()): ?>
+<?php if (isset($this->params['route_prefix']) && $this->params['route_prefix']): ?>
+      <td><a href="[?php echo url_for('<?php echo $this->getUrlForAction(isset($this->params['with_show']) && $this->params['with_show'] ? 'show' : 'edit') ?>', $<?php echo $this->getSingularName() ?>) ?]">[?php echo $<?php echo $this->getSingularName() ?>->get<?php echo $column->getPhpName() ?>() ?]</a></td>
+<?php else: ?>
       <td><a href="[?php echo url_for('<?php echo $this->getModuleName() ?>/<?php echo isset($this->params['with_show']) && $this->params['with_show'] ? 'show' : 'edit' ?>?<?php echo $this->getPrimaryKeyUrlParams() ?>) ?]">[?php echo $<?php echo $this->getSingularName() ?>->get<?php echo $column->getPhpName() ?>() ?]</a></td>
+<?php endif; ?>
 <?php else: ?>
       <td>[?php echo $<?php echo $this->getSingularName() ?>->get<?php echo $column->getPhpName() ?>() ?]</td>
 <?php endif; ?>
@@ -24,4 +28,8 @@
   </tbody>
 </table>
 
-<a href="[?php echo url_for('<?php echo $this->getModuleName() ?>/<?php echo isset($this->params['non_atomic_actions']) && $this->params['non_atomic_actions'] ? 'edit' : 'create' ?>') ?]">Create</a>
+<?php if (isset($this->params['route_prefix']) && $this->params['route_prefix']): ?>
+  <a href="[?php echo url_for('<?php echo $this->getUrlForAction('new') ?>') ?]">New</a>
+<?php else: ?>
+  <a href="[?php echo url_for('<?php echo $this->getModuleName() ?>/new') ?]">New</a>
+<?php endif; ?>

@@ -34,9 +34,12 @@ class sfPropelGenerateModuleTask extends sfPropelBaseTask
     $this->addOptions(array(
       new sfCommandOption('theme', null, sfCommandOption::PARAMETER_REQUIRED, 'The theme name', 'default'),
       new sfCommandOption('generate-in-cache', null, sfCommandOption::PARAMETER_NONE, 'Generate the module in cache'),
-      new sfCommandOption('non-atomic-actions', null, sfCommandOption::PARAMETER_NONE, 'Generate non atomic actions'),
       new sfCommandOption('non-verbose-templates', null, sfCommandOption::PARAMETER_NONE, 'Generate non verbose templates'),
       new sfCommandOption('with-show', null, sfCommandOption::PARAMETER_NONE, 'Generate a show method'),
+      new sfCommandOption('singular', null, sfCommandOption::PARAMETER_REQUIRED, 'The singular name', null),
+      new sfCommandOption('plural', null, sfCommandOption::PARAMETER_REQUIRED, 'The plural name', null),
+      new sfCommandOption('route-prefix', null, sfCommandOption::PARAMETER_REQUIRED, 'The route prefix', null),
+      new sfCommandOption('with-propel-route', null, sfCommandOption::PARAMETER_NONE, 'Whether you will use a Propel route'),
       new sfCommandOption('env', null, sfCommandOption::PARAMETER_REQUIRED, 'The environment', 'dev'),
     ));
 
@@ -99,9 +102,12 @@ EOF;
       'model_class'           => $arguments['model'],
       'moduleName'            => $arguments['module'],
       'theme'                 => $options['theme'],
-      'non_atomic_actions'    => $options['non-atomic-actions'],
       'non_verbose_templates' => $options['non-verbose-templates'],
       'with_show'             => $options['with-show'],
+      'singular'              => $options['singular'],
+      'plural'                => $options['plural'],
+      'route_prefix'          => $options['route-prefix'],
+      'with_propel_route'     => $options['with-propel-route'],
     ));
 
     $moduleDir = sfConfig::get('sf_app_module_dir').'/'.$arguments['module'];
@@ -115,7 +121,8 @@ EOF;
     }
 
     // change module name
-    $this->getFilesystem()->replaceTokens($moduleDir.DIRECTORY_SEPARATOR.'actions'.DIRECTORY_SEPARATOR.'actions.class.php', '', '', array('auto'.ucfirst($arguments['module']) => $arguments['module']));
+    $finder = sfFinder::type('file')->name('*.php');
+    $this->getFilesystem()->replaceTokens($finder->in($moduleDir), '', '', array('auto'.ucfirst($arguments['module']) => $arguments['module']));
 
     // customize php and yml files
     $finder = sfFinder::type('file')->name('*.php', '*.yml');
@@ -155,10 +162,13 @@ EOF;
 
     // customize php and yml files
     $finder = sfFinder::type('file')->name('*.php', '*.yml');
-    $this->constants['CONFIG'] = sprintf("    non_atomic_actions:    %s\n    non_verbose_templates: %s\n    with_show:             %s",
-      $options['non-atomic-actions'] ? 'true' : 'false',
+    $this->constants['CONFIG'] = sprintf("    non_verbose_templates: %s\n    with_show:             %s\n    singular:             %s\n    plural:             %s\n    route_prefix:             %s\n    with_propel_route:             %s",
       $options['non-verbose-templates'] ? 'true' : 'false',
-      $options['with-show'] ? 'true' : 'false'
+      $options['with-show'] ? 'true' : 'false',
+      $options['singular'] ? $options['singular'] : 'null',
+      $options['plural'] ? $options['plural'] : 'null',
+      $options['route-prefix'] ? $options['route-prefix'] : 'null',
+      $options['with-propel-route'] ? $options['with-propel-route'] : 'false'
     );
     $this->getFilesystem()->replaceTokens($finder->in($moduleDir), '##', '##', $this->constants);
   }

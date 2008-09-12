@@ -11,14 +11,13 @@
 class CrudBrowser extends sfTestBrowser
 {
   protected
+    $urlPrefix = 'article',
     $projectDir = '';
 
   public function setup($options)
   {
     $this->projectDir = dirname(__FILE__).'/../fixtures';
-
-    $this->clearDirectory($this->projectDir.'/apps/crud/modules/article');
-    $this->clearDirectory($this->projectDir.'/cache/crud');
+    $this->cleanup();
 
     chdir($this->projectDir);
     $task = new sfPropelGenerateModuleTask(new sfEventDispatcher(), new sfFormatter());
@@ -28,31 +27,29 @@ class CrudBrowser extends sfTestBrowser
     require_once($this->projectDir.'/config/ProjectConfiguration.class.php');
     sfContext::createInstance(ProjectConfiguration::getApplicationConfiguration('crud', 'test', true, $this->projectDir));
 
-    return $this;
+    return $options;
   }
 
   public function teardown()
   {
-    $this->clearDirectory($this->projectDir.'/apps/crud/modules/article');
-    $this->clearDirectory($this->projectDir.'/cache/crud/test/modules/autoArticle');
-    $this->clearDirectory($this->projectDir.'/test/functional/crud');
+    $this->cleanup();
 
     return $this;
   }
 
   public function browse($options)
   {
-    $this->setup($options);
+    $options = $this->setup($options);
 
     // list page
     $this->test()->diag('list page');
     $this->
-      get('/article')->
+      get('/'.$this->urlPrefix)->
       isStatusCode(200)->
-      isRequestParameter('module', 'article')->
+      isRequestParameter('module', $this->urlPrefix)->
       isRequestParameter('action', 'index')->
 
-      checkResponseElement('h1', 'Article List')->
+      checkResponseElement('h1', ucfirst($this->urlPrefix).' List')->
 
       checkResponseElement('table thead tr th:nth(0)', 'Id')->
       checkResponseElement('table thead tr th:nth(1)', 'Title')->
@@ -73,20 +70,22 @@ class CrudBrowser extends sfTestBrowser
       checkResponseElement('table tbody tr td:nth(6)', '/^\d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}$/')->
       checkResponseElement('table tbody tr td:nth(7)', '')->
       checkResponseElement('table tbody tr td:nth(8)', '')->
-      checkResponseElement(sprintf('a[href$="/article/%s"]', in_array('non-atomic-actions', $options) ? 'edit' : 'create'), 'Create')->
-      checkResponseElement(sprintf('a[href*="/article/%s/id/"]', in_array('with-show', $options) ? 'show' : 'edit'), '/\d+/', array('count' => 2));
+      checkResponseElement(sprintf('a[href*="/%s/new"]', $this->urlPrefix))->
+      checkResponseElement(sprintf('tbody a[href*="/%s/1%s"]', $this->urlPrefix, in_array('with-show', $options) ? '' : '/edit'))->
+      checkResponseElement(sprintf('tbody a[href*="/%s/2%s"]', $this->urlPrefix, in_array('with-show', $options) ? '' : '/edit'))
+    ;
 
     // create page
     $this->test()->diag('create page');
     $this->
-      click('Create')->
+      click('New')->
       isStatusCode(200)->
-      isRequestParameter('module', 'article')->
-      isRequestParameter('action', in_array('non-atomic-actions', $options) ? 'edit' : 'create')->
+      isRequestParameter('module', $this->urlPrefix)->
+      isRequestParameter('action', 'new')->
       isRequestParameter('id', null)->
-      checkResponseElement('h1', 'New Article')->
-      checkResponseElement('a[href$="/article"]', 'Cancel')->
-      checkResponseElement('a[href*="/article/delete"]', false)->
+      checkResponseElement('h1', 'New '.ucfirst($this->urlPrefix))->
+      checkResponseElement(sprintf('a[href*="/%s"]', $this->urlPrefix), 'Cancel')->
+      checkResponseElement(sprintf('a[href*="/%s/"]', $this->urlPrefix), false)->
       checkFormValues(array(
         'title'               => '',
         'body'                => '',
@@ -108,14 +107,14 @@ class CrudBrowser extends sfTestBrowser
       'end_date'            => array('year' => '', 'month' => '', 'day' => '', 'hour' => '', 'minute' => ''),
       'book_id'             => null,
       'author_article_list' => array(1, 2),
-    ), 3);
+    ), 3, true);
 
     // go back to the list
     $this->test()->diag('go back to the list');
     $this->
       click('Cancel')->
       isStatusCode(200)->
-      isRequestParameter('module', 'article')->
+      isRequestParameter('module', $this->urlPrefix)->
       isRequestParameter('action', 'index')
     ;
 
@@ -127,18 +126,18 @@ class CrudBrowser extends sfTestBrowser
     }
     else
     {
-      $this->get('/article/edit/id/3');
+      $this->get(sprintf('/%s/3/edit', $this->urlPrefix));
     }
 
     $this->
       isStatusCode(200)->
-      isRequestParameter('module', 'article')->
+      isRequestParameter('module', $this->urlPrefix)->
       isRequestParameter('action', 'edit')->
       isRequestParameter('id', 3)->
-      checkResponseElement('h1', 'Edit Article')->
-      checkResponseElement('a[href$="/article"]', 'Cancel')->
-      checkResponseElement('a[href$="/article/delete/id/3"]', 'Delete')->
-      checkResponseElement('a[href$="/article/delete/id/3"][onclick*="confirm"]')->
+      checkResponseElement('h1', 'Edit '.ucfirst($this->urlPrefix))->
+      checkResponseElement(sprintf('a[href*="/%s"]', $this->urlPrefix), 'Cancel')->
+      checkResponseElement(sprintf('a[href*="/%s/3"]', $this->urlPrefix), 'Delete')->
+      checkResponseElement(sprintf('a[href*="/%s/3"][onclick*="confirm"]', $this->urlPrefix))->
       checkResponseElement('table tbody th:nth(0)', 'Title')->
       checkResponseElement('table tbody th:nth(1)', 'Body')->
       checkResponseElement('table tbody th:nth(2)', 'Online')->
@@ -167,11 +166,12 @@ class CrudBrowser extends sfTestBrowser
       'book_id'             => 149999,
       'author_article_list' => array(0, 5),
     );
+
     $this->
       click('Save', array('article' => $values))->
       isStatusCode(200)->
-      isRequestParameter('module', 'article')->
-      isRequestParameter('action', in_array('non-atomic-actions', $options) ? 'edit' : 'update')->
+      isRequestParameter('module', $this->urlPrefix)->
+      isRequestParameter('action', 'update')->
       checkFormValues(array_merge($values, array(
         'end_date' => array('year' => null, 'month' => null, 'day' => 15, 'hour' => '10', 'minute' => '20')))
       )->
@@ -190,37 +190,34 @@ class CrudBrowser extends sfTestBrowser
       'end_date'            => array('year' => 2005, 'month' => 10, 'day' => 15, 'hour' => '10', 'minute' => '20'),
       'book_id'             => 1,
       'author_article_list' => array(1, 3),
-    ), 3);
+    ), 3, false);
 
     // go back to the list
     $this->test()->diag('go back to the list');
     $this->
       click('Cancel')->
       isStatusCode(200)->
-      isRequestParameter('module', 'article')->
+      isRequestParameter('module', $this->urlPrefix)->
       isRequestParameter('action', 'index')
     ;
 
     // delete
     $this->test()->diag('delete');
     $this->
-      get('/article/edit/id/3')->
+      get(sprintf('/%s/3/edit', $this->urlPrefix))->
 
-      click('Delete')->
+      click('Delete', array(), array('method' => 'delete'))->
       isStatusCode(302)->
-      isRequestParameter('module', 'article')->
+      isRequestParameter('module', $this->urlPrefix)->
       isRequestParameter('action', 'delete')->
       isRedirected()->
       followRedirect()->
       isStatusCode(200)->
-      isRequestParameter('module', 'article')->
+      isRequestParameter('module', $this->urlPrefix)->
       isRequestParameter('action', 'index')->
 
-      get('/article/edit/id/3')->
-      isStatusCode(200)->
-      isRequestParameter('module', 'article')->
-      isRequestParameter('action', 'edit')->
-      checkResponseElement('h1', 'New Article')
+      get(sprintf('/%s/3/edit', $this->urlPrefix))->
+      isStatusCode(404)
     ;
 
     if (in_array('with-show', $options))
@@ -228,13 +225,13 @@ class CrudBrowser extends sfTestBrowser
       // show page
       $this->test()->diag('show page');
       $this->
-        get('/article/show/id/2')->
+        get(sprintf('/%s/2', $this->urlPrefix))->
         isStatusCode(200)->
-        isRequestParameter('module', 'article')->
+        isRequestParameter('module', $this->urlPrefix)->
         isRequestParameter('action', 'show')->
         isRequestParameter('id', 2)->
-        checkResponseElement('a[href$="/article/edit/id/2"]', 'Edit')->
-        checkResponseElement('a[href$="/article"]', 'List')->
+        checkResponseElement(sprintf('a[href*="/%s/2%s"]', $this->urlPrefix, in_array('with-show', $options) ? '' : '/edit'), 'Edit')->
+        checkResponseElement(sprintf('a[href*="/%s"]', $this->urlPrefix), 'List', array('position' => 1))->
         checkResponseElement('body table tbody tr:nth(0)', '/Id\:\s+2/')->
         checkResponseElement('body table tbody tr:nth(1)', '/Title\:\s+foo foo title/')->
         checkResponseElement('body table tbody tr:nth(2)', '/Body\:\s+bar bar body/')->
@@ -248,7 +245,7 @@ class CrudBrowser extends sfTestBrowser
     }
     else
     {
-      $this->get('/article/show/id/2')->isStatusCode(404);
+      $this->get(sprintf('/%s/show/id/2', $this->urlPrefix))->isStatusCode(404);
     }
 
     $this->teardown();
@@ -256,19 +253,19 @@ class CrudBrowser extends sfTestBrowser
     return $this;
   }
 
-  public function saveValues($options, $values, $id)
+  public function saveValues($options, $values, $id, $creation)
   {
     $this->
       click('Save', array('article' => $values))->
       isRedirected()->
-      isRequestParameter('module', 'article')->
-      isRequestParameter('action', in_array('non-atomic-actions', $options) ? 'edit' : 'update')
+      isRequestParameter('module', $this->urlPrefix)->
+      isRequestParameter('action', $creation ? 'create' : 'update')
     ;
 
     $this->
       followRedirect()->
       isStatusCode(200)->
-      isRequestParameter('module', 'article')->
+      isRequestParameter('module', $this->urlPrefix)->
       isRequestParameter('action', 'edit')->
       isRequestParameter('id', $id)->
       checkFormValues($values)
@@ -311,5 +308,12 @@ class CrudBrowser extends sfTestBrowser
     {
       rmdir($dir);
     }
+  }
+
+  protected function cleanup()
+  {
+    $this->clearDirectory(sprintf($this->projectDir.'/apps/crud/modules/%s', $this->urlPrefix));
+    $this->clearDirectory(sprintf($this->projectDir.'/cache/crud/test/modules/auto%s', ucfirst($this->urlPrefix)));
+    $this->clearDirectory($this->projectDir.'/test/functional/crud');
   }
 }

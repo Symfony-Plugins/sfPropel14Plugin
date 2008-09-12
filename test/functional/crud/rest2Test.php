@@ -15,7 +15,7 @@ if (!include(dirname(__FILE__).'/../../bootstrap/functional.php'))
   return;
 }
 
-require_once(dirname(__FILE__).'/crudBrowser.class.php');
+require_once(dirname(__FILE__).'/restBrowser.class.php');
 
-$b = new CrudBrowser();
-$b->browse(array('generate-in-cache', 'non-atomic-actions'));
+$b = new RestBrowser();
+$b->browse(array('non-verbose-templates'));
