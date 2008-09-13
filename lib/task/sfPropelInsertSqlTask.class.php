@@ -70,9 +70,9 @@ EOF;
 
     $this->schemaToXML(self::DO_NOT_CHECK_SCHEMA, 'generated-');
     $this->copyXmlSchemaFromPlugins('generated-');
-    $this->callPhing('insert-sql', self::CHECK_SCHEMA);
+    $ret = $this->callPhing('insert-sql', self::CHECK_SCHEMA);
     $this->cleanup();
 
-    return 0;
+    return !$ret;
   }
 }

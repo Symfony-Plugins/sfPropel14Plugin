@@ -55,11 +55,21 @@ EOF;
   {
     $this->schemaToXML(self::DO_NOT_CHECK_SCHEMA, 'generated-');
     $this->copyXmlSchemaFromPlugins('generated-');
-    $this->callPhing('om', self::CHECK_SCHEMA);
-    $this->cleanup();
+    $ret = $this->callPhing('om', self::CHECK_SCHEMA);
 
-    $this->logSection('autoload', 'reloading autoloading');
+    if (!$ret && !$this->commandApplication->withTrace())
+    {
+      // don't cleanup if there is a problem and -t
+      $this->cleanup();
+    }
 
-    sfSimpleAutoload::getInstance()->reload();
+    if ($ret)
+    {
+      $this->logSection('autoload', 'reloading autoloading');
+
+      sfSimpleAutoload::getInstance()->reload();
+    }
+
+    return !$ret;
   }
 }

@@ -31,7 +31,7 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
     if (!self::$done)
     {
-      set_include_path(get_include_path().PATH_SEPARATOR.dirname(__FILE__).'/../vendor');
+      set_include_path(get_include_path().PATH_SEPARATOR.dirname(__FILE__).'/../vendor'.PATH_SEPARATOR.dirname(__FILE__));
 
       $libDir = dirname(__FILE__).'/..';
 
@@ -243,6 +243,10 @@ abstract class sfPropelBaseTask extends sfBaseTask
       $args[] = 'phing.listener.AnsiColorLogger';
     }
 
+    // Add our listener to detect errors
+    $args[] = '-listener';
+    $args[] = 'sfPhingListener';
+
     $args[] = $taskName;
 
     require_once dirname(__FILE__).'/sfPhing.class.php';
@@ -255,5 +259,22 @@ abstract class sfPropelBaseTask extends sfBaseTask
     $m->runBuild();
 
     chdir(sfConfig::get('sf_root_dir'));
+
+    // any errors?
+    $ret = true;
+    if ($errors = sfPhingListener::getErrors())
+    {
+      $messages = array('Some problems occurred when executing the task:');
+      foreach ($errors as $error)
+      {
+        $messages[] = '  '.preg_replace('/^.*build\-propel\.xml/', 'build-propel.xml', $error->getMessage());
+      }
+
+      $this->logBlock($messages, 'ERROR');
+
+      $ret = false;
+    }
+
+    return $ret;
   }
 }

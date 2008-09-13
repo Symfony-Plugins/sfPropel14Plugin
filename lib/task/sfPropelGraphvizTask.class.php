@@ -43,7 +43,9 @@ EOF;
   {
     $this->schemaToXML(self::DO_NOT_CHECK_SCHEMA, 'generated-');
     $this->copyXmlSchemaFromPlugins('generated-');
-    $this->callPhing('graphviz', self::CHECK_SCHEMA);
+    $ret = $this->callPhing('graphviz', self::CHECK_SCHEMA);
     $this->cleanup();
+
+    return !$ret;
   }
 }

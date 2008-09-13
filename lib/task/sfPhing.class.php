@@ -18,20 +18,8 @@ require_once('phing/Phing.php');
  */
 class sfPhing extends Phing
 {
-  public static function printVersion()
-  {
-    print(self::getPhingVersion()."\n");
-  }
-
   public static function getPhingVersion()
   {
     return 'sfPhing';
-  }
-
-  public static function shutdown($exitcode = 0)
-  {
-    self::getTimer()->stop();
-
-    throw new Exception(sprintf('Problem executing Phing task (%s).', $exitcode));
   }
 }

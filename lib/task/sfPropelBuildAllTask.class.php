@@ -63,24 +63,37 @@ EOF;
   {
     $buildModel = new sfPropelBuildModelTask($this->dispatcher, $this->formatter);
     $buildModel->setCommandApplication($this->commandApplication);
-    $buildModel->run();
+    $ret = $buildModel->run();
+
+    if ($ret)
+    {
+      return $ret;
+    }
 
     $buildSql = new sfPropelBuildSqlTask($this->dispatcher, $this->formatter);
     $buildSql->setCommandApplication($this->commandApplication);
-    $buildSql->run();
+    $ret = $buildSql->run();
+
+    if ($ret)
+    {
+      return $ret;
+    }
 
     if (!$options['skip-forms'])
     {
       $buildForms = new sfPropelBuildFormsTask($this->dispatcher, $this->formatter);
       $buildForms->setCommandApplication($this->commandApplication);
-      $buildForms->run();
+      $ret = $buildForms->run();
+
+      if ($ret)
+      {
+        return $ret;
+      }
     }
 
     $insertSql = new sfPropelInsertSqlTask($this->dispatcher, $this->formatter);
     $insertSql->setCommandApplication($this->commandApplication);
     $ret = $insertSql->run(array(), $options['no-confirmation'] ? array('--no-confirmation') : array());
-
-    $this->cleanup();
 
     return $ret;
   }

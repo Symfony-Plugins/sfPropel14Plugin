@@ -48,7 +48,9 @@ EOF;
   {
     $this->schemaToXML(self::DO_NOT_CHECK_SCHEMA, 'generated-');
     $this->copyXmlSchemaFromPlugins('generated-');
-    $this->callPhing('sql', self::CHECK_SCHEMA);
+    $ret = $this->callPhing('sql', self::CHECK_SCHEMA);
     $this->cleanup();
+
+    return !$ret;
   }
 }

@@ -52,7 +52,12 @@ EOF;
    */
   protected function execute($arguments = array(), $options = array())
   {
-    $this->callPhing('reverse', self::DO_NOT_CHECK_SCHEMA);
+    $ret = $this->callPhing('reverse', self::DO_NOT_CHECK_SCHEMA);
+
+    if (!$ret)
+    {
+      return 1;
+    }
 
     $xmlSchemaPath = sfConfig::get('sf_config_dir').DIRECTORY_SEPARATOR.'schema.xml';
     $ymlSchemaPath = sfConfig::get('sf_config_dir').DIRECTORY_SEPARATOR.'schema.yml';
