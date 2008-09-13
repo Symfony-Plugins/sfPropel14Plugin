@@ -42,7 +42,7 @@ class my_lime_test extends lime_test
 }
 
 require_once(dirname(__FILE__).'/../../../../../test/bootstrap/unit.php');
-require_once(dirname(__FILE__).'/../../lib/propel/addon/sfPropelDatabaseSchema.class.php');
+require_once(dirname(__FILE__).'/../../lib/addon/sfPropelDatabaseSchema.class.php');
 require_once(dirname(__FILE__).'/../../../../util/sfInflector.class.php');
 require_once(dirname(__FILE__).'/../../../../util/sfToolkit.class.php');
 require_once(dirname(__FILE__).'/../../../../yaml/sfYaml.class.php');
