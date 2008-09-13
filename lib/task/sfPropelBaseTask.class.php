@@ -36,14 +36,8 @@ abstract class sfPropelBaseTask extends sfBaseTask
       $libDir = dirname(__FILE__).'/..';
 
       $autoloader = sfSimpleAutoload::getInstance();
-      $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'creole');
-      $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'propel');
-      $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'creole');
-      $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'propel');
-      $autoloader->addDirectory($libDir.DIRECTORY_SEPARATOR.'task');
-
+      $autoloader->addDirectory($libDir);
       $autoloader->setClassPath('Propel', $libDir.DIRECTORY_SEPARATOR.'propel'.DIRECTORY_SEPARATOR.'addon'.DIRECTORY_SEPARATOR.'sfPropelAutoload.php');
-
       $autoloader->addDirectory(sfConfig::get('sf_lib_dir').'/model');
       $autoloader->addDirectory(sfConfig::get('sf_lib_dir').DIRECTORY_SEPARATOR.'form');
       $autoloader->register();
