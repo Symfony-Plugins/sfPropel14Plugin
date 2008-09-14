@@ -240,7 +240,7 @@ abstract class sfFormPropel extends sfForm
         // save files
         if ($this->validatorSchema[$field] instanceof sfValidatorFile)
         {
-          $values[$field] = $this->saveUploadedFile($field, $value);
+          $values[$field] = $this->processUploadedFile($field);
         }
       }
     }
@@ -387,44 +387,90 @@ abstract class sfFormPropel extends sfForm
     }
   }
 
-  protected function saveUploadedFile($field, $file, $filename = null)
+  /**
+   * Saves the uploaded file for the given field.
+   *
+   * @param  string $field The field name
+   * @param  string $filename The file name of the file to save
+   *
+   * @return string The filename used to save the file
+   */
+  protected function processUploadedFile($field, $filename = null)
   {
-    $column = call_user_func(array(constant(get_class($this->object).'::PEER'), 'translateFieldName'), $field, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_PHPNAME);
-    $getter = 'get'.$column;
-    $setter = 'set'.$column;
-
-    if (!$file)
+    if (!$this->validatorSchema[$field] instanceof sfValidatorFile)
     {
+      throw new LogicException(sprintf('You cannot save the current file for field "%s" as the field is not a file.', $field));
+    }
+
+    if (!$this->getValue($field))
+    {
+      $column = call_user_func(array(constant(get_class($this->object).'::PEER'), 'translateFieldName'), $field, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_PHPNAME);
+      $getter = 'get'.$column;
+
       return $this->object->$getter();
     }
 
     // we need the base directory
-    if (!$directory = $this->validatorSchema[$field]->getOption('path'))
+    if (!$this->validatorSchema[$field]->getOption('path'))
     {
-      return $file;
+      return $this->getValue($field);
     }
 
-    // remove old file
-    if (is_file($directory.$this->object->$getter()))
+    $this->removeFile($field);
+
+    return $this->saveFile($field, $filename);
+  }
+
+  /**
+   * Removes the current file for the field.
+   *
+   * @param string $field The field name
+   */
+  protected function removeFile($field)
+  {
+    if (!$this->validatorSchema[$field] instanceof sfValidatorFile)
+    {
+      throw new LogicException(sprintf('You cannot remove the current file for field "%s" as the field is not a file.', $field));
+    }
+
+    $column = call_user_func(array(constant(get_class($this->object).'::PEER'), 'translateFieldName'), $field, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_PHPNAME);
+    $getter = 'get'.$column;
+
+    if (($directory = $this->validatorSchema[$field]->getOption('path')) && is_file($directory.$this->object->$getter()))
     {
       unlink($directory.$this->object->$getter());
     }
+  }
 
-    // save new file
+  /**
+   * Saves the current file for the field.
+   *
+   * @param  string $field    The field name
+   * @param  string $filename The file name of the file to save
+   *
+   * @return string The filename used to save the file
+   */
+  protected function saveFile($field, $filename = null)
+  {
+    if (!$this->validatorSchema[$field] instanceof sfValidatorFile)
+    {
+      throw new LogicException(sprintf('You cannot save the current file for field "%s" as the field is not a file.', $field));
+    }
+
+    $column = call_user_func(array(constant(get_class($this->object).'::PEER'), 'translateFieldName'), $field, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_PHPNAME);
     $method = sprintf('generate%sFilename', $column);
+
     if (!is_null($filename))
     {
-      $filename = $file->save();
+      return $this->getValue($field)->save();
     }
     else if (method_exists($this->object, $method))
     {
-      $filename = $file->save($filename = $this->object->$method($file));
+      return $this->getValue($field)->save($this->object->$method($this->getValue($field)));
     }
     else
     {
-      $filename = $file->save();
+      return $this->getValue($field)->save();
     }
-
-    return $filename;
   }
 }
