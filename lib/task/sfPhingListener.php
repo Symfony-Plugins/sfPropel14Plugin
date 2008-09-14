@@ -95,6 +95,12 @@ class sfPhingListener implements BuildListener
   {
     if ($event->getPriority() == Project::MSG_ERR)
     {
+      if (preg_match('/XLST transformation/', $event->getMessage()))
+      {
+        // not really an error
+        return;
+      }
+
       $msg = '';
       if ($event->getTask() !== null)
       {
