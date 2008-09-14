@@ -240,7 +240,16 @@ abstract class sfFormPropel extends sfForm
         // save files
         if ($this->validatorSchema[$field] instanceof sfValidatorFile)
         {
-          $values[$field] = $this->processUploadedFile($field);
+          if ($this->getValue($field.'_delete'))
+          {
+            $this->removeFile($field);
+
+            $values[$field] = '';
+          }
+          else
+          {
+            $values[$field] = $this->processUploadedFile($field);
+          }
         }
       }
     }
