@@ -3,11 +3,22 @@
 class sfPhingListener implements BuildListener
 {
   static protected
-    $errors = array();
+    $exceptions = array(),
+    $errors     = array();
+
+  static public function hasErrors()
+  {
+    return count(self::$errors) || count(self::$exceptions);
+  }
 
   static public function getErrors()
   {
     return self::$errors;
+  }
+
+  static public function getExceptions()
+  {
+    return self::$exceptions;
   }
 
   /**
@@ -17,7 +28,7 @@ class sfPhingListener implements BuildListener
    */
   public function buildStarted(BuildEvent $event)
   {
-    self::$errors = array();
+    self::$exceptions = array();
   }
 
   /**
@@ -50,7 +61,7 @@ class sfPhingListener implements BuildListener
   {
     if (!is_null($event->getException()))
     {
-      self::$errors[] = $event->getException();
+      self::$exceptions[] = $event->getException();
     }
   }
 
@@ -82,5 +93,17 @@ class sfPhingListener implements BuildListener
    */
   public function messageLogged(BuildEvent $event)
   {
+    if ($event->getPriority() == Project::MSG_ERR)
+    {
+      $msg = '';
+      if ($event->getTask() !== null)
+      {
+        $msg = sprintf('[%s] ', $event->getTask()->getTaskName());
+      }
+
+      $msg .= $event->getMessage();
+
+      self::$errors[] = $msg;
+    }
   }
 }

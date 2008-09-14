@@ -262,12 +262,18 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
     // any errors?
     $ret = true;
-    if ($errors = sfPhingListener::getErrors())
+    if (sfPhingListener::hasErrors())
     {
       $messages = array('Some problems occurred when executing the task:');
-      foreach ($errors as $error)
+
+      foreach (sfPhingListener::getExceptions() as $exception)
       {
-        $messages[] = '  '.preg_replace('/^.*build\-propel\.xml/', 'build-propel.xml', $error->getMessage());
+        $messages[] = '  '.preg_replace('/^.*build\-propel\.xml/', 'build-propel.xml', $exception->getMessage());
+      }
+
+      if (count(sfPhingListener::getErrors()))
+      {
+        $messages[] = '  Read the logs to fix them';
       }
 
       $this->logBlock($messages, 'ERROR');
