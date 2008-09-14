@@ -241,7 +241,7 @@ class sfPropelFormGenerator extends sfGenerator
     }
     else if ($column->isForeignKey())
     {
-      $name = 'PropelSelect';
+      $name = 'PropelChoice';
     }
 
     return sprintf('sfWidgetForm%s', $name);
