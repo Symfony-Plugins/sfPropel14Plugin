@@ -143,7 +143,7 @@ class sfPropelData extends sfData
               {
                 throw new InvalidArgumentException(sprintf('The object "%s" from class "%s" is not defined in your data file.', $value, $relatedTable->getPhpName()));
               }
-              $value = $this->object_references[$relatedTable->getPhpName().'_'.$value]->getPrimaryKey();
+              $value = $this->object_references[$relatedTable->getPhpName().'_'.$value]->getByName($column->getRelatedName(), BasePeer::TYPE_COLNAME);
             }
           }
 
