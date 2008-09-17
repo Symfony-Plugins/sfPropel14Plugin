@@ -44,7 +44,7 @@ class sfValidatorPropelChoice extends sfValidatorBase
    */
   protected function doClean($value)
   {
-    $criteria = is_null($this->getOption('criteria')) ? new Criteria() : $this->getOption('criteria');
+    $criteria = is_null($this->getOption('criteria')) ? new Criteria() : clone $this->getOption('criteria');
     $criteria->add($this->getColumn(), $value);
 
     $object = call_user_func(array(constant($this->getOption('model').'::PEER'), 'doSelectOne'), $criteria, $this->getOption('connection'));

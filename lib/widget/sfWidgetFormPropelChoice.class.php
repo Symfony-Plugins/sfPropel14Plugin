@@ -74,7 +74,7 @@ class sfWidgetFormPropelChoice extends sfWidgetFormChoice
 
     $class = constant($this->getOption('model').'::PEER');
 
-    $criteria = is_null($this->getOption('criteria')) ? new Criteria() : $this->getOption('criteria');
+    $criteria = is_null($this->getOption('criteria')) ? new Criteria() : clone $this->getOption('criteria');
     if ($order = $this->getOption('order_by'))
     {
       $method = sprintf('add%sOrderByColumn', 0 === strpos(strtoupper($order[1]), 'ASC') ? 'Ascending' : 'Descending');
