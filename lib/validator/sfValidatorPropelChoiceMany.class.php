@@ -19,25 +19,14 @@
 class sfValidatorPropelChoiceMany extends sfValidatorPropelChoice
 {
   /**
-   * @see sfValidatorBase
+   * Configures the current validator.
+   *
+   * @see sfValidatorPropelChoice
    */
-  protected function doClean($values)
+  protected function configure($options = array(), $messages = array())
   {
-    if (!is_array($values))
-    {
-      $values = array($values);
-    }
+    parent::configure($options, $messages);
 
-    $criteria = is_null($this->getOption('criteria')) ? new Criteria() : clone $this->getOption('criteria');
-    $criteria->add($this->getColumn(), $values, Criteria::IN);
-
-    $objects = call_user_func(array(constant($this->getOption('model').'::PEER'), 'doSelect'), $criteria, $this->getOption('connection'));
-
-    if (count($objects) != count($values))
-    {
-      throw new sfValidatorError($this, 'invalid', array('value' => $values));
-    }
-
-    return $values;
+    $this->setOption('multiple', true);
   }
 }
