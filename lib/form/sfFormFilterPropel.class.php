@@ -172,7 +172,7 @@ abstract class sfFormFilterPropel extends sfFormFilter
   {
     $colname = $this->getColname($field);
 
-    if (isset($values['is_empty']) && $values['is_empty'])
+    if (is_array($values) && isset($values['is_empty']) && $values['is_empty'])
     {
       $criterion = $criteria->getNewCriterion($colname, '');
       $criterion->addOr($criteria->getNewCriterion($colname, null, Criteria::ISNULL));
