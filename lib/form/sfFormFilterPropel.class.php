@@ -20,9 +20,23 @@ abstract class sfFormFilterPropel extends sfFormFilter
 {
   /**
    * Returns the current model name.
+   *
+   * @return string The model class name
    */
   abstract public function getModelName();
 
+  /**
+   * Returns the fields and their filter type.
+   *
+   * @return array An array of fields with their filter type
+   */
+  abstract public function getFields();
+
+  /**
+   * Returns a Propel Criteria based on the current values form the form.
+   *
+   * @return Criteria A Propel Criteria object
+   */
   public function getCriteria()
   {
     if (!$this->isValid())
@@ -30,7 +44,7 @@ abstract class sfFormFilterPropel extends sfFormFilter
       throw $this->getErrorSchema();
     }
 
-    return $this->buildCriteria($this->processValues());
+    return $this->buildCriteria($this->getValues());
   }
 
   /**
@@ -43,12 +57,13 @@ abstract class sfFormFilterPropel extends sfFormFilter
    * The method must return the processed value or false to remove the value
    * from the array of cleaned up values.
    *
+   * @param  array An array of cleaned up values to process
+   *
    * @return array An array of cleaned up values processed by the user defined methods
    */
-  public function processValues()
+  public function processValues($values)
   {
     // see if the user has overridden some column setter
-    $values = $this->values;
     foreach ($this->values as $field => $value)
     {
       try
@@ -77,8 +92,17 @@ abstract class sfFormFilterPropel extends sfFormFilter
     return $values;
   }
 
+  /**
+   * Builds a Propel Criteria based on the passed values.
+   *
+   * @param  array    An array of parameters to build the Criteria object
+   *
+   * @return Criteria A Propel Criteria object
+   */
   public function buildCriteria(array $values)
   {
+    $values = $this->processValues($values);
+
     $criteria = new Criteria();
 
     $peer = constant($this->getModelName().'::PEER');
