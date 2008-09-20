@@ -121,7 +121,7 @@ abstract class sfFormFilterPropel extends sfFormFilter
       catch (Exception $e)
       {
         // not a "real" column
-        if (!method_exists($this, $method = sprintf('add%sColumnCriteria', sfInflector::camelize($field))))
+        if (!method_exists($this, $method = sprintf('add%sColumnCriteria', self::camelize($field))))
         {
           throw new LogicException(sprintf('You must define a "%s" method to be able to filter with the "%s" field.', $method, $field));
         }
@@ -224,5 +224,10 @@ abstract class sfFormFilterPropel extends sfFormFilter
   protected function getColName($field)
   {
     return call_user_func(array(constant($this->getModelName().'::PEER'), 'translateFieldName'), $field, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_COLNAME);
+  }
+
+  protected function camelize($text)
+  {
+    return sfToolkit::pregtr($text, array('#/(.?)#e' => "'::'.strtoupper('\\1')", '/(^|_|-)+(.)/e' => "strtoupper('\\2')"));
   }
 }

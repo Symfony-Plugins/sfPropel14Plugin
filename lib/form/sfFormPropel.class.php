@@ -221,7 +221,10 @@ abstract class sfFormPropel extends sfForm
       catch (Exception $e)
       {
         // no a "real" column of this object
-        continue;
+        if (!method_exists($this, $method = sprintf('update%sColumn', self::camelize($field))))
+        {
+          continue;
+        }
       }
 
       if (method_exists($this, $method))
@@ -481,5 +484,10 @@ abstract class sfFormPropel extends sfForm
     {
       return $this->getValue($field)->save();
     }
+  }
+
+  protected function camelize($text)
+  {
+    return sfToolkit::pregtr($text, array('#/(.?)#e' => "'::'.strtoupper('\\1')", '/(^|_|-)+(.)/e' => "strtoupper('\\2')"));
   }
 }
