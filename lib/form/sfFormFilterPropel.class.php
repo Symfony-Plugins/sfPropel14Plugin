@@ -64,7 +64,8 @@ abstract class sfFormFilterPropel extends sfFormFilter
   public function processValues($values)
   {
     // see if the user has overridden some column setter
-    foreach ($this->values as $field => $value)
+    $originalValues = $values;
+    foreach ($originalValues as $field => $value)
     {
       try
       {
