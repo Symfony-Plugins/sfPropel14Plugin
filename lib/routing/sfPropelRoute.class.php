@@ -77,7 +77,7 @@ class sfPropelRoute extends sfObjectRoute
 
   protected function doConvertObjectToArray($object)
   {
-    if (isset($this->options['convert_method']))
+    if (isset($this->options['convert']) || method_exists($object, 'toParams'))
     {
       return parent::doConvertObjectToArray($object);
     }
