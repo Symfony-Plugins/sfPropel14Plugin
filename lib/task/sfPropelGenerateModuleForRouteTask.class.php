@@ -33,6 +33,8 @@ class sfPropelGenerateModuleForRouteTask extends sfPropelBaseTask
     $this->addOptions(array(
       new sfCommandOption('theme', null, sfCommandOption::PARAMETER_REQUIRED, 'The theme name', 'default'),
       new sfCommandOption('non-verbose-templates', null, sfCommandOption::PARAMETER_NONE, 'Generate non verbose templates'),
+      new sfCommandOption('singular', null, sfCommandOption::PARAMETER_REQUIRED, 'The singular name', null),
+      new sfCommandOption('plural', null, sfCommandOption::PARAMETER_REQUIRED, 'The plural name', null),
       new sfCommandOption('env', null, sfCommandOption::PARAMETER_REQUIRED, 'The environment', 'dev'),
     ));
 
@@ -81,8 +83,6 @@ EOF;
     $taskOptions = array(
       '--theme='.$options['theme'],
       '--env='.$options['env'],
-      '--singular='.$routeOptions['singular'],
-      '--plural='.$routeOptions['plural'],
       '--route-prefix='.$routeOptions['name'],
       '--with-propel-route',
     );
@@ -95,6 +95,16 @@ EOF;
     if ($options['non-verbose-templates'])
     {
       $taskOptions[] = '--non-verbose-templates';
+    }
+
+    if (!is_null($options['singular']))
+    {
+      $taskOptions[] = '--singular='.$options['singular'];
+    }
+
+    if (!is_null($options['plural']))
+    {
+      $taskOptions[] = '--plural='.$options['plural'];
     }
 
     $this->logSection('app', sprintf('Generating module "%s" for model "%s"', $module, $model));
