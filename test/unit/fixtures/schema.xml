@@ -6,7 +6,7 @@
     <column name="name" type="varchar" size="50" />
     <column name="type" type="varchar" size="50" inheritance="single">
       <inheritance extends="foo.bar.lib.model.Group" key="tight" class="Group_Tight" />
-      <inheritance extends="foo.bar.lib.model.Group" key="loose" class="Group_Loose" />
+      <inheritance extends="foo.bar.lib.model.Group" key="loose" class="Group_Loose" package="some.other.package" />
     </column>
   </table>
 

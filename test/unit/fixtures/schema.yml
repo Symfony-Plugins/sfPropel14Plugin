@@ -9,7 +9,7 @@ propel:
       column:       type
       classes:
         tight:      Group_Tight
-        loose:      Group_Loose
+        loose:      { phpName: Group_Loose, package: some.other.package }
 
   cd_user:
     _attributes:    { phpName: User, isI18N: true, i18nTable: cd_user_i18n }

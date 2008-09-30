@@ -14,7 +14,7 @@ classes:
       column:         type
       classes:
         tight:        Group_Tight
-        loose:        Group_Loose
+        loose:        { phpName: Group_Loose, package: some.other.package }
 
   User:
     tableName:        cd_user

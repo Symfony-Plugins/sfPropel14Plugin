@@ -337,11 +337,17 @@ class sfPropelDatabaseSchema
       foreach ($this->getChildren($table) as $col_name => $column)
       {
         // inheritance
-        if (isset($table['_inheritance']) &&
-            isset($table['_inheritance']['column']) &&
-            $col_name == $table['_inheritance']['column'] &&
-            isset($table['_inheritance']['classes']) &&
-            is_array($table['_inheritance']['classes']))
+        if (
+          isset($table['_inheritance'])
+          &&
+          isset($table['_inheritance']['column'])
+          &&
+          $col_name == $table['_inheritance']['column']
+          &&
+          isset($table['_inheritance']['classes'])
+          &&
+          is_array($table['_inheritance']['classes'])
+        )
         {
           $column['inheritance'] = $table['_inheritance']['classes'];
           unset($table['_inheritance']);
@@ -713,11 +719,27 @@ class sfPropelDatabaseSchema
         $attributes_string .= ' inheritance="single">'."\n";
 
         $extended_package = isset($this->database[$tb_name]['_attributes']['package']) ? $this->database[$tb_name]['_attributes']['package'] : $this->database['_attributes']['package'];
-        $extended_class = isset($this->database[$tb_name]['_attributes']['phpName']) ? $this->database[$tb_name]['_attributes']['phpName'] : sfInflector::camelize($tb_name);
+        $extended_class   = isset($this->database[$tb_name]['_attributes']['phpName']) ? $this->database[$tb_name]['_attributes']['phpName'] : sfInflector::camelize($tb_name);
+
         foreach ($column['inheritance'] as $key => $class)
         {
-          $attributes_string .= sprintf('      <inheritance extends="%s.%s" key="%s" class="%s" />%s', $extended_package, $extended_class, $key, $class, "\n");
+          // each inheritance class can have its own package
+          $package = null;
+          if (is_array($class))
+          {
+            $package = isset($class['package']) ? $class['package'] : null;
+            $class   = $class['phpName'];
+          }
+
+          $attributes_string .= vsprintf('      <inheritance extends="%s.%s" key="%s" class="%s"%s />', array(
+            $extended_package,
+            $extended_class,
+            $key,
+            $class,
+            $package ? " package=\"$package\"" : '',
+          ))."\n";
         }
+
         $attributes_string .= '    </column>'."\n";
       }
       else
