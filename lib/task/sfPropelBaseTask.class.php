@@ -189,7 +189,7 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
   protected function cleanup()
   {
-    $finder = sfFinder::type('file')->name('generated-*schema.xml');
+    $finder = sfFinder::type('file')->name('/^generated-.*schema(-transformed)?.xml$/');
     $this->getFilesystem()->remove($finder->in(array('config', 'plugins')));
   }
 

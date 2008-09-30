@@ -57,7 +57,7 @@ EOF;
     $this->copyXmlSchemaFromPlugins('generated-');
     $ret = $this->callPhing('om', self::CHECK_SCHEMA);
 
-    if (!$ret && !$this->commandApplication->withTrace())
+    if ($ret || !$this->commandApplication->withTrace())
     {
       // don't cleanup if there is a problem and -t
       $this->cleanup();
