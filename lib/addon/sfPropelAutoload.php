@@ -17,7 +17,7 @@
  * @version    SVN: $Id$
  */
 
-set_include_path(get_include_path().PATH_SEPARATOR.realpath(dirname(__FILE__).'/../../vendor/').'/');
+set_include_path(get_include_path().PATH_SEPARATOR.realpath(dirname(__FILE__).'/../vendor'));
 
 require_once('propel/Propel.php');
 
