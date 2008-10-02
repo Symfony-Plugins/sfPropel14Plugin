@@ -399,7 +399,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
     parent::addClassClose($script);
 
     $behavior_file_name = 'Base'.$this->getTable()->getPhpName().'Behaviors';
-    $behavior_file_path = ClassTools::getFilePath($this->getStubObjectBuilder()->getPackage().'.om.', $behavior_file_name);
+    $behavior_file_path = ClassTools::getFilePath($this->getStubObjectBuilder()->getPackage().'.om', $behavior_file_name);
 
     $absolute_behavior_file_path = sfConfig::get('sf_root_dir').'/'.$behavior_file_path;
 

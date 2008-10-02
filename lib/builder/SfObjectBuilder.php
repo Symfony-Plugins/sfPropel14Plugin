@@ -370,7 +370,7 @@ EOF;
     if ($behaviors)
     {
       $behavior_file_name = 'Base'.$this->getTable()->getPhpName().'Behaviors';
-      $behavior_file_path = ClassTools::getFilePath($this->getStubObjectBuilder()->getPackage().'.om.', $behavior_file_name);
+      $behavior_file_path = ClassTools::getFilePath($this->getStubObjectBuilder()->getPackage().'.om', $behavior_file_name);
 
       $behavior_include_script = <<<EOF
 
