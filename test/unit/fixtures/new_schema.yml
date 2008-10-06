@@ -72,7 +72,7 @@ classes:
       user_id:        { type: integer, phpName: AuthorId }
     foreignKeys:
       -
-        foreignTable: cd_user
+        foreignClass: User
         phpName: Author
         references:
           -  { local: user_id, foreign: id }

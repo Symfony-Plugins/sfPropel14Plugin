@@ -57,7 +57,7 @@ propel:
     user_id:        { type: integer, phpName: AuthorId }
     _foreignKeys:
       -
-        foreignTable: cd_user
+        foreignClass: User
         phpName: Author
         references:
           - { local: user_id, foreign: id }
