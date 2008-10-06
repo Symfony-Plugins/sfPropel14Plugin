@@ -191,7 +191,6 @@ class sfPropelDatabaseSchema
    */
   public function convertNewToOldYaml($schema)
   {
-
     if (isset($schema['connection']))
     {
       $connection_name = $schema['connection'];
@@ -312,11 +311,17 @@ class sfPropelDatabaseSchema
       if ($isNestedSet = isset($table['_nestedSet']))
       {
         $treeConfig = $table['_nestedSet'];
-        if (!isset($treeConfig['left']) ||
-            !isset($treeConfig['right']) ||
-            !isset($table[$treeConfig['left']]) ||
-            !isset($table[$treeConfig['right']]) ||
-            (isset($treeConfig['scope']) && !isset($table[$treeConfig['scope']])))
+        if (
+          !isset($treeConfig['left'])
+          ||
+          !isset($treeConfig['right'])
+          ||
+          !isset($table[$treeConfig['left']])
+          ||
+          !isset($table[$treeConfig['right']])
+          ||
+          (isset($treeConfig['scope']) && !isset($table[$treeConfig['scope']]))
+        )
         {
           throw new sfException(sprintf('Incorrect NestedSet configuration for "%s" table.', $tb_name));
         }
@@ -422,7 +427,18 @@ class sfPropelDatabaseSchema
       {
         foreach ($table['_foreignKeys'] as $fkey_name => $fkey)
         {
-          $xml .= "    <foreign-key foreignTable=\"$fkey[foreignTable]\"";
+          if (!isset($fkey['foreignTable']))
+          {
+            if (
+              !isset($fkey['foreignClass'])
+              ||
+              !$fkey['foreignTable'] = $this->findTable($fkey['foreignClass'])
+            )
+            {
+              throw new sfException(sprintf('Unable to resolve foreign table for foreign key "%s": %s', $fkey_name, var_export($fkey, true)));
+            }
+          }
+          $xml .= "    <foreign-key foreignTable=\"{$fkey['foreignTable']}\"";
 
           // foreign key name
           if (!is_numeric($fkey_name))
@@ -430,22 +446,28 @@ class sfPropelDatabaseSchema
             $xml .= " name=\"$fkey_name\"";
           }
 
-          // foreign key phpName (for propel 1.3)
-          if (isset($fkey['phpName']))
-          {
-            $xml .= " phpName=\"$fkey[phpName]\"";
-          }
-
           // onDelete
           if (isset($fkey['onDelete']))
           {
-            $xml .= " onDelete=\"$fkey[onDelete]\"";
+            $xml .= " onDelete=\"{$fkey['onDelete']}\"";
+          }
+
+          // foreign key phpName (since Propel 1.3)
+          if (isset($fkey['phpName']))
+          {
+            $xml .= " phpName=\"{$fkey['phpName']}\"";
+          }
+
+          // foreign key refPhpName (since Propel 1.3)
+          if (isset($fkey['refPhpName']))
+          {
+            $xml .= " refPhpName=\"{$fkey['refPhpName']}\"";
           }
 
           // onUpdate
           if (isset($fkey['onUpdate']))
           {
-            $xml .= " onUpdate=\"$fkey[onUpdate]\"";
+            $xml .= " onUpdate=\"{$fkey['onUpdate']}\"";
           }
           $xml .= ">\n";
 
@@ -454,7 +476,7 @@ class sfPropelDatabaseSchema
           {
             foreach ($fkey['references'] as $reference)
             {
-              $xml .= "      <reference local=\"$reference[local]\" foreign=\"$reference[foreign]\" />\n";
+              $xml .= "      <reference local=\"{$reference['local']}\" foreign=\"{$reference['foreign']}\" />\n";
             }
           }
           $xml .= "    </foreign-key>\n";
@@ -516,19 +538,19 @@ class sfPropelDatabaseSchema
 
           // set id and culture columns for i18n table
           $this->setIfNotSet($this->database[$i18n_table], 'id', array(
-          'type'             => 'integer',
-          'required'         => true,
-          'primaryKey'       => true,
-          'foreignTable'     => $main_table,
-          'foreignReference' => 'id',
-          'onDelete'         => 'cascade'
+            'type'             => 'integer',
+            'required'         => true,
+            'primaryKey'       => true,
+            'foreignTable'     => $main_table,
+            'foreignReference' => 'id',
+            'onDelete'         => 'cascade',
           ));
           $this->setIfNotSet($this->database[$i18n_table], 'culture', array(
-          'isCulture'  => true,
-          'type'       => 'varchar',
-          'size'       => '7',
-          'required'   => true,
-          'primaryKey' => true
+            'isCulture'  => true,
+            'type'       => 'varchar',
+            'size'       => '7',
+            'required'   => true,
+            'primaryKey' => true,
           ));
         }
         else
@@ -580,9 +602,9 @@ class sfPropelDatabaseSchema
             if ($foreign_table)
             {
               $this->database[$table][$column] = array(
-              'type'             => 'integer',
-              'foreignTable'     => $foreign_table,
-              'foreignReference' => 'id'
+                'type'             => 'integer',
+                'foreignTable'     => $foreign_table,
+                'foreignReference' => 'id',
               );
             }
             else
@@ -709,7 +731,7 @@ class sfPropelDatabaseSchema
     {
       foreach ($column as $key => $value)
       {
-        if (!in_array($key, array('foreignClass', 'foreignTable', 'foreignReference', 'onDelete', 'onUpdate', 'index', 'unique', 'sequence', 'inheritance')))
+        if (!in_array($key, array('foreignClass', 'foreignTable', 'foreignReference', 'fkPhpName', 'fkRefPhpName', 'onDelete', 'onUpdate', 'index', 'unique', 'sequence', 'inheritance')))
         {
           $attributes_string .= " $key=\"".htmlspecialchars($this->getCorrectValueFor($key, $value), ENT_QUOTES, sfConfig::get('sf_charset'))."\"";
         }
@@ -757,7 +779,7 @@ class sfPropelDatabaseSchema
     {
       if (isset($column['foreignTable']))
       {
-        $attributes_string .= "    <foreign-key foreignTable=\"$column[foreignTable]\"";
+        $attributes_string .= "    <foreign-key foreignTable=\"{$column['foreignTable']}\"";
       }
       else
       {
@@ -774,14 +796,22 @@ class sfPropelDatabaseSchema
 
       if (isset($column['onDelete']))
       {
-        $attributes_string .= " onDelete=\"$column[onDelete]\"";
+        $attributes_string .= " onDelete=\"{$column['onDelete']}\"";
       }
       if (isset($column['onUpdate']))
       {
-        $attributes_string .= " onUpdate=\"$column[onUpdate]\"";
+        $attributes_string .= " onUpdate=\"{$column['onUpdate']}\"";
+      }
+      if (isset($column['fkPhpName']))
+      {
+        $attributes_string .= " phpName=\"{$column['fkPhpName']}\"";
+      }
+      if (isset($column['fkRefPhpName']))
+      {
+        $attributes_string .= " refPhpName=\"{$column['fkRefPhpName']}\"";
       }
       $attributes_string .= ">\n";
-      $attributes_string .= "      <reference local=\"$col_name\" foreign=\"$column[foreignReference]\" />\n";
+      $attributes_string .= "      <reference local=\"$col_name\" foreign=\"{$column['foreignReference']}\" />\n";
       $attributes_string .= "    </foreign-key>\n";
     }
 
@@ -806,7 +836,7 @@ class sfPropelDatabaseSchema
     // required for databases using sequences for auto-increment columns (e.g. PostgreSQL or Oracle)
     if (is_array($column) && isset($column['sequence']))
     {
-      $attributes_string .= "    <id-method-parameter value=\"$column[sequence]\" />\n";
+      $attributes_string .= "    <id-method-parameter value=\"{$column['sequence']}\" />\n";
     }
 
     return $attributes_string;
