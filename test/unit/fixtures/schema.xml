@@ -78,7 +78,7 @@
     <column name="title" type="varchar" size="50" />
     <column name="user_id" type="integer" phpName="AuthorId" />
     <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
-    <foreign-key foreignTable="cd_user" phpName="Author">
+    <foreign-key phpName="Author" foreignTable="cd_user">
       <reference local="user_id" foreign="id" />
     </foreign-key>
   </table>

@@ -438,7 +438,9 @@ class sfPropelDatabaseSchema
               throw new sfException(sprintf('Unable to resolve foreign table for foreign key "%s": %s', $fkey_name, var_export($fkey, true)));
             }
           }
-          $xml .= "    <foreign-key foreignTable=\"{$fkey['foreignTable']}\"";
+          unset($fkey['foreignClass']);
+
+          $xml .= '    <foreign-key';
 
           // foreign key name
           if (!is_numeric($fkey_name))
@@ -446,29 +448,15 @@ class sfPropelDatabaseSchema
             $xml .= " name=\"$fkey_name\"";
           }
 
-          // onDelete
-          if (isset($fkey['onDelete']))
+          // other attributes
+          foreach ($fkey as $attribute_name => $attribute_value)
           {
-            $xml .= " onDelete=\"{$fkey['onDelete']}\"";
+            if (is_string($attribute_value))
+            {
+              $xml .= " $attribute_name=\"$attribute_value\"";
+            }
           }
 
-          // foreign key phpName (since Propel 1.3)
-          if (isset($fkey['phpName']))
-          {
-            $xml .= " phpName=\"{$fkey['phpName']}\"";
-          }
-
-          // foreign key refPhpName (since Propel 1.3)
-          if (isset($fkey['refPhpName']))
-          {
-            $xml .= " refPhpName=\"{$fkey['refPhpName']}\"";
-          }
-
-          // onUpdate
-          if (isset($fkey['onUpdate']))
-          {
-            $xml .= " onUpdate=\"{$fkey['onUpdate']}\"";
-          }
           $xml .= ">\n";
 
           // references
