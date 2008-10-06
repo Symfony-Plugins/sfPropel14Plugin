@@ -189,8 +189,11 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
   protected function cleanup()
   {
-    $finder = sfFinder::type('file')->name('/^generated-.*schema(-transformed)?.xml$/');
-    $this->getFilesystem()->remove($finder->in(array('config', 'plugins')));
+    if (!$this->commandApplication->withTrace())
+    {
+      $finder = sfFinder::type('file')->name('/^generated-.*schema(-transformed)?.xml$/');
+      $this->getFilesystem()->remove($finder->in(array('config', 'plugins')));
+    }
   }
 
   protected function callPhing($taskName, $checkSchema)
