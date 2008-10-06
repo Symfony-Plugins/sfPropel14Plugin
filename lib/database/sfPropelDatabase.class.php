@@ -1,12 +1,12 @@
 <?php
 
 /*
-* This file is part of the symfony package.
-* (c) 2004-2006 Fabien Potencier <fabien.potencier@symfony-project.com>
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ * This file is part of the symfony package.
+ * (c) 2004-2006 Fabien Potencier <fabien.potencier@symfony-project.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 /**
  * A symfony database driver for Propel.
@@ -27,11 +27,8 @@
  */
 class sfPropelDatabase extends sfPDODatabase
 {
-
-  /**
-   * Datasource configurations
-   */
-  protected static $config = array();
+  static protected
+    $config = array();
 
   /**
    * Initializes sfPropelDatabase by loading configuration and initializing Propel
@@ -43,14 +40,13 @@ class sfPropelDatabase extends sfPDODatabase
    */
   public function initialize($parameters = null, $name = 'propel')
   {
-
     parent::initialize($parameters);
 
-    if(!$this->hasParameter('datasource') && $this->hasParameter('name'))
+    if (!$this->hasParameter('datasource') && $this->hasParameter('name'))
     {
       $this->setParameter('datasource', $this->getParameter('name'));
     }
-    elseif(!$this->hasParameter('datasource') && !empty($name))
+    elseif (!$this->hasParameter('datasource') && !empty($name))
     {
       $this->setParameter('datasource', $name);
     }
@@ -60,14 +56,14 @@ class sfPropelDatabase extends sfPDODatabase
     $is_default = $this->getParameter('is_default', false);
 
     // first defined if none listed as default
-    if($is_default || count(self::$config['propel']['datasources']) == 1)
+    if ($is_default || 1 == count(self::$config['propel']['datasources']))
     {
       $this->setDefaultConfig();
     }
 
     Propel::setConfiguration(self::$config[$name]);
 
-    if($this->getParameter('pooling', false))
+    if ($this->getParameter('pooling', false))
     {
       Propel::enableInstancePooling();
     }
@@ -76,7 +72,7 @@ class sfPropelDatabase extends sfPDODatabase
       Propel::disableInstancePooling();
     }
 
-    if(!Propel::isInit())
+    if (!Propel::isInit())
     {
       Propel::initialize();
     }
@@ -84,13 +80,13 @@ class sfPropelDatabase extends sfPDODatabase
 
   /**
    * Connect to the database.
-   * Stores the PDO connection in $connection
+   *
+   * Stores the PDO connection in $connection.
    *
    * @return void
    */
   public function connect()
   {
-
     $this->connection = Propel::getConnection();
   }
 
@@ -101,7 +97,6 @@ class sfPropelDatabase extends sfPDODatabase
    */
   public function setDefaultConfig()
   {
-
     self::$config['propel']['datasources']['default'] = $this->getParameter('datasource');
   }
 
@@ -112,33 +107,41 @@ class sfPropelDatabase extends sfPDODatabase
    */
   public function addConfig()
   {
-
-    if($dsn = $this->getParameter('dsn'))
+    if ($dsn = $this->getParameter('dsn'))
     {
       $params = $this->parseDsn($dsn);
 
       $options = array('dsn', 'phptype', 'hostspec', 'database', 'username', 'password', 'port', 'protocol', 'encoding', 'persistent', 'socket', 'compat_assoc_lower', 'compat_rtrim_string');
       foreach($options as $option)
       {
-        if(!$this->getParameter($option) && isset($params[$option]))
+        if (!$this->getParameter($option) && isset($params[$option]))
         {
           $this->setParameter($option, $params[$option]);
         }
       }
-
     }
 
-    self::$config['propel']['datasources'][$this->getParameter('datasource')] =
-    array(
-     'adapter'      => $this->getParameter('phptype'),
-     'connection'   => array('dsn' => $this->getParameter('dsn'),
-                              'user'         => $this->getParameter('username'),
-                              'password'     => $this->getParameter('password'),
-                              'classname'    => $this->getParameter('classname', 'PropelPDO'),
-                              'options'      => ($this->hasParameter('persistent')) ? array('ATTR_PERSISTENT' => $this->getParameter('persistent')) : array(),
-                              'settings'     => array('charset' => array('value' => $this->getParameter('encoding', 'utf8')),
-                                                      'queries' => $this->getParameter('queries', array()))
-      ));
+    if ($this->hasParameter('persistent'))
+    {
+      // for BC
+      $options = $this->getParameter('options', array());
+      $options['ATTR_PERSISTENT'] = $this->getParameter('persistent');
+      $this->setParameter('options', $options);
+    }
+
+    self::$config['propel']['datasources'][$this->getParameter('datasource')] = array(
+      'adapter'       => $this->getParameter('phptype'),
+      'connection'    => array(
+        'dsn'         => $this->getParameter('dsn'),
+        'user'        => $this->getParameter('username'),
+        'password'    => $this->getParameter('password'),
+        'classname'   => $this->getParameter('classname', 'PropelPDO'),
+        'options'     => $this->getParameter('options', array()),
+        'settings'    => array(
+          'charset'   => array(
+            'value'   => $this->getParameter('encoding', 'utf8')),
+            'queries' => $this->getParameter('queries', array()),
+    )));
   }
 
   /**
@@ -149,7 +152,6 @@ class sfPropelDatabase extends sfPDODatabase
    */
   private function parseDsn($dsn)
   {
-
     return array('phptype' => substr($dsn, 0, strpos($dsn, ':')));
   }
 
@@ -160,7 +162,6 @@ class sfPropelDatabase extends sfPDODatabase
    */
   public static function getConfiguration()
   {
-
     return self::$config;
   }
 
@@ -172,8 +173,7 @@ class sfPropelDatabase extends sfPDODatabase
    */
   public function setConnectionParameter($key, $value)
   {
-
-    if($key == 'host')
+    if ($key == 'host')
     {
       $key = 'hostspec';
     }
@@ -189,8 +189,7 @@ class sfPropelDatabase extends sfPDODatabase
    */
   public function shutdown()
   {
-
-    if($this->connection !== null)
+    if (!is_null($this->connection))
     {
       @$this->connection = null;
     }

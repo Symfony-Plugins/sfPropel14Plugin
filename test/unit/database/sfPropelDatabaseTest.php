@@ -13,33 +13,39 @@ set_include_path(sfConfig::get('sf_symfony_lib_dir').'/plugins/sfPropelPlugin/li
 
 $t = new lime_test(1, new lime_output_color());
 
-$configuration = array ('propel' =>
-                 array('datasources' =>
-                  array('propel' =>
-                    array('adapter' => 'mysql',
-                      'connection' =>
-                      array('dsn' => 'mysql:dbname=testdb;host=localhost',
-                            'user' => 'foo',
-                            'password' => 'bar',
-                            'classname' => 'PropelPDO',
-                            'options' => array('ATTR_PERSISTENT' => true),
-                            'settings' => array('charset' => array('value' => 'utf8'),
-                          'queries' => array()))),
-                    'default' => 'propel',
-                  )));
-
-$parametersTests = array(
-  array(
-    'dsn'        => 'mysql:dbname=testdb;host=localhost',
-    'username'   => 'foo',
-    'password'   => 'bar',
-    'encoding'   => 'utf8',
-    'persistent' => true
-  )
+$configuration = array(
+  'propel' => array(
+    'datasources' => array(
+      'propel' => array(
+        'adapter' => 'mysql',
+        'connection' => array(
+          'dsn' => 'mysql:dbname=testdb;host=localhost',
+          'user' => 'foo',
+          'password' => 'bar',
+          'classname' => 'PropelPDO',
+          'options' => array(
+            'ATTR_PERSISTENT' => true,
+            'ATTR_AUTOCOMMIT' => false,
+          ),
+          'settings' => array(
+            'charset' => array('value' => 'utf8'),
+            'queries' => array(),
+          ),
+        ),
+      ),
+      'default' => 'propel',
+    ),
+  ),
 );
 
-foreach ($parametersTests as $parameters)
-{
-  $p = new sfPropelDatabase($parameters);
-  $t->is($p->getConfiguration(), $configuration, 'initialize() - creates a valid propel configuration from parameters');
-}
+$parametersTests = array(
+  'dsn'        => 'mysql:dbname=testdb;host=localhost',
+  'username'   => 'foo',
+  'password'   => 'bar',
+  'encoding'   => 'utf8',
+  'persistent' => true,
+  'options'    => array('ATTR_AUTOCOMMIT' => false)
+);
+
+$p = new sfPropelDatabase($parametersTests);
+$t->is($p->getConfiguration(), $configuration, 'initialize() - creates a valid propel configuration from parameters');

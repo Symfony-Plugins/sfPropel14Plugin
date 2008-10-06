@@ -12,5 +12,6 @@ all:
       username:   foo
       password:   bar
       encoding:   utf8
-      persistent: true
       pooling:    true
+      options:
+        ATTR_PERSISTENT: true
