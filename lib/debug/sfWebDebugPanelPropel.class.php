@@ -74,11 +74,31 @@ class sfWebDebugPanelPropel extends sfWebDebugPanel
   protected function getSqlLogs()
   {
     $logs = array();
+    $bindings = array();
+    $i = 0;
     foreach ($this->webDebug->getLogger()->getLogs() as $log)
     {
-      if (preg_match('/\b(SELECT|INSERT|UPDATE|DELETE)\b/', $log['message'], $match))
+      if ('sfPropelLogger' != $log['type'])
       {
-        $logs[] = $log['message'];
+        continue;
+      }
+
+      if (preg_match('/^.*?(\b(?:SELECT|INSERT|UPDATE|DELETE)\b.*)$/', $log['message'], $match))
+      {
+        $logs[$i++] = $match[1];
+        $bindings[$i - 1] = array();
+      }
+      else if (preg_match('/Binding (.*) at position (.+?) w\//', $log['message'], $match))
+      {
+        $bindings[$i - 1][] = $match[2].' = '.$match[1];
+      }
+    }
+
+    foreach ($logs as $i => $log)
+    {
+      if (count($bindings[$i]))
+      {
+        $logs[$i] .= sprintf(' (%s)', implode(', ', $bindings[$i]));
       }
     }
 
