@@ -28,14 +28,14 @@ class sfPropelData extends sfData
    *
    * @see sfPropelData::loadData()
    *
-   * @param mixed   $directoryOrFile  A file or directory path
+   * @param mixed   $directoryOrFile  A file or directory path or an array of files or directories
    * @param string  $connectionName   The Propel connection name, default 'propel'
    *
    * @throws Exception If the database throws an error, rollback transaction and rethrows exception
    */
   public function loadData($directoryOrFile = null, $connectionName = 'propel')
   {
-    $fixtureFiles = $this->getFiles($directoryOrFile);
+    $files = $this->getFiles($directoryOrFile);
 
     // load map classes
     $this->loadMapBuilders();
@@ -47,9 +47,9 @@ class sfPropelData extends sfData
     {
       $this->con->beginTransaction();
 
-      $this->doDeleteCurrentData($fixtureFiles);
+      $this->doDeleteCurrentData($files);
 
-      $this->doLoadData($fixtureFiles);
+      $this->doLoadData($files);
 
       $this->con->commit();
     }
@@ -218,11 +218,11 @@ class sfPropelData extends sfData
    * and deleting the existing data for only those classes that are mentioned
    * in the fixtures.
    *
-   * @param array $fixtureFiles The list of YAML files.
+   * @param array $files The list of YAML files.
    *
    * @throws sfException If a class mentioned in a fixture can not be found
    */
-  protected function doDeleteCurrentData($fixtureFiles)
+  protected function doDeleteCurrentData($files)
   {
     // delete all current datas in database
     if (!$this->deleteCurrentData)
@@ -230,10 +230,10 @@ class sfPropelData extends sfData
       return;
     }
 
-    rsort($fixtureFiles);
-    foreach ($fixtureFiles as $fixture_file)
+    rsort($files);
+    foreach ($files as $file)
     {
-      $data = sfYaml::load($fixture_file);
+      $data = sfYaml::load($file);
 
       if ($data === null)
       {
