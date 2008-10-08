@@ -196,7 +196,7 @@ abstract class sfPropelBaseTask extends sfBaseTask
     }
   }
 
-  protected function callPhing($taskName, $checkSchema)
+  protected function callPhing($taskName, $checkSchema, $properties = array())
   {
     $schemas = sfFinder::type('file')->name('*schema.xml')->relative()->follow_link()->in(sfConfig::get('sf_config_dir'));
     if (self::CHECK_SCHEMA === $checkSchema && !$schemas)
@@ -213,12 +213,12 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
     $args = array();
 
-    $options = array(
-      'project.dir'       => sfConfig::get('sf_config_dir'),
+    $properties = array_merge(array(
       'build.properties'  => 'propel.ini',
+      'project.dir'       => sfConfig::get('sf_config_dir'),
       'propel.output.dir' => sfConfig::get('sf_root_dir'),
-    );
-    foreach ($options as $key => $value)
+    ), $properties);
+    foreach ($properties as $key => $value)
     {
       $args[] = "-D$key=$value";
     }
@@ -283,5 +283,49 @@ abstract class sfPropelBaseTask extends sfBaseTask
     }
 
     return $ret;
+  }
+
+  protected function getPhingPropertiesForConnection($databaseManager, $connection)
+  {
+    $database = $databaseManager->getDatabase($connection);
+
+    return array(
+      'propel.database'          => $database->getParameter('phptype'),
+      'propel.database.driver'   => $database->getParameter('phptype'),
+      'propel.database.url'      => $database->getParameter('dsn'),
+      'propel.database.user'     => $database->getParameter('username'),
+      'propel.database.password' => $database->getParameter('password'),
+      'propel.database.encoding' => $database->getParameter('encoding'),
+    );
+  }
+
+  protected function getProperties($file)
+  {
+    $properties = array();
+
+    if (false === $lines = @file($file))
+    {
+      throw new sfCommandException('Unable to parse contents of the "sqldb.map" file.');
+    }
+
+    foreach ($lines as $line)
+    {
+      $line = trim($line);
+
+      if ('' == $line)
+      {
+        continue;
+      }
+
+      if (in_array($line[0], array('#', ';')))
+      {
+        continue;
+      }
+
+      $pos = strpos($line, '=');
+      $properties[trim(substr($line, 0, $pos))] = trim(substr($line, $pos + 1));
+    }
+
+    return $properties;
   }
 }

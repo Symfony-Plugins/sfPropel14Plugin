@@ -25,15 +25,18 @@ class sfPropelBuildAllTask extends sfPropelBaseTask
    */
   protected function configure()
   {
+    $this->addOptions(array(
+      new sfCommandOption('application', null, sfCommandOption::PARAMETER_OPTIONAL, 'The application name', null),
+      new sfCommandOption('env', null, sfCommandOption::PARAMETER_REQUIRED, 'The environment', 'dev'),
+      new sfCommandOption('connection', null, sfCommandOption::PARAMETER_REQUIRED, 'The connection name', 'propel'),
+      new sfCommandOption('no-confirmation', null, sfCommandOption::PARAMETER_NONE, 'Do not ask for confirmation'),
+      new sfCommandOption('skip-forms', 'F', sfCommandOption::PARAMETER_NONE, 'Skip generating forms')
+    ));
+
     $this->aliases = array('propel-build-all');
     $this->namespace = 'propel';
     $this->name = 'build-all';
     $this->briefDescription = 'Generates Propel model, SQL and initializes the database';
-
-    $this->addOptions(array(
-      new sfCommandOption('no-confirmation', null, sfCommandOption::PARAMETER_NONE, 'Do not ask for confirmation'),
-      new sfCommandOption('skip-forms', 'F', sfCommandOption::PARAMETER_NONE, 'Skip generating forms')
-    ));
 
     $this->detailedDescription = <<<EOF
 The [propel:build-all|INFO] task is a shortcut for three other tasks:
@@ -93,8 +96,17 @@ EOF;
 
     $insertSql = new sfPropelInsertSqlTask($this->dispatcher, $this->formatter);
     $insertSql->setCommandApplication($this->commandApplication);
-    $ret = $insertSql->run(array(), $options['no-confirmation'] ? array('--no-confirmation') : array());
 
-    return $ret;
+    $insertSqlOptions = array('--env='.$options['env'], '--connection='.$options['connection']);
+    if ($options['application'])
+    {
+      $insertSqlOptions[] = '--application='.$options['application'];
+    }
+    if ($options['no-confirmation'])
+    {
+      $insertSqlOptions[] = '--no-confirmation';
+    }
+
+    return $insertSql->run(array(), $insertSqlOptions);
   }
 }

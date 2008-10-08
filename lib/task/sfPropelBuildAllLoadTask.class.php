@@ -71,7 +71,11 @@ EOF;
     $buildAll = new sfPropelBuildAllTask($this->dispatcher, $this->formatter);
     $buildAll->setCommandApplication($this->commandApplication);
 
-    $buildAllOptions = array();
+    $buildAllOptions = array('--env='.$options['env'], '--connection='.$options['connection']);
+    if ($options['application'])
+    {
+      $buildAllOptions[] = '--application='.$options['application'];
+    }
     if ($options['skip-forms'])
     {
       $buildAllOptions[] = '--skip-forms';
@@ -87,13 +91,13 @@ EOF;
       $loadData = new sfPropelLoadDataTask($this->dispatcher, $this->formatter);
       $loadData->setCommandApplication($this->commandApplication);
 
-      $options = array('--env='.$options['env'], '--connection='.$options['connection']);
-      if (isset($this->options['application']))
+      $insertSqlOptions = array('--env='.$options['env'], '--connection='.$options['connection']);
+      if ($options['application'])
       {
-        $options[] = '--application='.$options['application'];
+        $insertSqlOptions[] = '--application='.$options['application'];
       }
 
-      $loadData->run(array(), $options);
+      $loadData->run(array(), $insertSqlOptions);
     }
 
     $this->cleanup();
