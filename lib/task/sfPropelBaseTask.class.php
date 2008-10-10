@@ -252,12 +252,26 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
     require_once dirname(__FILE__).'/sfPhing.class.php';
 
+    // enable output buffering
+    Phing::setOutputStream(new OutputStream(fopen('php://output', 'w')));
     Phing::startup();
     Phing::setProperty('phing.home', getenv('PHING_HOME'));
+
+    $this->logSection('propel', 'Running Propel '.$taskName.' task:');
+
+    if (!is_null($this->commandApplication) && !$this->commandApplication->withTrace())
+    {
+      ob_start();
+    }
 
     $m = new sfPhing();
     $m->execute($args);
     $m->runBuild();
+
+    if (!is_null($this->commandApplication) && !$this->commandApplication->withTrace())
+    {
+      ob_end_clean();
+    }
 
     chdir(sfConfig::get('sf_root_dir'));
 
