@@ -27,6 +27,7 @@ class sfPropelBuildSchemaTask extends sfPropelBaseTask
   {
     $this->addOptions(array(
       new sfCommandOption('xml', null, sfCommandOption::PARAMETER_NONE, 'Creates an XML schema instead of a YML one'),
+      new sfCommandOption('phing-arg', null, sfCommandOption::PARAMETER_REQUIRED | sfCommandOption::IS_ARRAY, 'Arbitrary phing argument'),
     ));
 
     $this->aliases = array('propel-build-schema');

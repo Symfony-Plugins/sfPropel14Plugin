@@ -25,6 +25,8 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
   static protected $done = false;
 
+  protected $additionalPhingArgs = array();
+
   public function initialize(sfEventDispatcher $dispatcher, sfFormatter $formatter)
   {
     parent::initialize($dispatcher, $formatter);
@@ -43,6 +45,17 @@ abstract class sfPropelBaseTask extends sfBaseTask
       $autoloader->register();
 
       self::$done = true;
+    }
+  }
+
+  protected function process(sfCommandManager $commandManager, $options)
+  {
+    parent::process($commandManager, $options);
+
+    // capture phing-arg options
+    if ($commandManager->getOptionSet()->hasOption('phing-arg'))
+    {
+      $this->additionalPhingArgs = $commandManager->getOptionValue('phing-arg');
     }
   }
 
@@ -212,6 +225,7 @@ abstract class sfPropelBaseTask extends sfBaseTask
     set_include_path(sfConfig::get('sf_root_dir').PATH_SEPARATOR.get_include_path());
 
     $args = array();
+    $bufferPhingOutput = is_null($this->commandApplication) || !$this->commandApplication->withTrace();
 
     $properties = array_merge(array(
       'build.properties'  => 'propel.ini',
@@ -227,16 +241,6 @@ abstract class sfPropelBaseTask extends sfBaseTask
     $args[] = '-f';
     $args[] = realpath(dirname(__FILE__).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'propel-generator'.DIRECTORY_SEPARATOR.'build.xml');
 
-    if (is_null($this->commandApplication) || !$this->commandApplication->isVerbose())
-    {
-      $args[] = '-quiet';
-    }
-
-    if (!is_null($this->commandApplication) && $this->commandApplication->withTrace())
-    {
-      $args[] = '-debug';
-    }
-
     // Logger
     if (DIRECTORY_SEPARATOR != '\\' && (function_exists('posix_isatty') && @posix_isatty(STDOUT)))
     {
@@ -248,6 +252,17 @@ abstract class sfPropelBaseTask extends sfBaseTask
     $args[] = '-listener';
     $args[] = 'sfPhingListener';
 
+    // Add any arbitrary arguments last
+    foreach ($this->additionalPhingArgs as $arg)
+    {
+      if (in_array($arg, array('verbose', 'debug')))
+      {
+        $bufferPhingOutput = false;
+      }
+
+      $args[] = '-'.$arg;
+    }
+
     $args[] = $taskName;
 
     require_once dirname(__FILE__).'/sfPhing.class.php';
@@ -257,9 +272,9 @@ abstract class sfPropelBaseTask extends sfBaseTask
     Phing::startup();
     Phing::setProperty('phing.home', getenv('PHING_HOME'));
 
-    $this->logSection('propel', 'Running Propel '.$taskName.' task:');
+    $this->logSection('propel', 'Running "'.$taskName.'" phing task');
 
-    if (!is_null($this->commandApplication) && !$this->commandApplication->withTrace())
+    if ($bufferPhingOutput)
     {
       ob_start();
     }
@@ -268,7 +283,7 @@ abstract class sfPropelBaseTask extends sfBaseTask
     $m->execute($args);
     $m->runBuild();
 
-    if (!is_null($this->commandApplication) && !$this->commandApplication->withTrace())
+    if ($bufferPhingOutput)
     {
       ob_end_clean();
     }

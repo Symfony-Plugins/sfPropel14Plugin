@@ -30,7 +30,8 @@ class sfPropelBuildAllLoadTask extends sfPropelBaseTask
       new sfCommandOption('env', null, sfCommandOption::PARAMETER_REQUIRED, 'The environment', 'dev'),
       new sfCommandOption('connection', null, sfCommandOption::PARAMETER_REQUIRED, 'The connection name', 'propel'),
       new sfCommandOption('no-confirmation', null, sfCommandOption::PARAMETER_NONE, 'Do not ask for confirmation'),
-      new sfCommandOption('skip-forms', 'F', sfCommandOption::PARAMETER_NONE, 'Skip generating forms')
+      new sfCommandOption('skip-forms', 'F', sfCommandOption::PARAMETER_NONE, 'Skip generating forms'),
+      new sfCommandOption('phing-arg', null, sfCommandOption::PARAMETER_REQUIRED | sfCommandOption::IS_ARRAY, 'Arbitrary phing argument'),
     ));
 
     $this->aliases = array('propel-build-all-load');
@@ -72,6 +73,10 @@ EOF;
     $buildAll->setCommandApplication($this->commandApplication);
 
     $buildAllOptions = array('--env='.$options['env'], '--connection='.$options['connection']);
+    foreach ($options['phing-arg'] as $arg)
+    {
+      $buildAllOptions[] = '--phing-arg='.escapeshellarg($arg);
+    }
     if ($options['application'])
     {
       $buildAllOptions[] = '--application='.$options['application'];

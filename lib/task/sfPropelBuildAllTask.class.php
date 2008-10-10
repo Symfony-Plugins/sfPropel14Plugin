@@ -30,7 +30,8 @@ class sfPropelBuildAllTask extends sfPropelBaseTask
       new sfCommandOption('env', null, sfCommandOption::PARAMETER_REQUIRED, 'The environment', 'dev'),
       new sfCommandOption('connection', null, sfCommandOption::PARAMETER_REQUIRED, 'The connection name', 'propel'),
       new sfCommandOption('no-confirmation', null, sfCommandOption::PARAMETER_NONE, 'Do not ask for confirmation'),
-      new sfCommandOption('skip-forms', 'F', sfCommandOption::PARAMETER_NONE, 'Skip generating forms')
+      new sfCommandOption('skip-forms', 'F', sfCommandOption::PARAMETER_NONE, 'Skip generating forms'),
+      new sfCommandOption('phing-arg', null, sfCommandOption::PARAMETER_REQUIRED | sfCommandOption::IS_ARRAY, 'Arbitrary phing argument'),
     ));
 
     $this->aliases = array('propel-build-all');
@@ -64,9 +65,15 @@ EOF;
    */
   protected function execute($arguments = array(), $options = array())
   {
+    $basePhingOptions = array();
+    foreach ($options['phing-arg'] as $arg)
+    {
+      $basePhingOptions[] = '--phing-arg='.escapeshellarg($arg);
+    }
+
     $buildModel = new sfPropelBuildModelTask($this->dispatcher, $this->formatter);
     $buildModel->setCommandApplication($this->commandApplication);
-    $ret = $buildModel->run();
+    $ret = $buildModel->run(array(), $basePhingOptions);
 
     if ($ret)
     {
@@ -75,7 +82,7 @@ EOF;
 
     $buildSql = new sfPropelBuildSqlTask($this->dispatcher, $this->formatter);
     $buildSql->setCommandApplication($this->commandApplication);
-    $ret = $buildSql->run();
+    $ret = $buildSql->run(array(), $basePhingOptions);
 
     if ($ret)
     {
@@ -97,7 +104,7 @@ EOF;
     $insertSql = new sfPropelInsertSqlTask($this->dispatcher, $this->formatter);
     $insertSql->setCommandApplication($this->commandApplication);
 
-    $insertSqlOptions = array('--env='.$options['env'], '--connection='.$options['connection']);
+    $insertSqlOptions = array_merge($basePhingOptions, array('--env='.$options['env'], '--connection='.$options['connection']));
     if ($options['application'])
     {
       $insertSqlOptions[] = '--application='.$options['application'];
