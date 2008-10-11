@@ -38,4 +38,30 @@ class SfExtensionPeerBuilder extends PHP5ExtensionPeerBuilder
 
     parent::addIncludes($script);
   }
+
+  /**
+   * Adds class phpdoc comment and openning of class.
+   *
+   * @param string &$script The script will be modified in this method
+   */
+  protected function addClassOpen(&$script)
+  {
+    parent::addClassOpen($script);
+
+    // remove comments and fix coding standards
+    $script = str_replace(array(" {\n", "\n\n\n"), array("\n{", "\n"), sfToolkit::stripComments($script));
+  }
+
+  /**
+   * Closes class.
+   *
+   * @param string &$script The script will be modified in this method
+   */
+  protected function addClassClose(&$script)
+  {
+    parent::addClassClose($script);
+
+    // fix coding standards
+    $script = preg_replace('#} // .+$#m', '}', $script);
+  }
 }

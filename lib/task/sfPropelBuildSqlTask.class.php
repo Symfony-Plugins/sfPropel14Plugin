@@ -54,7 +54,7 @@ EOF;
     $this->copyXmlSchemaFromPlugins('generated-');
     $ret = $this->callPhing('sql', self::CHECK_SCHEMA);
     $this->cleanup();
-
+///// FIXME: must change the propel.ini based on databases.yml! as done in insert-sql
     return !$ret;
   }
 }
