@@ -32,6 +32,8 @@ class sfPropelBuildAllLoadTask extends sfPropelBaseTask
       new sfCommandOption('no-confirmation', null, sfCommandOption::PARAMETER_NONE, 'Do not ask for confirmation'),
       new sfCommandOption('skip-forms', 'F', sfCommandOption::PARAMETER_NONE, 'Skip generating forms'),
       new sfCommandOption('phing-arg', null, sfCommandOption::PARAMETER_REQUIRED | sfCommandOption::IS_ARRAY, 'Arbitrary phing argument'),
+      new sfCommandOption('append', null, sfCommandOption::PARAMETER_NONE, 'Don\'t delete current data in the database'),
+      new sfCommandOption('dir', null, sfCommandOption::PARAMETER_REQUIRED | sfCommandOption::IS_ARRAY, 'The directories to look for fixtures'),
     ));
 
     $this->aliases = array('propel-build-all-load');
@@ -96,13 +98,24 @@ EOF;
       $loadData = new sfPropelLoadDataTask($this->dispatcher, $this->formatter);
       $loadData->setCommandApplication($this->commandApplication);
 
-      $insertSqlOptions = array('--env='.$options['env'], '--connection='.$options['connection']);
+      $dataLoadOptions = array('--env='.$options['env'], '--connection='.$options['connection']);
       if ($options['application'])
       {
-        $insertSqlOptions[] = '--application='.$options['application'];
+        $dataLoadOptions[] = '--application='.$options['application'];
+      }
+      if ($options['dir'])
+      {
+        foreach ($options['dir'] as $dir)
+        {
+          $dataLoadOptions[] = '--dir='.$dir;
+        }
+      }
+      if ($options['append'])
+      {
+        $dataLoadOptions[] = '--append';
       }
 
-      $loadData->run(array(), $insertSqlOptions);
+      $loadData->run(array(), $dataLoadOptions);
     }
 
     $this->cleanup();
