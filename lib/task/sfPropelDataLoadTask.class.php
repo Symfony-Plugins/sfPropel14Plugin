@@ -73,18 +73,14 @@ EOF;
   protected function execute($arguments = array(), $options = array())
   {
     $databaseManager = new sfDatabaseManager($this->configuration);
-    
+
     if (count($options['dir']))
     {
       $fixturesDirs = $options['dir'];
     }
     else
     {
-      if (!$pluginDirs = glob(sfConfig::get('sf_plugins_dir').DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'data'))
-      {
-        $pluginDirs = array();
-      }
-      $fixturesDirs = sfFinder::type('dir')->name('fixtures')->in(array_merge($pluginDirs, array(sfConfig::get('sf_data_dir'))));
+      $fixturesDirs = sfFinder::type('dir')->name('fixtures')->in(array_merge($this->configuration->getPluginSubPaths('/data'), array(sfConfig::get('sf_data_dir'))));
     }
 
     $data = new sfPropelData();
