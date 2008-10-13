@@ -35,17 +35,24 @@ abstract class sfPropelBaseTask extends sfBaseTask
     {
       set_include_path(get_include_path().PATH_SEPARATOR.dirname(__FILE__).'/../vendor'.PATH_SEPARATOR.dirname(__FILE__));
 
-      $libDir = dirname(__FILE__).'/..';
-
-      $autoloader = sfSimpleAutoload::getInstance();
-      $autoloader->addDirectory($libDir);
-      $autoloader->setClassPath('Propel', $libDir.DIRECTORY_SEPARATOR.'addon'.DIRECTORY_SEPARATOR.'sfPropelAutoload.php');
-      $autoloader->addDirectory(sfConfig::get('sf_lib_dir').'/model');
-      $autoloader->addDirectory(sfConfig::get('sf_lib_dir').DIRECTORY_SEPARATOR.'form');
-      $autoloader->register();
-
       self::$done = true;
     }
+  }
+
+  protected function createConfiguration($application, $env, $isDebug)
+  {
+    $configuration = parent::createConfiguration($application, $env, $isDebug);
+
+    $autoloader = sfSimpleAutoload::getInstance();
+    $config = new sfAutoloadConfigHandler();
+    $mapping = $config->evaluate($configuration->getConfigPaths('config/autoload.yml'));
+    foreach ($mapping as $class => $file)
+    {
+      $autoloader->setClassPath($class, $file);
+    }
+    $autoloader->register();
+
+    return $configuration;
   }
 
   protected function process(sfCommandManager $commandManager, $options)
