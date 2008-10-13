@@ -33,7 +33,10 @@ abstract class sfPropelBaseTask extends sfBaseTask
 
     if (!self::$done)
     {
-      set_include_path(get_include_path().PATH_SEPARATOR.dirname(__FILE__).'/../vendor'.PATH_SEPARATOR.dirname(__FILE__));
+      sfToolkit::addIncludePath(array(
+        realpath(dirname(__FILE__).'/../vendor'),
+        dirname(__FILE__),
+      ));
 
       self::$done = true;
     }
@@ -225,11 +228,10 @@ abstract class sfPropelBaseTask extends sfBaseTask
     }
 
     // Call phing targets
-    if (false === strpos('propel-generator', get_include_path()))
-    {
-      set_include_path(dirname(__FILE__).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'propel-generator'.DIRECTORY_SEPARATOR.'classes'.PATH_SEPARATOR.get_include_path());
-    }
-    set_include_path(sfConfig::get('sf_root_dir').PATH_SEPARATOR.get_include_path());
+    sfToolkit::addIncludePath(array(
+      sfConfig::get('sf_root_dir'),
+      realpath(dirname(__FILE__).'/../vendor/propel-generator/classes'),
+    ));
 
     $args = array();
     $bufferPhingOutput = is_null($this->commandApplication) || !$this->commandApplication->withTrace();

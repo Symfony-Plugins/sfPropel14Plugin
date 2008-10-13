@@ -2,7 +2,11 @@
 
 sfConfig::set('sf_orm', 'propel');
 
-set_include_path(sfConfig::get('sf_root_dir').PATH_SEPARATOR.sfConfig::get('sf_symfony_lib_dir').PATH_SEPARATOR.realpath(dirname(__FILE__).'/../lib/vendor/').'/'.PATH_SEPARATOR.get_include_path());
+sfToolkit::addIncludePath(array(
+  sfConfig::get('sf_root_dir'),
+  sfConfig::get('sf_symfony_lib_dir'),
+  realpath(dirname(__FILE__).'/../lib/vendor'),
+));
 
 if (sfConfig::get('sf_web_debug'))
 {
