@@ -45,7 +45,7 @@ class sfPropelGenerateModuleForRouteTask extends sfPropelBaseTask
     $this->detailedDescription = <<<EOF
 The [propel:generate-module-for-route|INFO] task generates a Propel module for a route definition:
 
-  [./symfony propel:generate-module frontend article|INFO]
+  [./symfony propel:generate-module-for-route frontend article|INFO]
 
 The task creates a module in the [%frontend%|COMMENT] application for the
 [%article%|COMMENT] route definition found in [routing.yml|COMMENT].
