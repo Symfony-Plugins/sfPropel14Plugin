@@ -243,16 +243,7 @@ abstract class sfFormPropel extends sfForm
         // save files
         if ($this->validatorSchema[$field] instanceof sfValidatorFile)
         {
-          if ($this->getValue($field.'_delete'))
-          {
-            $this->removeFile($field);
-
-            $values[$field] = '';
-          }
-          else
-          {
-            $values[$field] = $this->processUploadedFile($field);
-          }
+          $values[$field] = $this->processUploadedFile($field);
         }
       }
     }
@@ -412,6 +403,13 @@ abstract class sfFormPropel extends sfForm
     if (!$this->validatorSchema[$field] instanceof sfValidatorFile)
     {
       throw new LogicException(sprintf('You cannot save the current file for field "%s" as the field is not a file.', $field));
+    }
+
+    if ($this->getValue($field.'_delete'))
+    {
+      $this->removeFile($field);
+
+      return '';
     }
 
     if (!$this->getValue($field))
