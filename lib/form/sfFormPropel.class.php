@@ -59,7 +59,7 @@ abstract class sfFormPropel extends sfForm
   /**
    * Returns the default connection for the current model.
    *
-   * @return Connection A database connection
+   * @return PropelPDO A database connection
    */
   public function getConnection()
   {
@@ -119,7 +119,7 @@ abstract class sfFormPropel extends sfForm
    *
    * @param  array      $taintedValues    An array of tainted values to use to bind the form
    * @param  array      $taintedFiles     An array of uploaded files (in the $_FILES or $_GET format)
-   * @param  Connection $con              An optional Propel Connection object
+   * @param  PropelPDO  $con              An optional PropelPDO object
    *
    * @return Boolean    true if the form is valid, false otherwise
    */
@@ -143,7 +143,7 @@ abstract class sfFormPropel extends sfForm
    *
    * If the form is not valid, it throws an sfValidatorError.
    *
-   * @param Connection $con An optional Connection object
+   * @param PropelPDO $con An optional PropelPDO object
    *
    * @return BaseObject The current saved object
    *
@@ -220,7 +220,7 @@ abstract class sfFormPropel extends sfForm
       }
       catch (Exception $e)
       {
-        // no a "real" column of this object
+        // not a "real" column of this object
         if (!method_exists($this, $method = sprintf('update%sColumn', self::camelize($field))))
         {
           continue;
@@ -254,7 +254,7 @@ abstract class sfFormPropel extends sfForm
   /**
    * Updates the associated i18n objects values.
    *
-   * @param Connection $con An optional Connection object
+   * @param PropelPDO $con An optional PropelPDO object
    */
   public function updateI18nObjects()
   {
@@ -337,7 +337,7 @@ abstract class sfFormPropel extends sfForm
    * If you want to add some logic before saving or save other associated objects,
    * this is the method to override.
    *
-   * @param Connection $con An optional Connection object
+   * @param PropelPDO $con An optional PropelPDO object
    */
   protected function doSave($con = null)
   {
