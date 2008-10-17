@@ -74,15 +74,15 @@ class sfTesterPropel extends sfTester
 
     if (false === $value)
     {
-      $this->tester->is(count($objects), 0, 'no object that matches the criteria has been found');
+      $this->tester->is(count($objects), 0, sprintf('no %s object that matches the criteria has been found', $model));
     }
     else if (true === $value)
     {
-      $this->tester->cmp_ok(count($objects), '>', 0, 'objects that matches the criteria have been found');
+      $this->tester->cmp_ok(count($objects), '>', 0, sprintf('%s objects that matches the criteria have been found', $model));
     }
     else if (is_int($value))
     {
-      $this->tester->is(count($objects), $value, sprintf('"%s" objects have been found', $value));
+      $this->tester->is(count($objects), $value, sprintf('"%s" %s objects have been found', $value, $model));
     }
     else
     {
