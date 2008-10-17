@@ -16,6 +16,7 @@ if (!include(dirname(__FILE__).'/../bootstrap/functional.php'))
 }
 
 $b = new sfTestBrowser();
+$b->setTester('propel', 'sfTesterPropel');
 
 // check symfony throws an exception if model class does not exist
 $b->
@@ -210,6 +211,8 @@ $b->
 $b->
   getAndCheck('article', 'create')->
 
+  with('propel')->check('Article', array(), 2)->
+
   isRequestParameter('id', '')->
 
   checkResponseElement('body form#sf_admin_edit_form label[for="article_title"]', 'Title:')->
@@ -226,6 +229,16 @@ $b->
   isRequestParameter('module', 'article')->
   isRequestParameter('action', 'edit')->
   isRequestParameter('id', 3)->
+
+  with('propel')->begin()->
+    check('Article', array(), 3)->
+    check('Article', array('title' => 'new title'))->
+    check('Article', array('title' => 'new title'))->
+    check('Article', array('title' => 'new%'))->
+    check('Article', array('title' => '!new%'), 2)->
+    check('Article', array('title' => 'title'), false)->
+    check('Article', array('title' => '!title'))->
+  end()->
 
   // check values
   checkResponseElement('input[id="article_title"][value="new title"]')->
