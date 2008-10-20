@@ -96,8 +96,7 @@ EOF;
   {
     // generate module
     $tmpDir = sfConfig::get('sf_cache_dir').DIRECTORY_SEPARATOR.'tmp'.DIRECTORY_SEPARATOR.md5(uniqid(rand(), true));
-    sfConfig::set('sf_module_cache_dir', $tmpDir);
-    $generatorManager = new sfGeneratorManager($this->configuration);
+    $generatorManager = new sfGeneratorManager($this->configuration, $tmpDir);
     $generatorManager->generate('sfPropelCrudGenerator', array(
       'model_class'           => $arguments['model'],
       'moduleName'            => $arguments['module'],
