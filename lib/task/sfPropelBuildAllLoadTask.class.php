@@ -31,6 +31,7 @@ class sfPropelBuildAllLoadTask extends sfPropelBaseTask
       new sfCommandOption('connection', null, sfCommandOption::PARAMETER_REQUIRED, 'The connection name', 'propel'),
       new sfCommandOption('no-confirmation', null, sfCommandOption::PARAMETER_NONE, 'Do not ask for confirmation'),
       new sfCommandOption('skip-forms', 'F', sfCommandOption::PARAMETER_NONE, 'Skip generating forms'),
+      new sfCommandOption('classes-only', 'C', sfCommandOption::PARAMETER_NONE, 'Do not initialize the database'),
       new sfCommandOption('phing-arg', null, sfCommandOption::PARAMETER_REQUIRED | sfCommandOption::IS_ARRAY, 'Arbitrary phing argument'),
       new sfCommandOption('append', null, sfCommandOption::PARAMETER_NONE, 'Don\'t delete current data in the database'),
       new sfCommandOption('dir', null, sfCommandOption::PARAMETER_REQUIRED | sfCommandOption::IS_ARRAY, 'The directories to look for fixtures'),
@@ -39,10 +40,10 @@ class sfPropelBuildAllLoadTask extends sfPropelBaseTask
     $this->aliases = array('propel-build-all-load');
     $this->namespace = 'propel';
     $this->name = 'build-all-load';
-    $this->briefDescription = 'Generates Propel model, SQL, initializes database, and load data';
+    $this->briefDescription = 'Generates Propel model and form classes, SQL, initializes the database, and loads data';
 
     $this->detailedDescription = <<<EOF
-The [propel:build-all-load|INFO] task is a shortcut for four other tasks:
+The [propel:build-all-load|INFO] task is a shortcut for two other tasks:
 
   [./symfony propel:build-all-load|INFO]
 
@@ -51,8 +52,7 @@ The task is equivalent to:
   [./symfony propel:build-all|INFO]
   [./symfony propel:data-load|INFO]
 
-The task takes an application argument because of the [propel:data-load|COMMENT]
-task. See [propel:data-load|COMMENT] help page for more information.
+See those tasks' help pages for more information.
 
 To bypass the confirmation, you can pass the [no-confirmation|COMMENT]
 option:
@@ -86,6 +86,10 @@ EOF;
     if ($options['skip-forms'])
     {
       $buildAllOptions[] = '--skip-forms';
+    }
+    if ($options['classes-only'])
+    {
+      $buildAllOptions[] = '--classes-only';
     }
     if ($options['no-confirmation'])
     {
