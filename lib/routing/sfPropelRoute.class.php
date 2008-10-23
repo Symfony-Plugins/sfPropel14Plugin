@@ -20,6 +20,9 @@
  */
 class sfPropelRoute extends sfObjectRoute
 {
+  protected
+    $criteria = null;
+
   /**
    * Constructor.
    *
@@ -38,7 +41,17 @@ class sfPropelRoute extends sfObjectRoute
     $this->options['model'] = constant($this->options['model'].'::PEER');
   }
 
-  protected function getObjectForParameters($parameters)
+  public function setListCriteria(Criteria $criteria)
+  {
+    if (!$this->isBound())
+    {
+      throw new LogicException('The route is not bound.');
+    }
+
+    $this->criteria = $criteria;
+  }
+
+  protected function getObjecForParameters($parameters)
   {
     if (!isset($this->options['method']))
     {
@@ -70,6 +83,11 @@ class sfPropelRoute extends sfObjectRoute
     {
       $this->options['method'] = 'doSelect';
       $parameters = new Criteria();
+    }
+
+    if (!is_null($this->criteria))
+    {
+      $parameters = $this->criteria;
     }
 
     return parent::getObjectForParameters($parameters);
