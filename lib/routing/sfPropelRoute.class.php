@@ -51,7 +51,7 @@ class sfPropelRoute extends sfObjectRoute
     $this->criteria = $criteria;
   }
 
-  protected function getObjecForParameters($parameters)
+  protected function getObjectForParameters($parameters)
   {
     if (!isset($this->options['method']))
     {
