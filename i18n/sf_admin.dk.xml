@@ -1,0 +1,112 @@
+<?xml version="1.0" ?>
+<xliff version="1.0">
+  <file orginal="global" source-language="en" datatype="plaintext">
+    <body>
+      <!-- Actions -->
+      <trans-unit>
+        <source>New</source>
+        <target>Ny</target>
+      </trans-unit>
+      <trans-unit>
+        <source>Edit</source>
+        <target>Rediger</target>
+      </trans-unit>
+      <trans-unit>
+        <source>Delete</source>
+        <target>Slet</target>
+      </trans-unit>
+      <trans-unit>
+        <source>List</source>
+        <target>Liste</target>
+      </trans-unit>
+      <trans-unit>
+        <source>Save</source>
+        <target>Gem</target>
+      </trans-unit>
+      <trans-unit>
+        <source>Save and add</source>
+        <target>Gem og opret ny</target>
+      </trans-unit>
+      <trans-unit>
+        <source>Cancel</source>
+        <target>Fortryd</target>
+      </trans-unit>
+
+      <!-- Filters -->
+      <trans-unit>
+        <source>Reset</source>
+        <target>Nulstil</target>
+      </trans-unit>
+      <trans-unit>
+        <source>Filter</source>
+        <target>Filtrer</target>
+      </trans-unit>
+
+      <!-- List -->
+      <trans-unit>
+        <source>No result</source>
+        <target>Ingen resultater</target>
+      </trans-unit>
+      <trans-unit>
+        <source>Actions</source>
+        <target>Handlinger</target>
+      </trans-unit>
+      <trans-unit>
+        <source>(page %%page%%/%%nb_pages%%)</source>
+        <target>(side %%page%%/%%nb_pages%%)</target>
+      </trans-unit>
+      <trans-unit>
+        <source>asc</source>
+        <target>stigende</target>
+      </trans-unit>
+      <trans-unit>
+        <source>desc</source>
+        <target>faldende</target>
+      </trans-unit>
+
+      <!-- Pagination -->
+      <trans-unit>
+        <source>First page</source>
+        <target>Første side</target>
+      </trans-unit>
+      <trans-unit>
+        <source>Previous page</source>
+        <target>Forrige side</target>
+      </trans-unit>
+      <trans-unit>
+        <source>Next page</source>
+        <target>Næste side</target>
+      </trans-unit>
+      <trans-unit>
+        <source>Last page</source>
+        <target>Sidste side</target>
+      </trans-unit>
+
+      <!-- Form -->
+      <trans-unit>
+        <source>The item was created successfully.</source>
+        <target>Nyt objekt blev oprettet.</target>
+      </trans-unit>
+      <trans-unit>
+        <source>The item was updated successfully.</source>
+        <target>Objekt er blevet opdateret.</target>
+      </trans-unit>
+      <trans-unit>
+        <source>The item was created successfully. You can add another one below.</source>
+        <target>Objektet blev oprettet, du kan oprette et nyt nedenfor.</target>
+      </trans-unit>
+      <trans-unit>
+        <source>The item was updated successully. You can add another one below.</source>
+        <target>Objekt blev opdateret, du kan opprette et nyt nedenfor.</target>
+      </trans-unit>
+      <trans-unit>
+        <source>The item has not been saved due to some errors.</source>
+        <target>Objektet blev ikke gemt, fordi der opstod en fejltilstand.</target>
+      </trans-unit>
+      <trans-unit>
+        <source>The item was deleted successfully.</source>
+        <target>Objektet er slettet.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

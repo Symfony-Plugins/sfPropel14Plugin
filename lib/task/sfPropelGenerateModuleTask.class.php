@@ -80,13 +80,14 @@ EOF;
     $properties = parse_ini_file(sfConfig::get('sf_config_dir').'/properties.ini', true);
 
     $this->constants = array(
-      'PROJECT_NAME' => isset($properties['symfony']['name']) ? $properties['symfony']['name'] : 'symfony',
-      'APP_NAME'     => $arguments['application'],
-      'MODULE_NAME'  => $arguments['module'],
-      'MODEL_CLASS'  => $arguments['model'],
-      'AUTHOR_NAME'  => isset($properties['symfony']['author']) ? $properties['symfony']['author'] : 'Your name here',
+      'PROJECT_NAME'   => isset($properties['symfony']['name']) ? $properties['symfony']['name'] : 'symfony',
+      'APP_NAME'       => $arguments['application'],
+      'MODULE_NAME'    => $arguments['module'],
+      'UC_MODULE_NAME' => ucfirst($arguments['module']),
+      'MODEL_CLASS'    => $arguments['model'],
+      'AUTHOR_NAME'    => isset($properties['symfony']['author']) ? $properties['symfony']['author'] : 'Your name here',
     );
-    
+
     $method = $options['generate-in-cache'] ? 'executeInit' : 'executeGenerate';
 
     $this->$method($arguments, $options);
@@ -97,7 +98,7 @@ EOF;
     // generate module
     $tmpDir = sfConfig::get('sf_cache_dir').DIRECTORY_SEPARATOR.'tmp'.DIRECTORY_SEPARATOR.md5(uniqid(rand(), true));
     $generatorManager = new sfGeneratorManager($this->configuration, $tmpDir);
-    $generatorManager->generate('sfPropelCrudGenerator', array(
+    $generatorManager->generate('sfPropelGenerator', array(
       'model_class'           => $arguments['model'],
       'moduleName'            => $arguments['module'],
       'theme'                 => $options['theme'],
@@ -143,13 +144,40 @@ EOF;
 
     // create basic application structure
     $finder = sfFinder::type('any')->discard('.sf');
-    $dirs = $this->configuration->getGeneratorSkeletonDirs('sfPropelCrud', $options['theme']);
+    $dirs = $this->configuration->getGeneratorSkeletonDirs('sfPropelModule', $options['theme']);
+
     foreach ($dirs as $dir)
     {
       if (is_dir($dir))
       {
         $this->getFilesystem()->mirror($dir, $moduleDir, $finder);
         break;
+      }
+    }
+
+    // move configuration file
+    if (file_exists($config = $moduleDir.'/lib/configuration.php'))
+    {
+      if (file_exists($target = $moduleDir.'/lib/'.$arguments['module'].'GeneratorConfiguration.class.php'))
+      {
+        $this->getFilesystem()->remove($config);
+      }
+      else
+      {
+        $this->getFilesystem()->rename($config, $target);
+      }
+    }
+
+    // move helper file
+    if (file_exists($config = $moduleDir.'/lib/helper.php'))
+    {
+      if (file_exists($target = $moduleDir.'/lib/'.$arguments['module'].'GeneratorHelper.class.php'))
+      {
+        $this->getFilesystem()->remove($config);
+      }
+      else
+      {
+        $this->getFilesystem()->rename($config, $target);
       }
     }
 
@@ -161,12 +189,24 @@ EOF;
 
     // customize php and yml files
     $finder = sfFinder::type('file')->name('*.php', '*.yml');
-    $this->constants['CONFIG'] = sprintf("    non_verbose_templates: %s\n    with_show:             %s\n    singular:             %s\n    plural:             %s\n    route_prefix:             %s\n    with_propel_route:             %s",
+    $this->constants['CONFIG'] = sprintf(<<<EOF
+    model_class:           %s
+    theme:                 %s
+    non_verbose_templates: %s
+    with_show:             %s
+    singular:              %s
+    plural:                %s
+    route_prefix:          %s
+    with_propel_route:     %s
+EOF
+    ,
+      $arguments['model'],
+      $options['theme'],
       $options['non-verbose-templates'] ? 'true' : 'false',
       $options['with-show'] ? 'true' : 'false',
-      $options['singular'] ? $options['singular'] : 'null',
-      $options['plural'] ? $options['plural'] : 'null',
-      $options['route-prefix'] ? $options['route-prefix'] : 'null',
+      $options['singular'] ? $options['singular'] : '~',
+      $options['plural'] ? $options['plural'] : '~',
+      $options['route-prefix'] ? $options['route-prefix'] : '~',
       $options['with-propel-route'] ? $options['with-propel-route'] : 'false'
     );
     $this->getFilesystem()->replaceTokens($finder->in($moduleDir), '##', '##', $this->constants);
