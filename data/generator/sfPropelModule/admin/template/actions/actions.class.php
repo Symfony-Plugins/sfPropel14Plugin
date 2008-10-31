@@ -43,6 +43,10 @@ class <?php echo $this->getGeneratedModuleName() ?>Actions extends sfActions
 
 <?php include dirname(__FILE__).'/../../parts/deleteAction.php' ?>
 
+<?php if ($this->configuration->getValue('list.batch_actions')): ?>
+<?php include dirname(__FILE__).'/../../parts/batchAction.php' ?>
+<?php endif; ?>
+
 <?php include dirname(__FILE__).'/../../parts/processFormAction.php' ?>
 
 <?php if ($this->configuration->hasFilterForm()): ?>

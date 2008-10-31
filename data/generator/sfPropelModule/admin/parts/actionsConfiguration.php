@@ -34,7 +34,7 @@
 
   public function getListObjectActions()
   {
-    return <?php echo $this->asPhp(isset($this->config['list']['object_actions']) ? $this->config['list']['object_actions'] : array()) ?>;
+    return <?php echo $this->asPhp(isset($this->config['list']['object_actions']) ? $this->config['list']['object_actions'] : array('_edit' => null, '_delete' => null)) ?>;
 <?php unset($this->config['list']['object_actions']) ?>
   }
 
@@ -42,4 +42,10 @@
   {
     return <?php echo $this->asPhp(isset($this->config['list']['actions']) ? $this->config['list']['actions'] : array('_new' => null)) ?>;
 <?php unset($this->config['list']['actions']) ?>
+  }
+
+  public function getListBatchActions()
+  {
+    return <?php echo $this->asPhp(isset($this->config['list']['batch_actions']) ? $this->config['list']['batch_actions'] : array('_delete' => null)) ?>;
+<?php unset($this->config['list']['batch_actions']) ?>
   }
