@@ -3,7 +3,7 @@
     <h2>[?php echo __($fieldset, array(), '<?php echo $this->getI18nCatalogue() ?>') ?]</h2>
   [?php endif; ?]
 
-  [?php foreach ($fields as $name => $field): if (!isset($form[$name]) || $form[$name]->isHidden()) continue ?]
+  [?php foreach ($fields as $name => $field): if (isset($form[$name]) && $form[$name]->isHidden()) continue ?]
     [?php include_partial('<?php echo $this->getModuleName() ?>/form_field', array(
       'name'       => $name,
       'attributes' => $field->getConfig('attributes', array()),

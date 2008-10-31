@@ -83,67 +83,14 @@
 <?php unset($this->config['fields']) ?>
   }
 
-  public function getFieldsList()
+<?php foreach (array('list', 'filter', 'form', 'edit', 'new') as $context): ?>
+  public function getFields<?php echo ucfirst($context) ?>()
   {
     return array(
-<?php foreach ($this->getTableMap()->getColumns() as $column): $name = sfInflector::underscore($column->getName()) ?>
-      '<?php echo $name ?>' => <?php echo isset($this->config['list']['fields'][$name]) ? $this->asPhp($this->config['list']['fields'][$name]) : 'array()' ?>,
-<?php endforeach; ?>
-<?php foreach ($this->getManyToManyTables() as $tables): $name = sfInflector::underscore($tables['middleTable']->getClassname()).'_list' ?>
-      '<?php echo $name ?>' => <?php echo isset($this->config['list']['fields'][$name]) ? $this->asPhp($this->config['list']['fields'][$name]) : 'array()' ?>,
+<?php foreach ($this->getFieldsConfiguration($context) as $name => $params): ?>
+      '<?php echo $name ?>' => <?php echo $this->asPhp($params) ?>,
 <?php endforeach; ?>
     );
-<?php unset($this->config['list']['fields']) ?>
   }
 
-  public function getFieldsFilter()
-  {
-    return array(
-<?php foreach ($this->getTableMap()->getColumns() as $column): $name = sfInflector::underscore($column->getName()) ?>
-      '<?php echo $name ?>' => <?php echo isset($this->config['filter']['fields'][$name]) ? $this->asPhp($this->config['filter']['fields'][$name]) : 'array()' ?>,
 <?php endforeach; ?>
-<?php foreach ($this->getManyToManyTables() as $tables): $name = sfInflector::underscore($tables['middleTable']->getClassname()).'_list' ?>
-      '<?php echo $name ?>' => <?php echo isset($this->config['filter']['fields'][$name]) ? $this->asPhp($this->config['filter']['fields'][$name]) : 'array()' ?>,
-<?php endforeach; ?>
-    );
-<?php unset($this->config['filter']['fields']) ?>
-  }
-
-  public function getFieldsForm()
-  {
-    return array(
-<?php foreach ($this->getTableMap()->getColumns() as $column): $name = sfInflector::underscore($column->getName()) ?>
-      '<?php echo $name ?>' => <?php echo isset($this->config['form']['fields'][$name]) ? $this->asPhp($this->config['form']['fields'][$name]) : 'array()' ?>,
-<?php endforeach; ?>
-<?php foreach ($this->getManyToManyTables() as $tables): $name = sfInflector::underscore($tables['middleTable']->getClassname()).'_list' ?>
-      '<?php echo $name ?>' => <?php echo isset($this->config['form']['fields'][$name]) ? $this->asPhp($this->config['form']['fields'][$name]) : 'array()' ?>,
-<?php endforeach; ?>
-    );
-<?php unset($this->config['form']['fields']) ?>
-  }
-
-  public function getFieldsEdit()
-  {
-    return array(
-<?php foreach ($this->getTableMap()->getColumns() as $column): $name = sfInflector::underscore($column->getName()) ?>
-      '<?php echo $name ?>' => <?php echo isset($this->config['edit']['fields'][$name]) ? $this->asPhp($this->config['edit']['fields'][$name]) : 'array()' ?>,
-<?php endforeach; ?>
-<?php foreach ($this->getManyToManyTables() as $tables): $name = sfInflector::underscore($tables['middleTable']->getClassname()).'_list' ?>
-      '<?php echo $name ?>' => <?php echo isset($this->config['edit']['fields'][$name]) ? $this->asPhp($this->config['edit']['fields'][$name]) : 'array()' ?>,
-<?php endforeach; ?>
-    );
-<?php unset($this->config['edit']['fields']) ?>
-  }
-
-  public function getFieldsNew()
-  {
-    return array(
-<?php foreach ($this->getTableMap()->getColumns() as $column): $name = sfInflector::underscore($column->getName()) ?>
-      '<?php echo $name ?>' => <?php echo isset($this->config['new']['fields'][$name]) ? $this->asPhp($this->config['new']['fields'][$name]) : 'array()' ?>,
-<?php endforeach; ?>
-<?php foreach ($this->getManyToManyTables() as $tables): $name = sfInflector::underscore($tables['middleTable']->getClassname()).'_list' ?>
-      '<?php echo $name ?>' => <?php echo isset($this->config['new']['fields'][$name]) ? $this->asPhp($this->config['new']['fields'][$name]) : 'array()' ?>,
-<?php endforeach; ?>
-    );
-<?php unset($this->config['new']['fields']) ?>
-  }
