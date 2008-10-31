@@ -12,12 +12,12 @@ class Base<?php echo ucfirst($this->getModuleName()) ?>GeneratorHelper extends s
 {
   public function linkToNew($params)
   {
-    return '<li class="sf_admin_action_new">'.link_to(__($params['name'], array(), 'sf_admin'), $this->getUrlForAction('new')).'</li>';
+    return '<li class="sf_admin_action_new">'.link_to(__($params['label'], array(), 'sf_admin'), $this->getUrlForAction('new')).'</li>';
   }
 
   public function linkToEdit($object, $params)
   {
-    return '<li class="sf_admin_action_edit">'.link_to(__($params['name'], array(), 'sf_admin'), $this->getUrlForAction('edit'), $object).'</li>';
+    return '<li class="sf_admin_action_edit">'.link_to(__($params['label'], array(), 'sf_admin'), $this->getUrlForAction('edit'), $object).'</li>';
   }
 
   public function linkToDelete($object, $params)
@@ -27,17 +27,17 @@ class Base<?php echo ucfirst($this->getModuleName()) ?>GeneratorHelper extends s
       return '';
     }
 
-    return '<li class="sf_admin_action_delete">'.link_to(__($params['name'], array(), 'sf_admin'), $this->getUrlForAction('delete'), $object, array('method' => 'delete', 'confirm' => $params['confirm'])).'</li>';
+    return '<li class="sf_admin_action_delete">'.link_to(__($params['label'], array(), 'sf_admin'), $this->getUrlForAction('delete'), $object, array('method' => 'delete', 'confirm' => $params['confirm'])).'</li>';
   }
 
   public function linkToList($params)
   {
-    return '<li class="sf_admin_action_list">'.link_to(__($params['name'], array(), 'sf_admin'), $this->getUrlForAction('list')).'</li>';
+    return '<li class="sf_admin_action_list">'.link_to(__($params['label'], array(), 'sf_admin'), $this->getUrlForAction('list')).'</li>';
   }
 
   public function linkToSave($object, $params)
   {
-    return '<li class="sf_admin_action_save"><input type="submit" value="'.__($params['name'], array(), 'sf_admin').'" /></li>';
+    return '<li class="sf_admin_action_save"><input type="submit" value="'.__($params['label'], array(), 'sf_admin').'" /></li>';
   }
 
   public function linkToSaveAndAdd($object, $params)
@@ -47,7 +47,7 @@ class Base<?php echo ucfirst($this->getModuleName()) ?>GeneratorHelper extends s
       return '';
     }
 
-    return '<li class="sf_admin_action_save_and_add"><input type="submit" value="'.__($params['name'], array(), 'sf_admin').'" name="_save_and_add" /></li>';
+    return '<li class="sf_admin_action_save_and_add"><input type="submit" value="'.__($params['label'], array(), 'sf_admin').'" name="_save_and_add" /></li>';
   }
 
   public function getUrlForAction($action)
