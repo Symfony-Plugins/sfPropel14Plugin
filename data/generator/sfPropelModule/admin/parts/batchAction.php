@@ -14,12 +14,7 @@
       $this->redirect('@<?php echo $this->getUrlForAction('list') ?>');
     }
 
-    if (0 === strpos($action, '_'))
-    {
-      $action = substr($action, 1);
-    }
-
-    if (!method_exists($this, $method = 'batch'.ucfirst($action)))
+    if (!method_exists($this, $method = 'execute'.ucfirst($action)))
     {
       throw new InvalidArgumentException(sprintf('You must create a "%s" method for action "%s"', $method, $action));
     }
@@ -36,7 +31,7 @@
       $ids = $validator->clean($ids);
 
       // execute batch
-      $this->$method($ids);
+      $this->$method($request);
     }
     catch (sfValidatorError $e)
     {
@@ -46,8 +41,10 @@
     $this->redirect('@<?php echo $this->getUrlForAction('list') ?>');
   }
 
-  protected function batchDelete($ids)
+  protected function executeBatchDelete(sfWebRequest $request)
   {
+    $ids = $request->getParameter('ids');
+
     $criteria = new Criteria(<?php echo constant($this->getModelClass().'::PEER') ?>::DATABASE_NAME);
     $criteria->add('<?php echo call_user_func(array(constant($this->getModelClass().'::PEER'), 'translateFieldName'), $this->getPrimaryKeys(true), BasePeer::TYPE_PHPNAME, BasePeer::TYPE_COLNAME) ?>', $ids, Criteria::IN);
 
@@ -61,4 +58,6 @@
     {
       $this->getUser()->setFlash('error', 'A problem occurs when deleting the selected items.');
     }
+
+    $this->redirect('@<?php echo $this->getUrlForAction('list') ?>');
   }
