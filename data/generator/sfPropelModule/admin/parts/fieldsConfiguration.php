@@ -1,6 +1,6 @@
   public function getListParams()
   {
-    return <?php echo $this->asPhp(isset($this->config['list']['params']) ? $this->config['list']['params'] : '%%'.implode('%% - %%', isset($this->config['list']['display']) ? $this->config['list']['display'] : $this->getAllFieldNames()).'%%') ?>;
+    return <?php echo $this->asPhp(isset($this->config['list']['params']) ? $this->config['list']['params'] : '%%'.implode('%% - %%', isset($this->config['list']['display']) ? $this->config['list']['display'] : $this->getAllFieldNames(false)).'%%') ?>;
 <?php unset($this->config['list']['params']) ?>
   }
 
@@ -54,7 +54,7 @@
 
   public function getListDisplay()
   {
-    return <?php echo $this->asPhp(isset($this->config['list']['display']) ? $this->config['list']['display'] : $this->getAllFieldNames()) ?>;
+    return <?php echo $this->asPhp(isset($this->config['list']['display']) ? $this->config['list']['display'] : $this->getAllFieldNames(false)) ?>;
 <?php unset($this->config['list']['display']) ?>
   }
 

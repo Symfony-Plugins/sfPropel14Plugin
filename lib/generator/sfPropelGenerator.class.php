@@ -183,6 +183,13 @@ class sfPropelGenerator extends sfModelGenerator
     return sprintf('$%s%s->%s()', $prefix, $this->getSingularName(), $getter);
   }
 
+  /**
+   * Returns the type of a column.
+   *
+   * @param  object $column A column object
+   *
+   * @return string The column type
+   */
   public function getType($column)
   {
     if ($column->isForeignKey())
@@ -204,12 +211,71 @@ class sfPropelGenerator extends sfModelGenerator
     }
   }
 
-  public function getAllFieldNames()
+  /**
+   * Returns the configuration for fields in a given context.
+   *
+   * @param  string $context The Context
+   *
+   * @return array An array of configuration for all the fields in a given context 
+   */
+  public function getFieldsConfiguration($context)
+  {
+    $fields = array();
+
+    $names = array();
+    foreach ($this->getTableMap()->getColumns() as $column)
+    {
+      $name = sfInflector::underscore($column->getName());
+      $names[] = $name;
+      $fields[$name] = isset($this->config[$context]['fields'][$name]) ? $this->config[$context]['fields'][$name] : array();
+    }
+
+    foreach ($this->getManyToManyTables() as $tables)
+    {
+      $name = sfInflector::underscore($tables['middleTable']->getClassname()).'_list';
+      $names[] = $name;
+      $fields[$name] = isset($this->config[$context]['fields'][$name]) ? $this->config[$context]['fields'][$name] : array();
+    }
+
+    if (isset($this->config[$context]['fields']))
+    {
+      foreach ($this->config[$context]['fields'] as $name => $params)
+      {
+        if (in_array($name, $names))
+        {
+          continue;
+        }
+
+        $fields[$name] = is_array($params) ? $params : array();
+      }
+    }
+
+    unset($this->config[$context]['fields']);
+
+    return $fields;
+  }
+
+  /**
+   * Gets all the fields for the current model.
+   *
+   * @param  Boolean $withM2M Whether to include m2m fields or not
+   *
+   * @return array   An array of field names
+   */
+  public function getAllFieldNames($withM2M = true)
   {
     $names = array();
     foreach ($this->getTableMap()->getColumns() as $column)
     {
       $names[] = sfInflector::underscore($column->getPhpName());
+    }
+
+    if ($withM2M)
+    {
+      foreach ($this->getManyToManyTables() as $tables)
+      {
+        $names[] = sfInflector::underscore($tables['middleTable']->getClassname()).'_list';
+      }
     }
 
     return $names;
