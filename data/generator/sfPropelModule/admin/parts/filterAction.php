@@ -1,4 +1,4 @@
-  public function executeFilter($request)
+  public function executeFilter(sfWebRequest $request)
   {
     if ($request->hasParameter('_reset'))
     {

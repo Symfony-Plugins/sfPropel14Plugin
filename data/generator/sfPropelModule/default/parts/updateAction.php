@@ -1,4 +1,4 @@
-  public function executeUpdate($request)
+  public function executeUpdate(sfWebRequest $request)
   {
 <?php if (isset($this->params['with_propel_route']) && $this->params['with_propel_route']): ?>
     $this->form = new <?php echo $this->getModelClass().'Form' ?>($this->getRoute()->getObject());

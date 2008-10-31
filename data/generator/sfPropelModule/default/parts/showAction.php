@@ -1,4 +1,4 @@
-  public function executeShow($request)
+  public function executeShow(sfWebRequest $request)
   {
 <?php if (isset($this->params['with_propel_route']) && $this->params['with_propel_route']): ?>
     $this-><?php echo $this->getSingularName() ?> = $this->getRoute()->getObject();

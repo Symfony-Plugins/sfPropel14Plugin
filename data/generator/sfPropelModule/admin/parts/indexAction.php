@@ -1,4 +1,4 @@
-  public function executeIndex($request)
+  public function executeIndex(sfWebRequest $request)
   {
     // sorting
     if ($request->getParameter('sort'))

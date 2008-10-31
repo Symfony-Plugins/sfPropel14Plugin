@@ -1,4 +1,4 @@
-  public function executeCreate($request)
+  public function executeCreate(sfWebRequest $request)
   {
 <?php if (isset($this->params['with_propel_route']) && $this->params['with_propel_route']): ?>
 <?php else: ?>

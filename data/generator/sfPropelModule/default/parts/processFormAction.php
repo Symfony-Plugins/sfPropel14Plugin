@@ -1,4 +1,4 @@
-  protected function processForm($request, $form)
+  protected function processForm(sfWebRequest $request, sfForm $form)
   {
     $form->bind($request->getParameter('<?php echo $this->getFormParameterName() ?>'));
     if ($form->isValid())

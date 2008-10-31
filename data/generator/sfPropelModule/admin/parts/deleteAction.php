@@ -1,4 +1,4 @@
-  public function executeDelete($request)
+  public function executeDelete(sfWebRequest $request)
   {
     $this->getRoute()->getObject()->delete();
 

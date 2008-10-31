@@ -1,4 +1,4 @@
-  public function executeDelete($request)
+  public function executeDelete(sfWebRequest $request)
   {
 <?php if (isset($this->params['with_propel_route']) && $this->params['with_propel_route']): ?>
     $this->getRoute()->getObject()->delete();
