@@ -8,7 +8,7 @@
     <div>
       [?php echo $form[$name]->renderLabel($label) ?]
 
-      [?php echo $form[$name]->render($attributes->getRawValue()) ?]
+      [?php echo $form[$name]->render($attributes instanceof sfOutputEscaper ? $attributes->getRawValue() : $attributes) ?]
 
       [?php if ($help || $help = $form[$name]->renderHelp()): ?]
         <div class="help">[?php echo __($help, array(), '<?php echo $this->getI18nCatalogue() ?>') ?]</div>
