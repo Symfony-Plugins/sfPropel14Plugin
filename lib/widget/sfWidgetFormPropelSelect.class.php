@@ -55,6 +55,7 @@ class sfWidgetFormPropelSelect extends sfWidgetFormSelect
     $this->addOption('criteria', null);
     $this->addOption('connection', null);
     $this->addOption('multiple', false);
+    $this->addOption('peer_method', 'doSelect');
 
     parent::configure($options, $attributes);
   }
@@ -80,7 +81,7 @@ class sfWidgetFormPropelSelect extends sfWidgetFormSelect
       $method = sprintf('add%sOrderByColumn', 0 === strpos(strtoupper($order[1]), 'ASC') ? 'Ascending' : 'Descending');
       $criteria->$method(call_user_func(array($class, 'translateFieldName'), $order[0], BasePeer::TYPE_PHPNAME, BasePeer::TYPE_COLNAME));
     }
-    $objects = call_user_func(array($class, 'doSelect'), $criteria, $this->getOption('connection'));
+    $objects = call_user_func(array($class, $this->getOption('peer_method')), $criteria, $this->getOption('connection'));
 
     $method = $this->getOption('method');
 
