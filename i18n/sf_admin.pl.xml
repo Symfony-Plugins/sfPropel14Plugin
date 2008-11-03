@@ -93,11 +93,11 @@
       </trans-unit>
       <trans-unit>
         <source>The item was created successfully. You can add another one below.</source>
-        <target>Obiekt został poprawnie utworzony. Możes teraz dodać kolejny.</target>
+        <target>Obiekt został poprawnie utworzony. Możesz teraz dodać kolejny.</target>
       </trans-unit>
       <trans-unit>
         <source>The item was updated successfully. You can add another one below.</source>
-        <target>Obiekt został poprawnie zaktualizowany. Możes teraz dodać kolejny.</target>
+        <target>Obiekt został poprawnie zaktualizowany. Możesz teraz dodać kolejny.</target>
       </trans-unit>
       <trans-unit>
         <source>The item has not been saved due to some errors.</source>
