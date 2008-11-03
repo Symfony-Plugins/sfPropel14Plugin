@@ -33,16 +33,17 @@ class sfWidgetFormPropelSelect extends sfWidgetFormSelect
    *
    * Available options:
    *
-   *  * model:      The model class (required)
-   *  * add_empty:  Whether to add a first empty value or not (false by default)
-   *                If the option is not a Boolean, the value will be used as the text value
-   *  * method:     The method to use to display object values (__toString by default)
-   *  * order_by:   An array composed of two fields:
-   *                  * The column to order by the results (must be in the PhpName format)
-   *                  * asc or desc
-   *  * criteria:   A criteria to use when retrieving objects
-   *  * connection: The Propel connection to use (null by default)
-   *  * multiple:   true if the select tag must allow multiple selections
+   *  * model:       The model class (required)
+   *  * add_empty:   Whether to add a first empty value or not (false by default)
+   *                 If the option is not a Boolean, the value will be used as the text value
+   *  * method:      The method to use to display object values (__toString by default)
+   *  * order_by:    An array composed of two fields:
+   *                   * The column to order by the results (must be in the PhpName format)
+   *                   * asc or desc
+   *  * criteria:    A criteria to use when retrieving objects
+   *  * connection:  The Propel connection to use (null by default)
+   *  * multiple:    true if the select tag must allow multiple selections
+   *  * peer_method: The peer method to use to fetch objects
    *
    * @see sfWidgetFormSelect
    */
