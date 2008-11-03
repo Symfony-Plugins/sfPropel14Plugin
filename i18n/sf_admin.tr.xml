@@ -9,7 +9,7 @@
       </trans-unit>
       <trans-unit>
         <source>Edit</source>
-        <target>Düzenle</target>
+        <target>DÃ¼zenle</target>
       </trans-unit>
       <trans-unit>
         <source>Delete</source>
@@ -17,7 +17,7 @@
       </trans-unit>
       <trans-unit>
         <source>List</source>
-        <target>Listele</target>
+        <target>Liste</target>
       </trans-unit>
       <trans-unit>
         <source>Save</source>
@@ -29,7 +29,7 @@
       </trans-unit>
       <trans-unit>
         <source>Cancel</source>
-        <target>Vazgeç</target>
+        <target>VazgeÃ§</target>
       </trans-unit>
 
       <!-- Filters -->
@@ -45,7 +45,7 @@
       <!-- List -->
       <trans-unit>
         <source>No result</source>
-        <target>Kayıt yok.</target>
+        <target>KayÄ±t yok.</target>
       </trans-unit>
       <trans-unit>
         <source>Actions</source>
@@ -67,11 +67,11 @@
       <!-- Pagination -->
       <trans-unit>
         <source>First page</source>
-        <target>İlk sayfa</target>
+        <target>Ä°lk sayfa</target>
       </trans-unit>
       <trans-unit>
         <source>Previous page</source>
-        <target>Önceki sayfa</target>
+        <target>Ã–nceki sayfa</target>
       </trans-unit>
       <trans-unit>
         <source>Next page</source>
@@ -85,48 +85,49 @@
       <!-- Form -->
       <trans-unit>
         <source>The item was created successfully.</source>
-        <target>Kayıt başarıyla oluşturuldu.</target>
+        <target>KayÄ±t baÅŸarÄ±yla oluÅŸturuldu.</target>
       </trans-unit>
       <trans-unit>
         <source>The item was updated successfully.</source>
-        <target>Kayıt başarıyla güncellendi.</target>
+        <target>KayÄ±t baÅŸarÄ±yla gÃ¼ncellendi.</target>
       </trans-unit>
       <trans-unit>
         <source>The item was created successfully. You can add another one below.</source>
-        <target>Kayıt başarıyla oluşturuldu. Aşağıdan yeni bir tane daha ekleyebilirsiniz.</target>
+        <target>KayÄ±t baÅŸarÄ±yla oluÅŸturuldu. AÅŸaÄŸÄ±dan yeni bir tane ekleyebilirsiniz.</target>
       </trans-unit>
       <trans-unit>
         <source>The item was updated successfully. You can add another one below.</source>
-        <target>Kayıt başarıyla güncellendi. Aşağıdan yeni bir tane daha ekleyebilirsiniz.</target>
+        <target>KayÄ±t baÅŸarÄ±yla gÃ¼ncellendi. AÅŸaÄŸÄ±dan yeni bir tane ekleyebilirsiniz.</target>
       </trans-unit>
       <trans-unit>
         <source>The item has not been saved due to some errors.</source>
-        <target>Bazı hatalar nedeniyle kayıt oluşturulamadı.</target>
+        <target>BazÄ± hatalar nedeniyle kayÄ±t oluÅŸturulamadÄ±.</target>
       </trans-unit>
       <trans-unit>
         <source>The item was deleted successfully.</source>
-        <target>Kayıt başarıyla silindi.</target>
+        <target>KayÄ±t baÅŸarÄ±yla silindi.</target>
       </trans-unit>
       <trans-unit>
         <source>You must at least select one item.</source>
-        <target>En az bir kayıt seçmelisiniz.</target>
+        <target>En az bir kayÄ±t seÃ§melisiniz.</target>
       </trans-unit>
       <trans-unit>
         <source>You must select an action to execute on the selected items.</source>
-        <target>Seçilmiş kayıtlarda çalıştırılmak üzere bir eylem seçmelisiniz.</target>
+        <target>SeÃ§ilmiÅŸ kayÄ±tlar Ã¼zerinde Ã§alÄ±ÅŸtÄ±rÄ±lmak Ã¼zere bir eylem seÃ§melisiniz.</target>
       </trans-unit>
       <trans-unit>
         <source>A problem occurs when deleting the selected items as some items do not exist anymore.</source>
-        <target>Seçilmiş kayıtlar silinirken bir hata oluştu, bazı kayıtlar artık bulunmuyor.</target>
+        <target>SeÃ§ilmiÅŸ kayÄ±tlar silinirken bir sorun oluÅŸtu, bazÄ± kayÄ±tlar artÄ±k bulunmuyor.</target>
       </trans-unit>
       <trans-unit>
         <source>The selected items have been deleted successfully.</source>
-        <target>Seçilmiş kayıtlar başarıyla silindi.</target>
+        <target>SeÃ§ilmiÅŸ kayÄ±tlar baÅŸarÄ±yla silindi.</target>
       </trans-unit>
       <trans-unit>
         <source>A problem occurs when deleting the selected items.</source>
-        <target>Seçilmiş kayıtları silerken bir sorun oluştu.</target>
+        <target>SeÃ§ilmiÅŸ kayÄ±tlar silinirken bir sorun oluÅŸtu.</target>
       </trans-unit>
     </body>
   </file>
 </xliff>
+
