@@ -17,7 +17,7 @@
       </trans-unit>
       <trans-unit>
         <source>List</source>
-        <target>N‰yt‰ lista</target>
+        <target>N√§yt√§ lista</target>
       </trans-unit>
       <trans-unit>
         <source>Save</source>
@@ -25,7 +25,7 @@
       </trans-unit>
       <trans-unit>
         <source>Save and add</source>
-        <target>Tallenna ja lis‰‰</target>
+        <target>Tallenna ja lis√§√§</target>
       </trans-unit>
       <trans-unit>
         <source>Cancel</source>
@@ -35,7 +35,7 @@
       <!-- Filters -->
       <trans-unit>
         <source>Reset</source>
-        <target>Tyhjenn‰</target>
+        <target>Tyhjenn√§</target>
       </trans-unit>
       <trans-unit>
         <source>Filter</source>
@@ -67,7 +67,7 @@
       <!-- Pagination -->
       <trans-unit>
         <source>First page</source>
-        <target>Ensimm‰inen sivu</target>
+        <target>Ensimm√§inen sivu</target>
       </trans-unit>
       <trans-unit>
         <source>Previous page</source>
@@ -85,47 +85,47 @@
       <!-- Form -->
       <trans-unit>
         <source>The item was created successfully.</source>
-        <target>Merkinn‰n luonti onnistui.</target>
+        <target>Merkinn√§n luonti onnistui.</target>
       </trans-unit>
       <trans-unit>
         <source>The item was updated successfully.</source>
-        <target>Merkinn‰n p‰ivitt‰minen onnistui.</target>
+        <target>Merkinn√§n p√§ivitt√§minen onnistui.</target>
       </trans-unit>
       <trans-unit>
         <source>The item was created successfully. You can add another one below.</source>
-        <target>Merkinn‰n luonti onnistui. Voit lis‰t‰ sen alle seuraavan.</target>
+        <target>Merkinn√§n luonti onnistui. Voit lis√§t√§ sen alle seuraavan.</target>
       </trans-unit>
       <trans-unit>
         <source>The item was updated successfully. You can add another one below.</source>
-        <target>Merkinn‰n p‰ivitys onnistui. Voit lis‰t‰ sen alle seuraavan.</target>
+        <target>Merkinn√§n p√§ivitys onnistui. Voit lis√§t√§ sen alle seuraavan.</target>
       </trans-unit>
       <trans-unit>
         <source>The item has not been saved due to some errors.</source>
-        <target>Merkint‰‰ ei tallennettu virheiden takia.</target>
+        <target>Merkint√§√§ ei tallennettu virheiden takia.</target>
       </trans-unit>
       <trans-unit>
         <source>The item was deleted successfully.</source>
-        <target>Merkinn‰n poistaminen onnistui.</target>
+        <target>Merkinn√§n poistaminen onnistui.</target>
       </trans-unit>
       <trans-unit>
         <source>You must at least select one item.</source>
-        <target>Valitse v‰hint‰‰n yksi merkint‰.</target>
+        <target>Valitse v√§hint√§√§n yksi merkint√§.</target>
       </trans-unit>
       <trans-unit>
         <source>You must select an action to execute on the selected items.</source>
-        <target>Valitse toiminto, joka suoritetaan valituille merkinnˆille.</target>
+        <target>Valitse toiminto, joka suoritetaan valituille merkinn√∂ille.</target>
       </trans-unit>
       <trans-unit>
         <source>A problem occurs when deleting the selected items as some items do not exist anymore.</source>
-        <target>Valittujen merkintˆjen poistamisessa esiintyi virhe, koska jotkut merkinn‰t eiv‰t en‰‰ olleet olemassa.</target>
+        <target>Valittujen merkint√∂jen poistamisessa esiintyi virhe, koska jotkut merkinn√§t eiv√§t en√§√§ olleet olemassa.</target>
       </trans-unit>
       <trans-unit>
         <source>The selected items have been deleted successfully.</source>
-        <target>Valittujen merkintˆjen poistaminen onnistui.</target>
+        <target>Valittujen merkint√∂jen poistaminen onnistui.</target>
       </trans-unit>
       <trans-unit>
         <source>A problem occurs when deleting the selected items.</source>
-        <target>Valittujen merkintˆjen poistamisessa esiintyi virhe.</target>
+        <target>Valittujen merkint√∂jen poistamisessa esiintyi virhe.</target>
       </trans-unit>
     </body>
   </file>
