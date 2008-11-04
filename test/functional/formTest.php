@@ -136,3 +136,20 @@ $b->
   click('submit', array('article' => array('title' => 'foo', 'category_id' => 1)))->
   checkResponseElement('.error_list li', 'An object with the same "title, category_id" already exist.')
 ;
+
+// update the category from the article form
+$b->
+  get('/unique/edit')->
+  isRequestParameter('module', 'unique')->
+  isRequestParameter('action', 'edit')->
+  isStatusCode(200)->
+  checkResponseElement('input[value="foo title"]')->
+  checkResponseElement('#article_category_id option[selected="selected"]', 1)->
+  checkResponseElement('input[value="Category 1"]')->
+  click('submit', array('article' => array('title' => 'foo bar', 'category' => array('name' => 'Category foo'))))->
+  isRedirected()->
+  followRedirect()->
+  checkResponseElement('input[value="foo bar"]')->
+  checkResponseElement('#article_category_id option[selected="selected"]', 1)->
+  checkResponseElement('input[value="Category foo"]')
+;

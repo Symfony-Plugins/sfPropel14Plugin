@@ -184,14 +184,23 @@ abstract class sfFormPropel extends sfForm
    *
    * @return BaseObject The current updated object
    */
-  public function updateObject()
+  public function updateObject($values = null)
   {
-    if (!$this->isValid())
+    if (is_null($values))
     {
-      throw $this->getErrorSchema();
+      $values = $this->values;
     }
 
-    $this->object->fromArray($this->processValues(), BasePeer::TYPE_FIELDNAME);
+    $this->object->fromArray($this->processValues($values), BasePeer::TYPE_FIELDNAME);
+
+    // embedded forms
+    foreach ($this->embeddedForms as $name => $form)
+    {
+      if ($form instanceof sfFormPropel && is_array($values[$name]))
+      {
+        $form->updateObject($values[$name]);
+      }
+    }
 
     return $this->object;
   }
@@ -206,13 +215,15 @@ abstract class sfFormPropel extends sfForm
    * The method must return the processed value or false to remove the value
    * from the array of cleaned up values.
    *
+   * @param  array $values An array of values
+   *
    * @return array An array of cleaned up values processed by the user defined methods
    */
-  public function processValues()
+  public function processValues($values)
   {
     // see if the user has overridden some column setter
-    $values = $this->values;
-    foreach ($this->values as $field => $value)
+    $valuesToProcess = $values;
+    foreach ($valuesToProcess as $field => $value)
     {
       try
       {
@@ -355,6 +366,15 @@ abstract class sfFormPropel extends sfForm
     }
 
     $this->object->save($con);
+
+    // embedded forms
+    foreach ($this->embeddedForms as $form)
+    {
+      if ($form instanceof sfFormPropel)
+      {
+        $form->getObject()->save($con);
+      }
+    }
   }
 
   /**

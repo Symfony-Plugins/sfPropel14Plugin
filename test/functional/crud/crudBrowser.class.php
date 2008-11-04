@@ -147,8 +147,6 @@ class CrudBrowser extends sfTestBrowser
       checkResponseElement('table tbody th:nth(6)', 'End date')->
       checkResponseElement('table tbody th:nth(7)', 'Book id')->
       checkResponseElement('table tbody th:nth(8)', 'Author article list')->
-      checkResponseElement('table tbody th', 9)->
-      checkResponseElement('table tbody td', 9)->
       checkResponseElement('table tbody td select[id="article_category_id"][name="article[category_id]"] option', 2)->
       checkResponseElement('table tbody td select[id="article_book_id"][name="article[book_id]"] option', 2)
     ;
