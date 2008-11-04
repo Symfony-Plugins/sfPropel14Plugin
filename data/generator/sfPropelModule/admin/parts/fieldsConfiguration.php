@@ -30,13 +30,13 @@
 
   public function getFilterDisplay()
   {
-    return <?php echo $this->asPhp(isset($this->config['filter']['display']) ? $this->config['filter']['display'] : $this->getAllFieldNames()) ?>;
+    return <?php echo $this->asPhp(isset($this->config['filter']['display']) ? $this->config['filter']['display'] : array()) ?>;
 <?php unset($this->config['filter']['display']) ?>
   }
 
   public function getFormDisplay()
   {
-    return <?php echo $this->asPhp(isset($this->config['form']['display']) ? $this->config['form']['display'] : array('NONE' => $this->getAllFieldNames())) ?>;
+    return <?php echo $this->asPhp(isset($this->config['form']['display']) ? $this->config['form']['display'] : array()) ?>;
 <?php unset($this->config['form']['display']) ?>
   }
 

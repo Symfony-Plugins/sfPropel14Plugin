@@ -15,7 +15,7 @@
         </tr>
       </tfoot>
       <tbody>
-        [?php foreach ($configuration->getValue('filter.display') as $name => $field): ?]
+        [?php foreach ($configuration->getFormFilterFields($form) as $name => $field): ?]
         [?php if ((isset($form[$name]) && $form[$name]->isHidden()) || (!isset($form[$name]) && $field->isReal())) continue ?]
           [?php include_partial('<?php echo $this->getModuleName() ?>/filters_field', array(
             'name'       => $name,
