@@ -191,7 +191,9 @@ abstract class sfFormPropel extends sfForm
       $values = $this->values;
     }
 
-    $this->object->fromArray($this->processValues($values), BasePeer::TYPE_FIELDNAME);
+    $values = $this->processValues($values);
+
+    $this->object->fromArray($values, BasePeer::TYPE_FIELDNAME);
 
     // embedded forms
     foreach ($this->embeddedForms as $name => $form)
