@@ -759,7 +759,7 @@ class sfPropelDatabaseSchema
     }
     else
     {
-      throw new sfException(sprintf('Incorrect settings for column "%s".', $col_name));
+      throw new sfException(sprintf('Incorrect settings for column "%s" of table "%s".', $col_name, $tb_name));
     }
 
     // conventions for foreign key attributes
