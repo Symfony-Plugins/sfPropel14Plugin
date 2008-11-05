@@ -207,7 +207,7 @@ abstract class sfFormPropel extends sfForm
     // i18n table
     if ($this->isI18n())
     {
-      $this->updateI18nObjects($con);
+      $this->updateI18nObjects();
     }
 
     return $this->object;
@@ -272,8 +272,6 @@ abstract class sfFormPropel extends sfForm
 
   /**
    * Updates the associated i18n objects values.
-   *
-   * @param PropelPDO $con An optional PropelPDO object
    */
   public function updateI18nObjects()
   {
