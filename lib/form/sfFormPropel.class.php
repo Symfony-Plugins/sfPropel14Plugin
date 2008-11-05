@@ -365,8 +365,6 @@ abstract class sfFormPropel extends sfForm
       $this->updateI18nObjects($con);
     }
 
-    $this->object->save($con);
-
     // embedded forms
     foreach ($this->embeddedForms as $form)
     {
@@ -375,6 +373,8 @@ abstract class sfFormPropel extends sfForm
         $form->getObject()->save($con);
       }
     }
+
+    $this->object->save($con);
   }
 
   /**
