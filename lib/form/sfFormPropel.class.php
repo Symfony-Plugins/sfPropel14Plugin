@@ -204,6 +204,12 @@ abstract class sfFormPropel extends sfForm
       }
     }
 
+    // i18n table
+    if ($this->isI18n())
+    {
+      $this->updateI18nObjects($con);
+    }
+
     return $this->object;
   }
 
@@ -361,22 +367,27 @@ abstract class sfFormPropel extends sfForm
 
     $this->updateObject();
 
-    // i18n table
-    if ($this->isI18n())
+    // embedded forms
+    $this->saveEmbeddedForms();
+
+    $this->object->save($con);
+  }
+
+  public function saveEmbeddedForms($con = null)
+  {
+    if (is_null($con))
     {
-      $this->updateI18nObjects($con);
+      $con = $this->getConnection();
     }
 
-    // embedded forms
     foreach ($this->embeddedForms as $form)
     {
+      $form->saveEmbeddedForms($con);
       if ($form instanceof sfFormPropel)
       {
         $form->getObject()->save($con);
       }
     }
-
-    $this->object->save($con);
   }
 
   /**
