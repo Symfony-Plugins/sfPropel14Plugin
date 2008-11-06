@@ -207,7 +207,7 @@ abstract class sfFormPropel extends sfForm
     // i18n table
     if ($this->isI18n())
     {
-      $this->updateI18nObjects();
+      $this->updateI18nObjects($values);
     }
 
     return $this->object;
@@ -273,7 +273,7 @@ abstract class sfFormPropel extends sfForm
   /**
    * Updates the associated i18n objects values.
    */
-  public function updateI18nObjects()
+  public function updateI18nObjects($values = null)
   {
     if (!$this->isValid())
     {
@@ -285,7 +285,11 @@ abstract class sfFormPropel extends sfForm
       throw new sfException(sprintf('The model "%s" is not internationalized.', $this->getModelName()));
     }
 
-    $values = $this->getValues();
+    if (is_null($values))
+    {
+      $values = $this->getValues();
+    }
+
     $method = sprintf('getCurrent%s', $this->getI18nModelName());
     foreach ($this->cultures as $culture)
     {
