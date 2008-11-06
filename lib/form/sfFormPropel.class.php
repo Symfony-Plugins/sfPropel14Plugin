@@ -366,7 +366,7 @@ abstract class sfFormPropel extends sfForm
     $this->updateObject();
 
     // embedded forms
-    $this->saveEmbeddedForms();
+    $this->saveEmbeddedForms($con);
 
     $this->object->save($con);
   }
