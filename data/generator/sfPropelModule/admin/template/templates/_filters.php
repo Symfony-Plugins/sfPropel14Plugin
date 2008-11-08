@@ -3,13 +3,13 @@
     [?php echo $form->renderGlobalErrors() ?]
   [?php endif; ?]
 
-  <form action="[?php echo url_for('@<?php echo $this->getUrlForAction('filter') ?>') ?]" method="post">
+  <form action="[?php echo url_for('<?php echo $this->getUrlForAction('collection') ?>', array('action' => 'filter')) ?]" method="post">
     <table cellspacing="0">
       <tfoot>
         <tr>
           <td colspan="2">
             [?php echo $form->renderHiddenFields() ?]
-            [?php echo link_to(__('Reset', array(), 'sf_admin'), '@<?php echo $this->getUrlForAction('filter') ?>', array('method' => 'post', 'query_string' => '_reset')) ?]
+            [?php echo link_to(__('Reset', array(), 'sf_admin'), '<?php echo $this->getUrlForAction('collection') ?>', array('action' => 'filter'), array('query_string' => '_reset', 'method' => 'post')) ?]
             <input type="submit" value="[?php echo __('Filter', array(), 'sf_admin') ?]" />
           </td>
         </tr>
