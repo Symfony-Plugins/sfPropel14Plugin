@@ -23,6 +23,7 @@ class RestBrowser extends CrudBrowser
     chdir($this->projectDir);
     $task = new sfPropelGenerateModuleForRouteTask(new sfEventDispatcher(), new sfFormatter());
     $options[] = 'env=test';
+    $options[] = '--non-verbose-templates';
     $task->run(array('crud', 'articles'), $options);
 
     require_once($this->projectDir.'/config/ProjectConfiguration.class.php');
