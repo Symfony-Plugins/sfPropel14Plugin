@@ -9,7 +9,7 @@
  */
 
 /**
- * sfObjectRouteCollection represents a collection of routes bound to Propel objects.
+ * sfPropelRouteCollection represents a collection of routes bound to Propel objects.
  *
  * @package    symfony
  * @subpackage routing
