@@ -1,7 +1,5 @@
 [?php
 
-require_once(sfConfig::get('sf_lib_dir').'/form/base/BaseFormPropel.class.php');
-
 /**
  * <?php echo $this->table->getClassname() ?> form base class.
  *

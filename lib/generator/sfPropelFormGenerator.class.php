@@ -66,7 +66,7 @@ class sfPropelFormGenerator extends sfGenerator
     $this->dbMap = Propel::getDatabaseMap($this->params['connection']);
 
     // create the project base class for all forms
-    $file = sfConfig::get('sf_lib_dir').'/form/base/BaseFormPropel.class.php';
+    $file = sfConfig::get('sf_lib_dir').'/form/BaseFormPropel.class.php';
     if (!file_exists($file))
     {
       if (!is_dir(sfConfig::get('sf_lib_dir').'/form/base'))
