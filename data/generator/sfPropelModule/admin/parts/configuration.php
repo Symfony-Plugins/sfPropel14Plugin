@@ -39,7 +39,7 @@ class Base<?php echo ucfirst($this->getModuleName()) ?>GeneratorConfiguration ex
 
   public function hasFilterForm()
   {
-    return <?php echo !isset($this->config['filter']) || false !== $this->config['filter']['class'] ? 'true' : 'false' ?>;
+    return <?php echo !isset($this->config['filter']['class']) || false !== $this->config['filter']['class'] ? 'true' : 'false' ?>;
   }
 
   /**
@@ -49,7 +49,7 @@ class Base<?php echo ucfirst($this->getModuleName()) ?>GeneratorConfiguration ex
    */
   public function getFilterFormClass()
   {
-    return '<?php echo isset($this->config['filter']) && !in_array($this->config['filter']['class'], array(null, true, false), true) ? $this->config['filter']['class'] : $this->getModelClass().'FormFilter' ?>';
+    return '<?php echo isset($this->config['filter']['class']) && !in_array($this->config['filter']['class'], array(null, true, false), true) ? $this->config['filter']['class'] : $this->getModelClass().'FormFilter' ?>';
 <?php unset($this->config['filter']['class']) ?>
   }
 
