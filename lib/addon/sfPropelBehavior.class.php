@@ -18,7 +18,9 @@
  */
 class sfPropelBehavior
 {
-  static protected $behaviors = array();
+  static protected
+    $loaded    = array(),
+    $behaviors = array();
 
   static public function registerMethods($name, $callables)
   {
@@ -77,15 +79,30 @@ class sfPropelBehavior
       {
         foreach ($callables as $callable)
         {
-          sfMixer::register('Base'.$class.$hook, $callable);
+          $key = 'Base'.$class.$hook.'//'.self::callableToString($callable);
+          if (!isset(self::$loaded[$key]))
+          {
+            sfMixer::register('Base'.$class.$hook, $callable);
+            self::$loaded[$key] = true;
+          }
         }
       }
 
       // register new methods
       foreach (self::$behaviors[$name]['methods'] as $callable)
       {
-        sfMixer::register('Base'.$class, $callable);
+        $key = 'Base'.$class.'//'.self::callableToString($callable);
+        if (!isset(self::$loaded[$key]))
+        {
+          sfMixer::register('Base'.$class, $callable);
+          self::$loaded[$key] = true;
+        }
       }
     }
+  }
+
+  static protected function callableToString($callable)
+  {
+    return is_array($callable) ? (is_object($callable[0]) ? get_class($callable[0]) : $callable[0]).'::'.$callable[1] : var_export($callable, true);
   }
 }
