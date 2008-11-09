@@ -99,6 +99,7 @@ abstract class sfFormPropel extends sfForm
       $method = sprintf('getCurrent%s', $this->getI18nModelName($culture));
       $i18nObject = $this->object->$method($culture);
       $i18n = new $class($i18nObject);
+      unset($i18n['id'], $i18n['culture']);
 
       $this->embedForm($culture, $i18n, $decorator);
     }
@@ -333,10 +334,10 @@ abstract class sfFormPropel extends sfForm
 
     $this->updateObject();
 
+    $this->object->save($con);
+
     // embedded forms
     $this->saveEmbeddedForms($con);
-
-    $this->object->save($con);
   }
 
   /**
