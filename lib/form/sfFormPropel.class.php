@@ -20,9 +20,8 @@
 abstract class sfFormPropel extends sfForm
 {
   protected
-    $isNew    = true,
-    $cultures = array(),
-    $object   = null;
+    $isNew  = true,
+    $object = null;
 
   /**
    * Constructor.
@@ -94,12 +93,13 @@ abstract class sfFormPropel extends sfForm
       throw new sfException(sprintf('The model "%s" is not internationalized.', $this->getModelName()));
     }
 
-    $this->cultures = $cultures;
-
     $class = $this->getI18nFormClass();
-    $i18n = new $class();
     foreach ($cultures as $culture)
     {
+      $method = sprintf('getCurrent%s', $this->getI18nModelName($culture));
+      $i18nObject = $this->object->$method($culture);
+      $i18n = new $class($i18nObject);
+
       $this->embedForm($culture, $i18n, $decorator);
     }
   }
@@ -204,12 +204,6 @@ abstract class sfFormPropel extends sfForm
       }
     }
 
-    // i18n table
-    if ($this->isI18n())
-    {
-      $this->updateI18nObjects($values);
-    }
-
     return $this->object;
   }
 
@@ -268,36 +262,6 @@ abstract class sfFormPropel extends sfForm
     }
 
     return $values;
-  }
-
-  /**
-   * Updates the associated i18n objects values.
-   */
-  public function updateI18nObjects($values = null)
-  {
-    if (!$this->isValid())
-    {
-      throw $this->getErrorSchema();
-    }
-
-    if (!$this->isI18n())
-    {
-      throw new sfException(sprintf('The model "%s" is not internationalized.', $this->getModelName()));
-    }
-
-    if (is_null($values))
-    {
-      $values = $this->getValues();
-    }
-
-    $method = sprintf('getCurrent%s', $this->getI18nModelName());
-    foreach ($this->cultures as $culture)
-    {
-      unset($values[$culture]['id'], $values[$culture]['culture']);
-
-      $i18n = $this->object->$method($culture);
-      $i18n->fromArray($values[$culture], BasePeer::TYPE_FIELDNAME);
-    }
   }
 
   /**
@@ -375,6 +339,11 @@ abstract class sfFormPropel extends sfForm
     $this->object->save($con);
   }
 
+  /**
+   * Saves embedded form objects.
+   *
+   * @param PropelPDO $con An optional PropelPDO object
+   */
   public function saveEmbeddedForms($con = null)
   {
     if (is_null($con))
@@ -405,23 +374,6 @@ abstract class sfFormPropel extends sfForm
     else
     {
       $this->setDefaults(array_merge($this->getDefaults(), $this->object->toArray(BasePeer::TYPE_FIELDNAME)));
-    }
-
-    // update defaults for i18n
-    if ($this->isI18n())
-    {
-      $method = sprintf('getCurrent%s', $this->getI18nModelName());
-      foreach ($this->cultures as $culture)
-      {
-        if ($this->isNew)
-        {
-          $this->setDefault($culture, array_merge($this->object->$method($culture)->toArray(BasePeer::TYPE_FIELDNAME), $this->getDefault($culture)));
-        }
-        else
-        {
-          $this->setDefault($culture, array_merge($this->getDefault($culture), $this->object->$method($culture)->toArray(BasePeer::TYPE_FIELDNAME)));
-        }
-      }
     }
   }
 
