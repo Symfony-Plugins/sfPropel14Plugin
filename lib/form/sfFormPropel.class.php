@@ -47,7 +47,7 @@ abstract class sfFormPropel extends sfForm
       }
 
       $this->object = $object;
-      $this->isNew = false;
+      $this->isNew = $this->object->isNew();
     }
 
     parent::__construct(array(), $options, $CSRFSecret);
