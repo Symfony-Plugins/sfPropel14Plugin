@@ -1,6 +1,10 @@
 <?php
 
 sfConfig::set('sf_orm', 'propel');
+if (!sfConfig::get('sf_admin_module_web_dir'))
+{
+  sfConfig::set('sf_admin_module_web_dir', '/sfPropelPlugin');
+}
 
 sfToolkit::addIncludePath(array(
   sfConfig::get('sf_root_dir'),
