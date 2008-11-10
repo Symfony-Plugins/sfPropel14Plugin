@@ -76,9 +76,9 @@ EOF;
   protected function execute($arguments = array(), $options = array())
   {
     // get configuration for the given route
-    if (false !== $this->getRouteFromName($arguments['route_or_model']))
+    if (false !== ($route = $this->getRouteFromName($arguments['route_or_model'])))
     {
-      $arguments['route'] = $routes[$arguments['route_or_model']];
+      $arguments['route'] = $route;
       $arguments['route_name'] = $arguments['route_or_model'];
 
       return $this->generateForRoute($arguments, $options);
