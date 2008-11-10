@@ -122,9 +122,7 @@
 {
   list-style-type: none;
   display: inline;
-  padding-left: 20px;
   margin-right: 10px;
-  background: url(../images/default.png) no-repeat 0 0;
   font-size: 90%;
 }
 
@@ -141,27 +139,29 @@
   margin-right: 10px;
 }
 
-#sf_admin_container ul li.sf_admin_action_new
+#sf_admin_container ul li a
 {
   padding-left: 20px;
+  background: url(../images/default.png) no-repeat 0 0;
+}
+
+#sf_admin_container ul li.sf_admin_action_new a
+{
   background: url(../images/new.png) no-repeat 0 0;
 }
 
-#sf_admin_container ul li.sf_admin_action_delete
+#sf_admin_container ul li.sf_admin_action_delete a
 {
-  padding-left: 20px;
   background: url(../images/delete.png) no-repeat 0 0;
 }
 
-#sf_admin_container ul li.sf_admin_action_list
+#sf_admin_container ul li.sf_admin_action_list a
 {
-  padding-left: 20px;
   background: url(../images/list.png) no-repeat 0 0;
 }
 
-#sf_admin_container ul li.sf_admin_action_edit
+#sf_admin_container ul li.sf_admin_action_edit a
 {
-  padding-left: 20px;
   background: url(../images/edit.png) no-repeat 0 0;
 }
 
