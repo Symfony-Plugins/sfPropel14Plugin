@@ -54,8 +54,14 @@
 
   public function getListDisplay()
   {
-    return <?php echo $this->asPhp(isset($this->config['list']['display']) ? $this->config['list']['display'] : $this->getAllFieldNames(false)) ?>;
-<?php unset($this->config['list']['display']) ?>
+<?php if (isset($this->config['list']['display'])): ?>
+    return <?php echo $this->asPhp($this->config['list']['display']) ?>;
+<?php elseif (isset($this->config['list']['hide'])): ?>
+    return <?php echo $this->asPhp(array_diff($this->getAllFieldNames(false), $this->config['list']['hide'])) ?>;
+<?php else: ?>
+    return <?php echo $this->asPhp($this->getAllFieldNames(false)) ?>;
+<?php endif; ?>
+<?php unset($this->config['list']['display'], $this->config['list']['hide']) ?>
   }
 
   public function getFieldsDefault()
