@@ -25,11 +25,11 @@
       </trans-unit>
       <trans-unit>
         <source>Save and add</source>
-        <target>Gem og opret ny</target>
+        <target>Gem og tilføj</target>
       </trans-unit>
       <trans-unit>
         <source>Cancel</source>
-        <target>Fortryd</target>
+        <target>Annuler</target>
       </trans-unit>
 
       <!-- Filters -->
@@ -45,7 +45,7 @@
       <!-- List -->
       <trans-unit>
         <source>No result</source>
-        <target>Ingen resultater</target>
+        <target>Intet resultat</target>
       </trans-unit>
       <trans-unit>
         <source>Actions</source>
@@ -53,7 +53,7 @@
       </trans-unit>
       <trans-unit>
         <source>(page %%page%%/%%nb_pages%%)</source>
-        <target>(side %%page%%/%%nb_pages%%)</target>
+        <target>(side %%page%% af %%nb_pages%%)</target>
       </trans-unit>
       <trans-unit>
         <source>asc</source>
@@ -85,27 +85,47 @@
       <!-- Form -->
       <trans-unit>
         <source>The item was created successfully.</source>
-        <target>Nyt objekt blev oprettet.</target>
+        <target>Elementet er blevet tilføjet.</target>
       </trans-unit>
       <trans-unit>
         <source>The item was updated successfully.</source>
-        <target>Objekt er blevet opdateret.</target>
+        <target>Elementet er blevet opdateret.</target>
       </trans-unit>
       <trans-unit>
         <source>The item was created successfully. You can add another one below.</source>
-        <target>Objektet blev oprettet, du kan oprette et nyt nedenfor.</target>
+        <target>Elementet er blevet tilføjet, du kan tilføje endnu et element herunder.</target>
       </trans-unit>
       <trans-unit>
-        <source>The item was updated successully. You can add another one below.</source>
-        <target>Objekt blev opdateret, du kan opprette et nyt nedenfor.</target>
+        <source>The item was updated successfully. You can add another one below.</source>
+        <target>Elementet er blevet opdateret, du kan tilføje endnu et herunder.</target>
       </trans-unit>
       <trans-unit>
         <source>The item has not been saved due to some errors.</source>
-        <target>Objektet blev ikke gemt, fordi der opstod en fejltilstand.</target>
+        <target>Elementet er ikke blevet tilføjet, pga. fejl.</target>
       </trans-unit>
       <trans-unit>
         <source>The item was deleted successfully.</source>
-        <target>Objektet er slettet.</target>
+        <target>Elementet er blevet slettet.</target>
+      </trans-unit>
+      <trans-unit>
+        <source>You must at least select one item.</source>
+        <target>Du skal vælge mindst et element.</target>
+      </trans-unit>
+      <trans-unit>
+        <source>You must select an action to execute on the selected items.</source>
+        <target>Du skal vælge en handling, at udføre på de valgte elementer.</target>
+      </trans-unit>
+      <trans-unit>
+        <source>A problem occurs when deleting the selected items as some items do not exist anymore.</source>
+        <target>Et problem opstod ved sletning af de valgte elementer, da nogen af disse ikke eksisterer mere.</target>
+      </trans-unit>
+      <trans-unit>
+        <source>The selected items have been deleted successfully.</source>
+        <target>De valgte elementer er blevet slettet.</target>
+      </trans-unit>
+      <trans-unit>
+        <source>A problem occurs when deleting the selected items.</source>
+        <target>Der var et problem, med at slette de valgte elementer.</target>
       </trans-unit>
     </body>
   </file>
