@@ -107,6 +107,30 @@
         <source>The item was deleted successfully.</source>
         <target>Item removido com sucesso.</target>
       </trans-unit>
+      <trans-unit>
+        <source>The item was deleted successfully.</source>
+        <target>Ítem excluído com sucesso.</target>
+      </trans-unit>
+      <trans-unit>
+        <source>You must at least select one item.</source>
+        <target>Você deve selecionar pelo menos um ítem.</target>
+      </trans-unit>
+      <trans-unit>
+        <source>You must select an action to execute on the selected items.</source>
+        <target>Você deve selecionar uma ação a ser executada nos ítens selecionados.</target>
+      </trans-unit>
+      <trans-unit>
+        <source>A problem occurs when deleting the selected items as some items do not exist anymore.</source>
+        <target>Ocorreu um problema ao excluir os ítens selecionados pois alguns deles não existem mais.</target>
+      </trans-unit>
+      <trans-unit>
+        <source>The selected items have been deleted successfully.</source>
+        <target>Os ítens selecionados foram excluídos com sucesso.</target>
+      </trans-unit>
+      <trans-unit>
+        <source>A problem occurs when deleting the selected items.</source>
+        <target>Ocorreu um problema ao deletar os ítens selecionados.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
