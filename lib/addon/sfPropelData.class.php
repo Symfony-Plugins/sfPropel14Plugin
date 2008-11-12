@@ -230,7 +230,8 @@ class sfPropelData extends sfData
       return;
     }
 
-    foreach (array_reverse($files) as $file)
+    rsort($files);
+    foreach ($files as $file)
     {
       $data = sfYaml::load($file);
 
