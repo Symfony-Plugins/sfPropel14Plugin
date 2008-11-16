@@ -31,6 +31,14 @@
         <source>Cancel</source>
         <target>Abbrechen</target>
       </trans-unit>
+      <trans-unit>
+        <source>Choose an action</source>
+        <target>Eine Aktion wählen</target>
+      </trans-unit>
+      <trans-unit>
+        <source>go</source>
+        <target>ok</target>
+      </trans-unit>
 
       <!-- Filters -->
       <trans-unit>
@@ -62,6 +70,10 @@
       <trans-unit>
         <source>desc</source>
         <target>absteigend</target>
+      </trans-unit>
+      <trans-unit>
+        <source>[0] no result|[1] 1 result|(1,+Inf] %1% results</source>
+        <target>[0] kein Ergebnis|[1] 1 Ergebnis|(1,+Inf] %1% Ergebnisse</target>
       </trans-unit>
 
       <!-- Pagination -->
