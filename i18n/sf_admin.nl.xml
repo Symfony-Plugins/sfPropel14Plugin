@@ -31,6 +31,14 @@
         <source>Cancel</source>
         <target>Annuleren</target>
       </trans-unit>
+      <trans-unit>
+        <source>Choose an action</source>
+        <target>Kies een optie</target>
+      </trans-unit>
+      <trans-unit>
+        <source>go</source>
+        <target>ok</target>
+      </trans-unit>
 
       <!-- Filters -->
       <trans-unit>
@@ -62,6 +70,10 @@
       <trans-unit>
         <source>desc</source>
         <target>afl</target>
+      </trans-unit>
+      <trans-unit>
+        <source>[0] no result|[1] 1 result|(1,+Inf] %1% results</source> 
+        <target>[0] geen resultaat|[1] 1 resultaat|(1,+Inf] %1% resultaten</target>
       </trans-unit>
 
       <!-- Pagination -->
