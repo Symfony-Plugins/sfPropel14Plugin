@@ -9,7 +9,7 @@
       </trans-unit>
       <trans-unit>
         <source>Edit</source>
-        <target>Mettre à jour</target>
+        <target>Modifier</target>
       </trans-unit>
       <trans-unit>
         <source>Delete</source>
@@ -30,6 +30,14 @@
       <trans-unit>
         <source>Cancel</source>
         <target>Annuler</target>
+      </trans-unit>
+      <trans-unit>
+        <source>Choose an action</source>
+        <target>Choisir une action</target>
+      </trans-unit>
+      <trans-unit>
+        <source>go</source>
+        <target>ok</target>
       </trans-unit>
 
       <!-- Filters -->
@@ -62,6 +70,10 @@
       <trans-unit>
         <source>desc</source>
         <target>desc</target>
+      </trans-unit>
+      <trans-unit>
+        <source>[0] no result|[1] 1 result|(1,+Inf] %1% results</source>
+        <target>[0] aucun résultat|[1] 1 résultat|(1,+Inf] %1% résultats</target>
       </trans-unit>
 
       <!-- Pagination -->
