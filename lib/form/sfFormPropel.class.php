@@ -354,9 +354,9 @@ abstract class sfFormPropel extends sfForm
 
     foreach ($this->embeddedForms as $form)
     {
-      $form->saveEmbeddedForms($con);
       if ($form instanceof sfFormPropel)
       {
+        $form->saveEmbeddedForms($con);
         $form->getObject()->save($con);
       }
     }
