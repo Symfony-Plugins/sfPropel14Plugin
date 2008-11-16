@@ -183,6 +183,8 @@ abstract class sfFormPropel extends sfForm
   /**
    * Updates the values of the object with the cleaned up values.
    *
+   * @param  array $values An array of values
+   *
    * @return BaseObject The current updated object
    */
   public function updateObject($values = null)
@@ -197,15 +199,40 @@ abstract class sfFormPropel extends sfForm
     $this->object->fromArray($values, BasePeer::TYPE_FIELDNAME);
 
     // embedded forms
-    foreach ($this->embeddedForms as $name => $form)
+    $this->updateObjectEmbeddedForms($values);
+
+    return $this->object;
+  }
+
+  /**
+   * Updates the values of the objects in embedded forms.
+   *
+   * @param array $values An array of values
+   * @param array $forms  An array of forms
+   */
+  public function updateObjectEmbeddedForms($values, $forms = null)
+  {
+    if (is_null($forms))
     {
-      if ($form instanceof sfFormPropel && is_array($values[$name]))
+      $forms = $this->embeddedForms;
+    }
+
+    foreach ($forms as $name => $form)
+    {
+      if (!is_array($values[$name]))
+      {
+        continue;
+      }
+
+      if ($form instanceof sfFormPropel)
       {
         $form->updateObject($values[$name]);
       }
+      else
+      {
+        $this->updateObjectEmbeddedForms($values[$name], $form->getEmbeddedForms());
+      }
     }
-
-    return $this->object;
   }
 
   /**
@@ -343,21 +370,31 @@ abstract class sfFormPropel extends sfForm
   /**
    * Saves embedded form objects.
    *
-   * @param PropelPDO $con An optional PropelPDO object
+   * @param PropelPDO $con   An optional PropelPDO object
+   * @param array     $forms An array of forms
    */
-  public function saveEmbeddedForms($con = null)
+  public function saveEmbeddedForms($con = null, $forms = null)
   {
     if (is_null($con))
     {
       $con = $this->getConnection();
     }
 
-    foreach ($this->embeddedForms as $form)
+    if (is_null($forms))
+    {
+      $forms = $this->embeddedForms;
+    }
+
+    foreach ($forms as $form)
     {
       if ($form instanceof sfFormPropel)
       {
         $form->saveEmbeddedForms($con);
         $form->getObject()->save($con);
+      }
+      else
+      {
+        $this->saveEmbeddedForms($con, $form->getEmbeddedForms());
       }
     }
   }
