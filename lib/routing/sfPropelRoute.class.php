@@ -55,7 +55,7 @@ class sfPropelRoute extends sfObjectRoute
   {
     if (!isset($this->options['method']))
     {
-      $this->options['method'] = 'doSelectOne';
+      $this->options['method'] = isset($this->options['method_for_criteria']) ? $this->options['method_for_criteria'] : 'doSelectOne';
 
       $className = $this->options['model'];
       $criteria = new Criteria();
@@ -67,8 +67,15 @@ class sfPropelRoute extends sfObjectRoute
 
       foreach ($variables as $variable)
       {
-        $constant = call_user_func(array($className, 'translateFieldName'), $variable, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_COLNAME);
-        $criteria->add($constant, $parameters[$variable]);
+        try
+        {
+          $constant = call_user_func(array($className, 'translateFieldName'), $variable, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_COLNAME);
+          $criteria->add($constant, $parameters[$variable]);
+        }
+        catch (Exception $e)
+        {
+          // don't add Criteria if the variable cannot be mapped to a column
+        }
       }
 
       $parameters = $criteria;
@@ -81,7 +88,7 @@ class sfPropelRoute extends sfObjectRoute
   {
     if (!isset($this->options['method']))
     {
-      $this->options['method'] = 'doSelect';
+      $this->options['method'] = isset($this->options['method_for_criteria']) ? $this->options['method_for_criteria'] : 'doSelect';
       $parameters = new Criteria();
     }
 
@@ -105,7 +112,14 @@ class sfPropelRoute extends sfObjectRoute
     $parameters = array();
     foreach ($this->getRealVariables() as $variable)
     {
-      $method = 'get'.call_user_func(array($className, 'translateFieldName'), $variable, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_PHPNAME);
+      try
+      {
+        $method = 'get'.call_user_func(array($className, 'translateFieldName'), $variable, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_PHPNAME);
+      }
+      catch (Exception $e)
+      {
+        $method = 'get'.sfInflector::camelize($variable);
+      }
 
       $parameters[$variable] = $object->$method();
     }
