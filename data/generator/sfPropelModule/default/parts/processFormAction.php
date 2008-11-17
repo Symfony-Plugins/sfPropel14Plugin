@@ -1,6 +1,6 @@
   protected function processForm(sfWebRequest $request, sfForm $form)
   {
-    $form->bind($request->getParameter('<?php echo $this->getFormParameterName() ?>'));
+    $form->bind($request->getParameter($form->getName()));
     if ($form->isValid())
     {
       $<?php echo $this->getSingularName() ?> = $form->save();

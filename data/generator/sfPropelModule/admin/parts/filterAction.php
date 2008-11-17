@@ -9,7 +9,7 @@
 
     $this->filters = $this->configuration->getFilterForm($this->getFilters());
 
-    $this->filters->bind($request->getParameter('<?php echo $this->getFormParameterName() ?>_filters'));
+    $this->filters->bind($request->getParameter($this->filters->getName()));
     if ($this->filters->isValid())
     {
       $this->setFilters($this->filters->getValues());
