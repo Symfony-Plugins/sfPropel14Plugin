@@ -87,7 +87,7 @@ EOF;
     // is it a model class name
     if (!class_exists($arguments['route_or_model']))
     {
-      throw new sfCommandException(sprintf('The route "%s" does not exist and there is no "%s" class.', $arguments['route_or_model']));
+      throw new sfCommandException(sprintf('The route "%s" does not exist and there is no "%s" class.', $arguments['route_or_model'], $arguments['route_or_model']));
     }
 
     $r = new ReflectionClass($arguments['route_or_model']);
