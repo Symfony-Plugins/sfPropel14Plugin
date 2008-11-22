@@ -77,7 +77,7 @@ class sfValidatorPropelUnique extends sfValidatorSchema
     {
       $this->setOption('column', array($this->getOption('column')));
     }
-    
+
     if (!is_array($field = $this->getOption('field')))
     {
       $this->setOption('field', $field ? array($field) : array());
@@ -87,9 +87,16 @@ class sfValidatorPropelUnique extends sfValidatorSchema
     $criteria = new Criteria();
     foreach ($this->getOption('column') as $i => $column)
     {
+      $name = isset($fields[$i]) ? $fields[$i] : $column;
+      if (!array_key_exists($name, $values))
+      {
+        // one of the column has be removed from the form
+        return $values;
+      }
+
       $colName = call_user_func(array(constant($this->getOption('model').'::PEER'), 'translateFieldName'), $column, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_COLNAME);
 
-      $criteria->add($colName, $values[isset($fields[$i]) ? $fields[$i] : $column]);
+      $criteria->add($colName, $values[$name]);
     }
 
     $object = call_user_func(array(constant($this->getOption('model').'::PEER'), 'doSelectOne'), $criteria, $this->getOption('connection'));
