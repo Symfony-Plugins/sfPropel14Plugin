@@ -83,16 +83,20 @@ class sfPropelCrudGenerator extends sfAdminGenerator
     $classes = sfFinder::type('file')->name('*MapBuilder.php')->in($this->generatorManager->getConfiguration()->getModelDirs());
     foreach ($classes as $class)
     {
-      $class_map_builder = basename($class, '.php');
-      $maps[$class_map_builder] = new $class_map_builder();
-      if (!$maps[$class_map_builder]->isBuilt())
+      $omClass = basename($class, 'MapBuilder.php');
+      if (class_exists($omClass) && is_subclass_of($omClass, 'BaseObject'))
       {
-        $maps[$class_map_builder]->doBuild();
-      }
+        $class_map_builder = basename($class, '.php');
+        $maps[$class_map_builder] = new $class_map_builder();
+        if (!$maps[$class_map_builder]->isBuilt())
+        {
+          $maps[$class_map_builder]->doBuild();
+        }
 
-      if ($this->className == str_replace('MapBuilder', '', $class_map_builder))
-      {
-        $this->map = $maps[$class_map_builder];
+        if ($this->className == $omClass)
+        {
+          $this->map = $maps[$class_map_builder];
+        }
       }
     }
     if (!$this->map)

@@ -77,9 +77,16 @@ class sfPropelManyToMany
     $classes = sfFinder::type('file')->name('*MapBuilder.php')->in(sfProjectConfiguration::getActive()->getModelDirs());
     foreach ($classes as $class)
     {
-      $class_map_builder = basename($class, '.php');
-      $map = new $class_map_builder();
-      $map->doBuild();
+      $omClass = basename($class, 'MapBuilder.php');
+      if (class_exists($omClass) && is_subclass_of($omClass, 'BaseObject'))
+      {
+        $class_map_builder = basename($class, '.php');
+        $map = new $class_map_builder();
+        if (!$map->isBuilt())
+        {
+          $map->doBuild();
+        }
+      }
     }
 
     $tableMap = call_user_func(array(constant($middleClass.'::PEER'), 'getTableMap'));

@@ -273,9 +273,16 @@ class sfPropelData extends sfData
     $files = sfFinder::type('file')->name('*MapBuilder.php')->in(sfProjectConfiguration::getActive()->getModelDirs());
     foreach ($files as $file)
     {
-      $mapBuilderClass = basename($file, '.php');
-      $map = new $mapBuilderClass();
-      $map->doBuild();
+      $omClass = basename($file, 'MapBuilder.php');
+      if (class_exists($omClass) && is_subclass_of($omClass, 'BaseObject'))
+      {
+        $mapBuilderClass = basename($file, '.php');
+        $map = new $mapBuilderClass();
+        if (!$map->isBuilt())
+        {
+          $map->doBuild();
+        }
+      }
     }
   }
 

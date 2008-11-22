@@ -479,11 +479,15 @@ class sfPropelFormGenerator extends sfGenerator
     $classes = sfFinder::type('file')->name('*MapBuilder.php')->in($this->generatorManager->getConfiguration()->getModelDirs());
     foreach ($classes as $class)
     {
-      $class = basename($class, '.php');
-      $map = new $class();
-      if (!$map->isBuilt())
+      $omClass = basename($class, 'MapBuilder.php');
+      if (class_exists($omClass) && is_subclass_of($omClass, 'BaseObject'))
       {
-        $map->doBuild();
+        $class = basename($class, '.php');
+        $map = new $class();
+        if (!$map->isBuilt())
+        {
+          $map->doBuild();
+        }
       }
     }
   }
