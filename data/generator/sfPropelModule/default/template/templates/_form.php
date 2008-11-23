@@ -24,7 +24,7 @@
 <?php if (isset($this->params['route_prefix']) && $this->params['route_prefix']): ?>
             &nbsp;[?php echo link_to('Delete', '<?php echo $this->getUrlForAction('delete') ?>', $form->getObject(), array('method' => 'delete', 'confirm' => 'Are you sure?')) ?]
 <?php else: ?>
-            &nbsp;[?php echo link_to('Delete', '<?php echo $this->getModuleName() ?>/delete?<?php echo $this->getPrimaryKeyUrlParams('$form->getObject()', true) ?>, array('post' => true, 'confirm' => 'Are you sure?')) ?]
+            &nbsp;[?php echo link_to('Delete', '<?php echo $this->getModuleName() ?>/delete?<?php echo $this->getPrimaryKeyUrlParams('$form->getObject()', true) ?>, array('method' => 'delete', 'confirm' => 'Are you sure?')) ?]
 <?php endif; ?>
           [?php endif; ?]
           <input type="submit" value="Save" />
