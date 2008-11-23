@@ -57,7 +57,7 @@
   background: url(../images/error.png) no-repeat 4px 4px;
 }
 
-#sf_admin_containertr:hover
+#sf_admin_container tr:hover
 {
   background-color: #ffe;
 }
