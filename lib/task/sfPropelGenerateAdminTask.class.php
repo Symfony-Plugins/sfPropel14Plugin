@@ -106,6 +106,23 @@ EOF;
 
     if (!isset($routesArray[$name]))
     {
+      $class = $model.'MapBuilder';
+      $map = new $class();
+      if (!$map->isBuilt())
+      {
+        $map->doBuild();
+      }
+
+      $primaryKey = 'id';
+      foreach ($map->getDatabaseMap()->getTable(constant(constant($model.'::PEER').'::TABLE_NAME'))->getColumns() as $column)
+      {
+        if ($column->isPrimaryKey())
+        {
+          $primaryKey = call_user_func(array(constant($model.'::PEER'), 'translateFieldName'), $column->getPhpName(), BasePeer::TYPE_PHPNAME, BasePeer::TYPE_FIELDNAME);
+          break;
+        }
+      }
+
       $module = $options['module'] ? $options['module'] : $name;
       $content = sprintf(<<<EOF
 %s:
@@ -114,11 +131,12 @@ EOF;
     model:               %s
     module:              %s
     prefix_path:         %s
+    column:              %s
     with_wilcard_routes: true
 
 
 EOF
-      , $name, $model, $module, $module).$content;
+      , $name, $model, $module, $module, $primaryKey).$content;
 
       file_put_contents($routing, $content);
     }
