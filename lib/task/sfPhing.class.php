@@ -22,4 +22,15 @@ class sfPhing extends Phing
   {
     return 'sfPhing';
   }
+
+  function runBuild() {
+    // workaround for included phing 2.3 which by default loads many tasks
+    // that are not needed and incompatible (eg phing.tasks.ext.FtpDeployTask)
+    // by placing current directory on the include path our defaults will be loaded
+    // see ticket #5054
+    $includePath = ini_get('include_path');
+    ini_set('include_path',dirname(__FILE__).PATH_SEPARATOR.$includePath);
+    parent::runBuild();
+    ini_set('include_path',$includePath);
+  }
 }
