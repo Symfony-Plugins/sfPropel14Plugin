@@ -67,7 +67,7 @@ $b->
   with('form')->begin()->
     hasErrors(1)->
     hasGlobalError(false)->
-    isError('name', 'An object with the same "name" already exist.')->
+    isError('name', 'invalid')->
   end()->
   checkResponseElement('td[colspan="2"] .error_list li', 0)->
   checkResponseElement('.error_list li', 'An object with the same "name" already exist.')->
@@ -83,7 +83,7 @@ $b->
   click('submit', array('category' => array('name' => 'foo'), 'global' => 1))->
   with('form')->begin()->
     hasErrors(1)->
-    hasGlobalError('An object with the same "name" already exist.')->
+    hasGlobalError('invalid')->
     isError('name', false)->
   end()->
   checkResponseElement('td[colspan="2"] .error_list li', 'An object with the same "name" already exist.')->
