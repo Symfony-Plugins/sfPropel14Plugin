@@ -33,7 +33,7 @@ function sf_functional_test_shutdown()
 // remove all cache
 sf_functional_test_shutdown();
 
-$configuration->initializePropel();
+$configuration->initializePropel($app);
 if (isset($fixtures))
 {
   $configuration->loadFixtures($fixtures);
