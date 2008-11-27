@@ -114,7 +114,6 @@ class sfPropelData extends sfData
 
         foreach ($data as $name => $value)
         {
-          // will need to be updated for Propel 1.3
           if (is_array($value) && 's' == substr($name, -1))
           {
             // many to many relationship
