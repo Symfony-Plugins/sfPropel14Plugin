@@ -42,9 +42,9 @@ abstract class sfPropelBaseTask extends sfBaseTask
     }
   }
 
-  protected function createConfiguration($application, $env, $isDebug)
+  protected function createConfiguration($application, $env)
   {
-    $configuration = parent::createConfiguration($application, $env, $isDebug);
+    $configuration = parent::createConfiguration($application, $env);
 
     $autoloader = sfSimpleAutoload::getInstance();
     $config = new sfAutoloadConfigHandler();
