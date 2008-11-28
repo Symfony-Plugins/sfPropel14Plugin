@@ -256,6 +256,17 @@ class sfPropelFormFilterGenerator extends sfPropelFormGenerator
     return count($options) ? sprintf('array(%s)', implode(', ', $options)) : '';
   }
 
+  public function getValidatorForColumn($column)
+  {
+    $format = 'new %s(%s)';
+    if ('sfValidatorInteger' == $class = $this->getValidatorClassForColumn($column))
+    {
+      $format = 'new sfValidatorSchemaFilter(\'text\', new %s(%s))';
+    }
+
+    return sprintf($format, $class, $this->getValidatorOptionsForColumn($column));
+  }
+
   public function getType(ColumnMap $column)
   {
     if ($column->isForeignKey())
@@ -271,6 +282,8 @@ class sfPropelFormFilterGenerator extends sfPropelFormGenerator
       case PropelColumnTypes::TIME:
       case PropelColumnTypes::TIMESTAMP:
         return 'Date';
+      case PropelColumnTypes::INTEGER:
+        return 'Number';
       default:
         return 'Text';
     }

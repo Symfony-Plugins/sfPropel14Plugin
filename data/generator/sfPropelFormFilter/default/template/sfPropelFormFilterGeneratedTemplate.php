@@ -27,7 +27,7 @@ class Base<?php echo $this->table->getClassname() ?>FormFilter extends BaseFormF
     $this->setValidators(array(
 <?php foreach ($this->table->getColumns() as $column): ?>
 <?php if ($column->isPrimaryKey()) continue ?>
-      '<?php echo strtolower($column->getColumnName()) ?>'<?php echo str_repeat(' ', $this->getColumnNameMaxLength() - strlen($column->getColumnName())) ?> => new <?php echo $this->getValidatorClassForColumn($column) ?>(<?php echo $this->getValidatorOptionsForColumn($column) ?>),
+      '<?php echo strtolower($column->getColumnName()) ?>'<?php echo str_repeat(' ', $this->getColumnNameMaxLength() - strlen($column->getColumnName())) ?> => <?php echo $this->getValidatorForColumn($column) ?>,
 <?php endforeach; ?>
 <?php foreach ($this->getManyToManyTables() as $tables): ?>
       '<?php echo $this->underscore($tables['middleTable']->getClassname()) ?>_list'<?php echo str_repeat(' ', $this->getColumnNameMaxLength() - strlen($this->underscore($tables['middleTable']->getClassname()).'_list')) ?> => new sfValidatorPropelChoice(array('model' => '<?php echo $tables['relatedTable']->getClassname() ?>', 'required' => false)),

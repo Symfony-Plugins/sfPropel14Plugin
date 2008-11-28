@@ -178,9 +178,25 @@ abstract class sfFormFilterPropel extends sfFormFilter
       $criterion->addOr($criteria->getNewCriterion($colname, null, Criteria::ISNULL));
       $criteria->add($criterion);
     }
-    else if (isset($values['text']) && '' != $values['text'])
+    else if (is_array($values) && isset($values['text']) && '' != $values['text'])
     {
       $criteria->add($colname, '%'.$values['text'].'%', Criteria::LIKE);
+    }
+  }
+
+  protected function addNumberCriteria(Criteria $criteria, $field, $values)
+  {
+    $colname = $this->getColname($field);
+
+    if (is_array($values) && isset($values['is_empty']) && $values['is_empty'])
+    {
+      $criterion = $criteria->getNewCriterion($colname, '');
+      $criterion->addOr($criteria->getNewCriterion($colname, null, Criteria::ISNULL));
+      $criteria->add($criterion);
+    }
+    else if (is_array($values) && isset($values['text']) && '' != $values['text'])
+    {
+      $criteria->add($colname, $values['text']);
     }
   }
 
