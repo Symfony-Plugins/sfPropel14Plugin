@@ -220,8 +220,7 @@ class CrudBrowser extends sfTestBrowser
     $this->
       info('delete')->
       get(sprintf('/%s/3/edit', $this->urlPrefix))->
-
-      click('Delete', array(), array('method' => 'delete'))->
+      click('Delete', array(), array('method' => 'delete', '_with_csrf' => true))->
       isStatusCode(302)->
       isRequestParameter('module', $this->urlPrefix)->
       isRequestParameter('action', 'delete')->
