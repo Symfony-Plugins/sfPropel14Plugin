@@ -14,7 +14,9 @@
     <tfoot>
       <tr>
         <td colspan="2">
+<?php if (!isset($this->params['non_verbose_templates']) || !$this->params['non_verbose_templates']): ?>
           [?php echo $form->renderHiddenFields() ?]
+<?php endif; ?>
 <?php if (isset($this->params['route_prefix']) && $this->params['route_prefix']): ?>
           &nbsp;<a href="[?php echo url_for('<?php echo $this->getUrlForAction('list') ?>') ?]">Cancel</a>
 <?php else: ?>
