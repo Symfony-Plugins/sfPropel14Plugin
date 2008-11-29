@@ -67,26 +67,10 @@
   public function getFieldsDefault()
   {
     return array(
-<?php foreach ($this->getTableMap()->getColumns() as $column): $name = sfInflector::underscore($column->getName()) ?>
-      '<?php echo $name ?>' => <?php echo $this->asPhp(array_merge(array(
-        'is_link'      => (Boolean) $column->isPrimaryKey(),
-        'is_real'      => true,
-        'is_partial'   => false,
-        'is_component' => false,
-        'type'         => $this->getType($column),
-      ), isset($this->config['fields'][sfInflector::underscore($column->getName())]) ? $this->config['fields'][sfInflector::underscore($column->getName())] : array())) ?>,
-<?php endforeach; ?>
-<?php foreach ($this->getManyToManyTables() as $tables): $name = sfInflector::underscore($tables['middleTable']->getClassname()).'_list' ?>
-      '<?php echo $name ?>' => <?php echo $this->asPhp(array_merge(array(
-        'is_link'      => false,
-        'is_real'      => false,
-        'is_partial'   => false,
-        'is_component' => false,
-        'type'         => 'Text',
-      ), isset($this->config['fields'][$name]) ? $this->config['fields'][$name] : array())) ?>,
+<?php foreach ($this->getDefaultFieldsConfiguration() as $name => $params): ?>
+      '<?php echo $name ?>' => <?php echo $this->asPhp($params) ?>,
 <?php endforeach; ?>
     );
-<?php unset($this->config['fields']) ?>
   }
 
 <?php foreach (array('list', 'filter', 'form', 'edit', 'new') as $context): ?>

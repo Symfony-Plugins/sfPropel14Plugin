@@ -216,6 +216,66 @@ class sfPropelGenerator extends sfModelGenerator
   }
 
   /**
+   * Returns the default configuration for fields.
+   *
+   * @return array An array of default configuration for all fields
+   */
+  public function getDefaultFieldsConfiguration()
+  {
+    $fields = array();
+
+    $names = array();
+    foreach ($this->getTableMap()->getColumns() as $column)
+    {
+      $name = sfInflector::underscore($column->getName());
+      $names[] = $name;
+      $fields[$name] = array_merge(array(
+        'is_link'      => (Boolean) $column->isPrimaryKey(),
+        'is_real'      => true,
+        'is_partial'   => false,
+        'is_component' => false,
+        'type'         => $this->getType($column),
+      ), isset($this->config['fields'][$name]) ? $this->config['fields'][$name] : array());
+    }
+
+    foreach ($this->getManyToManyTables() as $tables)
+    {
+      $name = sfInflector::underscore($tables['middleTable']->getClassname()).'_list';
+      $names[] = $name;
+      $fields[$name] = array_merge(array(
+        'is_link'      => false,
+        'is_real'      => false,
+        'is_partial'   => false,
+        'is_component' => false,
+        'type'         => 'Text',
+      ), isset($this->config['fields'][$name]) ? $this->config['fields'][$name] : array());
+    }
+
+    if (isset($this->config['fields']))
+    {
+      foreach ($this->config['fields'] as $name => $params)
+      {
+        if (in_array($name, $names))
+        {
+          continue;
+        }
+
+        $fields[$name] = array_merge(array(
+          'is_link'      => false,
+          'is_real'      => false,
+          'is_partial'   => false,
+          'is_component' => false,
+          'type'         => 'Text',
+        ), is_array($params) ? $params : array());
+      }
+    }
+
+    unset($this->config['fields']);
+
+    return $fields;
+  }
+
+  /**
    * Returns the configuration for fields in a given context.
    *
    * @param  string $context The Context
