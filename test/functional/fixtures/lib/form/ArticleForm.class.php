@@ -11,5 +11,9 @@ class ArticleForm extends BaseArticleForm
 {
   public function configure()
   {
+    if ($category = $this->getObject()->getCategory())
+    {
+      $this->embedForm('category', new CategoryForm($this->getObject()->getCategory()));
+    }
   }
 }

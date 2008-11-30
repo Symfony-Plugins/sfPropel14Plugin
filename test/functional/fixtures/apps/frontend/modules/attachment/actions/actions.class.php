@@ -20,9 +20,6 @@ class attachmentActions extends sfActions
 
       if ($this->form->isValid())
       {
-        $file = $this->form->getValue('file');
-        $file->save(sfConfig::get('sf_cache_dir').'/uploaded'.$file->getExtension($file->getOriginalExtension()));
-
         $this->form->save();
 
         $this->redirect('attachment/ok');
