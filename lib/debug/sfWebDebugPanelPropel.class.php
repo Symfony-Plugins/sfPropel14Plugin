@@ -34,7 +34,7 @@ class sfWebDebugPanelPropel extends sfWebDebugPanel
   {
     if ($sqlLogs = $this->getSqlLogs())
     {
-      return '<img src="'.$this->webDebug->getOption('image_root_path').'/database.png" alt="SQL Queries" /> '.count($sqlLogs);
+      return '<img src="'.$this->webDebug->getOption('image_root_path').'/database.png" alt="SQL Logs" /> '.count($sqlLogs);
     }
   }
 
