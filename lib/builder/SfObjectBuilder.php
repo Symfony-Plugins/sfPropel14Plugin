@@ -21,15 +21,9 @@ class SfObjectBuilder extends PHP5ObjectBuilder
   public function build()
   {
     $objectCode = parent::build();
-    if (!DataModelBuilder::getBuildProperty('builderAddComments'))
+    if (!$this->getBuildProperty('builderAddComments'))
     {
       $objectCode = sfToolkit::stripComments($objectCode);
-    }
-
-    if(!DataModelBuilder::getBuildProperty('builderAddIncludes'))
-    {
-       // remove all inline includes: object classes include the peers
-      $objectCode = preg_replace("/include_once\s*.*Base.*Peer\.php.*\s*/", "", $objectCode);
     }
 
     return $objectCode;
@@ -52,7 +46,7 @@ class SfObjectBuilder extends PHP5ObjectBuilder
       $this->addI18nMethods($script);
     }
 
-    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
+    if ($this->getBuildProperty('builderAddBehaviors'))
     {
       $this->addCall($script);
     }
@@ -241,7 +235,7 @@ $script .= '
     $tmp = '';
     parent::addDelete($tmp);
 
-    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
+    if ($this->getBuildProperty('builderAddBehaviors'))
     {
       // add sfMixer call
       $pre_mixer_script = "
@@ -308,7 +302,7 @@ $script .= '
     }
     $tmp = preg_replace('/{/', '{'.$date_script, $tmp, 1);
 
-    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
+    if ($this->getBuildProperty('builderAddBehaviors'))
     {
       // add sfMixer call
       $pre_mixer_script = "

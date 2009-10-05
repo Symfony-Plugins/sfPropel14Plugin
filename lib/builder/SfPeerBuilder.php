@@ -21,16 +21,9 @@ class SfPeerBuilder extends PHP5PeerBuilder
   public function build()
   {
     $peerCode = parent::build();
-    if (!DataModelBuilder::getBuildProperty('builderAddComments'))
+    if (!$this->getBuildProperty('builderAddComments'))
     {
       $peerCode =  sfToolkit::stripComments($peerCode);
-    }
-
-    if (!DataModelBuilder::getBuildProperty('builderAddIncludes'))
-    {
-      // remove all inline includes: peer class include inline the mapbuilder classes
-      $peerCode = preg_replace("/(include|require)_once\s*.*Base.*Peer\.php.*\s*/", "", $peerCode);
-      $peerCode = preg_replace("/(include|require)_once\s*.*TableMap\.php.*\s*/", "", $peerCode);
     }
 
     // change Propel::import() calls to sfPropel::import()
@@ -147,7 +140,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
     }
 ";
 
-    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
+    if ($this->getBuildProperty('builderAddBehaviors'))
     {
       $script .= "
 
@@ -243,7 +236,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
     $tmp = '';
     parent::addDoSelectStmt($tmp);
 
-    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
+    if ($this->getBuildProperty('builderAddBehaviors'))
     {
       $mixer_script = "
 
@@ -265,7 +258,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
     $tmp = '';
     parent::addDoSelectJoin($tmp);
 
-    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
+    if ($this->getBuildProperty('builderAddBehaviors'))
     {
       $mixer_script = "
 
@@ -286,7 +279,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
     $tmp = '';
     parent::addDoSelectJoinAll($tmp);
 
-    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
+    if ($this->getBuildProperty('builderAddBehaviors'))
     {
       $mixer_script = "
 
@@ -307,7 +300,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
     $tmp = '';
     parent::addDoSelectJoinAllExcept($tmp);
 
-    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
+    if ($this->getBuildProperty('builderAddBehaviors'))
     {
       $mixer_script = "
 
@@ -328,7 +321,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
     $tmp = '';
     parent::addDoUpdate($tmp);
 
-    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
+    if ($this->getBuildProperty('builderAddBehaviors'))
     {
       // add sfMixer call
       $pre_mixer_script = "
@@ -366,7 +359,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
     $tmp = '';
     parent::addDoInsert($tmp);
 
-    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
+    if ($this->getBuildProperty('builderAddBehaviors'))
     {
       // add sfMixer call
       $pre_mixer_script = "
@@ -532,7 +525,7 @@ EOF;
 						$script .= "), \$join_behavior);
 ";
 
-    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
+    if ($this->getBuildProperty('builderAddBehaviors'))
     {
       $script .= "
 
@@ -646,7 +639,7 @@ EOF;
 			} // if fk->getForeignTableName != table->getName
 		} // foreach [sub] foreign keys
 
-    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
+    if ($this->getBuildProperty('builderAddBehaviors'))
     {
       $script .= "
 
@@ -766,7 +759,7 @@ EOF;
 			} // foreach fkeys
 
 
-    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
+    if ($this->getBuildProperty('builderAddBehaviors'))
     {
       $script .= "
 
@@ -835,7 +828,7 @@ EOF;
 			\$con = Propel::getConnection(".$this->getPeerClassname()."::DATABASE_NAME, Propel::CONNECTION_READ);
 		}
 ";
-    if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
+    if ($this->getBuildProperty('builderAddBehaviors'))
     {
       $script .= "
 

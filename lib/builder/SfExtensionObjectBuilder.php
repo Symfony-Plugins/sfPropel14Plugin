@@ -22,7 +22,7 @@ class SfExtensionObjectBuilder extends PHP5ExtensionObjectBuilder
   public function build()
   {
     $code = parent::build();
-    if (!DataModelBuilder::getBuildProperty('builderAddComments'))
+    if (!$this->getBuildProperty('builderAddComments'))
     {
       $code = sfToolkit::stripComments($code);
     }
