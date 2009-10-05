@@ -52,28 +52,9 @@ class SfObjectBuilder extends PHP5ObjectBuilder
       $this->addI18nMethods($script);
     }
 
-    $this->addToString($script);
-
     if (DataModelBuilder::getBuildProperty('builderAddBehaviors'))
     {
       $this->addCall($script);
-    }
-  }
-
-  protected function addToString(&$script)
-  {
-    foreach ($this->getTable()->getColumns() as $column)
-    {
-      if ($column->getAttribute('isPrimaryString'))
-      {
-        $script .= "
-  public function __toString()
-  {
-    return \$this->get{$column->getPhpName()}();
-  }
-";
-        break;
-      }
     }
   }
 
