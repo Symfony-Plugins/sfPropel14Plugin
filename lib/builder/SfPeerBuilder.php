@@ -30,7 +30,7 @@ class SfPeerBuilder extends PHP5PeerBuilder
     {
       // remove all inline includes: peer class include inline the mapbuilder classes
       $peerCode = preg_replace("/(include|require)_once\s*.*Base.*Peer\.php.*\s*/", "", $peerCode);
-      $peerCode = preg_replace("/(include|require)_once\s*.*MapBuilder\.php.*\s*/", "", $peerCode);
+      $peerCode = preg_replace("/(include|require)_once\s*.*TableMap\.php.*\s*/", "", $peerCode);
     }
 
     // change Propel::import() calls to sfPropel::import()
