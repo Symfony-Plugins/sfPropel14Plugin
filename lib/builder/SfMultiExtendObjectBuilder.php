@@ -29,16 +29,6 @@ class SfMultiExtendObjectBuilder extends PHP5MultiExtendObjectBuilder
     return $code;
   }
 
-  protected function addIncludes(&$script)
-  {
-    if (!DataModelBuilder::getBuildProperty('builderAddIncludes'))
-    {
-      return;
-    }
-
-    parent::addIncludes($script);
-  }
-
   protected function addClassOpen(&$script)
   {
     parent::addClassOpen($script);

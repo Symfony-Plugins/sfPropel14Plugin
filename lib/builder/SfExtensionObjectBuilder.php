@@ -30,16 +30,6 @@ class SfExtensionObjectBuilder extends PHP5ExtensionObjectBuilder
     return $code;
   }
 
-  protected function addIncludes(&$script)
-  {
-    if (!DataModelBuilder::getBuildProperty('builderAddIncludes'))
-    {
-      return;
-    }
-
-    parent::addIncludes($script);
-  }
-
   /**
    * Adds class phpdoc comment and openning of class.
    *

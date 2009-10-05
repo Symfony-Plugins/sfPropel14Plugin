@@ -29,16 +29,6 @@ class SfExtensionPeerBuilder extends PHP5ExtensionPeerBuilder
     return $code;
   }
 
-  protected function addIncludes(&$script)
-  {
-    if (!DataModelBuilder::getBuildProperty('builderAddIncludes'))
-    {
-      return;
-    }
-
-    parent::addIncludes($script);
-  }
-
   /**
    * Adds class phpdoc comment and openning of class.
    *

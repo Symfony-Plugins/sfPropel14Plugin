@@ -28,14 +28,4 @@ class SfNestedSetBuilder extends PHP5NestedSetBuilder
 
     return $code;
   }
-
-  protected function addIncludes(&$script)
-  {
-    if (!DataModelBuilder::getBuildProperty('builderAddIncludes'))
-    {
-      return;
-    }
-
-    parent::addIncludes($script);
-  }
 }

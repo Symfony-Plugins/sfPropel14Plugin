@@ -35,27 +35,6 @@ class SfObjectBuilder extends PHP5ObjectBuilder
     return $objectCode;
   }
 
-  protected function addIncludes(&$script)
-  {
-    if (!DataModelBuilder::getBuildProperty('builderAddIncludes'))
-    {
-      return;
-    }
-
-    parent::addIncludes($script);
-
-    // include the i18n classes if needed
-    if ($this->getTable()->getAttribute('isI18N'))
-    {
-      $relatedTable = $this->getDatabase()->getTable($this->getTable()->getAttribute('i18nTable'));
-
-      $script .= '
-require_once \''.ClassTools::getFilePath($this->getStubObjectBuilder()->getPackage().'.', $relatedTable->getPhpName().'Peer').'\';
-require_once \''.ClassTools::getFilePath($this->getStubObjectBuilder()->getPackage().'.', $relatedTable->getPhpName()).'\';
-';
-    }
-  }
-
   protected function addClassBody(&$script)
   {
     parent::addClassBody($script);

@@ -39,16 +39,6 @@ class SfPeerBuilder extends PHP5PeerBuilder
     return $peerCode;
   }
 
-  protected function addIncludes(&$script)
-  {
-    if (!DataModelBuilder::getBuildProperty('builderAddIncludes'))
-    {
-      return;
-    }
-
-    parent::addIncludes($script);
-  }
-
   protected function addConstantsAndAttributes(&$script)
   {
     $boolean = $this->getTable()->getAttribute('isI18N') ? 'true' : 'false';
